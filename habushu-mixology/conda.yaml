@@ -1,0 +1,7 @@
+channels:
+- defaults
+- conda-forge
+dependencies:
+- python=3.7.4
+- flask
+name: habushu-mixology
