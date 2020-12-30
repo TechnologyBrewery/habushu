@@ -22,10 +22,17 @@
 				<version>${project.version}</version>
 				<executions>					
 					<execution>
-						<id>compile</id>
+						<id>habushu-environment</id>
 						<phase>compile</phase>
 						<goals>
 							<goal>habushu-maven-plugin</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>habushu-test</id>
+						<phase>test</phase>
+						<goals>
+							<goal>behave</goal>
 						</goals>
 					</execution>
 				</executions>

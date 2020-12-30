@@ -18,6 +18,7 @@ import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.LogOutputStream;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 
 /**
@@ -59,7 +60,8 @@ public class CondaExecutor {
         try {
             exitValue = execute(logger, stdout, stderr);
         } catch (Throwable e) {
-            throw new HabushuException("Counld not invoke command! " + stderr, e);
+            System.out.print(stderr.toString());
+            throw new HabushuException("Could not invoke command! See output above.", e);
         }
         if (exitValue == 0) {
             return stdout.toString().trim();
@@ -70,7 +72,21 @@ public class CondaExecutor {
 
     public int executeAndRedirectOutput(final Logger logger) {
         OutputStream stdout = new LoggerOutputStream(logger, 0);
-        return execute(logger, stdout, stdout);
+        ByteArrayOutputStream stderr = new ByteArrayOutputStream();
+        
+        try {                  
+            return execute(logger, stdout, stderr);
+            
+        } catch (Throwable e) {
+            System.out.print(stderr.toString());
+            throw new HabushuException("Could not invoke command! See output above.", e);
+            
+        } finally {
+            IOUtils.closeQuietly(stdout);
+            IOUtils.closeQuietly(stderr);
+            
+        }
+
     }
 
     private int execute(final Logger logger, final OutputStream stdout, final OutputStream stderr) {
