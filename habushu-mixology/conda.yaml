@@ -3,5 +3,5 @@ channels:
 - conda-forge
 dependencies:
 - python=3.7.4
-- flask
+- behave
 name: habushu-mixology
