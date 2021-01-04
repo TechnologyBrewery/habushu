@@ -24,6 +24,12 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     private static final String DEFAULT_CONDA_CONFIGURATION_FILE_NAME = "conda.yaml";
 
     /**
+     * The path to conda that will be used for this build.
+     */
+    @Parameter(property = "condaInstallPath", required = false)
+    protected File condaInstallPath;
+    
+    /**
      * The conda configuration file (e.g., yaml file) for this module. Each module can have EXACTLY ONE conda
      * configuration file.
      */
@@ -52,6 +58,8 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * Represents the environment we want to use for this build.
      */
     protected String environmentName;
+    
+    
 
     /**
      * Handles basic set up used across steps so that the current environments and environment name are available.
@@ -59,8 +67,9 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * {@inheritDoc}
      */
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void execute() throws MojoExecutionException, MojoFailureException {                
         createWorkingDirectoryIfNeeded();
+        establishCondaInstallPath();
 
         Logger logger = getLogger();
 
@@ -153,9 +162,16 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
         List<String> commands = new ArrayList<>();
         commands.add("/bin/sh");
         commands.add("-c");
-        commands.add("/usr/local/anaconda3/bin/conda " + command);
+        commands.add(getCanonicalPathForFile(condaInstallPath) + " " + command);
         CondaExecutor executor = new CondaExecutor(workingDirectory, commands, Platform.guess(), new HashMap<>());
         return executor;
+    }
+    
+    private void establishCondaInstallPath() {
+        String condaExe = System.getenv("CONDA_EXE");
+        condaInstallPath = new File(condaExe);
+        getLogger().debug("Using the following conda path for this plugin: {}", condaExe);
+
     }
 
     /**
