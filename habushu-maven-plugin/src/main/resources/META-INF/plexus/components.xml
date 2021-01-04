@@ -1,0 +1,30 @@
+<component-set>
+	<components>
+		<component>
+			<role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
+			<role-hint>habushu</role-hint>
+			<implementation>org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping
+			</implementation>
+			<configuration>
+				<!-- NOTE: when changing these, it will take two builds to see them in 
+					action as the next build will have the habushu-mixology project bound to 
+					the *current* lifecycle. If you break this, it means you need to pull habushu-mixology 
+					out of the build until you repair the issue. -->
+				<phases>
+					<process-resources>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:resources
+					</process-resources>
+					<compile>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:configure-environment
+					</compile>
+					<test>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:test
+					</test>
+					<package>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:zip
+					</package>
+					<install>org.apache.maven.plugins:maven-install-plugin:2.5.2:install
+					</install>
+					<deploy>org.apache.maven.plugins:maven-deploy-plugin:2.8.2:deploy
+					</deploy>
+				</phases>
+			</configuration>
+		</component>
+	</components>
+</component-set>

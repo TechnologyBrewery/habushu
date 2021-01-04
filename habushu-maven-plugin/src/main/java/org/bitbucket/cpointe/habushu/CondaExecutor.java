@@ -70,6 +70,7 @@ public class CondaExecutor {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public int executeAndRedirectOutput(final Logger logger) {
         OutputStream stdout = new LoggerOutputStream(logger, 0);
         ByteArrayOutputStream stderr = new ByteArrayOutputStream();
@@ -81,7 +82,7 @@ public class CondaExecutor {
             System.out.print(stderr.toString());
             throw new HabushuException("Could not invoke command! See output above.", e);
             
-        } finally {
+        } finally {           
             IOUtils.closeQuietly(stdout);
             IOUtils.closeQuietly(stderr);
             

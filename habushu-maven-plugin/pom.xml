@@ -18,12 +18,12 @@
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-core</artifactId>
-			<version>3.5.0</version>
+			<version>3.6.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-plugin-api</artifactId>
-			<version>3.3.3</version>
+			<version>3.6.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -36,14 +36,41 @@
 			<version>1.7.30</version>
 		</dependency>
 		<dependency>
-			<groupId>com.github.eirslett</groupId>
-			<artifactId>frontend-plugin-core</artifactId>
-			<version>1.11.0</version>
-		</dependency>
-		<dependency>
 			<groupId>org.yaml</groupId>
 			<artifactId>snakeyaml</artifactId>
 			<version>1.27</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.maven.plugins</groupId>
+		    <artifactId>maven-resources-plugin</artifactId>
+		    <version>3.2.0</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.maven.plugins</groupId>
+		    <artifactId>maven-assembly-plugin</artifactId>
+		    <version>3.3.0</version>
+		</dependency>
+
+		<!-- ! other dependencies contain references to older versions ! so we 
+			define it here explicit to make sure we get the ! correct version for plexus-archiver 
+			and plexus-utils. -->
+		<!-- ! maven-shared-utils is pulled by file-management ! Need to use a 
+			more recent version otherwise ! the build will fail. This needed to be kept 
+			! here until a new version of file-management ! has been made. -->
+		<dependency>
+			<groupId>org.apache.maven.shared</groupId>
+			<artifactId>maven-shared-utils</artifactId>
+			<version>3.3.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-archiver</artifactId>
+			<version>4.2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-utils</artifactId>
+			<version>3.3.0</version>
 		</dependency>
 
 		<!-- Provided Dependencies: -->
@@ -73,11 +100,17 @@
 	</dependencies>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-plugin-plugin</artifactId>
-				<version>3.4</version>
+				<version>3.6.0</version>
 				<executions>
 					<execution>
 						<id>default-descriptor</id>
@@ -85,10 +118,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- Since we have cucumber surefire tests that run as part of the build, 
-				generate cucumber reports -->
-			<!-- <plugin> <groupId>net.masterthought</groupId> <artifactId>maven-cucumber-reporting</artifactId> 
-				</plugin> -->
 		</plugins>
 	</build>
 </project>

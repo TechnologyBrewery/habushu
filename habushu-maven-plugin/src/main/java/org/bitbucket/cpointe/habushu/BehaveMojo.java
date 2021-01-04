@@ -15,14 +15,13 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.codehaus.plexus.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Executes behave for Cucumber testing in python following the standard behave structure of a features directory.
  */
-@Mojo(name = "behave", defaultPhase = LifecyclePhase.TEST, threadSafe = true, requiresDependencyResolution = ResolutionScope.TEST)
+@Mojo(name = "test", defaultPhase = LifecyclePhase.TEST, threadSafe = true, requiresDependencyResolution = ResolutionScope.TEST)
 public class BehaveMojo extends AbstractHabushuMojo {
 
     private static final Logger logger = LoggerFactory.getLogger(BehaveMojo.class);
@@ -106,7 +105,8 @@ public class BehaveMojo extends AbstractHabushuMojo {
         return hasTests;
     }
 
-    private void verifyBehaveExistsInEnvironment() {
+    private void verifyBehaveExistsInEnvironment() {        
+        @SuppressWarnings("unchecked")
         List<String> dependencies = (List<String>) condaEnvironment.get("dependencies");
         if (dependencies == null || !dependencies.contains("behave")) {
             logger.error(
