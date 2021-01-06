@@ -38,18 +38,22 @@ Configuration for options described below can be accomplished as described in th
 Leverages the standard [`maven-clean-plugin`](https://maven.apache.org/plugins/maven-clean-plugin/index.html) to clear out the entire `target`directory when clean is passed to the build.  All configurations options are listed in the plugin's documentation.
 
 ##### resources #####
-Habushu has extended the default [`maven-resources-plugin`](https://maven.apache.org/plugins/maven-resources-plugin/) to copy anything in `src/main/resources` into the `target/staging` directory. These copies can then be used for testing and will be included in the zip file produced later in the lifecycle. All configurations options are listed in the plugin's documentation.
+Habushu has extended the default [`maven-resources-plugin`](https://maven.apache.org/plugins/maven-resources-plugin/) to copy anything in `src/main/python`, `src/main/resources` into the `target/staging` directory. The project's `pom.xml` and Conda configuration file are also included. These copies can then be used for testing and will be included in the zip file produced later in the lifecycle. All configurations options are listed in the plugin's documentation.  The following configuration options can be specified via standard Maven configuration for plugins:
+
+* _condaConfigurationFile:_ The location of your Conda yaml file.  By default, this will point to `conda.yaml` directly within the root of the module.
+* _pythonSourceDirectory:_ The directory in which your source code should be placed.  By default, `src/main/python`.  It is highly discouraged to change this value.
+* _resourcesDirectory:_ The directory in which your resources should be placed.  BY default, `src/main/resources`.  It is highly discouraged to change this value.
 
 ##### configure-environment #####
-Create or update your Conda environment. This ensures it is valid and that any tests are run in the versioned controlled environment. The following configuration options can be specified via standard Maven confguration for plugins.  
+Create or update your Conda environment. This ensures it is valid and that any tests are run in the versioned controlled environment. The following configuration options can be specified via standard Maven confguration for plugins:  
 
 * _condaInstallPath:_ The location of your Conda installation.  By default, this will pull the location specified in your `CONDA_EXE` environment variable.
 * _condaConfigurationFile:_ The location of your Conda yaml file.  By default, this will point to `conda.yaml` directly within the root of the module.
 * _workingDirectory:_ The location in which any conda commands will be run.  By default, this is `target`.
-* _pythonSourceDirectory:_ The directory in which your source code should be placed.  BY default, `src/main/python`.  It is highly discouraged to change this value.
+* _pythonSourceDirectory:_ The directory in which your source code should be placed.  By default, `src/main/python`.  It is highly discouraged to change this value.
 
 ##### test #####
-Run behave if any files exist within the `src/test/python/scenarios` directory. More information on authoring and running tests can be found later in this document, including configuration options.
+Run behave if any files exist within the `src/test/python/features` directory. More information on authoring and running tests can be found later in this document, including configuration options.
 
 ##### zip #####
 Habushu has extended the [`maven-assembly-plugin`](http://maven.apache.org/plugins/maven-assembly-plugin/) to create a zip file from all the files in the `target/staging` directory. All configurations options are listed in the plugin's documentation.
