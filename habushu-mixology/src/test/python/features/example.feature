@@ -18,7 +18,8 @@ Feature: Example of a Gherkin feature file
       | 1     | 2             |
       | 25    | 50            |
       | 1000  | 2000          | 
-      | 14    | 28            | 
+      | 14    | 28            |
+      | 5     | 10            |
 
   @manual
   Scenario: FIPS-compliant SSL required (this is not something we can have a test for, so it's manual)

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * the entire system with common lifecycle needs like testings and packaging artifacts that are commonly skipped in
  * Python- and R-projects.
  */
-@Mojo(name = "habushu-maven-plugin", defaultPhase = LifecyclePhase.COMPILE, threadSafe = true)
+@Mojo(name = "configure-environment", defaultPhase = LifecyclePhase.COMPILE, threadSafe = true)
 public class HabushuMojo extends AbstractHabushuMojo {
 
     private static final Logger logger = LoggerFactory.getLogger(HabushuMojo.class);

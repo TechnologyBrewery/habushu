@@ -12,7 +12,7 @@
 	<description>Example of how to use the habushu-maven-plugin</description>
 
 	<artifactId>habushu-mixology</artifactId>
-	<packaging>jar</packaging>
+	<packaging>habushu</packaging>
 
 	<build>
 		<plugins>
@@ -20,22 +20,7 @@
 				<groupId>${project.groupId}</groupId>
 				<artifactId>habushu-maven-plugin</artifactId>
 				<version>${project.version}</version>
-				<executions>					
-					<execution>
-						<id>habushu-environment</id>
-						<phase>compile</phase>
-						<goals>
-							<goal>habushu-maven-plugin</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>habushu-test</id>
-						<phase>test</phase>
-						<goals>
-							<goal>behave</goal>
-						</goals>
-					</execution>
-				</executions>
+				<extensions>true</extensions>
 			</plugin>
 		</plugins>
 	</build>

@@ -46,11 +46,6 @@
 		</snapshotRepository>
 	</distributionManagement>
 
-	<modules>
-		<module>habushu-maven-plugin</module>
-		<module>habushu-mixology</module>
-	</modules>
-
 	<properties>
 		<cucumber.version>1.2.5</cucumber.version>
 		<log4j.version>2.7</log4j.version>
@@ -152,8 +147,38 @@
 
 	<profiles>
 		<profile>
+			<id>default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<modules>
+				<module>habushu-maven-plugin</module>
+				<module>habushu-mixology</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>bootstrap</id>
+			<modules>
+				<module>habushu-maven-plugin</module>
+			</modules>
+		</profile>
+
+		<profile>
 			<id>ossrh-release</id>
 			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-javadoc-plugin</artifactId>
+							<configuration>
+								<!-- JDK 8 Javadoc linter is very strict, so deactivate it if we're 
+									using Java 8 -->
+								<additionalparam>-Xdoclint:none</additionalparam>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
 				<plugins>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
@@ -196,27 +221,6 @@
 						</executions>
 					</plugin>
 				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>disable-java8-doclint</id>
-			<activation>
-				<jdk>[1.8,)</jdk>
-			</activation>
-			<build>
-				<pluginManagement>
-					<plugins>
-						<plugin>
-							<groupId>org.apache.maven.plugins</groupId>
-							<artifactId>maven-javadoc-plugin</artifactId>
-							<configuration>
-								<!-- JDK 8 Javadoc linter is very strict, so deactivate it if we're 
-									using Java 8 -->
-								<additionalparam>-Xdoclint:none</additionalparam>
-							</configuration>
-						</plugin>
-					</plugins>
-				</pluginManagement>
 			</build>
 			<properties>
 				<additionalparam>-Xdoclint:none</additionalparam>

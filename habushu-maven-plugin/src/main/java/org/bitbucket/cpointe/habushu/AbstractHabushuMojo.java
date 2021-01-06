@@ -21,14 +21,22 @@ import org.yaml.snakeyaml.Yaml;
  */
 public abstract class AbstractHabushuMojo extends AbstractMojo {
 
-    private static final String DEFAULT_CONDA_CONFIGURATION_FILE_NAME = "conda.yaml";
+    /**
+     * Default name of the Conda configuration file to use.
+     */
+    static final String DEFAULT_CONDA_CONFIGURATION_FILE_NAME = "conda.yaml";
+    
+    /**
+     * Default name of the directory in the output target folder to use to stage content for archiving.
+     */
+    static final String DEFAULT_STAGING_FOLDER = "staging";    
 
     /**
      * The path to conda that will be used for this build.
      */
     @Parameter(property = "condaInstallPath", required = false)
     protected File condaInstallPath;
-    
+
     /**
      * The conda configuration file (e.g., yaml file) for this module. Each module can have EXACTLY ONE conda
      * configuration file.
@@ -41,7 +49,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * The base directory for running all Conda commands. (Usually the directory that contains the environment yaml
      * file)
      */
-    @Parameter(defaultValue = "${basedir}/target", property = "workingDirectory", required = false)
+    @Parameter(defaultValue = "${project.build.directory}", property = "workingDirectory", required = false)
     protected File workingDirectory;
 
     /**
@@ -53,13 +61,11 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * Represents the environment's yaml file.
      */
     protected Map<String, Object> condaEnvironment;
-    
+
     /**
      * Represents the environment we want to use for this build.
      */
     protected String environmentName;
-    
-    
 
     /**
      * Handles basic set up used across steps so that the current environments and environment name are available.
@@ -67,7 +73,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * {@inheritDoc}
      */
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {                
+    public void execute() throws MojoExecutionException, MojoFailureException {
         createWorkingDirectoryIfNeeded();
         establishCondaInstallPath();
 
@@ -86,7 +92,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
 
         }
 
-        Yaml condaYaml = new Yaml();       
+        Yaml condaYaml = new Yaml();
         try (InputStream inputStream = new FileInputStream(condaConfigurationFile)) {
             condaEnvironment = condaYaml.load(inputStream);
 
@@ -157,8 +163,6 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     }
 
     private CondaExecutor createExecutor(String command) {
-        // TODO: once we get the lifecycle working end to end, we'll circle back and make it work on Windows 10+ as
-        // well:
         List<String> commands = new ArrayList<>();
         commands.add("/bin/sh");
         commands.add("-c");
@@ -166,7 +170,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
         CondaExecutor executor = new CondaExecutor(workingDirectory, commands, Platform.guess(), new HashMap<>());
         return executor;
     }
-    
+
     private void establishCondaInstallPath() {
         String condaExe = System.getenv("CONDA_EXE");
         condaInstallPath = new File(condaExe);
