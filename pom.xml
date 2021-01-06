@@ -2,7 +2,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.bitbucket.cpointe.habushu</groupId>
-	<version>0.1.0</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<artifactId>habushu</artifactId>
 	<packaging>pom</packaging>
 
@@ -35,7 +35,7 @@
 		<connection>scm:git:ssh://git@bitbucket.org/cpointe/habushu.git</connection>
 		<developerConnection>scm:git:ssh://git@bitbucket.org/cpointe/habushu.git</developerConnection>
 		<url>https://bitbucket.org/cpointe/habushu/</url>
-		<tag>habushu-0.1.0</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<distributionManagement>
@@ -46,7 +46,6 @@
 	</distributionManagement>
 
 	<properties>
-		<additionalparam>-Xdoclint:none</additionalparam>
 		<cucumber.version>1.2.5</cucumber.version>
 		<log4j.version>2.7</log4j.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -93,15 +92,6 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
 					<version>${maven.core.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-javadoc-plugin</artifactId>
-					<configuration>
-						<!-- NB JDK 8 Javadoc linter is very strict, so deactivate it if we're 
-							using Java 8 -->
-						<additionalparam>-Xdoclint:none</additionalparam>
-					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>net.masterthought</groupId>
@@ -172,7 +162,7 @@
 			</modules>
 		</profile>
 
-		<profile>
+			<profile>
 			<id>ossrh-release</id>
 			<build>
 				<plugins>
@@ -193,6 +183,11 @@
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
 						<version>${maven.core.version}</version>
+						<configuration>
+							<!-- NB JDK 8 Javadoc linter is very strict, so deactivate it if we're 
+								using Java 8 -->
+							<additionalparam>-Xdoclint:none</additionalparam>
+						</configuration>
 						<executions>
 							<execution>
 								<id>attach-javadocs</id>
@@ -218,6 +213,9 @@
 					</plugin>
 				</plugins>
 			</build>
+			<properties>
+				<additionalparam>-Xdoclint:none</additionalparam>
+			</properties>
 		</profile>
 	</profiles>
 </project>
