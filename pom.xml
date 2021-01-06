@@ -1,8 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.bitbucket.cpointe.habushu</groupId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<artifactId>habushu</artifactId>
 	<packaging>pom</packaging>
 
@@ -35,8 +37,8 @@
 		<connection>scm:git:ssh://git@bitbucket.org/cpointe/habushu.git</connection>
 		<developerConnection>scm:git:ssh://git@bitbucket.org/cpointe/habushu.git</developerConnection>
 		<url>https://bitbucket.org/cpointe/habushu/</url>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 
 	<distributionManagement>
 		<snapshotRepository>
@@ -46,6 +48,7 @@
 	</distributionManagement>
 
 	<properties>
+		<additionalparam>-Xdoclint:none</additionalparam>
 		<cucumber.version>1.2.5</cucumber.version>
 		<log4j.version>2.7</log4j.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -92,6 +95,15 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
 					<version>${maven.core.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<configuration>
+						<!-- NB JDK 8 Javadoc linter is very strict, so deactivate it if we're 
+							using Java 8 -->
+						<additionalparam>-Xdoclint:none</additionalparam>
+					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>net.masterthought</groupId>
@@ -165,19 +177,6 @@
 		<profile>
 			<id>ossrh-release</id>
 			<build>
-				<pluginManagement>
-					<plugins>
-						<plugin>
-							<groupId>org.apache.maven.plugins</groupId>
-							<artifactId>maven-javadoc-plugin</artifactId>
-							<configuration>
-								<!-- JDK 8 Javadoc linter is very strict, so deactivate it if we're 
-									using Java 8 -->
-								<additionalparam>-Xdoclint:none</additionalparam>
-							</configuration>
-						</plugin>
-					</plugins>
-				</pluginManagement>
 				<plugins>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
@@ -221,9 +220,6 @@
 					</plugin>
 				</plugins>
 			</build>
-			<properties>
-				<additionalparam>-Xdoclint:none</additionalparam>
-			</properties>
 		</profile>
 	</profiles>
 </project>
