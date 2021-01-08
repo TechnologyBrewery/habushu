@@ -153,6 +153,7 @@
 			<modules>
 				<module>habushu-maven-plugin</module>
 				<module>habushu-mixology</module>
+				<module>habushu-mixology-consumer</module>
 			</modules>
 		</profile>
 		<profile>
@@ -166,6 +167,7 @@
 			<modules>
 				<module>habushu-maven-plugin</module>
 				<module>habushu-mixology</module>
+				<module>habushu-mixology-consumer</module>
 			</modules>
 			<build>
 				<plugins>

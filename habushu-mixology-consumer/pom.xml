@@ -1,0 +1,35 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.bitbucket.cpointe.habushu</groupId>
+		<artifactId>habushu</artifactId>
+		<version>0.1.3-SNAPSHOT</version>
+	</parent>
+
+	<name>habushu::Mixing Drinks with Habushu consumer</name>
+	<description>Example of how to use the habushu-maven-plugin</description>
+
+	<artifactId>habushu-mixology-consumer</artifactId>
+	<packaging>habushu</packaging>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>habushu-maven-plugin</artifactId>
+				<version>${project.version}</version>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.bitbucket.cpointe.habushu</groupId>
+			<artifactId>habushu-mixology</artifactId>
+			<version>${project.version}</version>
+			<type>zip</type>
+		</dependency>
+	</dependencies>
+
+</project>
