@@ -48,6 +48,11 @@
 		    <artifactId>maven-assembly-plugin</artifactId>
 		    <version>3.3.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-dependency-plugin</artifactId>
+			<version>3.1.2</version>
+		</dependency>
 
 		<!-- ! other dependencies contain references to older versions ! so we 
 			define it here explicit to make sure we get the ! correct version for plexus-archiver 

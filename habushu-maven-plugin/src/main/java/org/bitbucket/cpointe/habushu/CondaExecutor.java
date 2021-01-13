@@ -85,9 +85,7 @@ public class CondaExecutor {
         } finally {           
             IOUtils.closeQuietly(stdout);
             IOUtils.closeQuietly(stderr);
-            
         }
-
     }
 
     private int execute(final Logger logger, final OutputStream stdout, final OutputStream stderr) {

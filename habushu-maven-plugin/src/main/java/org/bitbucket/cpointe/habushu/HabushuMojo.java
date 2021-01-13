@@ -1,6 +1,9 @@
 package org.bitbucket.cpointe.habushu;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -41,10 +44,32 @@ public class HabushuMojo extends AbstractHabushuMojo {
                 
         boolean exists = currentEnvironments.contains("\n" + environmentName + " ");
         String condaConfigurationFileCanonicalPath = getCanonicalPathForFile(condaConfigurationFile);
-        handleCondaEnvironmentSetup(condaConfigurationFileCanonicalPath, environmentName, exists);       
-
+        handleCondaEnvironmentSetup(condaConfigurationFileCanonicalPath, environmentName, exists);
+        installUnpackedPythonDependencies();
     }
-    
+
+    private void installUnpackedPythonDependencies() {
+        List<File> dependencies = getDependencies();
+        for(File dependency : dependencies) {
+            File setupPyFile = new File(dependency, "setup.py");
+            if(setupPyFile.exists()) {
+                CondaExecutor executor = createExecutorWithWorkingDirectory(dependency, "run -n " + this.environmentName + " python setup.py install");
+                executor.executeAndRedirectOutput(logger);
+            }
+        }
+    }
+
+    private List<File> getDependencies() {
+        List<File> dependencies = new ArrayList<>();
+
+        File dependencyDirectory = new File(workingDirectory, "dependency");
+        if(dependencyDirectory.exists()){
+            dependencies = Arrays.asList(dependencyDirectory.listFiles());
+        }
+
+        return dependencies;
+    }
+
     private void handleCondaEnvironmentSetup(String condaConfigurationPath, String environmentName, boolean exists) {
         // TODO: if we have an update but no change in the Conda configuration, it would be nice to skip this step.
         // It's easy enough to do w/ a file hash, but we need to figure out where we want to store that hash since
@@ -62,12 +87,10 @@ public class HabushuMojo extends AbstractHabushuMojo {
         String environmentCreateResponse = invokeCondaCommand("env " + action + " --file " + condaConfigurationPath);
 
         logger.debug(environmentCreateResponse);
-
     }
     
     @Override
     protected Logger getLogger() {
         return logger;
     }
-
 }

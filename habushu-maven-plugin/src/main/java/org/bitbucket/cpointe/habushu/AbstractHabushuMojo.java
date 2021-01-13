@@ -92,24 +92,11 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
 
         }
 
-        Yaml condaYaml = new Yaml();
-        try (InputStream inputStream = new FileInputStream(condaConfigurationFile)) {
-            condaEnvironment = condaYaml.load(inputStream);
-
-        } catch (IOException e) {
-            throw new HabushuException("Problem reading conda yaml file!", e);
-        }
-
-        if (!condaConfigurationFile.exists()) {
-            throw new HabushuException("Specified configuration file '" + condaConfigurationFile + "' does not exist!");
-
-        }
-
+        CondaFileHelper condaFileHelper = new CondaFileHelper(condaConfigurationFile);
+        condaEnvironment = condaFileHelper.getCondaEnvironment();
         currentEnvironments = getCurrentEnvironments();
         logger.debug("Current Conda Environments: \n{}", currentEnvironments);
-
-        environmentName = (String) condaEnvironment.get("name");
-
+        environmentName = condaFileHelper.getCondaEnvironmentName();
     }
 
     /**
@@ -163,11 +150,22 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     }
 
     private CondaExecutor createExecutor(String command) {
+        CondaExecutor executor = createExecutorWithWorkingDirectory(workingDirectory, command);
+        return executor;
+    }
+
+    /**
+     * This method provides a way to override the default working directory for Conda.
+     * @param workingDirectoryForConda
+     * @param command
+     * @return Conda Executor
+     */
+    protected CondaExecutor createExecutorWithWorkingDirectory(File workingDirectoryForConda, String command) {
         List<String> commands = new ArrayList<>();
         commands.add("/bin/sh");
         commands.add("-c");
         commands.add(getCanonicalPathForFile(condaInstallPath) + " " + command);
-        CondaExecutor executor = new CondaExecutor(workingDirectory, commands, Platform.guess(), new HashMap<>());
+        CondaExecutor executor = new CondaExecutor(workingDirectoryForConda, commands, Platform.guess(), new HashMap<>());
         return executor;
     }
 
