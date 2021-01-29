@@ -1,9 +1,7 @@
 package org.bitbucket.cpointe.habushu;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +12,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.slf4j.Logger;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  * Contains logic common across the various Habushu mojos.
@@ -29,7 +26,12 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     /**
      * Default name of the directory in the output target folder to use to stage content for archiving.
      */
-    static final String DEFAULT_STAGING_FOLDER = "staging";    
+    static final String DEFAULT_STAGING_FOLDER = "staging";  
+    
+    /**
+     * Default name of the directory in the output target folder to use to stage test content for running behave tests.
+     */
+    static final String DEFAULT_TEST_STAGING_FOLDER = "test-staging";
 
     /**
      * The path to conda that will be used for this build.
@@ -145,12 +147,26 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * @return return code
      */
     protected int invokeCondaCommandAndRedirectOutput(String command) {
-        CondaExecutor executor = createExecutor(command);
+        CondaExecutor executor = createExecutorWithDirectory(workingDirectory, command);
         return executor.executeAndRedirectOutput(getLogger());
     }
 
+    /**
+     * Invoked a Conda command and return the exit code. System output is logged to the console as it happens while
+     * system errors are queued up and logged upon exiting from the command.
+     * 
+     * @param command
+     *            command to invoke
+     * @return return code
+     */
+    protected int invokeCondaCommandAndRedirectOutput(File directoryForConda, String command) {
+        CondaExecutor executor = createExecutorWithDirectory(directoryForConda, command);
+        return executor.executeAndRedirectOutput(getLogger());
+    }
+
+
     private CondaExecutor createExecutor(String command) {
-        CondaExecutor executor = createExecutorWithWorkingDirectory(workingDirectory, command);
+        CondaExecutor executor = createExecutorWithDirectory(workingDirectory, command);
         return executor;
     }
 
@@ -160,12 +176,12 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * @param command
      * @return Conda Executor
      */
-    protected CondaExecutor createExecutorWithWorkingDirectory(File workingDirectoryForConda, String command) {
+    protected CondaExecutor createExecutorWithDirectory(File directoryForConda, String command) {
         List<String> commands = new ArrayList<>();
         commands.add("/bin/sh");
         commands.add("-c");
         commands.add(getCanonicalPathForFile(condaInstallPath) + " " + command);
-        CondaExecutor executor = new CondaExecutor(workingDirectoryForConda, commands, Platform.guess(), new HashMap<>());
+        CondaExecutor executor = new CondaExecutor(directoryForConda, commands, Platform.guess(), new HashMap<>());
         return executor;
     }
 
@@ -196,10 +212,10 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * @param command
      * @return
      */
-    protected int runInCondaEnvironmentAndRedirectOutput(String environmentName, String command) {
-        return invokeCondaCommandAndRedirectOutput("run -n " + environmentName + " " + command);
+    protected int runInCondaEnvironmentAndRedirectOutput(File directory, String environmentName, String command) {
+        return invokeCondaCommandAndRedirectOutput(directory, "run -n " + environmentName + " " + command);
     }
-
+    
     private void createWorkingDirectoryIfNeeded() {
         if (!workingDirectory.exists()) {
             getLogger().debug("Working directory did not exist - creating {}",

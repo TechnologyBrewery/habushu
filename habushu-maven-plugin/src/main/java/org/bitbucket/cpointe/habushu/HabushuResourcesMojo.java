@@ -36,7 +36,7 @@ public class HabushuResourcesMojo extends CopyResourcesMojo {
      * Folder in which standard maven resources files are located.
      */
     @Parameter(property = "resourcesDirectory", required = true, defaultValue = "${project.basedir}/src/main/resources")
-    protected File reourcesDirectory;
+    protected File resourcesDirectory;
 
     /**
      * The conda configuration file (e.g., yaml file) for this module. Each module can have EXACTLY ONE conda
@@ -49,7 +49,7 @@ public class HabushuResourcesMojo extends CopyResourcesMojo {
     /**
      * The output directory into which to copy the resources.
      */
-    @Parameter(defaultValue = "target/" + AbstractHabushuMojo.DEFAULT_STAGING_FOLDER, required = true)
+    @Parameter(defaultValue = "${project.build.directory}/" + AbstractHabushuMojo.DEFAULT_STAGING_FOLDER, required = true)
     private File outputDirectory;
 
     /**
@@ -64,7 +64,7 @@ public class HabushuResourcesMojo extends CopyResourcesMojo {
         pluginResources.add(source);
 
         Resource resourceDirectory = new Resource();
-        resourceDirectory.setDirectory(reourcesDirectory.getAbsolutePath());
+        resourceDirectory.setDirectory(resourcesDirectory.getAbsolutePath());
         pluginResources.add(resourceDirectory);
 
         Resource baseFolderResources = new Resource();
