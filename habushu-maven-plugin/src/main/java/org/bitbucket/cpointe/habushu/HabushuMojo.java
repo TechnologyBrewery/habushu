@@ -52,8 +52,9 @@ public class HabushuMojo extends AbstractHabushuMojo {
         List<File> dependencies = getDependencies();
         for(File dependency : dependencies) {
             File setupPyFile = new File(dependency, "setup.py");
+            logger.debug("Unpacking dependency: {}", dependency.getName());
             if(setupPyFile.exists()) {
-                CondaExecutor executor = createExecutorWithWorkingDirectory(dependency, "run -n " + this.environmentName + " python setup.py install");
+                CondaExecutor executor = createExecutorWithDirectory(dependency, "run -n " + this.environmentName + " python setup.py install");
                 executor.executeAndRedirectOutput(logger);
             }
         }
@@ -64,6 +65,7 @@ public class HabushuMojo extends AbstractHabushuMojo {
 
         File dependencyDirectory = new File(workingDirectory, "dependency");
         if(dependencyDirectory.exists()){
+ 
             dependencies = Arrays.asList(dependencyDirectory.listFiles());
         }
 
