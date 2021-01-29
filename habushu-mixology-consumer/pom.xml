@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.bitbucket.cpointe.habushu</groupId>
 		<artifactId>habushu</artifactId>
-		<version>0.1.3-SNAPSHOT</version>
+		<version>0.1.4-SNAPSHOT</version>
 	</parent>
 
 	<name>habushu::Mixing Drinks with Habushu consumer</name>
