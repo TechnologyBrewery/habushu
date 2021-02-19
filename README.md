@@ -2,7 +2,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/org.bitbucket.cpointe.habushu/root.svg)](https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.bitbucket.cpointe.habushu%22%20AND%20a%3A%22habushu%22)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit)
 
-In Okinawa, habushu (pronounced HA-BU-SHU) is a sake that is made with venomous snake. The alcohol in the snake assists in dissolving the snake's venom and making it non-poinsonous. In Maven, habushu allows Conda-based pyhton projects to be included as part a Maven build. This brings some order and consistency to what can otherwise be haphazardly structured projects.
+In Okinawa, habushu (pronounced HA-BU-SHU) is a sake that is made with venomous snake. The alcohol in the snake assists in dissolving the snake's venom and making it non-poinsonous. In Maven, habushu allows Venv-based python projects to be included as part a Maven build. This brings some order and consistency to what can otherwise be haphazardly structured projects.
 
 ## Approach ##
 Habushu is implemented as a series of [Maven](https://maven.apache.org/) plugins that tie together existing tooling in an opinionated fashion similar to how Maven structures Java projects.  By taking care of manual steps and bringing a predictable order of execution and core naming conventions, habushu increases time spent on impactful work rather than every developer or data scientist building out scripts that meet their personal preferences.  It's likely that no one person will agree with all the opinions habushu brings forth, but the value in being able to run entire builds from a single `mvn clean install` command regardless of your prior experience with the projects adds substantial value - both locally and in DevSecOps scenarios.
@@ -38,19 +38,20 @@ Configuration for options described below can be accomplished as described in th
 Leverages the standard [`maven-clean-plugin`](https://maven.apache.org/plugins/maven-clean-plugin/index.html) to clear out the entire `target`directory when clean is passed to the build.  All configurations options are listed in the plugin's documentation.
 
 ##### resources #####
-Habushu has extended the default [`maven-resources-plugin`](https://maven.apache.org/plugins/maven-resources-plugin/) to copy anything in `src/main/python`, `src/main/resources` into the `target/staging` directory. The project's `pom.xml` and Conda configuration file are also included. These copies can then be used for testing and will be included in the zip file produced later in the lifecycle. All configurations options are listed in the plugin's documentation.  The following configuration options can be specified via standard Maven configuration for plugins:
+Habushu has extended the default [`maven-resources-plugin`](https://maven.apache.org/plugins/maven-resources-plugin/) to copy anything in `src/main/python`, `src/main/resources` into the `target/staging` directory. The project's `pom.xml` and Venv dependency file are also included. These copies can then be used for testing and will be included in the zip file produced later in the lifecycle. All configurations options are listed in the plugin's documentation.  The following configuration options can be specified via standard Maven configuration for plugins:
 
-* _condaConfigurationFile:_ The location of your Conda yaml file.  By default, this will point to `conda.yaml` directly within the root of the module.
+* _venvDependencyFile:_ The location of your Venv dependency file.  By default, this will point to `dependencies.txt` directly within the root of the module.
 * _pythonSourceDirectory:_ The directory in which your source code should be placed.  By default, `src/main/python`.  It is highly discouraged to change this value.
 * _resourcesDirectory:_ The directory in which your resources should be placed.  BY default, `src/main/resources`.  It is highly discouraged to change this value.
 
 ##### configure-environment #####
-Create or update your Conda environment. This ensures it is valid and that any tests are run in the versioned controlled environment. The following configuration options can be specified via standard Maven confguration for plugins:  
+Create or update your Venv virtual environment. This ensures it is valid and that any tests are run in the versioned controlled environment. The following configuration options can be specified via standard Maven confguration for plugins:  
 
-* _condaInstallPath:_ The location of your Conda installation.  By default, this will pull the location specified in your `CONDA_EXE` environment variable.
-* _condaConfigurationFile:_ The location of your Conda yaml file.  By default, this will point to `conda.yaml` directly within the root of the module.
-* _workingDirectory:_ The location in which any conda commands will be run.  By default, this is `target`.
+* _venvDirectory:_ The root location of your virtual environment.  By default, this will point to the /virtualenvs/ folder directly under the project build directory (usually the target folder).
+* _workingDirectory:_ The location in which any venv commands will be run.  By default, this is `target`.
 * _pythonSourceDirectory:_ The directory in which your source code should be placed.  By default, `src/main/python`.  It is highly discouraged to change this value.
+* _environmentName:_ The name of your virtual environment.  By default, this will be the `artifactId` of your Maven build.
+* _pathToVirtualEnvironment:_ The path to your specified virtual environment.  By default, this will simply add your environmentName onto the file path of your `venvDirectory`.
 
 ##### test #####
 Run behave if any files exist within the `src/test/python/features` directory. More information on authoring and running tests can be found later in this document, including configuration options.
@@ -73,7 +74,8 @@ You can add your [Gherkin feature files](https://cucumber.io/docs/gherkin/) to t
 #### Run Build to Generate Step Stubs ####
 As is customary with Cucumber testing, once you add your feature, stubbed methods can be created for each step by running the build via `mvn clean test`.  Any step that is missing will be listed at the end of the build, allowing you to copy that snippet and then add in the implementation.  For example:
 ```
-ERROR conda.cli.main_run:execute(33): Subprocess for 'conda run ['behave', '/Users/sakelover/dev/habushu/habushu-mixology/src/test/python/features']' command failed.  (See above for error)
+[INFO] Failing scenarios:
+[INFO]   ../../src/test/python/features/example.feature:30  This is an unimplemented test for testing purposes
 
 You can implement step definitions for undefined steps with these snippets:
 

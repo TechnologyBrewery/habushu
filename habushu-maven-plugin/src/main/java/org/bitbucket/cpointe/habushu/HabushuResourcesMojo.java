@@ -39,14 +39,6 @@ public class HabushuResourcesMojo extends CopyResourcesMojo {
     protected File resourcesDirectory;
 
     /**
-     * The conda configuration file (e.g., yaml file) for this module. Each module can have EXACTLY ONE conda
-     * configuration file.
-     */
-    @Parameter(property = "condaConfigurationFile", required = true, defaultValue = "${project.basedir}/"
-            + AbstractHabushuMojo.DEFAULT_CONDA_CONFIGURATION_FILE_NAME)
-    protected File condaConfigurationFile;
-
-    /**
      * The output directory into which to copy the resources.
      */
     @Parameter(defaultValue = "${project.build.directory}/" + AbstractHabushuMojo.DEFAULT_STAGING_FOLDER, required = true)
@@ -70,7 +62,7 @@ public class HabushuResourcesMojo extends CopyResourcesMojo {
         Resource baseFolderResources = new Resource();
         baseFolderResources.setDirectory(".");
         baseFolderResources.addInclude("pom.xml");
-        baseFolderResources.addInclude(condaConfigurationFile.getName());
+        baseFolderResources.addInclude(AbstractHabushuMojo.VENV_DEPENDENCY_FILE_NAME);
         pluginResources.add(baseFolderResources);
 
         setResources(pluginResources);

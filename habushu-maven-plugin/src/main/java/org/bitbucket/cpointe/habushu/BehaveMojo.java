@@ -1,6 +1,7 @@
 package org.bitbucket.cpointe.habushu;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -58,6 +59,12 @@ public class BehaveMojo extends AbstractHabushuMojo {
     @Parameter(defaultValue = "${project.build.directory}/"
             + AbstractHabushuMojo.DEFAULT_TEST_STAGING_FOLDER, required = true)
     private File outputDirectory;
+    
+    /**
+     * The path to this environment's behave dependency.
+     */
+    @Parameter(property = "pathToBehave", defaultValue = "${project.build.directory}/virtualenvs/${project.artifactId}/bin/behave", required = true)
+    private String pathToBehave;
 
     /**
      * {@inheritDoc}
@@ -79,21 +86,26 @@ public class BehaveMojo extends AbstractHabushuMojo {
             logger.info("T E S T S");
             logger.info("-------------------------------------------------------");
 
-            StringBuilder command = new StringBuilder();
-            command.append("behave ").append(getCanonicalPathForFile(behaveDirectory));
+            List<String> commandList = new ArrayList<>();
+
+			// This will point to the executable for behave inside
+			// the environment's /bin/ folder
+			commandList.add(pathToBehave);
+
+			// This will point to the directory containing tests for behave to run
+			commandList.add(getCanonicalPathForFile(behaveDirectory));
 
             if (excludeManualTag) {
-                command.append(" --tags ~@manual");
+            	commandList.add("--tags=-manual");
             }
 
             if (StringUtils.isNotBlank(cucumberOptions)) {
-                command.append(" ").append(cucumberOptions);
+                commandList.add(cucumberOptions);
             }
+                        
+            logger.debug("To run command manually, use {}", commandList.toString());
 
-            String finalCommand = command.toString();
-            logger.debug("To run command manually, use {}", finalCommand);
-            runInCondaEnvironmentAndRedirectOutput(outputDirectory, environmentName, finalCommand);
-
+            runMultipleVenvCommandsAndRedirectOutput(outputDirectory, commandList);
         } else if (skipTests) {
             logger.info("Tests are skipped.");
 
@@ -115,12 +127,25 @@ public class BehaveMojo extends AbstractHabushuMojo {
     }
 
     private void verifyBehaveExistsInEnvironment() {
-        @SuppressWarnings("unchecked")
-        List<String> dependencies = (List<String>) condaEnvironment.get("dependencies");
-        if (dependencies == null || !dependencies.contains("behave")) {
+    	VirtualEnvFileHelper venvFileHelper = new VirtualEnvFileHelper(venvDependencyFile);
+    	List<String> dependencies = venvFileHelper.readDependencyListFromFile();
+    	
+    	boolean behaving = false;
+    	for (String dependency : dependencies) {
+    		if (StringUtils.equals("behave", dependency)) {
+    			behaving = true;
+    		}
+    	}
+    	
+		// Check the environment directly and output results for logging
+    	String pathToPip = pathToVirtualEnvironment + "/bin/pip";
+		VenvExecutor executor = createExecutorWithDirectory(venvDirectory, pathToPip + " freeze");
+		executor.executeAndRedirectOutput(logger);
+
+        if (!behaving) {
             logger.error(
-                    "Your conda environment MUST contain a dependency to the 'behave' package to support habushu's behave functionality.");
-            logger.error("Please update {} as follows:", getCanonicalPathForFile(condaConfigurationFile));
+                    "Your venv environment MUST contain a dependency to the 'behave' package to support habushu's behave functionality.");
+            logger.error("Please update {} as follows:", getCanonicalPathForFile(venvDependencyFile));
             logger.error("");
             logger.error("\tdependencies:");
             logger.error("\t    - ...");
@@ -128,7 +153,7 @@ public class BehaveMojo extends AbstractHabushuMojo {
             logger.error("");
 
             throw new HabushuException(
-                    "'behave' package MUST be a dependency in your conda environment configuration!");
+                    "'behave' package MUST be a dependency in your venv environment configuration!");
         }
     }
 
@@ -136,5 +161,4 @@ public class BehaveMojo extends AbstractHabushuMojo {
     protected Logger getLogger() {
         return logger;
     }
-
 }

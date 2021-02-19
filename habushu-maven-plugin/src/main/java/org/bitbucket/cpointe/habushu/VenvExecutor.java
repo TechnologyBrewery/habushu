@@ -28,24 +28,24 @@ import org.slf4j.Logger;
  * We are not importing the plugin via dependency because of how much front end code it has baked into every nook and
  * cranny. Bits of that convey with copying over files, but we felt this is the best balance we could achieve.
  */
-public class CondaExecutor {
+public class VenvExecutor {
     private static final String PATH_ENV_VAR = "PATH";
 
     private Map<String, String> environment;
     private CommandLine commandLine;
     private Executor executor;
 
-    public CondaExecutor(File workingDirectory, List<String> command, Platform platform,
+    public VenvExecutor(File workingDirectory, List<String> command, Platform platform,
             Map<String, String> additionalEnvironment) {
         this(workingDirectory, new ArrayList<>(), command, platform, additionalEnvironment, 0);
     }
 
-    public CondaExecutor(File workingDirectory, List<String> paths, List<String> command, Platform platform,
+    public VenvExecutor(File workingDirectory, List<String> paths, List<String> command, Platform platform,
             Map<String, String> additionalEnvironment) {
         this(workingDirectory, paths, command, platform, additionalEnvironment, 0);
     }
 
-    public CondaExecutor(File workingDirectory, List<String> paths, List<String> command, Platform platform,
+    public VenvExecutor(File workingDirectory, List<String> paths, List<String> command, Platform platform,
             Map<String, String> additionalEnvironment, long timeoutInSeconds) {
         this.environment = createEnvironment(paths, platform, additionalEnvironment);
         this.commandLine = createCommandLine(command);
