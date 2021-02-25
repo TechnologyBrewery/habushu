@@ -17,7 +17,7 @@ import java.io.File;
 import java.util.Set;
 
 /**
- * A Mojo class to handle retrieval and unpacking of python dependencies for later install into a Conda virtual
+ * A Mojo class to handle retrieval and unpacking of python dependencies for later install into a virtual
  * environment.
  */
 @Mojo(name = "unpack-python-dependencies", defaultPhase = LifecyclePhase.PROCESS_SOURCES, threadSafe = true)

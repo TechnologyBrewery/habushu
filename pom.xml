@@ -151,7 +151,6 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<modules>
-				<module>habushu-maven-plugin</module>
 				<module>habushu-mixology</module>
 				<module>habushu-mixology-consumer</module>
 			</modules>

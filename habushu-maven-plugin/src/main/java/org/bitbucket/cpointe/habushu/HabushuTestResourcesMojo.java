@@ -37,14 +37,6 @@ public class HabushuTestResourcesMojo extends CopyResourcesMojo {
     private List<Resource> resources;
 
     /**
-     * The conda configuration file (e.g., yaml file) for this module. Each
-     * module can have EXACTLY ONE conda configuration file.
-     */
-    @Parameter(property = "condaConfigurationFile", required = true, defaultValue = "${project.basedir}/"
-            + AbstractHabushuMojo.DEFAULT_CONDA_CONFIGURATION_FILE_NAME)
-    protected File condaConfigurationFile;
-
-    /**
      * The output directory into which to copy the resources.
      */
     @Parameter(defaultValue = "${project.build.directory}/" + AbstractHabushuMojo.DEFAULT_TEST_STAGING_FOLDER + "/src", required = true)

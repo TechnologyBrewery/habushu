@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A plugin to help include Conda-based projects in Maven builds. This helps keep a single build command that can build
+ * A plugin to help include Venv-based projects in Maven builds. This helps keep a single build command that can build
  * the entire system with common lifecycle needs like testings and packaging artifacts that are commonly skipped in
  * Python- and R-projects.
  */
@@ -22,12 +22,6 @@ import org.slf4j.LoggerFactory;
 public class HabushuMojo extends AbstractHabushuMojo {
 
     private static final Logger logger = LoggerFactory.getLogger(HabushuMojo.class);
-
-    /**
-     * The conda configuration file checksum storage file.
-     */
-    @Parameter(property = "condaConfigurationChecksumFile", required = true, defaultValue = "${project.basedir}/target/config-checksum.md5")
-    protected File condaConfigurationChecksumFile;
 
     /**
      * Folder in which python source files are located.
@@ -42,10 +36,8 @@ public class HabushuMojo extends AbstractHabushuMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         super.execute();
                 
-        boolean exists = currentEnvironments.contains("\n" + environmentName + " ");
-        String condaConfigurationFileCanonicalPath = getCanonicalPathForFile(condaConfigurationFile);
-        handleCondaEnvironmentSetup(condaConfigurationFileCanonicalPath, environmentName, exists);
         installUnpackedPythonDependencies();
+        installVenvDependencies();
     }
 
     private void installUnpackedPythonDependencies() {
@@ -54,7 +46,7 @@ public class HabushuMojo extends AbstractHabushuMojo {
             File setupPyFile = new File(dependency, "setup.py");
             logger.debug("Unpacking dependency: {}", dependency.getName());
             if(setupPyFile.exists()) {
-                CondaExecutor executor = createExecutorWithDirectory(dependency, "run -n " + this.environmentName + " python setup.py install");
+                VenvExecutor executor = createExecutorWithDirectory(dependency, PYTHON_COMMAND + " setup.py install");
                 executor.executeAndRedirectOutput(logger);
             }
         }
@@ -71,24 +63,18 @@ public class HabushuMojo extends AbstractHabushuMojo {
 
         return dependencies;
     }
+    
+    private void installVenvDependencies() {
+    	String pathToPip = pathToVirtualEnvironment + "/bin/pip";
+    	VirtualEnvFileHelper venvFileHelper = new VirtualEnvFileHelper(venvDependencyFile);
+    	List<String> dependencies = venvFileHelper.readDependencyListFromFile();
 
-    private void handleCondaEnvironmentSetup(String condaConfigurationPath, String environmentName, boolean exists) {
-        // TODO: if we have an update but no change in the Conda configuration, it would be nice to skip this step.
-        // It's easy enough to do w/ a file hash, but we need to figure out where we want to store that hash since
-        // target will be blown away by default during builds. Likely we will override clean to exclude the hash file
-        // along with adding a "force clean" option
-        if (exists) {
-            logger.info("Updating existing Conda Environment: {}", environmentName);
-
-        } else {
-            logger.info("Creating new Conda Environment: {}", environmentName);
-
-        }
-
-        String action = (exists) ? "update" : "create";
-        String environmentCreateResponse = invokeCondaCommand("env " + action + " --file " + condaConfigurationPath);
-
-        logger.debug(environmentCreateResponse);
+    	for (String dependency : dependencies) {
+    		logger.debug("Installing dependency listed in dependency file: {}", dependency);
+    		
+    		VenvExecutor executor = createExecutorWithDirectory(venvDirectory, pathToPip + " install " + dependency);
+    		executor.executeAndRedirectOutput(logger);
+    	}
     }
     
     @Override
