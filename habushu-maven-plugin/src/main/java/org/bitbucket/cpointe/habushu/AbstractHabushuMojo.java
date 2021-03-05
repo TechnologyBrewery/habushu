@@ -10,6 +10,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.bitbucket.cpointe.habushu.pythondownload.FileDownLoad;
 import org.slf4j.Logger;
 
 /**
@@ -68,6 +69,8 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
             + VENV_DEPENDENCY_FILE_NAME)
     protected File venvDependencyFile;
 
+    
+    private PythonInstaller pythonInstaller = new PythonInstaller(new FileDownLoad());
     /**
      * Handles basic set up used across steps so that the current environments and environment name are available.
      * 
@@ -75,6 +78,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+		pythonInstaller.checkInstallPython();
         createWorkingDirectoryIfNeeded();
         createVirtualEnvironmentIfNeeded();
         
