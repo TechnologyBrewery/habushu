@@ -1,5 +1,8 @@
 package org.bitbucket.cpointe.habushu;
 
+import java.io.File;
+import java.util.Set;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -10,11 +13,6 @@ import org.apache.maven.plugins.dependency.fromDependencies.UnpackDependenciesMo
 import org.apache.maven.plugins.dependency.utils.DependencyUtil;
 import org.apache.maven.plugins.dependency.utils.markers.DefaultFileMarkerHandler;
 import org.apache.maven.project.MavenProject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.Set;
 
 /**
  * A Mojo class to handle retrieval and unpacking of python dependencies for later install into a virtual
@@ -22,8 +20,6 @@ import java.util.Set;
  */
 @Mojo(name = "unpack-python-dependencies", defaultPhase = LifecyclePhase.PROCESS_SOURCES, threadSafe = true)
 public class HabushuUnpackMojo extends UnpackDependenciesMojo {
-
-    private static final Logger logger = LoggerFactory.getLogger(HabushuUnpackMojo.class);
 
     /**
      * The Maven Project

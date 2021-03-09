@@ -2,12 +2,9 @@ package org.bitbucket.cpointe.habushu;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -38,7 +35,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     /**
      * The default command used to summon Python.
      */
-    static final String PYTHON_COMMAND = "python3.7";
+    static final String PYTHON_COMMAND = "python";
 
     /**
      * The base directory for running all Venv commands. Usually the target directory.
