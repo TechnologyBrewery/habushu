@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.bitbucket.cpointe.habushu</groupId>
@@ -19,6 +21,22 @@
 				<artifactId>habushu-maven-plugin</artifactId>
 				<version>${project.version}</version>
 				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>3.1.0</version>
+				<configuration>
+					<excludeDefaultDirectories>true</excludeDefaultDirectories>
+					<filesets>
+						<fileset>
+							<directory>target</directory>
+							<excludes>
+								<exclude>build-accelerator/**</exclude>
+								<exclude>virtualenvs/**</exclude>
+							</excludes>
+						</fileset>
+					</filesets>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

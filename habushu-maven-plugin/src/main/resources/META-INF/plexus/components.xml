@@ -11,6 +11,7 @@
 					the *current* lifecycle. If you break this, it means you need to pull habushu-mixology 
 					out of the build until you repair the issue. -->
 				<phases>
+					<clean>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:habushu-clean</clean>
 					<process-resources>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:resources</process-resources>
 					<process-sources>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:unpack-python-dependencies</process-sources>
 					<compile>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:configure-environment</compile>

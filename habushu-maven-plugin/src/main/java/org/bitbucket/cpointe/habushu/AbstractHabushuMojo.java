@@ -76,7 +76,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         createWorkingDirectoryIfNeeded();
-        createVirtualEnvironment();
+        createVirtualEnvironmentIfNeeded();
         
         String pathToActivationScript = pathToVirtualEnvironment + "/bin/activate";
         
@@ -134,11 +134,22 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
 	}
     
 	/**
-	 * Creates the Python virtual environment at the specified path.
+	 * Creates the Python virtual environment at the specified path if needed.
 	 * 
 	 * @return system output
 	 */
-	protected String createVirtualEnvironment() {				
+	protected void createVirtualEnvironmentIfNeeded() {
+		File virtualEnvDirectory = new File(pathToVirtualEnvironment);
+		if (virtualEnvDirectory.exists()) {
+			if (getLogger().isDebugEnabled()) {
+				getLogger().debug("Virtual environment already created at {}.", venvDirectory.getAbsolutePath());
+			} else {
+				getLogger().info("Virtual environment already created.");
+			}
+			
+			return;
+		}
+		
 		List<String> commands = new ArrayList<>();
 		commands.add(PYTHON_COMMAND);
 		commands.add("-m");
@@ -146,7 +157,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
 		commands.add(pathToVirtualEnvironment);
 				
 		VenvExecutor executor = new VenvExecutor(workingDirectory, commands, Platform.guess(), new HashMap<>());
-		return executor.executeAndGetResult(getLogger());
+		executor.executeAndGetResult(getLogger());
 	}
 	
     /**
@@ -224,6 +235,9 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
         return invokeVenvCommandAndRedirectOutput(directory, environmentName + " " + command);
     }
     
+    /**
+     * Create the working directory and virtual environment container directories.
+     */
     private void createWorkingDirectoryIfNeeded() {
         if (!workingDirectory.exists()) {
             getLogger().debug("Working directory did not exist - creating {}",
@@ -232,6 +246,16 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
 
             if (!workingDirectory.exists()) {
                 throw new HabushuException("Working directory STILL does not exist after trying to create it!");
+            }
+        }
+        
+        if (!venvDirectory.exists()) {
+            getLogger().debug("Virtual environment directory did not exist - creating {}",
+                    getCanonicalPathForFile(venvDirectory));
+            venvDirectory.mkdirs();
+
+            if (!venvDirectory.exists()) {
+                throw new HabushuException("Virtual environment directory STILL does not exist after trying to create it!");
             }
         }
     }
