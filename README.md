@@ -18,7 +18,7 @@ Change the packaging of your module's pom to use habushu:
 	<packaging>habushu</packaging>
 ```
 
-#### Add the Habuahu Plugin ####
+#### Add the Habushu Plugin ####
 Add the following plugin to your module's pom's build section:
 ```
 	<plugin>
@@ -26,6 +26,22 @@ Add the following plugin to your module's pom's build section:
 		<artifactId>habushu-maven-plugin</artifactId>
 		<version>${project.version}</version>
 		<extensions>true</extensions>
+	</plugin>
+	<plugin>
+		<artifactId>maven-clean-plugin</artifactId>
+		<version>3.1.0</version>
+		<configuration>
+		  	<excludeDefaultDirectories>true</excludeDefaultDirectories>
+		  	<filesets>
+				<fileset>
+					<directory>target</directory>
+					<excludes>
+						<exclude>build-accelerator/**</exclude>
+						<exclude>virtualenvs/**</exclude>
+					</excludes>
+				</fileset>
+			</filesets>
+		</configuration>
 	</plugin>
 ```
 
@@ -35,7 +51,7 @@ After performing the steps above, your module will leverage the habushu lifecycl
 Configuration for options described below can be accomplished as described in the Test Configuration Options section below.
 
 ##### clean #####
-Leverages the standard [`maven-clean-plugin`](https://maven.apache.org/plugins/maven-clean-plugin/index.html) to clear out the entire `target`directory when clean is passed to the build.  All configurations options are listed in the plugin's documentation.
+Leverages the standard [`maven-clean-plugin`](https://maven.apache.org/plugins/maven-clean-plugin/index.html) to clear out portions of the `target` directory when clean is passed to the build. A standard build will not clear the `build-accelerator` or `virtualenvs` directories, containing the hashed dependency file and the virtual environment configuration, respectively. These directories may be forcibly cleaned with the `habushu.force.clean` build option.
 
 ##### resources #####
 Habushu has extended the default [`maven-resources-plugin`](https://maven.apache.org/plugins/maven-resources-plugin/) to copy anything in `src/main/python`, `src/main/resources` into the `target/staging` directory. The project's `pom.xml` and Venv dependency file are also included. These copies can then be used for testing and will be included in the zip file produced later in the lifecycle. All configurations options are listed in the plugin's documentation.  The following configuration options can be specified via standard Maven configuration for plugins:
@@ -122,6 +138,7 @@ If you are working on habushu, please be aware of some nuances in working with a
 
 * `mvn clean install -Pbootstrap`: will build the `habushu-maven-plugin` so `habushu-mixology` can be executed in subsequent default builds.  Note that this also means that mixology lifecycle changes require two builds to test - one to build the lifecycle, then a second to use that updated lifecycle.  Code changes within the existing lifecycle work via normal builds without the need for a second pass.
 * `mvn clean install -Pdefault`: (ACTIVE BY DEFAULT - `-Pdefault` does not need to be specified) builds all modules.
+* `mvn clean install -Dhabushu.force.clean`: will clean out the virtual environment configuration and dependency file to force the full re-construction of the environment.
 
 ## Common Issues ##
 
