@@ -45,7 +45,7 @@ Add the following plugin to your module's pom's build section:
 	</plugin>
 ```
 
-#### Resulting Build Licefycle ####
+#### Resulting Build Lifecycle ####
 After performing the steps above, your module will leverage the habushu lifecycle rather than the default lifecycle. It consists of the following stages. 
 
 Configuration for options described below can be accomplished as described in the Test Configuration Options section below.
@@ -61,19 +61,50 @@ Habushu has extended the default [`maven-resources-plugin`](https://maven.apache
 * _resourcesDirectory:_ The directory in which your resources should be placed.  BY default, `src/main/resources`.  It is highly discouraged to change this value.
 
 ##### configure-environment #####
-Create or update your Venv virtual environment. This ensures it is valid and that any tests are run in the versioned controlled environment. The following configuration options can be specified via standard Maven confguration for plugins:  
+Create or update your Venv virtual environment. This ensures it is valid and that any tests are run in the versioned controlled environment. The following configuration options can be specified via standard Maven configuration for plugins:  
 
 * _venvDirectory:_ The root location of your virtual environment.  By default, this will point to the /virtualenvs/ folder directly under the project build directory (usually the target folder).
 * _workingDirectory:_ The location in which any venv commands will be run.  By default, this is `target`.
 * _pythonSourceDirectory:_ The directory in which your source code should be placed.  By default, `src/main/python`.  It is highly discouraged to change this value.
 * _environmentName:_ The name of your virtual environment.  By default, this will be the `artifactId` of your Maven build.
 * _pathToVirtualEnvironment:_ The path to your specified virtual environment.  By default, this will simply add your environmentName onto the file path of your `venvDirectory`.
+* _settingsFileLocation:_ The path to your Maven settings.xml file.  By default, this will point to a settings file located in the .m2 folder under your user home directory.
 
 ##### test #####
 Run behave if any files exist within the `src/test/python/features` directory. More information on authoring and running tests can be found later in this document, including configuration options.
 
 ##### zip #####
 Habushu has extended the [`maven-assembly-plugin`](http://maven.apache.org/plugins/maven-assembly-plugin/) to create a zip file from all the files in the `target/staging` directory. All configurations options are listed in the plugin's documentation.
+
+##### package-and-release-python #####
+Habushu contains a lifecycle phase that will package a client Python project into a wheel file (.whl), and optionally upload it to a specified remote repository.
+To release a wheel file to the remote repository, use the `habushu.perform.release` build option in Maven.
+
+For a successful release to your remote PyPi hosted repository, you will need to configure the following options:
+
+* _repositoryUrl:_ The URL of the remote repository.
+* _repositoryId:_ The ID of the remote repository.
+
+Additionally, the following configuration options can be specified via standard Maven configuration for plugins:
+
+* _stagingDirectory:_ The directory in which the build stages files.  By default, this is `{project.basedir}/target/staging`.
+* _distDirectory:_ The directory in which the wheel file is located after it is built.  By default, this is `{project.basedir}/target/staging/dist`.
+* _packageWheelScript:_ The bash script that will package a Python project into wheel format.
+* _uploadWheelScript:_ The bash script that will upload a Python wheel to the remote repository.
+* _settingsFileLocation:_ The path to your Maven settings.xml file.  By default, this will point to a settings file located in the .m2 folder under your user home directory.
+
+Python release process and versioning:
+
+The process for releasing Python artifacts differs from the standard Maven release cycle in a number of ways.  Python does not recognize "SNAPSHOT" releases, and instead uses a versioning scheme generally agreed upon by Python developers to differentiate between major, minor, and micro releases.  Accordingly, there is no snapshot repository - the habushu-maven-plugin is configured to point to a release repository for Python projects.  Python also does not use an SCM connection to tag builds from Git like Maven; instead, the developer will need to utilize the project's setup.py file to tag the build themselves with any relevant information prior to packaging and releasing the build artifact.
+
+Steps to run a release:
+1. Make any changes to the project using the habushu-maven-plugin.
+2. Edit the project's `setup.py` file to change the version number or other build information.  This should differ in a meaningful way from prior versions, so that a new artifact is created.
+3. Run the build with the `habushu.perform.release` option, which will upload the generated wheel file to your remote PyPi hosted repository.
+
+Important notes:
+Versioning for wheel files is specific, and should follow standard convention.
+[Wheel file naming convention](https://www.python.org/dev/peps/pep-0491/#file-name-convention)
 
 ##### install #####
 Moves the assembly creates in the zip lifecycle to the local machine's `.m2/respository` per the standard Maven lifecycle. This includes information for versioning SNAPSHOT (development) and released versions via GAV (groupId, artifactId, version) naming conventions and allows the artifact to be pulled by GAV with any local Maven-compliant dependency fetching algorithm.  If needed, more information is available on the [`maven-install-plugin`](https://maven.apache.org/plugins/maven-install-plugin/) page.
