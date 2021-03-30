@@ -1,3 +1,13 @@
 # List dependencies in this file, one per line.
 # Lines containing pound signs are skipped in this file.
+
+# Dependency necessary for running tests
 behave
+
+# Dependencies necessary for pushing to / pulling from remote repositories
+repositorytools
+wheel
+twine
+
+# Testing installation from private PyPi repository
+habushu-mixology

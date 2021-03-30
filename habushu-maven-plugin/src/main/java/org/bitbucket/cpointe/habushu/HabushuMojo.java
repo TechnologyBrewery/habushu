@@ -32,6 +32,13 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	private static final Logger logger = LoggerFactory.getLogger(HabushuMojo.class);
 
 	/**
+	 * Location of the current Maven user's settings.xml file. Defaults to
+	 * settings.xml file under the .m2 folder in the user's home directory.
+	 */
+	@Parameter(property = "settingsFileLocation", required = false)
+	protected File settingsFileLocation;
+
+	/**
 	 * Folder where the previous file hash of the venv dependency file is stored.
 	 */
 	@Parameter(property = "previousDependencyHashDirectory", required = true, defaultValue = "${project.build.directory}/build-accelerator/")
@@ -45,17 +52,48 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	protected String previousVenvDependencyFileHash;
 
 	/**
+	 * The configuration file for the instance of pip in the virtual environment.
+	 */
+	@Parameter(property = "pathToPipConfigFile", required = true, defaultValue = "${project.build.directory}/virtualenvs/${project.artifactId}/pip.conf")
+	protected String pathToPipConfigFile;
+
+	/**
+	 * The URL pointing to the distribution management server (a private PyPi
+	 * repository hosted in Nexus).
+	 */
+	@Parameter(defaultValue = "https://nexus.aws.cpointe-inc.com/repository/habushu-pypi-repo/", property = "repositoryUrl", required = true)
+	protected String repositoryUrl;
+
+	/**
+	 * The ID of the distribution management server (a private PyPi repository
+	 * hosted in Nexus).
+	 */
+	@Parameter(defaultValue = "nexus.aws.cpointe-inc.com", property = "repositoryId", required = true)
+	protected String repositoryId;
+
+	/**
+	 * The generated shell script that uses pip-login to log in to the remote
+	 * repository.
+	 */
+	@Parameter(defaultValue = "${project.build.directory}/pip-login.sh", property = "pipLoginScript", required = false)
+	private File pipLoginScript;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		super.execute();
 
-		createPreviousDependencyFileHashDirectoryIfNeeded();
+		installPipLogin();
+		HabushuUtil.createFileAndGivePermissions(pipLoginScript);
+		writeCommandsToPipLoginScript();
+		HabushuUtil.runBashScript(pipLoginScript.getAbsolutePath(), constructParametersForPipLoginScript());
 
 		boolean updateRequired = compareCurrentAndPreviousDependencyFileHashes();
 		if (updateRequired) {
 			logger.debug("Change detected in venv dependency file. Updating configuration.");
+
 			installUnpackedPythonDependencies();
 			installVenvDependencies();
 			overwritePreviousDependencyHash();
@@ -70,16 +108,18 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	 * @return true if the hashes/files are different, false if they're equal
 	 */
 	private boolean compareCurrentAndPreviousDependencyFileHashes() {
+		createPreviousDependencyFileHashDirectoryIfNeeded();
+
 		String currentDependencyFileHash = null;
 		String previousDependencyFileHash = null;
-		String previousDependencyFilePath = previousDependencyHashDirectory.getAbsolutePath()
+		String previousDependencyFilePath = previousDependencyHashDirectory.getAbsolutePath() + "/"
 				+ previousVenvDependencyFileHash;
 
 		File previousDependencyHashFile = new File(previousDependencyFilePath);
 		if (previousDependencyHashFile.exists()) {
 			try {
 				HashFunction hashAlgorithm = Hashing.sha256();
-				
+
 				currentDependencyFileHash = Files.asByteSource(previousDependencyHashFile).hash(hashAlgorithm)
 						.toString();
 				previousDependencyFileHash = Files.asByteSource(venvDependencyFile).hash(hashAlgorithm).toString();
@@ -101,7 +141,8 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	private void overwritePreviousDependencyHash() {
 		logger.debug("Overwriting previous file hash with current one.");
 
-		File previousDependencyHash = new File(previousVenvDependencyFileHash);
+		File previousDependencyHash = new File(
+				previousDependencyHashDirectory.getAbsolutePath() + "/" + previousVenvDependencyFileHash);
 		File currentDependencyHash = new File(venvDependencyFile.getAbsolutePath());
 
 		try {
@@ -109,6 +150,57 @@ public class HabushuMojo extends AbstractHabushuMojo {
 		} catch (IOException e) {
 			throw new HabushuException("Error when trying to overwrite previous dependency file hash with current!", e);
 		}
+	}
+
+	/**
+	 * Installs pip-login, which will allow authentication from the command line for
+	 * PyPi hosted repositories.
+	 */
+	private void installPipLogin() {
+		logger.debug("Installing pip-login.");
+		String pathToPip = pathToVirtualEnvironment + "/bin/pip";
+
+		VenvExecutor executor = createExecutorWithDirectory(venvDirectory, pathToPip + " install pip-login");
+		executor.executeAndRedirectOutput(logger);
+	}
+
+	/**
+	 * Creates a bash script to run pip-login, targeted at the repositoryUrl. Will
+	 * use the current Maven user's username and password for that repository.
+	 */
+	private void writeCommandsToPipLoginScript() {
+		String pathToActivationScript = pathToVirtualEnvironment + "/bin/activate";
+
+		StringBuilder commandList = new StringBuilder();
+		commandList.append("#!/bin/bash" + "\n");
+		commandList.append("source " + pathToActivationScript + "\n");
+		commandList.append("cd " + venvDirectory + "\n");
+		commandList.append("pip-login -u $1 -p $2 " + repositoryUrl + "simple/");
+
+		HabushuUtil.writeLinesToFile(commandList.toString(), pipLoginScript.getAbsolutePath());
+	}
+
+	/**
+	 * Creates the list of parameters for the pip-login shell script, which includes
+	 * the current Maven user's username and password.
+	 * 
+	 * Also allows the current Maven user to change their settings file location if
+	 * necessary.
+	 * 
+	 * @return parameters the parameters for pip-login
+	 */
+	private String[] constructParametersForPipLoginScript() {
+		logger.debug("Constructing parameters for pip-login shell script.");
+
+		if (settingsFileLocation != null && settingsFileLocation.exists()) {
+			HabushuUtil.changeSettingsFileLocation(settingsFileLocation);
+		}
+
+		String[] parameters = new String[2];
+		parameters[0] = HabushuUtil.findUsernameForServer(repositoryId);
+		parameters[1] = HabushuUtil.decryptServerPassword(repositoryId);
+
+		return parameters;
 	}
 
 	private void installUnpackedPythonDependencies() {

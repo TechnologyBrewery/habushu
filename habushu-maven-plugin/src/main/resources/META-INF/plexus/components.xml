@@ -19,6 +19,7 @@
 					<process-test-resources>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:test-resources</process-test-resources>
 					<test>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:test</test>
 					<package>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:zip</package>
+					<post-integration-test>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:package-and-release-python</post-integration-test>
 					<install>org.apache.maven.plugins:maven-install-plugin:2.5.2:install</install>
 					<deploy>org.apache.maven.plugins:maven-deploy-plugin:2.8.2:deploy</deploy>
 				</phases>

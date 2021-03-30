@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class VirtualEnvFileHelper {
     private File virtualEnvFile;
 
@@ -27,7 +29,7 @@ public class VirtualEnvFileHelper {
             while (reader.hasNextLine()) {
               String dependencyLine = reader.nextLine();
               
-              if (!dependencyLine.contains("#")) {
+              if (StringUtils.isNotBlank(dependencyLine) && !dependencyLine.contains("#")) {
             	  dependencies.add(dependencyLine);
               }
             }
