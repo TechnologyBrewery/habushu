@@ -32,13 +32,6 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	private static final Logger logger = LoggerFactory.getLogger(HabushuMojo.class);
 
 	/**
-	 * Location of the current Maven user's settings.xml file. Defaults to
-	 * settings.xml file under the .m2 folder in the user's home directory.
-	 */
-	@Parameter(property = "settingsFileLocation", required = false)
-	protected File settingsFileLocation;
-
-	/**
 	 * Folder where the previous file hash of the venv dependency file is stored.
 	 */
 	@Parameter(property = "previousDependencyHashDirectory", required = true, defaultValue = "${project.build.directory}/build-accelerator/")
@@ -192,8 +185,8 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	private String[] constructParametersForPipLoginScript() {
 		logger.debug("Constructing parameters for pip-login shell script.");
 
-		if (settingsFileLocation != null && settingsFileLocation.exists()) {
-			HabushuUtil.changeSettingsFileLocation(settingsFileLocation);
+		if (settings != null) {
+			HabushuUtil.setMavenSettings(settings);
 		}
 
 		String[] parameters = new String[2];
