@@ -10,6 +10,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.settings.Settings;
 import org.bitbucket.cpointe.habushu.pythondownload.FileDownLoad;
 import org.slf4j.Logger;
 
@@ -72,6 +73,12 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
 	@Parameter(property = "venvDependencyFile", required = true, defaultValue = "${project.basedir}/"
 			+ VENV_DEPENDENCY_FILE_NAME)
 	protected File venvDependencyFile;
+	
+    /**
+     * The current Maven user's settings, pulled dynamically from their settings.xml file.
+     */
+    @Parameter( defaultValue = "${settings}", readonly = true, required = true )
+    protected Settings settings;
 
 	private PythonInstaller pythonInstaller = new PythonInstaller(new FileDownLoad());
 

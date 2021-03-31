@@ -20,13 +20,6 @@ public class HabushuReleaseMojo extends AbstractHabushuMojo {
 	private static final Logger logger = LoggerFactory.getLogger(HabushuReleaseMojo.class);
 
 	/**
-	 * Location of the current Maven user's settings.xml file. Defaults to
-	 * settings.xml file under the .m2 folder in the user's home directory.
-	 */
-	@Parameter(property = "settingsFileLocation", required = false)
-	protected File settingsFileLocation;
-
-	/**
 	 * The ID of the distribution management server (a private PyPi repository
 	 * hosted in Nexus).
 	 */
@@ -84,8 +77,8 @@ public class HabushuReleaseMojo extends AbstractHabushuMojo {
 		HabushuUtil.runBashScript(packageWheelScript.getAbsolutePath(), null);
 
 		if (habushuPerformRelease) {
-			if (settingsFileLocation != null && settingsFileLocation.exists()) {
-				HabushuUtil.changeSettingsFileLocation(settingsFileLocation);
+			if (settings != null) {
+				HabushuUtil.setMavenSettings(settings);
 			}
 
 			HabushuUtil.createFileAndGivePermissions(uploadWheelScript);

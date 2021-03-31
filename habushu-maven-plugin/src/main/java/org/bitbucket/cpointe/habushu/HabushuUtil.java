@@ -7,11 +7,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
-import java.util.Collections;
 
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
-import org.apache.maven.settings.io.DefaultSettingsReader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,10 +25,7 @@ public final class HabushuUtil {
 
 	private static final Logger logger = LoggerFactory.getLogger(HabushuUtil.class);
 	
-	/**
-	 * The settings.xml file for the current Maven user.
-	 */
-	private static File settingsFileLocation = new File(System.getProperty("user.home"), ".m2/settings.xml");
+	private static Settings settings;
 
 	private HabushuUtil() {}
 
@@ -56,37 +51,14 @@ public final class HabushuUtil {
 	}
 	
 	/**
-	 * Find the username for a given server in Maven's settings.xml.
+	 * Find the username for a given server in Maven's user settings.
 	 * 
 	 * @return the username for the server specified in Maven's settings.xml
 	 */
 	public static String findUsernameForServer(String serverId) {
-		Settings settings = readSettingsFile();
 		Server server = settings.getServer(serverId);
 		
 		return server != null ? server.getUsername() : null;
-	}
-
-	/**
-	 * Attempts to read the current Maven user's local settings.xml file.
-	 * 
-	 * @return an instance of the current Maven user's local settings.xml file.
-	 */
-	public static Settings readSettingsFile() {
-		if (settingsFileLocation.exists()) {
-			logger.debug("Reading settings from: {}", settingsFileLocation);
-		} else {
-			logger.debug("No settings found at: {}", settingsFileLocation);
-		}
-
-		Settings settings = null;
-		try {
-			settings = new DefaultSettingsReader().read(settingsFileLocation, Collections.emptyMap());
-		} catch (IOException e) {
-			throw new HabushuException("Could not read Maven settings file.", e);
-		}
-
-		return settings;
 	}
 
 	/**
@@ -96,10 +68,12 @@ public final class HabushuUtil {
 	 */
 	public static String decryptServerPassword(String serverId) {
 		String decryptedPassword = null;
+		
+		MavenPasswordDecoder.setMavenSettings(settings);
 
 		try {
 			decryptedPassword = MavenPasswordDecoder.decryptPasswordForServer(serverId);
-		} catch (IOException | XmlPullParserException | SecDispatcherException | PlexusCipherException e) {
+		} catch (PlexusCipherException | IOException | XmlPullParserException | SecDispatcherException e) {
 			throw new HabushuException("Unable to decrypt stored passwords.", e);
 		}
 
@@ -200,11 +174,11 @@ public final class HabushuUtil {
 	}
 	
 	/**
-	 * Provides a way to configure the settings file location for a Maven user.
-	 * @param newSettingsFileLocation the actual settings.xml location
+	 * Provides a way to configure the settings for a Maven user.
+	 * @param newSettings the settings for the Maven user
 	 */
-	public static void changeSettingsFileLocation(File newSettingsFileLocation) {
-		logger.debug("Changing settings file location to {}", settingsFileLocation.getAbsolutePath());
-		settingsFileLocation = newSettingsFileLocation;
+	public static void setMavenSettings(Settings newSettings) {
+		logger.debug("Changing settings contents.");
+		settings = newSettings;
 	}
 }
