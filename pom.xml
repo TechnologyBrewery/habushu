@@ -188,7 +188,7 @@
 						<artifactId>maven-javadoc-plugin</artifactId>
 						<version>${maven.core.version}</version>
 						<configuration>
-							<javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+							<javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
 							<!-- NB JDK 8 Javadoc linter is very strict, so deactivate it if we're 
 								using Java 8 -->
 							<additionalparam>-Xdoclint:none</additionalparam>
