@@ -137,10 +137,12 @@ public class BehaveMojo extends AbstractHabushuMojo {
     		}
     	}
     	
-		// Check the environment directly and output results for logging
-    	String pathToPip = pathToVirtualEnvironment + "/bin/pip";
-		VenvExecutor executor = createExecutorWithDirectory(venvDirectory, pathToPip + " freeze");
-		executor.executeAndRedirectOutput(logger);
+    	if (logger.isDebugEnabled()) {
+    		// Check the environment dependency list and output results for logging
+        	String pathToPip = pathToVirtualEnvironment + "/bin/pip";
+    		VenvExecutor executor = createExecutorWithDirectory(venvDirectory, pathToPip + " freeze");
+    		executor.executeAndRedirectOutput(logger);
+    	}
 
         if (!behaving) {
             logger.error(
