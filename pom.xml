@@ -2,7 +2,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.bitbucket.cpointe.habushu</groupId>
-	<version>0.1.4-SNAPSHOT</version>
+	<version>0.1.5-SNAPSHOT</version>
 	<artifactId>habushu</artifactId>
 	<packaging>pom</packaging>
 
@@ -188,7 +188,7 @@
 						<artifactId>maven-javadoc-plugin</artifactId>
 						<version>${maven.core.version}</version>
 						<configuration>
-							<javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+							<javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
 							<!-- NB JDK 8 Javadoc linter is very strict, so deactivate it if we're 
 								using Java 8 -->
 							<additionalparam>-Xdoclint:none</additionalparam>
