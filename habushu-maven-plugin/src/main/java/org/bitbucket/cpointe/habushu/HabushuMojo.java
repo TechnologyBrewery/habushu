@@ -72,27 +72,47 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	private File pipLoginScript;
 
 	/**
+	 * The generated shell script that installs Maven-unpackaged Python
+	 * depdendencies.
+	 */
+	@Parameter(defaultValue = "${project.build.directory}/python-setup-install-local-dependencies.sh", property = "pythonSetupInstallScript", required = false)
+	private File pythonSetupInstallScript;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		super.execute();
 
+		upgradeVirtualEnvironmentPip();
 		installPipLogin();
 		HabushuUtil.createFileAndGivePermissions(pipLoginScript);
 		writeCommandsToPipLoginScript();
 		HabushuUtil.runBashScript(pipLoginScript.getAbsolutePath(), constructParametersForPipLoginScript());
 
+		installUnpackedPythonDependencies();
+		
 		boolean updateRequired = compareCurrentAndPreviousDependencyFileHashes();
 		if (updateRequired) {
 			logger.debug("Change detected in venv dependency file. Updating configuration.");
-
-			installUnpackedPythonDependencies();
+			
 			installVenvDependencies();
 			overwritePreviousDependencyHash();
 		} else {
 			logger.debug("No change detected in venv dependency file.");
 		}
+	}
+	
+	/**
+	 * Upgrades the pip instance for the virtual environment to the latest version.
+	 */
+	private void upgradeVirtualEnvironmentPip() {
+		logger.debug("Upgrading pip for virtual environment to latest version.");
+		String pathToPip = pathToVirtualEnvironment + "/bin/pip";
+
+		VenvExecutor executor = createExecutorWithDirectory(venvDirectory, pathToPip + " install --upgrade pip");
+		executor.executeAndGetResult(logger);
 	}
 
 	/**
@@ -193,19 +213,41 @@ public class HabushuMojo extends AbstractHabushuMojo {
 		parameters[0] = HabushuUtil.findUsernameForServer(repositoryId);
 		parameters[1] = HabushuUtil.decryptServerPassword(repositoryId);
 
+		if (StringUtils.isBlank(parameters[0]) || StringUtils.isBlank(parameters[1])) {
+			throw new HabushuException(
+					"Incorrectly configured credentials for PyPi hosted repository.  Please check your Maven settings.xml and build again.");
+		}
+
 		return parameters;
 	}
 
 	private void installUnpackedPythonDependencies() {
+		HabushuUtil.createFileAndGivePermissions(pythonSetupInstallScript);
+		writeCommandsToPythonSetupInstallScript();
+		HabushuUtil.runBashScript(pythonSetupInstallScript.getAbsolutePath());
+	}
+
+	/**
+	 * Creates a bash script to install Python dependencies that have been
+	 * unpackaged by Maven.
+	 */
+	private void writeCommandsToPythonSetupInstallScript() {
+		String pathToActivationScript = pathToVirtualEnvironment + "/bin/activate";
 		List<File> dependencies = getDependencies();
+
+		StringBuilder commandList = new StringBuilder();
+		commandList.append("#!/bin/bash" + "\n");
+		commandList.append("source " + pathToActivationScript + "\n");
+
 		for (File dependency : dependencies) {
 			File setupPyFile = new File(dependency, "setup.py");
-			logger.debug("Unpacking dependency: {}", dependency.getName());
 			if (setupPyFile.exists()) {
-				VenvExecutor executor = createExecutorWithDirectory(dependency, PYTHON_COMMAND + " setup.py install");
-				executor.executeAndGetResult(logger);
+				commandList.append("cd " + dependency.getAbsolutePath() + "\n");
+				commandList.append(PYTHON_COMMAND + " setup.py install" + "\n");
 			}
 		}
+
+		HabushuUtil.writeLinesToFile(commandList.toString(), pythonSetupInstallScript.getAbsolutePath());
 	}
 
 	private List<File> getDependencies() {
