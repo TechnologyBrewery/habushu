@@ -154,7 +154,7 @@ public class HabushuMojo extends AbstractHabushuMojo {
 		String pathToPip = pathToVirtualEnvironment + "/bin/pip";
 
 		VenvExecutor executor = createExecutorWithDirectory(venvDirectory, pathToPip + " install pip-login");
-		executor.executeAndRedirectOutput(logger);
+		executor.executeAndGetResult(logger);
 	}
 
 	/**
@@ -228,7 +228,7 @@ public class HabushuMojo extends AbstractHabushuMojo {
 			logger.debug("Installing dependency listed in dependency file: {}", dependency);
 
 			VenvExecutor executor = createExecutorWithDirectory(venvDirectory, pathToPip + " install " + dependency);
-			executor.executeAndRedirectOutput(logger);
+			executor.executeAndGetResult(logger);
 		}
 	}
 
