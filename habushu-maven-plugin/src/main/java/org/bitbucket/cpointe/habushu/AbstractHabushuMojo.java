@@ -79,6 +79,12 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     @Parameter( defaultValue = "${settings}", readonly = true, required = true )
     protected Settings settings;
+    
+	/**
+	 * Represents the path to the activation script for the virtual environment.
+	 */
+	@Parameter(defaultValue = "${project.build.directory}/virtualenvs/${project.artifactId}/bin/activate", property = "pathToActivationScript", required = false)
+    protected String pathToActivationScript = pathToVirtualEnvironment + "/bin/activate";
 
 	private PythonInstaller pythonInstaller = new PythonInstaller(new FileDownLoad());
 
@@ -94,7 +100,6 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
 		createWorkingDirectoryIfNeeded();
 		createVirtualEnvironmentIfNeeded();
 
-		String pathToActivationScript = pathToVirtualEnvironment + "/bin/activate";
 		HabushuUtil.giveFullFilePermissions(pathToActivationScript);
 	}
 
