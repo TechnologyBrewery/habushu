@@ -74,7 +74,7 @@ public class HabushuReleaseMojo extends AbstractHabushuMojo {
 		
 		HabushuUtil.createFileAndGivePermissions(packageWheelScript);
 		writeCommandsToPackageScript();
-		HabushuUtil.runBashScript(packageWheelScript.getAbsolutePath(), null);
+		HabushuUtil.runBashScript(packageWheelScript.getAbsolutePath());
 
 		if (habushuPerformRelease) {
 			if (settings != null) {

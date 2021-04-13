@@ -11,6 +11,3 @@ behave
 repositorytools
 wheel
 twine
-
-# Testing installation from private PyPi repository
-habushu-mixology

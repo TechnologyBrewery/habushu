@@ -45,6 +45,17 @@ Add the following plugin to your module's pom's build section:
 	</plugin>
 ```
 
+#### Configure Maven Settings.xml ####
+Add the following to your Maven's settings.xml file, usually located under the .m2 folder.
+
+```
+    <server>
+        <id>ID of the PyPi hosted repository</id>
+        <username>username for the repository</username>
+        <password>encrypted password for the repository</password>
+    </server>
+```
+
 #### Resulting Build Lifecycle ####
 After performing the steps above, your module will leverage the habushu lifecycle rather than the default lifecycle. It consists of the following stages. 
 
