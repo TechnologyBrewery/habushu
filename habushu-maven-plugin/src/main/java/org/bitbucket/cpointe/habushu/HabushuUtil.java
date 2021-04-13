@@ -79,9 +79,19 @@ public final class HabushuUtil {
 
 		return decryptedPassword;
 	}
+	
+	/**
+	 * Run the bash script found at the given location without parameters.
+	 * @param bashScriptPath absolute path to the bash script
+	 */
+	public static void runBashScript(String bashScriptPath) {
+		runBashScript(bashScriptPath, null);
+	}
 
 	/**
-	 * Run the bash script found at the given location, with optional parameters.
+	 * Run the bash script found at the given location with the provided parameters.
+	 * @param bashScriptPath absolute path to the bash script
+	 * @param parameters script parameters
 	 */
 	public static void runBashScript(String bashScriptPath, String[] parameters) {
 		logger.debug("Running bash script located at {}.", bashScriptPath);
