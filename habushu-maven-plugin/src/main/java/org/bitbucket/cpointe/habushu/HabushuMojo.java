@@ -45,12 +45,6 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	protected String previousVenvDependencyFileHash;
 
 	/**
-	 * The configuration file for the instance of pip in the virtual environment.
-	 */
-	@Parameter(property = "pathToPipConfigFile", required = true, defaultValue = "${project.build.directory}/virtualenvs/${project.artifactId}/pip.conf")
-	protected String pathToPipConfigFile;
-
-	/**
 	 * The URL pointing to the distribution management server (a private PyPi
 	 * repository hosted in Nexus).
 	 */
@@ -91,8 +85,6 @@ public class HabushuMojo extends AbstractHabushuMojo {
 		writeCommandsToPipLoginScript();
 		HabushuUtil.runBashScript(pipLoginScript.getAbsolutePath(), constructParametersForPipLoginScript());
 
-		installUnpackedPythonDependencies();
-		
 		boolean updateRequired = compareCurrentAndPreviousDependencyFileHashes();
 		if (updateRequired) {
 			logger.debug("Change detected in venv dependency file. Updating configuration.");
@@ -102,6 +94,8 @@ public class HabushuMojo extends AbstractHabushuMojo {
 		} else {
 			logger.debug("No change detected in venv dependency file.");
 		}
+		
+		installUnpackedPythonDependencies();
 	}
 	
 	/**
@@ -182,8 +176,6 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	 * use the current Maven user's username and password for that repository.
 	 */
 	private void writeCommandsToPipLoginScript() {
-		String pathToActivationScript = pathToVirtualEnvironment + "/bin/activate";
-
 		StringBuilder commandList = new StringBuilder();
 		commandList.append("#!/bin/bash" + "\n");
 		commandList.append("source " + pathToActivationScript + "\n");
@@ -222,6 +214,8 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	}
 
 	private void installUnpackedPythonDependencies() {
+		logger.info("Installing local, unpacked Python dependencies.");
+		
 		HabushuUtil.createFileAndGivePermissions(pythonSetupInstallScript);
 		writeCommandsToPythonSetupInstallScript();
 		HabushuUtil.runBashScript(pythonSetupInstallScript.getAbsolutePath());
@@ -232,7 +226,6 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	 * unpackaged by Maven.
 	 */
 	private void writeCommandsToPythonSetupInstallScript() {
-		String pathToActivationScript = pathToVirtualEnvironment + "/bin/activate";
 		List<File> dependencies = getDependencies();
 
 		StringBuilder commandList = new StringBuilder();
@@ -262,6 +255,8 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	}
 
 	private void installVenvDependencies() {
+		logger.info("Installing virtual environment dependencies from pip; process may take a few minutes.");
+		
 		String pathToPip = pathToVirtualEnvironment + "/bin/pip";
 		VirtualEnvFileHelper venvFileHelper = new VirtualEnvFileHelper(venvDependencyFile);
 		List<String> dependencies = venvFileHelper.readDependencyListFromFile();
