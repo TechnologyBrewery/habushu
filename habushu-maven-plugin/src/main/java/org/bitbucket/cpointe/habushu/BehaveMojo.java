@@ -100,7 +100,7 @@ public class BehaveMojo extends AbstractHabushuMojo {
 			logger.info("T E S T S");
 			logger.info("-------------------------------------------------------");
 
-			HabushuUtil.runBashScript(runTestsScript.getAbsolutePath(), null);
+			HabushuUtil.runBashScript(runTestsScript.getAbsolutePath(), null, false);
 			
 		} else if (skipTests) {
 			logger.info("Tests are skipped.");

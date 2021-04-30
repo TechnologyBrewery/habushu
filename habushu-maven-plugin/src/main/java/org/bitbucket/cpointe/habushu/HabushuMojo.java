@@ -83,7 +83,7 @@ public class HabushuMojo extends AbstractHabushuMojo {
 		installPipLogin();
 		HabushuUtil.createFileAndGivePermissions(pipLoginScript);
 		writeCommandsToPipLoginScript();
-		HabushuUtil.runBashScript(pipLoginScript.getAbsolutePath(), constructParametersForPipLoginScript());
+		HabushuUtil.runBashScript(pipLoginScript.getAbsolutePath(), constructParametersForPipLoginScript(), true);
 
 		boolean updateRequired = compareCurrentAndPreviousDependencyFileHashes();
 		if (updateRequired) {

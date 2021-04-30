@@ -85,15 +85,16 @@ public final class HabushuUtil {
 	 * @param bashScriptPath absolute path to the bash script
 	 */
 	public static void runBashScript(String bashScriptPath) {
-		runBashScript(bashScriptPath, null);
+		runBashScript(bashScriptPath, null, true);
 	}
 
 	/**
 	 * Run the bash script found at the given location with the provided parameters.
 	 * @param bashScriptPath absolute path to the bash script
 	 * @param parameters script parameters
+	 * @param debug true to log script output as DEBUG, otherwise logged as INFO
 	 */
-	public static void runBashScript(String bashScriptPath, String[] parameters) {
+	public static void runBashScript(String bashScriptPath, String[] parameters, boolean debug) {
 		logger.debug("Running bash script located at {}.", bashScriptPath);
 
 		try {
@@ -112,14 +113,23 @@ public final class HabushuUtil {
 			Process process = Runtime.getRuntime().exec(command);
 
 			StringBuilder output = new StringBuilder();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
 			String line;
-			while ((line = reader.readLine()) != null) {
+
+			BufferedReader stdInReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			while ((line = stdInReader.readLine()) != null) {
 				output.append(line + "\n");
 			}
 
-			logger.debug(output.toString());
+			BufferedReader stdErrReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+			while ((line = stdErrReader.readLine()) != null) {
+				output.append(line + "\n");
+			}
+
+			if (debug) {
+			    logger.debug(output.toString());
+			} else {
+			    logger.info(output.toString());
+			}
 
 			int exitVal = process.waitFor();
 			if (exitVal != 0) {

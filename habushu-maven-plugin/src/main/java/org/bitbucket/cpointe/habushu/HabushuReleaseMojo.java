@@ -87,7 +87,7 @@ public class HabushuReleaseMojo extends AbstractHabushuMojo {
 			String parameter = HabushuUtil.decryptServerPassword(repositoryId);
 			String[] parameters = new String[1];
 			parameters[0] = parameter;
-			HabushuUtil.runBashScript(uploadWheelScript.getAbsolutePath(), parameters);
+			HabushuUtil.runBashScript(uploadWheelScript.getAbsolutePath(), parameters, true);
 		}
 	}
 
