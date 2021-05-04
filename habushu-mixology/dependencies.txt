@@ -1,13 +1,10 @@
 # List dependencies in this file, one per line.
 # Lines containing pound signs are skipped in this file.
 
-# To specify a relative version to pip (i.e. <, >, <=, >=, etc.),
-# surround the dependency in quotation marks, like so: 'habushu-mixology<=0.1.4'
-
 # Dependency necessary for running tests
-behave
+behave==1.2.6
 
 # Dependencies necessary for pushing to / pulling from remote repositories
-repositorytools
-wheel
-twine
+repositorytools==4.2.5
+wheel==0.36.2
+twine==3.4.1

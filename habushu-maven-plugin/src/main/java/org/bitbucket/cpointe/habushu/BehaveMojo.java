@@ -82,8 +82,6 @@ public class BehaveMojo extends AbstractHabushuMojo {
 	 */
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		super.execute();
-
 		boolean hasTests = false;
 		File behaveDirectory = new File(pythonTestDirectory, "features");
 		if (!skipTests && behaveDirectory.exists()) {
@@ -153,7 +151,7 @@ public class BehaveMojo extends AbstractHabushuMojo {
 
 		boolean behaving = false;
 		for (String dependency : dependencies) {
-			if (StringUtils.equals("behave", dependency)) {
+			if (StringUtils.startsWith(dependency, "behave")) {
 				behaving = true;
 			}
 		}
