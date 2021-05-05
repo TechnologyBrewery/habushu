@@ -188,6 +188,10 @@ public class HabushuMojo extends AbstractHabushuMojo {
 			URL repository = null;
 			try {
 				repository = new URL(repositoryUrl);
+
+				if (StringUtils.isBlank(repository.getAuthority()) || StringUtils.isBlank(repository.getFile())) {
+					throw new MalformedURLException();
+				}
 			} catch (MalformedURLException e) {
 				throw new HabushuException("repositoryUrl is malformed.  Please check your pom.xml.");
 			}

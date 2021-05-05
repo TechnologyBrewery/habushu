@@ -1,10 +1,11 @@
 package org.bitbucket.cpointe.habushu;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -21,28 +22,23 @@ public class VirtualEnvFileHelper {
 	 * @return the list of dependent packages needed for the virtual environment
 	 */
 	public List<String> readDependencyListFromFile() {
-    	List<String> dependencies = new ArrayList<>();
-    	Scanner reader = null;
-    	
-    	try {
-            reader = new Scanner(virtualEnvFile);
-            while (reader.hasNextLine()) {
-              String dependencyLine = reader.nextLine();
-              
-              if (StringUtils.isNotBlank(dependencyLine) && !dependencyLine.contains("#")) {
-            	  dependencies.add(dependencyLine);
-              }
-            }
-            
-            reader.close();
-          } catch (FileNotFoundException e) {
-              throw new HabushuException("Error reading venv configuration file: {}", e);
-          } finally {
-        	  if (reader != null) {
-        		  reader.close();
-        	  }
-          }
-    	
-    	return dependencies;
-    }
+		List<String> dependencies = new ArrayList<>();
+
+		try (BufferedReader reader = new BufferedReader(new FileReader(virtualEnvFile.getAbsolutePath()))) {
+			String dependencyLine = reader.readLine();
+
+			while (dependencyLine != null) {
+				if (StringUtils.isNotBlank(dependencyLine) && !dependencyLine.contains("#")) {
+					dependencies.add(dependencyLine);
+				}
+
+				dependencyLine = reader.readLine();
+			}
+
+		} catch (IOException e) {
+			throw new HabushuException("Error reading venv configuration file: {}", e);
+		}
+
+		return dependencies;
+	}
 }
