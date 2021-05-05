@@ -2,6 +2,7 @@ package org.bitbucket.cpointe.habushu;
 
 import java.io.File;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -23,14 +24,14 @@ public class HabushuReleaseMojo extends AbstractHabushuMojo {
 	 * The ID of the distribution management server (a private PyPi repository
 	 * hosted in Nexus).
 	 */
-	@Parameter(defaultValue = "nexus.aws.cpointe-inc.com", property = "repositoryId", required = true)
+	@Parameter(property = "repositoryId", required = false)
 	protected String repositoryId;
 
 	/**
 	 * The URL pointing to the distribution management server (a private PyPi
 	 * repository hosted in Nexus).
 	 */
-	@Parameter(defaultValue = "https://nexus.aws.cpointe-inc.com/repository/habushu-pypi-repo/", property = "repositoryUrl", required = true)
+	@Parameter(property = "repositoryUrl", required = false)
 	protected String repositoryUrl;
 
 	/**
@@ -71,12 +72,14 @@ public class HabushuReleaseMojo extends AbstractHabushuMojo {
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		createRequirementsList();
-		
+
 		HabushuUtil.createFileAndGivePermissions(packageWheelScript);
 		writeCommandsToPackageScript();
 		HabushuUtil.runBashScript(packageWheelScript.getAbsolutePath());
 
 		if (habushuPerformRelease) {
+			checkRemoteRepositoryConfiguration();
+
 			if (settings != null) {
 				HabushuUtil.setMavenSettings(settings);
 			}
@@ -137,6 +140,28 @@ public class HabushuReleaseMojo extends AbstractHabushuMojo {
 		commandList.append(" --password $1");
 
 		HabushuUtil.writeLinesToFile(commandList.toString(), uploadWheelScript.getAbsolutePath());
+	}
+
+	/**
+	 * Ensures that the remote repository URL, ID, and backing Maven credentials are
+	 * all non-null.  All of these items are required for a release to occur.
+	 */
+	private void checkRemoteRepositoryConfiguration() {
+		if (StringUtils.isBlank(repositoryId)) {
+			throw new HabushuException("repositoryId is missing.  Please check your pom.xml.");
+		}
+
+		if (StringUtils.isBlank(repositoryUrl)) {
+			throw new HabushuException("repositoryUrl is missing.  Please check your pom.xml.");
+		}
+
+		if (StringUtils.isBlank(HabushuUtil.findUsernameForServer(repositoryId))) {
+			throw new HabushuException("Maven username for server is missing.  Please check your settings.xml.");
+		}
+
+		if (StringUtils.isBlank(HabushuUtil.decryptServerPassword(repositoryId))) {
+			throw new HabushuException("Maven password for server is missing.  Please check your settings.xml.");
+		}
 	}
 
 	/**

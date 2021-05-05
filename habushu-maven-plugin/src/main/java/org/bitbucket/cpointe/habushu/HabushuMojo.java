@@ -2,6 +2,10 @@ package org.bitbucket.cpointe.habushu;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,14 +52,14 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	 * The URL pointing to the distribution management server (a private PyPi
 	 * repository hosted in Nexus).
 	 */
-	@Parameter(defaultValue = "https://nexus.aws.cpointe-inc.com/repository/habushu-pypi-repo/", property = "repositoryUrl", required = true)
+	@Parameter(property = "repositoryUrl", required = false)
 	protected String repositoryUrl;
 
 	/**
 	 * The ID of the distribution management server (a private PyPi repository
 	 * hosted in Nexus).
 	 */
-	@Parameter(defaultValue = "nexus.aws.cpointe-inc.com", property = "repositoryId", required = true)
+	@Parameter(property = "repositoryId", required = false)
 	protected String repositoryId;
 
 	/**
@@ -80,33 +84,152 @@ public class HabushuMojo extends AbstractHabushuMojo {
 		super.execute();
 
 		upgradeVirtualEnvironmentPip();
-		installPipLogin();
-		HabushuUtil.createFileAndGivePermissions(pipLoginScript);
-		writeCommandsToPipLoginScript();
-		HabushuUtil.runBashScript(pipLoginScript.getAbsolutePath(), constructParametersForPipLoginScript(), true);
 
 		boolean updateRequired = compareCurrentAndPreviousDependencyFileHashes();
 		if (updateRequired) {
 			logger.debug("Change detected in venv dependency file. Updating configuration.");
-			
+
 			installVenvDependencies();
 			overwritePreviousDependencyHash();
 		} else {
 			logger.debug("No change detected in venv dependency file.");
 		}
-		
+
 		installUnpackedPythonDependencies();
 	}
-	
+
 	/**
 	 * Upgrades the pip instance for the virtual environment to the latest version.
 	 */
 	private void upgradeVirtualEnvironmentPip() {
 		logger.debug("Upgrading pip for virtual environment to latest version.");
-		String pathToPip = pathToVirtualEnvironment + "/bin/pip";
 
+		String pathToPip = pathToVirtualEnvironment + "/bin/pip";
 		VenvExecutor executor = createExecutorWithDirectory(venvDirectory, pathToPip + " install --upgrade pip");
 		executor.executeAndGetResult(logger);
+	}
+
+	/**
+	 * Installs local, Maven-managed dependencies that have been copied from other
+	 * modules.
+	 */
+	private void installUnpackedPythonDependencies() {
+		logger.info("Installing local, unpacked Python dependencies.");
+
+		HabushuUtil.createFileAndGivePermissions(pythonSetupInstallScript);
+		writeCommandsToPythonSetupInstallScript();
+		HabushuUtil.runBashScript(pythonSetupInstallScript.getAbsolutePath());
+	}
+
+	/**
+	 * Creates a bash script to install Python dependencies that have been
+	 * unpackaged by Maven.
+	 */
+	private void writeCommandsToPythonSetupInstallScript() {
+		List<File> dependencies = getDependencies();
+
+		StringBuilder commandList = new StringBuilder();
+		commandList.append("#!/bin/bash" + "\n");
+		commandList.append("source " + pathToActivationScript + "\n");
+
+		for (File dependency : dependencies) {
+			File setupPyFile = new File(dependency, "setup.py");
+			if (setupPyFile.exists()) {
+				commandList.append("cd " + dependency.getAbsolutePath() + "\n");
+				commandList.append(PYTHON_COMMAND + " setup.py install" + "\n");
+			}
+		}
+
+		HabushuUtil.writeLinesToFile(commandList.toString(), pythonSetupInstallScript.getAbsolutePath());
+	}
+
+	private List<File> getDependencies() {
+		List<File> dependencies = new ArrayList<>();
+
+		File dependencyDirectory = new File(workingDirectory, "dependency");
+		if (dependencyDirectory.exists()) {
+			dependencies = Arrays.asList(dependencyDirectory.listFiles());
+		}
+
+		return dependencies;
+	}
+
+	/**
+	 * Installs dependencies from the dependencies.txt file.
+	 * 
+	 * Options on this installation include: --prefer-binary: pip will prefer wheel
+	 * files. --default-timeout=10: default timeout of ten seconds.
+	 * --extra-index-url: if configured, pip will check the specified remote
+	 * repository as part of its standard package search.
+	 */
+	private void installVenvDependencies() {
+		logger.info("Installing virtual environment dependencies from pip; process may take a few minutes.");
+
+		String pathToPip = pathToVirtualEnvironment + "/bin/pip";
+
+		StringBuilder pipInstallCommand = new StringBuilder();
+		pipInstallCommand.append(pathToPip);
+		pipInstallCommand.append(" install --prefer-binary");
+		pipInstallCommand.append(" --default-timeout=10");
+		pipInstallCommand.append(" -r " + venvDependencyFile.getAbsolutePath());
+
+		if (StringUtils.isNotBlank(repositoryId) && StringUtils.isNotBlank(repositoryUrl)) {
+			String[] credentials = findMavenCredentialsForRemoteRepo();
+			String urlEncodedUsername = null;
+			String urlEncodedPassword = null;
+
+			try {
+				urlEncodedUsername = URLEncoder.encode(credentials[0], "UTF-8");
+				urlEncodedPassword = URLEncoder.encode(credentials[1], "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				throw new HabushuException("Unable to encode Maven credentials as HTML.");
+			}
+
+			URL repository = null;
+			try {
+				repository = new URL(repositoryUrl);
+			} catch (MalformedURLException e) {
+				throw new HabushuException("repositoryUrl is malformed.  Please check your pom.xml.");
+			}
+
+			pipInstallCommand.append(" --extra-index-url=");
+			pipInstallCommand.append(urlEncodedUsername + ":" + urlEncodedPassword);
+			pipInstallCommand.append("@" + repository.getAuthority() + repository.getFile());
+			logger.debug("Connecting to remote repository for package search.");
+		} else if (StringUtils.isNotBlank(repositoryId) && StringUtils.isBlank(repositoryUrl)) {
+			throw new HabushuException("repositoryUrl is missing.  Please check your pom.xml.");
+		} else if (StringUtils.isBlank(repositoryId) && StringUtils.isNotBlank(repositoryUrl)) {
+			throw new HabushuException("repositoryId is missing.  Please check your pom.xml.");
+		} else {
+			logger.debug("Not attempting any connection to a remote repository.");
+		}
+
+		VenvExecutor executor = createExecutorWithDirectory(venvDirectory, pipInstallCommand.toString());
+		executor.executeAndGetResult(logger);
+	}
+
+	/**
+	 * Finds the current user's Maven credentials for the listed remote repository.
+	 * 
+	 * @return credentials the credentials for the listed remote repository
+	 */
+	private String[] findMavenCredentialsForRemoteRepo() {
+		logger.debug("Finding credentials for PyPi hosted repository.");
+
+		if (settings != null) {
+			HabushuUtil.setMavenSettings(settings);
+		}
+
+		String[] credentials = new String[2];
+		credentials[0] = HabushuUtil.findUsernameForServer(repositoryId);
+		credentials[1] = HabushuUtil.decryptServerPassword(repositoryId);
+
+		if (StringUtils.isBlank(credentials[0]) || StringUtils.isBlank(credentials[1])) {
+			throw new HabushuException(
+					"Incorrectly configured credentials for PyPi hosted repository.  Please check your Maven settings.xml and build again.");
+		}
+
+		return credentials;
 	}
 
 	/**
@@ -156,116 +279,6 @@ public class HabushuMojo extends AbstractHabushuMojo {
 			FileUtils.copyFile(currentDependencyHash, previousDependencyHash);
 		} catch (IOException e) {
 			throw new HabushuException("Error when trying to overwrite previous dependency file hash with current!", e);
-		}
-	}
-
-	/**
-	 * Installs pip-login, which will allow authentication from the command line for
-	 * PyPi hosted repositories.
-	 */
-	private void installPipLogin() {
-		logger.debug("Installing pip-login.");
-		String pathToPip = pathToVirtualEnvironment + "/bin/pip";
-
-		VenvExecutor executor = createExecutorWithDirectory(venvDirectory, pathToPip + " install pip-login");
-		executor.executeAndGetResult(logger);
-	}
-
-	/**
-	 * Creates a bash script to run pip-login, targeted at the repositoryUrl. Will
-	 * use the current Maven user's username and password for that repository.
-	 */
-	private void writeCommandsToPipLoginScript() {
-		StringBuilder commandList = new StringBuilder();
-		commandList.append("#!/bin/bash" + "\n");
-		commandList.append("source " + pathToActivationScript + "\n");
-		commandList.append("cd " + venvDirectory + "\n");
-		commandList.append("pip-login -u $1 -p $2 " + repositoryUrl + "simple/");
-
-		HabushuUtil.writeLinesToFile(commandList.toString(), pipLoginScript.getAbsolutePath());
-	}
-
-	/**
-	 * Creates the list of parameters for the pip-login shell script, which includes
-	 * the current Maven user's username and password.
-	 * 
-	 * Also allows the current Maven user to change their settings file location if
-	 * necessary.
-	 * 
-	 * @return parameters the parameters for pip-login
-	 */
-	private String[] constructParametersForPipLoginScript() {
-		logger.debug("Constructing parameters for pip-login shell script.");
-
-		if (settings != null) {
-			HabushuUtil.setMavenSettings(settings);
-		}
-
-		String[] parameters = new String[2];
-		parameters[0] = HabushuUtil.findUsernameForServer(repositoryId);
-		parameters[1] = HabushuUtil.decryptServerPassword(repositoryId);
-
-		if (StringUtils.isBlank(parameters[0]) || StringUtils.isBlank(parameters[1])) {
-			throw new HabushuException(
-					"Incorrectly configured credentials for PyPi hosted repository.  Please check your Maven settings.xml and build again.");
-		}
-
-		return parameters;
-	}
-
-	private void installUnpackedPythonDependencies() {
-		logger.info("Installing local, unpacked Python dependencies.");
-		
-		HabushuUtil.createFileAndGivePermissions(pythonSetupInstallScript);
-		writeCommandsToPythonSetupInstallScript();
-		HabushuUtil.runBashScript(pythonSetupInstallScript.getAbsolutePath());
-	}
-
-	/**
-	 * Creates a bash script to install Python dependencies that have been
-	 * unpackaged by Maven.
-	 */
-	private void writeCommandsToPythonSetupInstallScript() {
-		List<File> dependencies = getDependencies();
-
-		StringBuilder commandList = new StringBuilder();
-		commandList.append("#!/bin/bash" + "\n");
-		commandList.append("source " + pathToActivationScript + "\n");
-
-		for (File dependency : dependencies) {
-			File setupPyFile = new File(dependency, "setup.py");
-			if (setupPyFile.exists()) {
-				commandList.append("cd " + dependency.getAbsolutePath() + "\n");
-				commandList.append(PYTHON_COMMAND + " setup.py install" + "\n");
-			}
-		}
-
-		HabushuUtil.writeLinesToFile(commandList.toString(), pythonSetupInstallScript.getAbsolutePath());
-	}
-
-	private List<File> getDependencies() {
-		List<File> dependencies = new ArrayList<>();
-
-		File dependencyDirectory = new File(workingDirectory, "dependency");
-		if (dependencyDirectory.exists()) {
-			dependencies = Arrays.asList(dependencyDirectory.listFiles());
-		}
-
-		return dependencies;
-	}
-
-	private void installVenvDependencies() {
-		logger.info("Installing virtual environment dependencies from pip; process may take a few minutes.");
-		
-		String pathToPip = pathToVirtualEnvironment + "/bin/pip";
-		VirtualEnvFileHelper venvFileHelper = new VirtualEnvFileHelper(venvDependencyFile);
-		List<String> dependencies = venvFileHelper.readDependencyListFromFile();
-
-		for (String dependency : dependencies) {
-			logger.debug("Installing dependency listed in dependency file: {}", dependency);
-
-			VenvExecutor executor = createExecutorWithDirectory(venvDirectory, pathToPip + " install " + dependency);
-			executor.executeAndGetResult(logger);
 		}
 	}
 
