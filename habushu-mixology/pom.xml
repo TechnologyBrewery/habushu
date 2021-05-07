@@ -15,7 +15,7 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>${project.groupId}</groupId>
+				<groupId>org.bitbucket.cpointe.habushu</groupId>
 				<artifactId>habushu-maven-plugin</artifactId>
 				<version>${project.version}</version>
 				<extensions>true</extensions>
