@@ -1,4 +1,4 @@
-package org.bitbucket.cpointe.habushu;
+package org.bitbucket.cpointe.habushu.util;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bitbucket.cpointe.habushu.HabushuException;
 
 public class VirtualEnvFileHelper {
     private File virtualEnvFile;

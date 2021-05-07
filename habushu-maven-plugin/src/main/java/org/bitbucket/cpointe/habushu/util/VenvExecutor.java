@@ -1,4 +1,4 @@
-package org.bitbucket.cpointe.habushu;
+package org.bitbucket.cpointe.habushu.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -19,6 +19,7 @@ import org.apache.commons.exec.LogOutputStream;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
 import org.apache.commons.io.IOUtils;
+import org.bitbucket.cpointe.habushu.HabushuException;
 import org.slf4j.Logger;
 
 /**

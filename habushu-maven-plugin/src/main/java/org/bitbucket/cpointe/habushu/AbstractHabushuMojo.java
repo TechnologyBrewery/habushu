@@ -11,7 +11,10 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.settings.Settings;
-import org.bitbucket.cpointe.habushu.pythondownload.FileDownLoad;
+import org.bitbucket.cpointe.habushu.util.HabushuUtil;
+import org.bitbucket.cpointe.habushu.util.Platform;
+import org.bitbucket.cpointe.habushu.util.PythonVersionManager;
+import org.bitbucket.cpointe.habushu.util.VenvExecutor;
 import org.slf4j.Logger;
 
 /**
@@ -19,207 +22,245 @@ import org.slf4j.Logger;
  */
 public abstract class AbstractHabushuMojo extends AbstractMojo {
 
-	/**
-	 * Default name of the directory in the output target folder to use to stage
-	 * content for archiving.
-	 */
-	static final String DEFAULT_STAGING_FOLDER = "staging";
-
-	/**
-	 * Default name of the directory in the output target folder to use to stage
-	 * test content for running behave tests.
-	 */
-	static final String DEFAULT_TEST_STAGING_FOLDER = "test-staging";
-
-	/**
-	 * Default name of the file for dependencies for the virtual environment.
-	 */
-	static final String VENV_DEPENDENCY_FILE_NAME = "dependencies.txt";
-
-	/**
-	 * The default command used to summon Python.
-	 */
-	static final String PYTHON_COMMAND = "python";
-
-	/**
-	 * The base directory for running all Venv commands. Usually the target
-	 * directory.
-	 */
-	@Parameter(defaultValue = "${project.build.directory}", property = "workingDirectory", required = false)
-	protected File workingDirectory;
-
-	/**
-	 * The directory containing the virtual environments that have been created.
-	 * Located under the working directory.
-	 */
-	@Parameter(defaultValue = "${project.build.directory}/virtualenvs", property = "venvDirectory", required = false)
-	protected File venvDirectory;
-
-	/**
-	 * Represents the environment we want to use for this build.
-	 */
-	@Parameter(defaultValue = "${project.artifactId}", property = "environmentName", required = false)
-	protected String environmentName;
-
-	/**
-	 * Represents the path to the environment we want to use for this build.
-	 */
-	@Parameter(defaultValue = "${project.build.directory}/virtualenvs/${project.artifactId}", property = "pathToVirtualEnvironment", required = false)
-	protected String pathToVirtualEnvironment;
-
-	/**
-	 * The file containing the dependencies for the Python virtual environment.
-	 */
-	@Parameter(property = "venvDependencyFile", required = true, defaultValue = "${project.basedir}/"
-			+ VENV_DEPENDENCY_FILE_NAME)
-	protected File venvDependencyFile;
-	
     /**
-     * The current Maven user's settings, pulled dynamically from their settings.xml file.
+     * Default name of the directory in the output target folder to use to stage
+     * content for archiving.
      */
-    @Parameter( defaultValue = "${settings}", readonly = true, required = true )
+    static final String DEFAULT_STAGING_FOLDER = "staging";
+
+    /**
+     * Default name of the directory in the output target folder to use to stage
+     * test content for running behave tests.
+     */
+    static final String DEFAULT_TEST_STAGING_FOLDER = "test-staging";
+
+    /**
+     * Default name of the file for dependencies for the virtual environment.
+     */
+    static final String VENV_DEPENDENCY_FILE_NAME = "dependencies.txt";
+
+    /**
+     * Manages the information about python versions.
+     */
+    private PythonVersionManager pythonVersionManager;
+
+    /**
+     * The command used to run python. Defaults to python3.
+     */
+    @Parameter(defaultValue = "python3", property = "pythonCommand", required = false)
+    protected String pythonCommand;
+
+    /**
+     * The working directory for the build results. Usually the target
+     * directory.
+     */
+    @Parameter(defaultValue = "${project.build.directory}", property = "workingDirectory", required = false)
+    protected File workingDirectory;
+
+    /**
+     * The directory containing the virtual environments that have been created.
+     * Located under the working directory.
+     */
+    @Parameter(defaultValue = "${project.build.directory}/virtualenvs", property = "venvDirectory", required = false)
+    protected File venvDirectory;
+
+    /**
+     * Represents the environment we want to use for this build.
+     */
+    @Parameter(defaultValue = "${project.artifactId}", property = "environmentName", required = false)
+    protected String environmentName;
+
+    /**
+     * Represents the path to the environment we want to use for this build.
+     */
+    @Parameter(defaultValue = "${project.build.directory}/virtualenvs/${project.artifactId}", property = "pathToVirtualEnvironment", required = false)
+    protected String pathToVirtualEnvironment;
+
+    /**
+     * The file containing the dependencies for the Python virtual environment.
+     */
+    @Parameter(property = "venvDependencyFile", required = true, defaultValue = "${project.basedir}/"
+            + VENV_DEPENDENCY_FILE_NAME)
+    protected File venvDependencyFile;
+
+    /**
+     * The current Maven user's settings, pulled dynamically from their
+     * settings.xml file.
+     */
+    @Parameter(defaultValue = "${settings}", readonly = true, required = true)
     protected Settings settings;
-    
-	/**
-	 * Represents the path to the activation script for the virtual environment.
-	 */
-	@Parameter(defaultValue = "${project.build.directory}/virtualenvs/${project.artifactId}/bin/activate", property = "pathToActivationScript", required = false)
+
+    /**
+     * Represents the path to the activation script for the virtual environment.
+     */
+    @Parameter(defaultValue = "${project.build.directory}/virtualenvs/${project.artifactId}/bin/activate", property = "pathToActivationScript", required = false)
     protected String pathToActivationScript = pathToVirtualEnvironment + "/bin/activate";
 
-	private PythonInstaller pythonInstaller = new PythonInstaller(new FileDownLoad());
+    /**
+     * Handles basic set up used across steps so that the current environments
+     * and environment name are available.
+     * 
+     * {@inheritDoc}
+     */
+    @Override
+    public void execute() throws MojoExecutionException, MojoFailureException {
 
-	/**
-	 * Handles basic set up used across steps so that the current environments and
-	 * environment name are available.
-	 * 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void execute() throws MojoExecutionException, MojoFailureException {
-		pythonInstaller.checkInstallPython();
-		createWorkingDirectoryIfNeeded();
-		createVirtualEnvironmentIfNeeded();
+        createWorkingDirectoryIfNeeded();
+        createVirtualEnvironmentIfNeeded();
 
-		HabushuUtil.giveFullFilePermissions(pathToActivationScript);
-	}
+        
+        HabushuUtil.giveFullFilePermissions(pathToActivationScript);
+    }
 
-	/**
-	 * Returns the logger for the concrete class to make it more clear how to
-	 * control logging.
-	 */
-	protected abstract Logger getLogger();
+    /**
+     * Returns the logger for the concrete class to make it more clear how to
+     * control logging.
+     */
+    protected abstract Logger getLogger();
 
-	/**
-	 * Gets the canonical path for a file without having to deal w/ checked
-	 * exceptions.
-	 * 
-	 * @param file file for which to get the canonical format
-	 * @return canonical format
-	 */
-	protected String getCanonicalPathForFile(File file) {
-		try {
-			return file.getCanonicalPath();
+    /**
+     * Gets the canonical path for a file without having to deal w/ checked
+     * exceptions.
+     * 
+     * @param file
+     *            file for which to get the canonical format
+     * @return canonical format
+     */
+    protected String getCanonicalPathForFile(File file) {
+        try {
+            return file.getCanonicalPath();
 
-		} catch (IOException ioe) {
-			throw new HabushuException("Could not access file: " + file.getName(), ioe);
-		}
-	}
+        } catch (IOException ioe) {
+            throw new HabushuException("Could not access file: " + file.getName(), ioe);
+        }
+    }
 
-	/**
-	 * Creates the Python virtual environment at the specified path if needed.
-	 * 
-	 * @return system output
-	 */
-	protected void createVirtualEnvironmentIfNeeded() {
-		File virtualEnvDirectory = new File(pathToVirtualEnvironment);
-		if (virtualEnvDirectory.exists()) {
-			if (getLogger().isDebugEnabled()) {
-				getLogger().debug("Virtual environment already created at {}.", venvDirectory.getAbsolutePath());
-			} else {
-				getLogger().info("Virtual environment already created.");
-			}
+    protected void checkPythonVersion() {
+        getLogger().info(
+                "Using command \"{}\" to invoke python. This command is configurable via the pythonCommand property in the habushu plugin.",
+                pythonCommand);
+        PythonVersionManager pythonVersionManager = getPythonVersionManager();
+        if (!pythonVersionManager.isExpectedVersion()) {
+            throw new HabushuException("Expected Version " + PythonVersionManager.EXPECTED_VERSION
+                    + " but found version " + pythonVersionManager.getPythonVersion() + ". Please update Python to "
+                    + PythonVersionManager.EXPECTED_VERSION + " and try again.");
+        } else {
+            getLogger().info("Found python version {}", pythonVersionManager.getPythonVersion());
+        }
+    }
 
-			return;
-		}
+    /**
+     * This is expensive, so we'll set it up to only instantiate when needed.
+     * 
+     * @return
+     */
+    private PythonVersionManager getPythonVersionManager() {
+        if (pythonVersionManager == null) {
+            synchronized (AbstractHabushuMojo.class) {
+                pythonVersionManager = new PythonVersionManager(workingDirectory, pythonCommand);
+            }
+        }
+        return pythonVersionManager;
+    }
 
-		List<String> commands = new ArrayList<>();
-		commands.add(PYTHON_COMMAND);
-		commands.add("-m");
-		commands.add("venv");
-		commands.add(pathToVirtualEnvironment);
+    /**
+     * Creates the Python virtual environment at the specified path if needed.
+     * 
+     * @return system output
+     */
+    private void createVirtualEnvironmentIfNeeded() {
+        File virtualEnvDirectory = new File(pathToVirtualEnvironment);
+        if (virtualEnvDirectory.exists()) {
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("Virtual environment already created at {}.", venvDirectory.getAbsolutePath());
+            } else {
+                getLogger().info("Virtual environment already created.");
+            }
 
-		VenvExecutor executor = new VenvExecutor(workingDirectory, commands, Platform.guess(), new HashMap<>());
-		executor.executeAndGetResult(getLogger());
-	}
+            return;
+        }
 
-	/**
-	 * Invoked a Venv command and return the exit code. System output is logged to
-	 * the console as it happens while system errors are queued up and logged upon
-	 * exiting from the command.
-	 * 
-	 * @param directoryForVenv the directory for the virtual environment
-	 * @param command          command to invoke
-	 * @return return code
-	 */
-	protected int invokeVenvCommandAndRedirectOutput(File directoryForVenv, String command) {
-		VenvExecutor executor = createExecutorWithDirectory(directoryForVenv, command);
-		return executor.executeAndRedirectOutput(getLogger());
-	}
+        List<String> commands = new ArrayList<>();
+        commands.add(pythonCommand);
+        commands.add("-m");
+        commands.add("venv");
+        commands.add(pathToVirtualEnvironment);
 
-	/**
-	 * Invoked multiple Venv commands and return the exit code. System output is
-	 * logged to the console as it happens while system errors are queued up and
-	 * logged upon exiting from the command.
-	 * 
-	 * @param directoryForVenv the directory for the virtual environment
-	 * @param commands         commands to invoke
-	 * @return return code
-	 */
-	protected int runMultipleVenvCommandsAndRedirectOutput(File directoryForVenv, List<String> commands) {
-		VenvExecutor executor = new VenvExecutor(directoryForVenv, commands, Platform.guess(), new HashMap<>());
-		return executor.executeAndRedirectOutput(getLogger());
-	}
+        VenvExecutor executor = new VenvExecutor(workingDirectory, commands, Platform.guess(), new HashMap<>());
+        executor.executeAndGetResult(getLogger());
+    }
+    
 
-	/**
-	 * Creates and returns an executor for Venv tied to a specified directory.
-	 * 
-	 * @param directoryForVenv the directory for the virtual environment
-	 * @param command          the command to invoke
-	 * @return Venv Executor
-	 */
-	protected VenvExecutor createExecutorWithDirectory(File directoryForVenv, String command) {
-		List<String> commands = new ArrayList<>();
-		commands.add("/bin/bash");
-		commands.add("-c");
+    /**
+     * Invoked a Venv command and return the exit code. System output is logged to
+     * the console as it happens while system errors are queued up and logged upon
+     * exiting from the command.
+     * 
+     * @param directoryForVenv the directory for the virtual environment
+     * @param command          command to invoke
+     * @return return code
+     */
+    protected int invokeVenvCommandAndRedirectOutput(File directoryForVenv, String command) {
+        VenvExecutor executor = createExecutorWithDirectory(directoryForVenv, command);
+        return executor.executeAndRedirectOutput(getLogger());
+    }
 
-		commands.add(command);
-		VenvExecutor executor = new VenvExecutor(directoryForVenv, commands, Platform.guess(), new HashMap<>());
-		return executor;
-	}
+    /**
+     * Invoked multiple Venv commands and return the exit code. System output is
+     * logged to the console as it happens while system errors are queued up and
+     * logged upon exiting from the command.
+     * 
+     * @param directoryForVenv the directory for the virtual environment
+     * @param commands         commands to invoke
+     * @return return code
+     */
+    protected int runMultipleVenvCommandsAndRedirectOutput(File directoryForVenv, List<String> commands) {
+        VenvExecutor executor = new VenvExecutor(directoryForVenv, commands, Platform.guess(), new HashMap<>());
+        return executor.executeAndRedirectOutput(getLogger());
+    }
 
-	/**
-	 * Create the working directory and virtual environment container directories.
-	 */
-	private void createWorkingDirectoryIfNeeded() {
-		if (!workingDirectory.exists()) {
-			getLogger().debug("Working directory did not exist - creating {}",
-					getCanonicalPathForFile(workingDirectory));
-			workingDirectory.mkdirs();
+    /**
+     * Creates and returns an executor for Venv tied to a specified directory.
+     * 
+     * @param directoryForVenv the directory for the virtual environment
+     * @param command          the command to invoke
+     * @return Venv Executor
+     */
+    protected VenvExecutor createExecutorWithDirectory(File directoryForVenv, String command) {
+        List<String> commands = new ArrayList<>();
+        commands.add("/bin/bash");
+        commands.add("-c");
 
-			if (!workingDirectory.exists()) {
-				throw new HabushuException("Working directory STILL does not exist after trying to create it!");
-			}
-		}
+        commands.add(command);
+        VenvExecutor executor = new VenvExecutor(directoryForVenv, commands, Platform.guess(), new HashMap<>());
+        return executor;
+    }
 
-		if (!venvDirectory.exists()) {
-			getLogger().debug("Virtual environment directory did not exist - creating {}",
-					getCanonicalPathForFile(venvDirectory));
-			venvDirectory.mkdirs();
+    /**
+     * Create the working directory and virtual environment container
+     * directories.
+     */
+    private void createWorkingDirectoryIfNeeded() {
+        if (!workingDirectory.exists()) {
+            getLogger().debug("Working directory did not exist - creating {}",
+                    getCanonicalPathForFile(workingDirectory));
+            workingDirectory.mkdirs();
 
-			if (!venvDirectory.exists()) {
-				throw new HabushuException(
-						"Virtual environment directory STILL does not exist after trying to create it!");
-			}
-		}
-	}
+            if (!workingDirectory.exists()) {
+                throw new HabushuException("Working directory STILL does not exist after trying to create it!");
+            }
+        }
+
+        if (!venvDirectory.exists()) {
+            getLogger().debug("Virtual environment directory did not exist - creating {}",
+                    getCanonicalPathForFile(venvDirectory));
+            venvDirectory.mkdirs();
+
+            if (!venvDirectory.exists()) {
+                throw new HabushuException(
+                        "Virtual environment directory STILL does not exist after trying to create it!");
+            }
+        }
+    }
+
 }

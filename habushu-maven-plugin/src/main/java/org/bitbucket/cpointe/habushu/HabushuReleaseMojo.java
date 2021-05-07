@@ -8,6 +8,8 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.bitbucket.cpointe.habushu.util.HabushuUtil;
+import org.bitbucket.cpointe.habushu.util.VenvExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +73,7 @@ public class HabushuReleaseMojo extends AbstractHabushuMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
+	    checkPythonVersion();
 		createRequirementsList();
 
 		HabushuUtil.createFileAndGivePermissions(packageWheelScript);

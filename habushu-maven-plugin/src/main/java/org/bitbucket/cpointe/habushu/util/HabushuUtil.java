@@ -1,4 +1,4 @@
-package org.bitbucket.cpointe.habushu;
+package org.bitbucket.cpointe.habushu.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
+import org.bitbucket.cpointe.habushu.HabushuException;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
