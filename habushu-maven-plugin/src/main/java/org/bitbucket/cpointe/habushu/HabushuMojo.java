@@ -17,6 +17,8 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.bitbucket.cpointe.habushu.util.HabushuUtil;
+import org.bitbucket.cpointe.habushu.util.VenvExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,8 +83,11 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	 */
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		super.execute();
-
+	    
+        super.execute();
+                
+        checkPythonVersion();
+		
 		upgradeVirtualEnvironmentPip();
 
 		boolean updateRequired = compareCurrentAndPreviousDependencyFileHashes();
@@ -136,7 +141,7 @@ public class HabushuMojo extends AbstractHabushuMojo {
 			File setupPyFile = new File(dependency, "setup.py");
 			if (setupPyFile.exists()) {
 				commandList.append("cd " + dependency.getAbsolutePath() + "\n");
-				commandList.append(PYTHON_COMMAND + " setup.py install" + "\n");
+				commandList.append(pythonCommand + " setup.py install" + "\n");
 			}
 		}
 
@@ -299,6 +304,7 @@ public class HabushuMojo extends AbstractHabushuMojo {
 			logger.debug("Previous dependency file hash directory already exists.");
 		}
 	}
+
 
 	@Override
 	protected Logger getLogger() {

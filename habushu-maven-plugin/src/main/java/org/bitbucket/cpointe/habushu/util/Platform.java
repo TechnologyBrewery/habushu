@@ -1,4 +1,4 @@
-package org.bitbucket.cpointe.habushu;
+package org.bitbucket.cpointe.habushu.util;
 
 import java.io.File;
 
@@ -60,7 +60,7 @@ enum OS {
     }
 }
 
-class Platform {
+public class Platform {
     private final String nodeDownloadRoot;
     private final OS os;
     private final Architecture architecture;

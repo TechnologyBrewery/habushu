@@ -1,4 +1,4 @@
-package org.bitbucket.cpointe.habushu;
+package org.bitbucket.cpointe.habushu.util;
 
 import java.io.File;
 import java.io.IOException;
