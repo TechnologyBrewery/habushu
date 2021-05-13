@@ -19,10 +19,6 @@
 				<artifactId>habushu-maven-plugin</artifactId>
 				<version>${project.version}</version>
 				<extensions>true</extensions>
-				<configuration>
-					<repositoryId>nexus.aws.cpointe-inc.com</repositoryId>
-					<repositoryUrl>https://nexus.aws.cpointe-inc.com/repository/habushu-pypi-repo/</repositoryUrl>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
