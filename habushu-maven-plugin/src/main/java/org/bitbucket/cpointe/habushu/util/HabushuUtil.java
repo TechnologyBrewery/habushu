@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
@@ -29,27 +28,6 @@ public final class HabushuUtil {
 	private static Settings settings;
 
 	private HabushuUtil() {}
-
-	/**
-	 * Changes a private field in the CleanMojo using reflection.
-	 * 
-	 * @param clazz    the class that has the field
-	 * @param field    the field to change
-	 * @param newValue the new value for the field
-	 * @throws Exception
-	 */
-	public static void changePrivateCleanMojoField(Class<?> clazz, String fieldName, Object newValue) {
-		try {
-			Object instance = clazz.newInstance();
-			Field fieldToModify = clazz.getDeclaredField(fieldName);
-			fieldToModify.setAccessible(true);
-
-			fieldToModify.set(instance, newValue);
-		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException
-				| InstantiationException e) {
-			throw new HabushuException("Could not set value for field " + fieldName, e);
-		}
-	}
 	
 	/**
 	 * Find the username for a given server in Maven's user settings.

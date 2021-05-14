@@ -19,26 +19,6 @@
 				<artifactId>habushu-maven-plugin</artifactId>
 				<version>${project.version}</version>
 				<extensions>true</extensions>
-				<configuration>
-					<repositoryId>nexus.aws.cpointe-inc.com</repositoryId>
-					<repositoryUrl>https://nexus.aws.cpointe-inc.com/repository/habushu-pypi-repo/</repositoryUrl>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-clean-plugin</artifactId>
-				<version>3.1.0</version>
-				<configuration>
-					<excludeDefaultDirectories>true</excludeDefaultDirectories>
-					<filesets>
-						<fileset>
-							<directory>target</directory>
-							<excludes>
-								<exclude>build-accelerator/**</exclude>
-								<exclude>virtualenvs/**</exclude>
-							</excludes>
-						</fileset>
-					</filesets>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

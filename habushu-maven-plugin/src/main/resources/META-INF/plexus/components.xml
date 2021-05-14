@@ -10,19 +10,29 @@
 					action as the next build will have the habushu-mixology project bound to 
 					the *current* lifecycle. If you break this, it means you need to pull habushu-mixology 
 					out of the build until you repair the issue. -->
-				<phases>
-					<clean>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:habushu-clean</clean>
-					<process-resources>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:resources</process-resources>
-					<process-sources>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:unpack-python-dependencies</process-sources>
-					<compile>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:configure-environment</compile>
-					<process-classes>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:format-python</process-classes>
-					<process-test-resources>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:test-resources</process-test-resources>
-					<test>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:test</test>
-					<package>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:zip</package>
-					<post-integration-test>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:package-and-release-python</post-integration-test>
-					<install>org.apache.maven.plugins:maven-install-plugin:2.5.2:install</install>
-					<deploy>org.apache.maven.plugins:maven-deploy-plugin:2.8.2:deploy</deploy>
-				</phases>
+				<lifecycles>
+					<lifecycle>
+						<id>default</id>
+						<phases>
+							<process-resources>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:resources</process-resources>
+							<process-sources>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:unpack-python-dependencies</process-sources>
+							<compile>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:configure-environment</compile>
+							<process-classes>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:format-python</process-classes>
+							<process-test-resources>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:test-resources</process-test-resources>
+							<test>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:test</test>
+							<package>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:zip</package>
+							<post-integration-test>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:package-and-release-python</post-integration-test>
+							<install>org.apache.maven.plugins:maven-install-plugin:2.5.2:install</install>
+							<deploy>org.apache.maven.plugins:maven-deploy-plugin:2.8.2:deploy</deploy>
+						</phases>
+					</lifecycle>
+					<lifecycle>
+						<id>clean</id>
+						<phases>
+							<clean>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:habushu-clean</clean>
+						</phases>
+					</lifecycle>
+				</lifecycles>
 			</configuration>
 		</component>
 	</components>
