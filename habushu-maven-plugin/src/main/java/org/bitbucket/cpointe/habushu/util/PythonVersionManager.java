@@ -52,8 +52,12 @@ public class PythonVersionManager {
                     + " corresponds to a python executable.");
         }
 
-        Matcher matcher = pattern.matcher(pythonVersion);
-        isExpectedVersion = matcher.matches();
+        isExpectedVersion = checkPythonVersion(pythonVersion);
+    }
+    
+    public static boolean checkPythonVersion(String pythonVersion) {
+    	Matcher matcher = pattern.matcher(pythonVersion);
+        return matcher.matches();
     }
 
     public boolean isExpectedVersion() {
