@@ -63,6 +63,7 @@ Configuration for options described below can be accomplished as described in th
 
 ##### clean #####
 Leverages the standard [`maven-clean-plugin`](https://maven.apache.org/plugins/maven-clean-plugin/index.html) to clear out portions of the `target` directory when clean is passed to the build. A standard build will not clear the `build-accelerator` or `virtualenvs` directories, containing the hashed dependency file and the virtual environment configuration, respectively. These directories may be forcibly cleaned with the `habushu.force.clean` build option.
+If you wish to clear out your python install (from habushu), then you can also force this to be cleared out for you with the `habushu.force.pythonInstall.clean` build option. It is recommended to do this option if you run into any build errors while python is being installed to your machine.
 
 ##### resources #####
 Habushu has extended the default [`maven-resources-plugin`](https://maven.apache.org/plugins/maven-resources-plugin/) to copy anything in `src/main/python`, `src/main/resources` into the `target/staging` directory. The project's `pom.xml` and Venv dependency file are also included. These copies can then be used for testing and will be included in the zip file produced later in the lifecycle. All configurations options are listed in the plugin's documentation.  The following configuration options can be specified via standard Maven configuration for plugins:
@@ -80,6 +81,8 @@ Create or update your Venv virtual environment. This ensures it is valid and tha
 * _environmentName:_ The name of your virtual environment.  By default, this will be the `artifactId` of your Maven build.
 * _pathToVirtualEnvironment:_ The path to your specified virtual environment.  By default, this will simply add your environmentName onto the file path of your `venvDirectory`.
 * _settingsFileLocation:_ The path to your Maven settings.xml file.  By default, this will point to a settings file located in the .m2 folder under your user home directory.
+* _pythonCommand:_ The python command you want to use to run python. If this is not set, habushu will attempt to install python3 for you with a given python version underneath your home directory (see pythonVersion). Note: We currently do not support Windows for the autoinstaller and will default to python3. An error will occur if your python installation version does not meet the 3.7.X requirement.
+* _pythonVersion:_ The version of python you wish to use. Currently we only support versions 3.7.X, other versions may be supported in the future. By default, this is set to 3.7.4. If you use your own python install and do not let habushu install python for you, then a warning will be thrown if your python install does not match your specified version.
 
 ##### test #####
 Run behave if any files exist within the `src/test/python/features` directory. More information on authoring and running tests can be found later in this document, including configuration options.
@@ -185,10 +188,42 @@ If you are working on habushu, please be aware of some nuances in working with a
 ## Common Issues ##
 
 ### Plugin Does Not Yet Exist ###
-Of you encounter the following error, please see the Building Habushu section for details on how to use the bootstrap profile to get around this issue.
+If you encounter the following error, please see the Building Habushu section for details on how to use the bootstrap profile to get around this issue.
 ```
 [WARNING] The POM for org.bitbucket.cpointe.habushu:habushu-maven-plugin:jar:0.0.1-SNAPSHOT is missing, no dependency information available
 [ERROR] [ERROR] Some problems were encountered while processing the POMs:
 [ERROR] Unresolveable build extension: Plugin org.bitbucket.cpointe.habushu:habushu-maven-plugin:0.0.1-SNAPSHOT or one of its dependencies could not be resolved: Could not find artifact org.bitbucket.cpointe.habushu:habushu-maven-plugin:jar:0.0.1-SNAPSHOT @ 
 [ERROR] Unknown packaging: habushu @ line 15, column 13
 ``` 
+### Zlib/readline/openssl not available ###
+
+If you encounter an error such as ones below, ensure that you have Zlib, Readline, and openssl@1.1 installed to your system and on your path. Depending on your operatng system, installation methods may vary.
+```
+zipimport.ZipImportError: can't decompress data; zlib not available
+# or
+pip is configured with locations that require TLS/SSL, however the ssl module in Python is not available.
+```
+If the errors persist while on macos, try the following (note the zlib folder version may be different for you):
+
+# For zlib
+```
+brew install zlib
+brew install xquartz
+ln -s /usr/local/Cellar/zlib/1.2.11/include/* /usr/local/include
+```
+Then add the following to your .bashrc and .bash_profile
+```
+#.bashrc
+export LDFLAGS="${LDFLAGS} -L/usr/local/opt/zlib/lib"
+export CPPFLAGS="${CPPFLAGS} -I/usr/local/opt/zlib/include"
+export PKG_CONFIG_PATH="${PKG_CONFIG_PATH} /usr/local/opt/zlib/lib/pkgconfig"
+#.bash_profile
+```
+Then make sure that you restart your terminal
+
+# For openssl
+Add the following to the beginning your .bash_profile:
+```
+export PATH="/usr/local/opt/openssl@1.1/bin:$PATH"
+export PKG_CONFIG_PATH="/usr/local/opt/openssl@1.1/lib/pkgconfig"
+```
