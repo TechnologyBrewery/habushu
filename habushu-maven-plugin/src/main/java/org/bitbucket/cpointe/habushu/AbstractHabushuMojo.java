@@ -48,13 +48,13 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     /**
      * The command used to run python.
      */
-    @Parameter(property = "pythonCommand", required = false)
+    @Parameter(defaultValue = "python3", property = "pythonCommand", required = false)
     protected String pythonCommand;
 
     /**
      * The version of python to pull down to your .habushu directory and use for running scripts
      */
-    @Parameter(defaultValue = "3.7.4", property = "pythonVersion", required = false)
+    @Parameter(defaultValue = "3.7.10", property = "pythonVersion", required = false)
     protected String pythonVersion;
 
     /**
@@ -113,7 +113,6 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
 
         createWorkingDirectoryIfNeeded();
-        checkPythonInstall();
         createVirtualEnvironmentIfNeeded();
 
         
@@ -143,19 +142,16 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
         }
     }
 
-    protected void checkPythonInstall() {
-    	if (pythonCommand == null) {
-    		if (!Platform.guess().isWindows()) {
-            	pythonCommand = PythonInstallUtil.installPython(pythonVersion, workingDirectory);
-    		} else {
-    			getLogger().warn("Habushu does not support windows auto-install, using default pythonCommand: python3");
-    			pythonCommand = "python3";
-    		}
-    	}
-    	checkPythonVersion();
+    private void checkPythonInstall() {
+    	if (!Platform.guess().isWindows()) {
+    		pythonCommand = PythonInstallUtil.installPython(pythonVersion, workingDirectory);
+    	} else {
+    		throw new HabushuException("Tried to auto-install python, but this is a Windows machine."
+                + " Please install python3 version: " + pythonVersion + " and try again.");
+   		}
     }
 
-    private void checkPythonVersion() {
+    protected void checkPythonVersion() {
         getLogger().info(
                 "Using command \"{}\" to invoke python. This command is configurable via the pythonCommand property in the habushu plugin.",
                 pythonCommand);
@@ -163,16 +159,9 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
         String foundPythonVersion = pythonVersionManager.getPythonVersion();
         
         if (!pythonVersion.equals(foundPythonVersion)) {
-        	getLogger().warn("Specified python version does NOT match found python install! Expected: {}, but found: {}", 
+        	getLogger().warn("Specified python version does NOT match found python install! Expected: {}, but found: {}! Attempting python install for correct version", 
         			pythonVersion, foundPythonVersion);
-        }
-        
-        if (!pythonVersionManager.isExpectedVersion()) {
-            throw new HabushuException("Expected Version " + PythonVersionManager.EXPECTED_VERSION
-                    + " but found version " + foundPythonVersion + ". Please update Python to "
-                    + PythonVersionManager.EXPECTED_VERSION + " and try again.");
-        } else {
-            getLogger().info("Found python version {}", foundPythonVersion);
+        	checkPythonInstall();
         }
     }
 

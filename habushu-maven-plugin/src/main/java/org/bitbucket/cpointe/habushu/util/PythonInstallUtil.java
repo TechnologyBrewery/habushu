@@ -28,9 +28,10 @@ public class PythonInstallUtil {
      * This method will install python for this system if python is not already installed to .habushu/python
      */
     public static String installPython(String pythonVersion, File workingDirectory) {
+    	
         if (!PythonVersionManager.checkPythonVersion(pythonVersion)) {
             throw new HabushuException("Expected Version " + PythonVersionManager.EXPECTED_VERSION
-                    + " but found version " + pythonVersion + ". Please update specified Python version to "
+                    + " but found specified version " + pythonVersion + ". Please update specified Python version to "
                     + PythonVersionManager.EXPECTED_VERSION + " and try again.");
         }
         File homeDirectory = getHomeDirectory(workingDirectory);
@@ -110,6 +111,9 @@ public class PythonInstallUtil {
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append("./configure --prefix=");
         strBuilder.append(configureLocation);
+        if (Platform.guess().isMac()) {
+        	strBuilder.append(" --with-openssl=$(brew --prefix openssl)");
+        }
         VenvExecutor executor = createExecutorWithDirectory(pythonDirectory, strBuilder.toString());
         
         executor.executeAndRedirectOutput(logger);
@@ -178,7 +182,6 @@ public class PythonInstallUtil {
         VenvExecutor executor = createExecutorWithDirectory(workingDirectory, "echo $HOME");
         String home = executor.executeAndGetResult(logger);
         File homeDirectory = new File(home);
-        logger.info("Found home directory: {}", home);
         return homeDirectory;
     }
     
