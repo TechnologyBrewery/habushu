@@ -73,7 +73,7 @@ public class HabushuReleaseMojo extends AbstractHabushuMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-	    checkPythonInstall();
+	    checkPythonVersion();
 		createRequirementsList();
 
 		HabushuUtil.createFileAndGivePermissions(packageWheelScript);

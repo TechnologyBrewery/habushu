@@ -85,7 +85,7 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	public void execute() throws MojoExecutionException, MojoFailureException {
 	    
         super.execute();
-		checkPythonInstall();
+        checkPythonVersion();
 		
 		upgradeVirtualEnvironmentPip();
 
