@@ -13,7 +13,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.settings.Settings;
 import org.bitbucket.cpointe.habushu.util.HabushuUtil;
 import org.bitbucket.cpointe.habushu.util.Platform;
-import org.bitbucket.cpointe.habushu.util.PythonInstallUtil;
+import org.bitbucket.cpointe.habushu.util.PyenvUtil;
 import org.bitbucket.cpointe.habushu.util.PythonVersionManager;
 import org.bitbucket.cpointe.habushu.util.VenvExecutor;
 import org.slf4j.Logger;
@@ -48,8 +48,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     /**
      * The command used to run python.
      */
-    @Parameter(defaultValue = "python3", property = "pythonCommand", required = false)
-    protected String pythonCommand;
+    static final String[] pythonCommands = new String[] {"pyenv", "exec", "python"};
 
     /**
      * The version of python to pull down to your .habushu directory and use for running scripts
@@ -102,6 +101,13 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "${project.build.directory}/virtualenvs/${project.artifactId}/bin/activate", property = "pathToActivationScript", required = false)
     protected String pathToActivationScript = pathToVirtualEnvironment + "/bin/activate";
+    
+    /**
+	 * The generated shell script that updates the python version if a normal install fails
+	 * file.
+	 */
+	@Parameter(defaultValue = "${project.build.directory}/change-python-version.sh", property = "pythonVersionScript", required = false)
+	private File changeVersionScript;
 
     /**
      * Handles basic set up used across steps so that the current environments
@@ -111,7 +117,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-
+    	PyenvUtil.checkPyEnvInstall(workingDirectory);
         createWorkingDirectoryIfNeeded();
         createVirtualEnvironmentIfNeeded();
 
@@ -142,26 +148,14 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
         }
     }
 
-    private void checkPythonInstall() {
-    	if (!Platform.guess().isWindows()) {
-    		pythonCommand = PythonInstallUtil.installPython(pythonVersion, workingDirectory);
-    	} else {
-    		throw new HabushuException("Tried to auto-install python, but this is a Windows machine."
-                + " Please install python3 version: " + pythonVersion + " and try again.");
-   		}
-    }
-
     protected void checkPythonVersion() {
-        getLogger().info(
-                "Using command \"{}\" to invoke python. This command is configurable via the pythonCommand property in the habushu plugin.",
-                pythonCommand);
         PythonVersionManager pythonVersionManager = getPythonVersionManager();
         String foundPythonVersion = pythonVersionManager.getPythonVersion();
         
         if (!pythonVersion.equals(foundPythonVersion)) {
-        	getLogger().warn("Specified python version does NOT match found python install! Expected: {}, but found: {}! Attempting python install for correct version", 
+        	getLogger().warn("Specified python version does NOT match found pyenv version! Expected: {}, but found: {}! Attempting python version change", 
         			pythonVersion, foundPythonVersion);
-        	checkPythonInstall();
+        	PyenvUtil.updatePythonVersion(pythonVersion, changeVersionScript, workingDirectory);
         }
     }
 
@@ -173,7 +167,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     private PythonVersionManager getPythonVersionManager() {
         if (pythonVersionManager == null) {
             synchronized (AbstractHabushuMojo.class) {
-                pythonVersionManager = new PythonVersionManager(workingDirectory, pythonCommand);
+                pythonVersionManager = new PythonVersionManager(workingDirectory, pythonCommands);
             }
         }
         return pythonVersionManager;
@@ -197,9 +191,9 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
         }
 
         List<String> commands = new ArrayList<>();
-        commands.add(pythonCommand);
-        commands.add("-m");
-        commands.add("venv");
+        for (String command : pythonCommands) {
+        	commands.add(command);
+        }
         commands.add(pathToVirtualEnvironment);
 
         VenvExecutor executor = new VenvExecutor(workingDirectory, commands, Platform.guess(), new HashMap<>());

@@ -10,8 +10,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.clean.CleanMojo;
 import org.apache.maven.plugins.clean.Fileset;
-import org.bitbucket.cpointe.habushu.util.Platform;
-import org.bitbucket.cpointe.habushu.util.PythonInstallUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,12 +39,6 @@ public class HabushuCleanMojo extends CleanMojo {
 	@Parameter(property = "habushu.force.clean", required = true, defaultValue = "false")
 	protected boolean habushuForceClean;
 
-	/**
-	 * Whether the build should clear the .habushu directory for auto-python install
-	 */
-	@Parameter(property = "habushu.force.pythonInstall.clean", defaultValue = "false")
-	protected boolean habushuForcePythonInstallClean;
-
 	@Override
 	public void execute() throws MojoExecutionException {
 		if (workingDirectory.exists()) {
@@ -75,12 +67,6 @@ public class HabushuCleanMojo extends CleanMojo {
 			} else {
 				logger.debug(
 						"Habushu force clean selected.  Clearing away /build-accelerator/ and /virtualenvs/ folders.");
-			}
-
-			if (habushuForcePythonInstallClean && !Platform.guess().isWindows()) {
-				logger.debug(
-					"Habushu force python install clean selected.  Clearing away ~/.habushu folders.");
-					PythonInstallUtil.removeHabushuPythonInstalls(workingDirectory);
 			}
 
 			super.execute();

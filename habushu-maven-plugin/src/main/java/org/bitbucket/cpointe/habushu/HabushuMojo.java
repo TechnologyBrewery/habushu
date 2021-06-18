@@ -65,13 +65,6 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	protected String repositoryId;
 
 	/**
-	 * The generated shell script that uses pip-login to log in to the remote
-	 * repository.
-	 */
-	@Parameter(defaultValue = "${project.build.directory}/pip-login.sh", property = "pipLoginScript", required = false)
-	private File pipLoginScript;
-
-	/**
 	 * The generated shell script that installs Maven-unpackaged Python
 	 * depdendencies.
 	 */
@@ -140,7 +133,10 @@ public class HabushuMojo extends AbstractHabushuMojo {
 			File setupPyFile = new File(dependency, "setup.py");
 			if (setupPyFile.exists()) {
 				commandList.append("cd " + dependency.getAbsolutePath() + "\n");
-				commandList.append(pythonCommand + " setup.py install" + "\n");
+				for (String command : pythonCommands) {
+					commandList.append(command + " ");
+	            }
+				commandList.append(" setup.py install" + "\n");
 			}
 		}
 

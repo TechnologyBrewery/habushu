@@ -6,6 +6,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,13 +25,15 @@ public class PythonVersionManager {
     
     private static final Pattern pattern = Pattern.compile("3\\.7.*");
 
-    private String pythonCommand;
+    private String[] pythonCommands;
 
     private String pythonVersion;
 
     private boolean isExpectedVersion;
 
     private String buildScriptsDirectory;
+    
+    private File workingDirectory;
 
     /**
      * Standard logger.
@@ -38,19 +43,16 @@ public class PythonVersionManager {
     /**
      * Default constructor
      */
-    public PythonVersionManager(File workingDirectory, String pythonCommand) {
-        this.pythonCommand = pythonCommand;
+    public PythonVersionManager(File workingDirectory, String[] pythonCommands) {
+        this.pythonCommands = pythonCommands;
         this.buildScriptsDirectory = workingDirectory.getAbsolutePath() + "/build/scripts/";
+        this.workingDirectory = workingDirectory;
         checkVersion();
     }
 
     private void checkVersion() {
         File versionScript = writeVersionScript();
         pythonVersion = getPythonVersionFromScript(versionScript.getAbsolutePath());
-        if (pythonVersion == null) {
-            throw new HabushuException("Could not execute python version command. Please check that " + pythonCommand
-                    + " corresponds to a python executable.");
-        }
 
         isExpectedVersion = checkPythonVersion(pythonVersion);
     }
@@ -99,13 +101,15 @@ public class PythonVersionManager {
 
         String pythonVersion = null;
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder(pythonCommand, absolutePath);
-            processBuilder.redirectErrorStream(true);
-            Process process = processBuilder.start();
-            InputStreamReader results = new InputStreamReader(process.getInputStream());
-            BufferedReader reader = new BufferedReader(results);
-            pythonVersion = StringUtils.trimToNull(reader.readLine());
-        } catch (IOException e) {
+        	List<String> commands = new ArrayList<>();
+            for (String command : pythonCommands) {
+            	commands.add(command);
+            }
+            commands.add(absolutePath);
+
+            VenvExecutor executor = new VenvExecutor(workingDirectory, commands, Platform.guess(), new HashMap<>());
+            pythonVersion = executor.executeAndGetResult(logger);
+        } catch (Exception e) {
             throw new HabushuException("Error when executing python version script: ", e);
         }
         return pythonVersion;
