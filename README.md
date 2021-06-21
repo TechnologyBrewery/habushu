@@ -77,9 +77,7 @@ Create or update your Venv virtual environment. This ensures it is valid and tha
 * _venvDirectory:_ The root location of your virtual environment.  By default, this will point to the /virtualenvs/ folder directly under the project build directory (usually the target folder).
 * _workingDirectory:_ The location in which any venv commands will be run.  By default, this is `target`.
 * _pythonSourceDirectory:_ The directory in which your source code should be placed.  By default, `src/main/python`.  It is highly discouraged to change this value.
-* _environmentName:_ The name of your virtual environment.  By default, this will be the `artifactId` of your Maven build.
 * _pathToVirtualEnvironment:_ The path to your specified virtual environment.  By default, this will simply add your environmentName onto the file path of your `venvDirectory`.
-* _settingsFileLocation:_ The path to your Maven settings.xml file.  By default, this will point to a settings file located in the .m2 folder under your user home directory.
 * _pythonVersion:_ The version of python you wish to use. Currently we only support versions 3.7.X, other versions may be supported in the future. By default, this is set to 3.7.10. If your preinstalled version of python does not match what is specified then habushu will install python for you using pyenv.
 
 ##### test #####
@@ -103,7 +101,8 @@ Additionally, the following configuration options can be specified via standard 
 * _distDirectory:_ The directory in which the wheel file is located after it is built.  By default, this is `{project.basedir}/target/staging/dist`.
 * _packageWheelScript:_ The bash script that will package a Python project into wheel format.
 * _uploadWheelScript:_ The bash script that will upload a Python wheel to the remote repository.
-* _settingsFileLocation:_ The path to your Maven settings.xml file.  By default, this will point to a settings file located in the .m2 folder under your user home directory.
+* _repositoryId:_ The ID of a remote repository to upload the generated Python wheel to.
+* _repositoryUrl:_ The full URL (including leading https://) of the repository to upload the generated Python wheel to.
 
 Python release process and versioning:
 
@@ -227,4 +226,17 @@ Add the following to the beginning your .bash_profile:
 ```
 export PATH="/usr/local/opt/openssl@1.1/bin:$PATH"
 export PKG_CONFIG_PATH="/usr/local/opt/openssl@1.1/lib/pkgconfig"
+```
+
+### C Compiler Issues ###
+
+Occasionally, updates to MacOS machines will cause issues with the C compiler that is installed through Xcode (sometimes also called "Apple Developer Tools").  The Habushu build makes use of Xcode and the C compiler for downloading and installing Python dynamically when an installation cannot be found that matches the Python version provided to the build.
+
+If you run into issues with the C compiler or the Python download/installation process, please reinstall Xcode.  On a MacOS, this will force a reinstallation of the C compiler as well.
+
+The following commands reinstall XCode.
+
+```
+sudo rm -rf /Library/Developer/CommandLineTools
+sudo xcode-select --install
 ```
