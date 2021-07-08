@@ -67,7 +67,7 @@ Leverages the standard [`maven-clean-plugin`](https://maven.apache.org/plugins/m
 ##### resources #####
 Habushu has extended the default [`maven-resources-plugin`](https://maven.apache.org/plugins/maven-resources-plugin/) to copy anything in `src/main/python`, `src/main/resources` into the `target/staging` directory. The project's `pom.xml` and Venv dependency file are also included. These copies can then be used for testing and will be included in the zip file produced later in the lifecycle. All configurations options are listed in the plugin's documentation.  The following configuration options can be specified via standard Maven configuration for plugins:
 
-* _venvDependencyFile:_ The location of your Venv dependency file.  By default, this will point to `dependencies.txt` directly within the root of the module.
+* _venvDependencyFile:_ The location of your Venv dependency file.  By default, this will point to `requirements.txt` directly within the root of the module.
 * _pythonSourceDirectory:_ The directory in which your source code should be placed.  By default, `src/main/python`.  It is highly discouraged to change this value.
 * _resourcesDirectory:_ The directory in which your resources should be placed.  BY default, `src/main/resources`.  It is highly discouraged to change this value.
 

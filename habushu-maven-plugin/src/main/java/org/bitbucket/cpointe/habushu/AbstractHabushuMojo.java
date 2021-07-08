@@ -46,7 +46,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
 	/**
 	 * Default name of the file for dependencies for the virtual environment.
 	 */
-	static final String VENV_DEPENDENCY_FILE_NAME = "dependencies.txt";
+	static final String VENV_DEPENDENCY_FILE_NAME = "requirements.txt";
 
 	/**
 	 * The command used to run python.
