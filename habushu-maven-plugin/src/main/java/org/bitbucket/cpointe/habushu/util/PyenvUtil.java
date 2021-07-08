@@ -56,7 +56,7 @@ public class PyenvUtil {
         List<String> commands = new ArrayList<>();
         
         commands.add("pyenv");
-        commands.add(" install ");
+        commands.add("install");
         commands.add(pythonVersion);
         VenvExecutor executor = new VenvExecutor(workingDirectory, commands, Platform.guess(), new HashMap<>());
         try {
