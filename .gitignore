@@ -48,6 +48,7 @@ Thumbs.db
 *.mov
 *.wmv
 
+*.pydevproject
 .classpath
 .project
 .settings/
