@@ -131,7 +131,7 @@ public class HabushuMojo extends AbstractHabushuMojo {
 			File setupPyFile = new File(dependency, "setup.py");
 			if (setupPyFile.exists()) {
 				commandList.append("cd " + dependency.getAbsolutePath() + "\n");
-				for (String command : pythonCommands) {
+				for (String command : installCommands) {
 					commandList.append(command + " ");
 	            }
 				commandList.append(" setup.py install" + "\n");
