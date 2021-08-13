@@ -1,6 +1,7 @@
 package org.bitbucket.cpointe.habushu;
 
 import java.io.File;
+import java.lang.Deprecated;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,11 +39,21 @@ public class HabushuTestResourcesMojo extends CopyResourcesMojo {
      */
     @Parameter(property = "pythonTestDirectory", required = true, defaultValue = "${project.basedir}/src/test/python")
     protected File pythonTestDirectory;
-        
+
     /**
-     * The list of resources we want to transfer. Required by the copy mojo.
+     * Folder in which python test resources files are located.
      */
-    @Parameter(defaultValue = "${project.resources}", required = true, readonly = true)
+    @Parameter(property = "pythonTestResourceDirectory", required = true, defaultValue = "${project.basedir}/src/test/resources")
+    protected File pythonTestResourceDirectory;
+
+    /**
+     * Required by the copy mojo. List of resources to copy.
+     * @deprecated
+     * This parameter is not used by Habushu acceptable to compute time between versions.
+     * <p> Use {@link HabushuTestResourcesMojo#pythonTestResourceDirectory} instead. </p>
+     */
+    @Deprecated
+    @Parameter(defaultValue = "${project.testResources}", required = true, readonly = true)
     private List<Resource> resources;
 
     /**
@@ -63,11 +74,18 @@ public class HabushuTestResourcesMojo extends CopyResourcesMojo {
         source.setDirectory(pythonSourceDirectory.getAbsolutePath());
         pluginResources.add(source);
         
-        Path path = Paths.get(pythonTestDirectory.getAbsolutePath());
-        if (Files.exists(path)) {
+        Path pythonPath = Paths.get(pythonTestDirectory.getAbsolutePath());
+        if (Files.exists(pythonPath)) {
             Resource testSource = new Resource();
             testSource.setDirectory(pythonTestDirectory.getAbsolutePath());
             pluginResources.add(testSource);
+        }
+
+        Path resourcePath = Paths.get(pythonTestResourceDirectory.getAbsolutePath());
+        if (Files.exists(resourcePath)) {
+            Resource resourceSource = new Resource();
+            resourceSource.setDirectory(pythonTestResourceDirectory.getAbsolutePath());
+            pluginResources.add(resourceSource);
         }
 
         setResources(pluginResources);
