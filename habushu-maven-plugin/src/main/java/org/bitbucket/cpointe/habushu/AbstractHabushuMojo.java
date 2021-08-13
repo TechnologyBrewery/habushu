@@ -49,9 +49,11 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
 	static final String VENV_DEPENDENCY_FILE_NAME = "requirements.txt";
 
 	/**
-	 * The command used to run python.
+	 * The command used to run python on the user's machine, locally.
 	 */
 	static final String[] pythonCommands = new String[] { "pyenv", "exec", "python" };
+	
+    static final String[] installCommands = new String[] { "python" };
 
 	/**
 	 * The version of python to pull down to your .habushu directory and use for

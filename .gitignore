@@ -25,6 +25,7 @@ dist/
 
 # JetBrains IDE
 .idea/
+*.iml
 
 # Unit test reports
 TEST*.xml
@@ -52,3 +53,6 @@ Thumbs.db
 .classpath
 .project
 .settings/
+
+# Pyenv
+.python-version
