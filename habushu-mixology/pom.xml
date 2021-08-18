@@ -19,6 +19,9 @@
 				<artifactId>habushu-maven-plugin</artifactId>
 				<version>${project.version}</version>
 				<extensions>true</extensions>
+				<configuration>
+					<pythonVersion>3.9.6</pythonVersion>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

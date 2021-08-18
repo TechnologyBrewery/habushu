@@ -22,8 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Executes behave for Cucumber testing in python following the standard behave
- * structure of a features directory.
+ * Executes behave for Cucumber testing in python following the standard behave structure of a features directory.
  */
 @Mojo(name = "test", defaultPhase = LifecyclePhase.TEST, threadSafe = true, requiresDependencyResolution = ResolutionScope.TEST)
 public class BehaveMojo extends AbstractHabushuMojo {
@@ -49,8 +48,7 @@ public class BehaveMojo extends AbstractHabushuMojo {
     protected boolean excludeManualTag;
 
     /**
-     * Set this to "true" to skip running tests. Its use is NOT RECOMMENDED, but
-     * quite convenient on occasion.
+     * Set this to "true" to skip running tests. Its use is NOT RECOMMENDED, but quite convenient on occasion.
      */
     @Parameter(property = "skipTests", defaultValue = "false")
     protected boolean skipTests;
@@ -93,6 +91,7 @@ public class BehaveMojo extends AbstractHabushuMojo {
         }
 
         if (hasTests) {
+            checkPythonVersion();
             verifyBehaveExistsInEnvironment();
 
             HabushuUtil.createFileAndGivePermissions(runTestsScript);
