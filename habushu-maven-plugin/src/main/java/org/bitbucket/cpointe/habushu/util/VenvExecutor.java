@@ -19,6 +19,7 @@ import org.apache.commons.exec.LogOutputStream;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bitbucket.cpointe.habushu.HabushuException;
 import org.slf4j.Logger;
 
@@ -65,7 +66,11 @@ public class VenvExecutor {
             throw new HabushuException("Could not invoke command! See output above.", e);
         }
         if (exitValue == 0) {
-            return stdout.toString().trim();
+            String result = stdout.toString().trim();
+            if (StringUtils.isBlank(result)) {
+                result = stderr.toString().trim();
+            }
+            return result;
         } else {
             throw new HabushuException(stdout + " " + stderr);
         }
