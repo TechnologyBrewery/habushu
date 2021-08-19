@@ -2,6 +2,7 @@ package org.bitbucket.cpointe.habushu;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -137,10 +138,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     protected void checkPythonVersion() {
         String foundPythonVersion = getActivePythonVersion();
 
-        if (!checkPythonVersion(foundPythonVersion)) {
-            getLogger().warn(
-                    "Specified python version does NOT match found pyenv version! Expected: {}, but found: {}! Attempting python version change",
-                    pythonVersion, foundPythonVersion);
+        if (!checkPythonVersion(foundPythonVersion)) {            
             PyenvUtil.updatePythonVersion(pythonVersion, changeVersionScript, workingDirectory);
 
         }
@@ -185,6 +183,15 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * @return system output
      */
     private void createVirtualEnvironmentIfNeeded() {
+        String activePythonVersion = getActivePythonVersion();
+        String majorMinorVersion = activePythonVersion.substring(0, activePythonVersion.lastIndexOf("."));
+        BigDecimal numericMajorMinorVersion = new BigDecimal(majorMinorVersion);
+        BigDecimal firstVersionSupportingVenv = new BigDecimal("3.3");
+        if (numericMajorMinorVersion.compareTo(firstVersionSupportingVenv) < 0) {
+            throw new HabushuException("Python versions older than 3.3 do not support venv "
+                    + "- update python or override this build step!");
+        }
+
         File virtualEnvDirectory = new File(pathToVirtualEnvironment);
         if (virtualEnvDirectory.exists()) {
             if (getLogger().isDebugEnabled()) {
