@@ -112,7 +112,7 @@ public final class HabushuUtil {
 
 			int exitVal = process.waitFor();
 			if (exitVal != 0) {
-				throw new HabushuException("Error encountered when running bash script located at " + bashScriptPath);
+				throw new HabushuException("Error encountered when running bash script located at " + bashScriptPath + "\n    Can run maven build with -X to see the output of the failed script.");
 			}
 		} catch (IOException | InterruptedException e) {
 			throw new HabushuException("Could not run bash script.", e);
