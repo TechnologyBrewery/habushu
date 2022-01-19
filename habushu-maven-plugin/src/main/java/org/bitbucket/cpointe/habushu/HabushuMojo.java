@@ -22,9 +22,6 @@ import org.bitbucket.cpointe.habushu.util.VenvExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
-import com.google.common.io.Files;
 
 /**
  * A plugin to help include Venv-based projects in Maven builds. This helps keep
@@ -40,15 +37,8 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	/**
 	 * Folder where the previous file hash of the venv dependency file is stored.
 	 */
-	@Parameter(property = "previousDependencyHashDirectory", required = true, defaultValue = "${project.build.directory}/build-accelerator/")
-	protected File previousDependencyHashDirectory;
-
-	/**
-	 * The name of the .txt file storing the previous hash of the venv dependency
-	 * file.
-	 */
-	@Parameter(property = "previousVenvDependencyFileHash", required = true, defaultValue = "previousDependencyFileHash.txt")
-	protected String previousVenvDependencyFileHash;
+	@Parameter(property = "previousDependencyDirectory", required = true, defaultValue = "${project.build.directory}/build-accelerator/")
+	protected File previousDependencyDirectory;
 
 	/**
 	 * The URL pointing to the distribution management server (a private PyPi
@@ -71,26 +61,32 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	@Parameter(defaultValue = "${project.build.directory}/python-setup-install-local-dependencies.sh", property = "pythonSetupInstallScript", required = false)
 	private File pythonSetupInstallScript;
 
+    private File previousDependencyFile;
+    private File previousSetupPyFile;
+    private File sourceSetupPyFile;
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
         super.execute();
-		
-		upgradeVirtualEnvironmentPip();
-
-		boolean updateRequired = compareCurrentAndPreviousDependencyFileHashes();
-		if (updateRequired) {
-			logger.debug("Change detected in venv dependency file. Updating configuration.");
-
-			installVenvDependencies();
-			overwritePreviousDependencyHash();
-		} else {
-			logger.debug("No change detected in venv dependency file.");
-		}
-
-		installUnpackedPythonDependencies();
+        
+        previousDependencyFile = new File(previousDependencyDirectory.getAbsolutePath() + File.separatorChar
+                + VENV_DEPENDENCY_FILE_NAME);
+        previousSetupPyFile = new File(previousDependencyDirectory.getAbsolutePath() + File.separatorChar + SETUP_PY_FILE_NAME);
+        sourceSetupPyFile = new File(pythonSourceDirectory.getAbsolutePath() + File.separatorChar + SETUP_PY_FILE_NAME);
+		    
+        boolean updateRequired = haveDependencyFilesChanged();
+        if (updateRequired) {
+            logger.debug("Change detected in venv dependency file. Updating configuration.");
+            upgradeVirtualEnvironmentPip();
+            installVenvDependencies();
+            installUnpackedPythonDependencies();
+            overwritePriorDependencyFiles();
+        } else {
+            logger.info("Skipped python setup because no python environment changes detected. Can run with -Dhabushu.force.clean to force an update.");
+        }
 	}
 
 	/**
@@ -128,7 +124,7 @@ public class HabushuMojo extends AbstractHabushuMojo {
 		commandList.append("source " + pathToActivationScript + "\n");
 
 		for (File dependency : dependencies) {
-			File setupPyFile = new File(dependency, "setup.py");
+			File setupPyFile = new File(dependency, SETUP_PY_FILE_NAME);
 			if (setupPyFile.exists()) {
 				commandList.append("cd " + dependency.getAbsolutePath() + "\n");
 				for (String command : installCommands) {
@@ -235,68 +231,42 @@ public class HabushuMojo extends AbstractHabushuMojo {
 	}
 
 	/**
-	 * Compares the current and previous hashes of the venv dependency file.
+	 * Compares the current and previous dependency files.
 	 * 
 	 * @return true if the hashes/files are different, false if they're equal
 	 */
-	private boolean compareCurrentAndPreviousDependencyFileHashes() {
-		createPreviousDependencyFileHashDirectoryIfNeeded();
+	private boolean haveDependencyFilesChanged() {
+	    boolean hasSetupPyFileChanged = true;
+	    boolean hasRequirementsTxtFileChanged = true;
+		
+        if (previousDependencyFile.exists() && previousSetupPyFile.exists()) {
+            try {
+                hasRequirementsTxtFileChanged = !FileUtils.contentEquals(previousDependencyFile, venvDependencyFile);
+                hasSetupPyFileChanged = !FileUtils.contentEquals(previousSetupPyFile, sourceSetupPyFile);
+            } catch (IOException e) {
+                throw new HabushuException("Error when attempting to create file hashes for comparison!", e);
+            }
+		} 
 
-		String currentDependencyFileHash = null;
-		String previousDependencyFileHash = null;
-		String previousDependencyFilePath = previousDependencyHashDirectory.getAbsolutePath() + "/"
-				+ previousVenvDependencyFileHash;
-
-		File previousDependencyHashFile = new File(previousDependencyFilePath);
-		if (previousDependencyHashFile.exists()) {
-			try {
-				HashFunction hashAlgorithm = Hashing.sha256();
-
-				currentDependencyFileHash = Files.asByteSource(previousDependencyHashFile).hash(hashAlgorithm)
-						.toString();
-				previousDependencyFileHash = Files.asByteSource(venvDependencyFile).hash(hashAlgorithm).toString();
-			} catch (IOException e) {
-				throw new HabushuException("Error when attempting to create file hashes for comparison!", e);
-			}
-		} else {
-			logger.debug("No previous venv dependency file hash found. Update required.");
-			return true;
-		}
-
-		return !StringUtils.equals(currentDependencyFileHash, previousDependencyFileHash);
+		return hasSetupPyFileChanged || hasRequirementsTxtFileChanged;
 	}
 
 	/**
 	 * Overwrite the previous hash of the venv dependency file, updating it to the
 	 * current one to reflect any changes.
 	 */
-	private void overwritePreviousDependencyHash() {
-		logger.debug("Overwriting previous file hash with current one.");
-
-		File previousDependencyHash = new File(
-				previousDependencyHashDirectory.getAbsolutePath() + "/" + previousVenvDependencyFileHash);
-		File currentDependencyHash = new File(venvDependencyFile.getAbsolutePath());
+	private void overwritePriorDependencyFiles() {
+		logger.debug("Saves a copy of the current requirements.txt file so we can see if it changes in a future build.");
 
 		try {
-			FileUtils.copyFile(currentDependencyHash, previousDependencyHash);
+			FileUtils.copyFile(venvDependencyFile, previousDependencyFile);
+			FileUtils.copyFile(sourceSetupPyFile, previousSetupPyFile);
 		} catch (IOException e) {
 			throw new HabushuException("Error when trying to overwrite previous dependency file hash with current!", e);
 		}
 	}
 
-	/**
-	 * Create the directory that will contain the previous hash of the venv
-	 * dependency file.
-	 */
-	private void createPreviousDependencyFileHashDirectoryIfNeeded() {
-		if (!previousDependencyHashDirectory.exists()) {
-			logger.debug("Previous dependency file hash directory did not exist - creating {}",
-					getCanonicalPathForFile(previousDependencyHashDirectory));
-			previousDependencyHashDirectory.mkdirs();
-		} else {
-			logger.debug("Previous dependency file hash directory already exists.");
-		}
-	}
+	
 
 
 	@Override

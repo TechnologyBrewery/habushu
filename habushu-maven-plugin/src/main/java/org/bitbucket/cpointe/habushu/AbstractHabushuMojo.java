@@ -41,6 +41,11 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * Default name of the file for dependencies for the virtual environment.
      */
     static final String VENV_DEPENDENCY_FILE_NAME = "requirements.txt";
+    
+    /**
+     * Default name of the file for dependencies for the virtual environment.
+     */
+    static final String SETUP_PY_FILE_NAME = "setup.py";
 
     /**
      * The command used to run python on the user's machine, locally.
@@ -97,6 +102,12 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "${project.build.directory}/change-python-version.sh", property = "pythonVersionScript", required = false)
     private File changeVersionScript;
+    
+    /**
+     * Folder in which python source files are located.
+     */
+    @Parameter(property = "pythonSourceDirectory", required = true, defaultValue = "${project.basedir}/src/main/python")
+    protected File pythonSourceDirectory;
 
     /**
      * Handles basic set up used across steps so that the current environments and environment name are available.
