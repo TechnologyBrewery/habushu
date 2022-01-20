@@ -52,7 +52,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     /**
      * The version of python to pull down to your .habushu directory and use for running scripts
      */
-    @Parameter(defaultValue = "3.7.10", property = "pythonVersion", required = false)
+    @Parameter(defaultValue = "3.9.9", property = "pythonVersion", required = false)
     protected String pythonVersion;
 
     /**

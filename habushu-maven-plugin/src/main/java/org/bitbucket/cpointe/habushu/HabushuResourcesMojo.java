@@ -161,7 +161,7 @@ public class HabushuResourcesMojo extends CopyResourcesMojo {
                 "        \"License :: OSI Approved :: MIT License\",\n" +
                 "        \"Operating System :: OS Independent\",\n" +
                 "    ],\n" +
-                "    python_requires='>=3.7',\n" +
+                "    python_requires='>=3.9.1',\n" +
                 ")";
         createFileFromFileNameAndContent(packagePath, "setup.py", content);
     }
