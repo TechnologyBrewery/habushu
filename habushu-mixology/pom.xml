@@ -20,7 +20,7 @@
 				<version>${project.version}</version>
 				<extensions>true</extensions>
 				<configuration>
-					<pythonVersion>3.9.6</pythonVersion>
+					<pythonVersion>3.9.9</pythonVersion>
 				</configuration>
 			</plugin>
 		</plugins>
