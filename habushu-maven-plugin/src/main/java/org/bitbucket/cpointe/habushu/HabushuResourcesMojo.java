@@ -1,12 +1,11 @@
 package org.bitbucket.cpointe.habushu;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -93,7 +92,7 @@ public class HabushuResourcesMojo extends CopyResourcesMojo {
     private void checkRequiredPackageFilesAndCreateIfNotAvailable(File packagePath) throws MojoExecutionException {
         boolean licenseExists = new File(packagePath, "LICENSE").exists();
         boolean readmeExists = new File(packagePath, "README.md").exists();
-        boolean setupExists = new File(packagePath, "setup.py").exists();
+        boolean setupExists = new File(packagePath, AbstractHabushuMojo.SETUP_PY_FILE_NAME).exists();
 
         try {
             if(!licenseExists) {
@@ -123,19 +122,11 @@ public class HabushuResourcesMojo extends CopyResourcesMojo {
      * @throws IOException
      */
     private void createFileFromFileNameAndContent(File packagePath, String fileName, String content) throws IOException {
-        BufferedWriter bw = null;
-        try{
+        try {
             File file = new File(packagePath, fileName);
-            file.createNewFile();
-            FileWriter fw = new FileWriter(file.getAbsoluteFile());
-            bw = new BufferedWriter(fw);
-            bw.write(content);
+            FileUtils.write(file, content);
         } catch (IOException e) {
             logger.error("Couldn't create package files: {}", e.getMessage());
-        } finally {
-            if(bw != null){
-                bw.close();
-            }
         }
     }
 
@@ -163,7 +154,7 @@ public class HabushuResourcesMojo extends CopyResourcesMojo {
                 "    ],\n" +
                 "    python_requires='>=3.9.1',\n" +
                 ")";
-        createFileFromFileNameAndContent(packagePath, "setup.py", content);
+        createFileFromFileNameAndContent(packagePath, AbstractHabushuMojo.SETUP_PY_FILE_NAME, content);
     }
 
 }
