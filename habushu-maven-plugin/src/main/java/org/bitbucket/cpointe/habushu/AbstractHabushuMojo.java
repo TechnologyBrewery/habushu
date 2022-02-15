@@ -52,7 +52,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     static final String[] pythonCommands = new String[] { "pyenv", "exec", "python" };
 
-    static final String[] installCommands = new String[] { "python" };
+    static final String[] installCommands = new String[] { "pip" };
 
     /**
      * The version of python to pull down to your .habushu directory and use for running scripts

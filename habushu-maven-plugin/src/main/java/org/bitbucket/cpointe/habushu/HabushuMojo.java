@@ -130,7 +130,7 @@ public class HabushuMojo extends AbstractHabushuMojo {
 				for (String command : installCommands) {
 					commandList.append(command + " ");
 	            }
-				commandList.append(" setup.py install" + "\n");
+				commandList.append(" install ." + "\n");
 			}
 		}
 
