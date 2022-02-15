@@ -2,7 +2,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.bitbucket.cpointe.habushu</groupId>
-	<version>1.1.0</version>
+	<version>1.2.0-SNAPSHOT</version>
 	<artifactId>habushu</artifactId>
 	<packaging>pom</packaging>
 
@@ -35,7 +35,7 @@
 		<connection>scm:git:ssh://git@bitbucket.org/cpointe/habushu.git</connection>
 		<developerConnection>scm:git:ssh://git@bitbucket.org/cpointe/habushu.git</developerConnection>
 		<url>https://bitbucket.org/cpointe/habushu/</url>
-		<tag>habushu-1.1.0</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<distributionManagement>
