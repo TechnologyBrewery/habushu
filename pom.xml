@@ -54,10 +54,17 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<slf4j.version>1.7.21</slf4j.version>
+        <version.krausening>10-SNAPSHOT</version.krausening>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
+            <dependency>
+                <groupId>org.bitbucket.askllc.krausening</groupId>
+                <artifactId>krausening-python</artifactId>
+                <version>${version.krausening}</version>
+                <type>zip</type>
+            </dependency>
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
