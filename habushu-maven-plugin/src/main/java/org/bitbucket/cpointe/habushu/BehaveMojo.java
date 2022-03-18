@@ -2,7 +2,10 @@ package org.bitbucket.cpointe.habushu;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -22,7 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Executes behave for Cucumber testing in python following the standard behave structure of a features directory.
+ * Executes behave for Cucumber testing in python following the standard behave
+ * structure of a features directory.
  */
 @Mojo(name = "test", defaultPhase = LifecyclePhase.TEST, threadSafe = true, requiresDependencyResolution = ResolutionScope.TEST)
 public class BehaveMojo extends AbstractHabushuMojo {
@@ -42,13 +46,21 @@ public class BehaveMojo extends AbstractHabushuMojo {
     protected String cucumberOptions;
 
     /**
+     * List of System properties to pass to the tests.
+     *
+     */
+    @Parameter
+    private Map<String, String> systemPropertyVariables;
+
+    /**
      * By default, exclude any scenario or feature file tagged with '@manual'.
      */
     @Parameter(property = "excludeManualTag", required = true, defaultValue = "true")
     protected boolean excludeManualTag;
 
     /**
-     * Set this to "true" to skip running tests. Its use is NOT RECOMMENDED, but quite convenient on occasion.
+     * Set this to "true" to skip running tests. Its use is NOT RECOMMENDED, but
+     * quite convenient on occasion.
      */
     @Parameter(property = "skipTests", defaultValue = "false")
     protected boolean skipTests;
@@ -114,11 +126,10 @@ public class BehaveMojo extends AbstractHabushuMojo {
 
     private void writeCommandsToRunTestsScript() {
         File behaveDirectory = new File(pythonTestDirectory, "features");
-
         StringBuilder commandList = new StringBuilder();
-        commandList.append("#!/bin/bash" + "\n");
-        commandList.append("cd " + outputDirectory + "\n");
-        commandList.append("source " + pathToActivationScript + "\n");
+
+        commandList.append(getCommandList());
+        commandList.append(getSystemPropertiesCommand(true));
 
         StringBuilder behaveCommand = new StringBuilder();
         behaveCommand.append(pathToBehave);
@@ -132,10 +143,48 @@ public class BehaveMojo extends AbstractHabushuMojo {
             behaveCommand.append(" " + cucumberOptions);
         }
 
-        commandList.append(behaveCommand.toString());
+        commandList.append(behaveCommand.toString() + "\n");
+        commandList.append(getSystemPropertiesCommand(false));
 
         logger.debug("To run command manually, use the bash script located at {}.", runTestsScript.getAbsolutePath());
         HabushuUtil.writeLinesToFile(commandList.toString(), runTestsScript.getAbsolutePath());
+    }
+
+    private String getCommandList() {
+
+        StringBuilder commandList = new StringBuilder();
+        commandList.append("#!/bin/bash" + "\n");
+        commandList.append("cd " + outputDirectory + "\n");
+        commandList.append("source " + pathToActivationScript + "\n");
+        return commandList.toString();
+    }
+
+    private String getSystemPropertiesCommand(boolean set) {
+        String command = "unset ";
+        if (set) {
+            command = "export ";
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();
+        if (systemPropertyVariables != null && !systemPropertyVariables.isEmpty()) {
+            Set<String> keys = systemPropertyVariables.keySet();
+            Iterator<String> iter = keys.iterator();
+            while (iter.hasNext()) {
+
+                // Get the system property
+                String systemProperty = iter.next().trim();
+                String systemPropertyValue = systemPropertyVariables.get(systemProperty).trim();
+                stringBuilder.append(command + systemProperty);
+
+                if (set) {
+
+                    // Add the commands to the system property
+                    stringBuilder.append("=" + systemPropertyValue);
+                }
+                stringBuilder.append("\n");
+            }
+        }
+        return stringBuilder.toString();
     }
 
     private boolean hasTestArtifactsToProcess(File behaveDirectory) {
@@ -185,4 +234,5 @@ public class BehaveMojo extends AbstractHabushuMojo {
     protected Logger getLogger() {
         return logger;
     }
+
 }
