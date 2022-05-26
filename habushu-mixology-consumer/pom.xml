@@ -3,11 +3,11 @@
 	<parent>
 		<groupId>org.bitbucket.cpointe.habushu</groupId>
 		<artifactId>habushu</artifactId>
-		<version>1.2.0-SNAPSHOT</version>
+		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 
 	<name>habushu::Mixing Drinks with Habushu consumer</name>
-	<description>Example of how to use the habushu-maven-plugin</description>
+	<description>Example of how to use the habushu-maven-plugin to consume other Habushu modules</description>
 
 	<artifactId>habushu-mixology-consumer</artifactId>
 	<packaging>habushu</packaging>
@@ -22,14 +22,5 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.bitbucket.cpointe.habushu</groupId>
-			<artifactId>habushu-mixology</artifactId>
-			<version>${project.version}</version>
-			<type>zip</type>
-		</dependency>
-	</dependencies>
 
 </project>
