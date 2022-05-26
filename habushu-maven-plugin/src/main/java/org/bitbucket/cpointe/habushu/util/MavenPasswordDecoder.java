@@ -19,67 +19,57 @@ import org.sonatype.plexus.components.sec.dispatcher.model.SettingsSecurity;
  */
 public class MavenPasswordDecoder {
 
-	private MavenPasswordDecoder() {
+    private MavenPasswordDecoder() {
+    }
+
+    /**
+     * The settings-security.xml file for the current Maven user.
+     */
+    private static final File ORIGINAL_SETTINGS_SECURITY_FILE = new File(System.getProperty("user.home"),
+	    ".m2/settings-security.xml");
+
+    private static String decodePassword(String encodedPassword, String key) throws PlexusCipherException {
+	DefaultPlexusCipher cipher = new DefaultPlexusCipher();
+	return cipher.decryptDecorated(encodedPassword, key);
+    }
+
+    private static String decodeMasterPassword(String encodedMasterPassword) throws PlexusCipherException {
+	return decodePassword(encodedMasterPassword, DefaultSecDispatcher.SYSTEM_PROPERTY_SEC_LOCATION);
+    }
+
+    private static SettingsSecurity readSettingsSecurity(File file) throws SecDispatcherException {
+	return SecUtil.read(file.getAbsolutePath(), true);
+    }
+
+    public static String decryptPasswordForServer(Settings settings, String serverId)
+	    throws IOException, XmlPullParserException, SecDispatcherException, PlexusCipherException {
+
+	SettingsSecurity settingsSecurity = null;
+
+	if (System.getProperty("settings.security") != null) {
+	    File movedSettingsSecurityFile = new File(System.getProperty("settings.security"));
+	    settingsSecurity = readSettingsSecurity(movedSettingsSecurityFile);
+	} else if (ORIGINAL_SETTINGS_SECURITY_FILE.exists()) {
+	    settingsSecurity = readSettingsSecurity(ORIGINAL_SETTINGS_SECURITY_FILE);
 	}
 
-	private static Settings settings;
+	if (settingsSecurity != null) {
+	    String encodedMasterPassword = settingsSecurity.getMaster();
+	    String plainTextMasterPassword = decodeMasterPassword(encodedMasterPassword);
 
-	/**
-	 * The settings-security.xml file for the current Maven user.
-	 */
-	private static final File ORIGINAL_SETTINGS_SECURITY_FILE = new File(System.getProperty("user.home"),
-			".m2/settings-security.xml");
+	    List<Server> servers = settings.getServers();
 
-	private static String decodePassword(String encodedPassword, String key) throws PlexusCipherException {
-		DefaultPlexusCipher cipher = new DefaultPlexusCipher();
-		return cipher.decryptDecorated(encodedPassword, key);
-	}
+	    for (Server server : servers) {
+		if (serverId.equals(server.getId())) {
+		    String encodedServerPassword = server.getPassword();
+		    String plainTextServerPassword = decodePassword(encodedServerPassword, plainTextMasterPassword);
 
-	private static String decodeMasterPassword(String encodedMasterPassword) throws PlexusCipherException {
-		return decodePassword(encodedMasterPassword, DefaultSecDispatcher.SYSTEM_PROPERTY_SEC_LOCATION);
-	}
-
-	private static SettingsSecurity readSettingsSecurity(File file) throws SecDispatcherException {
-		return SecUtil.read(file.getAbsolutePath(), true);
-	}
-
-	public static String decryptPasswordForServer(String serverId)
-			throws IOException, XmlPullParserException, SecDispatcherException, PlexusCipherException {
-
-		SettingsSecurity settingsSecurity = null;
-		
-		if (System.getProperty("settings.security") != null) {
-			File movedSettingsSecurityFile = new File(System.getProperty("settings.security"));
-			settingsSecurity = readSettingsSecurity(movedSettingsSecurityFile);
-		} else if (ORIGINAL_SETTINGS_SECURITY_FILE.exists()) {
-			settingsSecurity = readSettingsSecurity(ORIGINAL_SETTINGS_SECURITY_FILE);
+		    return plainTextServerPassword;
 		}
-
-		if (settingsSecurity != null) {
-			String encodedMasterPassword = settingsSecurity.getMaster();
-			String plainTextMasterPassword = decodeMasterPassword(encodedMasterPassword);
-
-			List<Server> servers = settings.getServers();
-
-			for (Server server : servers) {
-				if (serverId.equals(server.getId())) {
-					String encodedServerPassword = server.getPassword();
-					String plainTextServerPassword = decodePassword(encodedServerPassword, plainTextMasterPassword);
-
-					return plainTextServerPassword;
-				}
-			}
-		}
-
-		return null;
+	    }
 	}
 
-	/**
-	 * Provides a way to configure the settings for a Maven user.
-	 * 
-	 * @param newSettings the settings for the Maven user
-	 */
-	public static void setMavenSettings(Settings newSettings) {
-		settings = newSettings;
-	}
+	return null;
+    }
+
 }
