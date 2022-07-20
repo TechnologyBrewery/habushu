@@ -28,8 +28,6 @@ public class PoetryCommandHelper {
 
     /**
      * Returns a boolean value indicating whether Poetry is installed.
-     * 
-     * @param workingDirectory
      */
     public boolean isPoetryInstalled() {
 	try {

@@ -41,7 +41,7 @@ public class CleanHabushuMojo extends CleanMojo {
      * Enables the explicit deletion of the virtual environment that is
      * created/managed by Poetry.
      */
-    @Parameter(property = "habushu.delete.virtualenv", required = true, defaultValue = "false")
+    @Parameter(property = "habushu.deleteVirtualEnv", required = true, defaultValue = "false")
     protected boolean deleteVirtualEnv;
 
     @Override

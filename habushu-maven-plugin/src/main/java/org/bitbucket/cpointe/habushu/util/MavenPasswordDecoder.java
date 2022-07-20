@@ -1,12 +1,10 @@
 package org.bitbucket.cpointe.habushu.util;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
 import org.sonatype.plexus.components.cipher.PlexusCipherException;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
@@ -42,7 +40,7 @@ public class MavenPasswordDecoder {
     }
 
     public static String decryptPasswordForServer(Settings settings, String serverId)
-	    throws IOException, XmlPullParserException, SecDispatcherException, PlexusCipherException {
+	    throws SecDispatcherException, PlexusCipherException {
 
 	SettingsSecurity settingsSecurity = null;
 

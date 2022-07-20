@@ -22,10 +22,10 @@ import org.bitbucket.cpointe.habushu.exec.PoetryCommandHelper;
 /**
  * Leverages the behave package to execute BDD scenarios that are defined in the
  * "features" sub-directory of the configured {@link #testDirectory}. By
- * default, as per {@link #excludeManualTag}, features/scenarios tagged with
- * {@literal @manual} are skipped. Developers may specify additional command
- * line options via {@link #cucumberOptions} to apply when running behave. If
- * {@link #cucumberOptions} are provided, {@link #excludeManualTag} is
+ * default, as per {@link #behaveExcludeManualTag}, features/scenarios tagged
+ * with {@literal @manual} are skipped. Developers may specify additional
+ * command line options via {@link #behaveOptions} to apply when running behave.
+ * If {@link #behaveOptions} are provided, {@link #behaveExcludeManualTag} is
  * effectively overridden and ignored.
  */
 @Mojo(name = "behave-bdd-test", defaultPhase = LifecyclePhase.TEST, requiresDependencyResolution = ResolutionScope.TEST)
@@ -35,10 +35,10 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
 
     /**
      * Options that should be passed to the behave command. <b>NOTE:</b> If this
-     * value is provided, then {@link #excludeManualTag} is ignored.
+     * value is provided, then {@link #behaveExcludeManualTag} is ignored.
      */
-    @Parameter(property = "cucumber.options", required = false)
-    protected String cucumberOptions;
+    @Parameter(property = "habushu.behaveOptions", required = false)
+    protected String behaveOptions;
 
     /**
      * List of environment variables that will be set in the virtual environment in
@@ -50,11 +50,11 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
 
     /**
      * By default, exclude any scenario or feature file tagged with '@manual'.
-     * <b>NOTE:</b> If {@link #cucumberOptions} are provided, this property is
+     * <b>NOTE:</b> If {@link #behaveOptions} are provided, this property is
      * ignored.
      */
-    @Parameter(property = "excludeManualTag", required = true, defaultValue = "true")
-    protected boolean excludeManualTag;
+    @Parameter(property = "habushu.behaveExcludeManualTag", required = true, defaultValue = "true")
+    protected boolean behaveExcludeManualTag;
 
     /**
      * Set this to "true" to skip running tests. Its use is NOT RECOMMENDED, but
@@ -84,7 +84,7 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
 	    PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
 
 	    if (!poetryHelper.isDependencyInstalled(BEHAVE_PACKAGE)) {
-		getLog().debug(String.format("%s dependency not specified in pyproject.toml - installing now...",
+		getLog().info(String.format("%s dependency not specified in pyproject.toml - installing now...",
 			BEHAVE_PACKAGE));
 		poetryHelper.installDevelopmentDependency(BEHAVE_PACKAGE);
 	    }
@@ -93,10 +93,10 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
 	    executeBehaveTestArgs
 		    .addAll(Arrays.asList("run", BEHAVE_PACKAGE, getCanonicalPathForFile(behaveDirectory)));
 
-	    if (StringUtils.isNotEmpty(cucumberOptions)) {
-		executeBehaveTestArgs.addAll(Arrays.asList(StringUtils.split(cucumberOptions)));
+	    if (StringUtils.isNotEmpty(behaveOptions)) {
+		executeBehaveTestArgs.addAll(Arrays.asList(StringUtils.split(behaveOptions)));
 	    } else {
-		if (excludeManualTag) {
+		if (behaveExcludeManualTag) {
 		    executeBehaveTestArgs.add("--tags=-manual");
 		}
 	    }

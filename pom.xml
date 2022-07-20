@@ -46,85 +46,13 @@
 	</distributionManagement>
 
 	<properties>
-		<cucumber.version>1.2.5</cucumber.version>
-		<log4j.version>2.7</log4j.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<maven.core.version>3.2.0</maven.core.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<slf4j.version>1.7.21</slf4j.version>
-        <version.krausening>10</version.krausening>
 	</properties>
 
-	<dependencyManagement>
-		<dependencies>
-            <dependency>
-                <groupId>org.bitbucket.askllc.krausening</groupId>
-                <artifactId>krausening-python</artifactId>
-                <version>${version.krausening}</version>
-                <type>zip</type>
-            </dependency>
-			<dependency>
-				<groupId>junit</groupId>
-				<artifactId>junit</artifactId>
-				<version>4.12</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>info.cukes</groupId>
-				<artifactId>cucumber-java</artifactId>
-				<version>${cucumber.version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>info.cukes</groupId>
-				<artifactId>cucumber-junit</artifactId>
-				<version>${cucumber.version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>info.cukes</groupId>
-				<artifactId>cucumber-spring</artifactId>
-				<version>${cucumber.version}</version>
-				<scope>test</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-
 	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-jar-plugin</artifactId>
-					<version>${maven.core.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>net.masterthought</groupId>
-					<artifactId>maven-cucumber-reporting</artifactId>
-					<version>4.3.0</version>
-					<executions>
-						<execution>
-							<id>execution</id>
-							<phase>post-integration-test</phase>
-							<goals>
-								<goal>generate</goal>
-							</goals>
-							<configuration>
-								<projectName>fermenter</projectName>
-								<outputDirectory>${project.build.directory}/cucumber-html-reports</outputDirectory>
-								<jsonFiles>
-									<!-- supports wildcard or name pattern -->
-									<param>**/*.json</param>
-								</jsonFiles>
-								<checkBuildResult>false</checkBuildResult>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -140,7 +68,7 @@
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>1.6.8</version>
+				<version>1.6.13</version>
 				<extensions>true</extensions>
 				<configuration>
 					<serverId>ossrh</serverId>
@@ -151,7 +79,7 @@
 			<plugin>
         		<groupId>org.apache.maven.plugins</groupId>
         		<artifactId>maven-enforcer-plugin</artifactId>
-       			<version>3.0.0-M3</version>
+       			<version>3.1.0</version>
         		<executions>
           			<execution>
             			<id>enforce-maven</id>
@@ -201,7 +129,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-source-plugin</artifactId>
-						<version>${maven.core.version}</version>
+						<version>3.2.1</version>
 						<executions>
 							<execution>
 								<id>attach-sources</id>
@@ -214,7 +142,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>${maven.core.version}</version>
+						<version>3.4.0</version>
 						<configuration>
 							<javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
 							<!-- NB JDK 8 Javadoc linter is very strict, so deactivate it if we're 

@@ -56,3 +56,6 @@ Thumbs.db
 
 # Pyenv
 .python-version
+
+# Local Poetry configuration
+poetry.toml

@@ -10,7 +10,6 @@ import java.io.InputStreamReader;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.bitbucket.cpointe.habushu.HabushuException;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.plexus.components.cipher.PlexusCipherException;
@@ -48,7 +47,7 @@ public final class HabushuUtil {
 
 	try {
 	    decryptedPassword = MavenPasswordDecoder.decryptPasswordForServer(settings, serverId);
-	} catch (PlexusCipherException | IOException | XmlPullParserException | SecDispatcherException e) {
+	} catch (PlexusCipherException | SecDispatcherException e) {
 	    throw new HabushuException("Unable to decrypt stored passwords.", e);
 	}
 

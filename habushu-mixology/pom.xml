@@ -12,13 +12,6 @@
 	<artifactId>habushu-mixology</artifactId>
 	<packaging>habushu</packaging>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.bitbucket.askllc.krausening</groupId>
-			<artifactId>krausening-python</artifactId>
-			<type>zip</type>
-		</dependency>
-	</dependencies>
 
 	<build>
 		<plugins>
@@ -30,7 +23,7 @@
 				<configuration>
 					<pythonVersion>3.9.9</pythonVersion>
 					<!-- NB Temporarily skip WIP scenarios related to krausening-python that aren't yet supported -->
-					<cucumberOptions>--tags=-wip</cucumberOptions>
+					<behaveOptions>--tags=-wip</behaveOptions>
 					<systemPropertyVariables>
 						<KRAUSENING_BASE>${project.basedir}/src/test/resources/config</KRAUSENING_BASE>
 					</systemPropertyVariables>

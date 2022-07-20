@@ -3,7 +3,7 @@ package org.bitbucket.cpointe.habushu;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -28,7 +28,7 @@ public class ValidatePyenvAndPoetryMojo extends AbstractHabushuMojo {
 	getLog().info("Checking if Poetry is installed...");
 	PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
 	boolean poetryInstalled = poetryHelper.isPoetryInstalled();
-	
+
 	if (!pyenvInstalled || !poetryInstalled) {
 	    List<String> missingRequiredToolMsgs = new ArrayList<>();
 	    if (!pyenvInstalled) {
