@@ -28,6 +28,20 @@
 						<KRAUSENING_BASE>${project.basedir}/src/test/resources/config</KRAUSENING_BASE>
 					</systemPropertyVariables>
 				</configuration>
+				<!-- Utilize the run-command-in-virtual-env goal to demonstrate how commands/scripts may be
+					executed via "poetry run" and bound to the build lifecycle phases -->
+				<executions>
+					<execution>
+						<configuration>
+							<runCommandArgs>python -m grpc_tools.protoc -I=src --python_out=src/habushu_mixology/generated src/person.proto</runCommandArgs>
+						</configuration>
+						<id>generate-protobuf-bindings</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>run-command-in-virtual-env</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

@@ -7,12 +7,19 @@ license = "MIT License"
 
 [tool.poetry.dependencies]
 python = "3.9.9"
+habushu-mixology = {path = "../habushu-mixology", develop = true}
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
 behave = "^1.2.6"
-habushu-mixology = {path = "../habushu-mixology", develop = true}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+
+# Added by habushu-maven-plugin at 2022-08-03T14:21:17.892750 to use https://nexus.boozallencsn.com/repository/aiops-pypi-internal/simple/ as source PyPi repository for installing dependencies
+[[tool.poetry.source]]
+name = "private-pypi-repo"
+url = "https://nexus.boozallencsn.com/repository/aiops-pypi-internal/simple/"
+secondary = true
