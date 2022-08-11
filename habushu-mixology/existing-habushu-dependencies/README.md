@@ -1,5 +1,0 @@
-# Existing Habushu Dependencies Not Yet Migrated #
-
-Any existing external Habushu 1.x dependencies that are packaged as Maven assembly .zip files should be iteratively converted to Habushu 2.x projects and published to a PyPI repository for utilization by other Habushu modules.  Until this migration occurs, a temporary stop-gap to is to generate and collect the `sdist` or `whl` distribution archives for the target dependency Habushu modules within a local directory and add them as path dependencies to `pyproject.toml`.  
-
-For example, as `krausening-python` is not yet published to the official PyPI repository, it has been temporarily converted to a Poetry project, its corresponding distribution archives created through `poetry build` placed in `existing-habushu-dependencies`, and then added as a path dependency via `poetry add krausening_python-10.0.0.tar.gz`.  This is a **temporary** solution and will be deprecated following the release of Habushu 2.x and subsequent migration/publishing of existing Habushu modules.

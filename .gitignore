@@ -59,3 +59,5 @@ Thumbs.db
 
 # Local Poetry configuration
 poetry.toml
+# https://python-poetry.org/docs/configuration/#virtualenvsin-project
+.venv
