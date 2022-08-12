@@ -1,4 +1,4 @@
-from krausening_python.properties import PropertyManager
+from krausening.properties import PropertyManager
 
 
 class TestConfig:

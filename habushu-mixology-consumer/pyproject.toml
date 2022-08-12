@@ -6,7 +6,7 @@ authors = ["Your Name <you@example.com>"]
 license = "MIT License"
 
 [tool.poetry.dependencies]
-python = "3.9.9"
+python = "^3.9.9"
 habushu-mixology = {path = "../habushu-mixology", develop = true}
 
 [tool.poetry.dev-dependencies]
