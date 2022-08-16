@@ -2,11 +2,11 @@
 name = "habushu_mixology_consumer"
 version = "2.0.0.dev"
 description = "Example of how to use the habushu-maven-plugin to consume other Habushu modules"
-authors = ["Your Name <you@example.com>"]
+authors = ["Eric Konieczny <ekonieczny@cpointe-inc.com>"]
 license = "MIT License"
 
 [tool.poetry.dependencies]
-python = "^3.9.9"
+python = "3.9.13"
 habushu-mixology = {path = "../habushu-mixology", develop = true}
 
 [tool.poetry.dev-dependencies]
@@ -16,10 +16,3 @@ behave = "^1.2.6"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-
-# Added by habushu-maven-plugin at 2022-08-03T14:21:17.892750 to use https://nexus.boozallencsn.com/repository/aiops-pypi-internal/simple/ as source PyPi repository for installing dependencies
-[[tool.poetry.source]]
-name = "private-pypi-repo"
-url = "https://nexus.boozallencsn.com/repository/aiops-pypi-internal/simple/"
-secondary = true

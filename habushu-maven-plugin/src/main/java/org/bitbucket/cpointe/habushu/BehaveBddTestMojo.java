@@ -40,13 +40,6 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
     @Parameter(property = "habushu.behaveOptions", required = false)
     protected String behaveOptions;
 
-    /**
-     * List of environment variables that will be set in the virtual environment in
-     * which tests are executed. <b>NOTE:</b> Support for this parameter has not yet
-     * been implemented in the Poetry-based implementation of Habushu
-     */
-    @Parameter
-    private Map<String, String> environmentVariables;
 
     /**
      * By default, exclude any scenario or feature file tagged with '@manual'.
@@ -60,7 +53,7 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
      * Set this to "true" to skip running tests. Its use is NOT RECOMMENDED, but
      * quite convenient on occasion.
      */
-    @Parameter(property = "skipTests", defaultValue = "false")
+    @Parameter(property = "habushu.skipTests", defaultValue = "false")
     protected boolean skipTests;
 
     @Override
@@ -112,42 +105,6 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
 	    getLog().warn(String.format("No tests found in %s", getCanonicalPathForFile(behaveDirectory)));
 	}
 
-    }
-
-    /**
-     * TODO: Applies the provided {@link #environmentVariables} to the virtual
-     * environment in which behave tests are executed. This method has not yet been
-     * adapted to support Poetry-based Habushu implementation and is not yet used!
-     * 
-     * @param set
-     * @return
-     */
-    private String applyEnvVarsToVirtualEnv(boolean set) {
-	String command = "unset ";
-	if (set) {
-	    command = "export ";
-	}
-
-	StringBuilder stringBuilder = new StringBuilder();
-	if (environmentVariables != null && !environmentVariables.isEmpty()) {
-	    Set<String> keys = environmentVariables.keySet();
-	    Iterator<String> iter = keys.iterator();
-	    while (iter.hasNext()) {
-
-		// Get the system property
-		String systemProperty = iter.next().trim();
-		String systemPropertyValue = environmentVariables.get(systemProperty).trim();
-		stringBuilder.append(command + systemProperty);
-
-		if (set) {
-
-		    // Add the commands to the system property
-		    stringBuilder.append("=" + systemPropertyValue);
-		}
-		stringBuilder.append("\n");
-	    }
-	}
-	return stringBuilder.toString();
     }
 
 }

@@ -18,12 +18,12 @@ def step_impl(context):
     context.result = subworker.do_something()
 
 
-@then("the build can successfully execute the tests")
+@then("the build can successfully resolve the imports")
 def step_impl(context):
     assert len(context.random) == 5
     assert context.person.email == "habushu@gmail.com"
 
 
-@then("the build can successfully resolve the imports")
+@then("the build can successfully resolve the nested imports")
 def step_impl(context):
     assert len(context.result) > 0

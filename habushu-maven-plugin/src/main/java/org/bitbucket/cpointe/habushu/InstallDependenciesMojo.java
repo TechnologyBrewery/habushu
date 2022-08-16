@@ -94,7 +94,9 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
 			LocalDateTime.now(), pypiRepoSimpleIndexUrl),
 			String.format("[[%s]]", PYPROJECT_PACKAGE_SOURCES_PATH),
 			String.format("name = \"%s\"",
-				StringUtils.isNotEmpty(this.pypiRepoId) ? this.pypiRepoId : "private-pypi-repo"),
+				StringUtils.isNotEmpty(this.pypiRepoId) && !PUBLIC_PYPI_REPO_ID.equals(this.pypiRepoId)
+					? this.pypiRepoId
+					: "private-pypi-repo"),
 			String.format("url = \"%s\"", pypiRepoSimpleIndexUrl), "secondary = true");
 		getLog().info(String.format("Private PyPi repository entry for %s not found in pyproject.toml",
 			this.pypiRepoUrl));

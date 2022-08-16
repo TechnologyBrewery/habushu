@@ -41,16 +41,30 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     protected File testDirectory;
 
     /**
-     * Specifies the {@literal <id>} of the {@literal <server>} element declared
-     * within the utilized settings.xml configuration that represents the private
-     * PyPI repository to which this project's archives will be published and/or
-     * used as a secondary repository from which dependencies may be installed. This
-     * property is <b>REQUIRED</b> if publishing to or consuming dependencies from a
-     * private PyPI repository that requires authentication - it is expected that
-     * the relevant {@literal <server>} element provides the needed authentication
-     * details.
+     * Specifies the {@code <id>} of the {@code <server>} element declared within
+     * the utilized settings.xml configuration that represents the desired
+     * credentials to use when publishing the package to the official public PyPI
+     * repository.
      */
-    @Parameter(property = "habushu.pypiRepoId")
+    protected static final String PUBLIC_PYPI_REPO_ID = "pypi";
+
+    /**
+     * Specifies the {@code <id>} of the {@code <server>} element declared within
+     * the utilized settings.xml configuration that represents the PyPI repository
+     * to which this project's archives will be published and/or used as a secondary
+     * repository from which dependencies may be installed. This property is
+     * <b>REQUIRED</b> if publishing to or consuming dependencies from a private
+     * PyPI repository that requires authentication - it is expected that the
+     * relevant {@code <server>} element provides the needed authentication details.
+     * If this property is *not* specified, this property will default to
+     * {@link #PUBLIC_PYPI_REPO_ID} and the execution of the {@code deploy}
+     * lifecycle phase will publish this package to the official public PyPI
+     * repository. Downstream package publishing functionality (i.e.
+     * {@link PublishToPyPiRepoMojo}) will use the relevant settings.xml
+     * {@code <server>} declaration with a matching {@code <id>} as credentials for
+     * publishing the package to the official public PyPI repository.
+     */
+    @Parameter(property = "habushu.pypiRepoId", defaultValue = PUBLIC_PYPI_REPO_ID)
     protected String pypiRepoId;
 
     /**

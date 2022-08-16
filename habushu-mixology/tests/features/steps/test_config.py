@@ -14,11 +14,7 @@ class TestConfig:
         """
         Returns whether the integration tests are enabled or not
         """
-        integration_test_enable = False
-        integration_enable_str = self.properties["integration.test.enabled"]
-        if integration_enable_str:
-            integration_test_enable = integration_enable_str == "True"
-        return integration_test_enable
+        return "True" == self.properties["integration.test.enabled"]
 
     def reload(self):
         self.properties = PropertyManager.get_instance().get_properties(

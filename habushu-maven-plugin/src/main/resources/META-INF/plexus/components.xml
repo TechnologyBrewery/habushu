@@ -6,10 +6,9 @@
 			<implementation>org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping
 			</implementation>
 			<configuration>
-				<!-- NOTE: when changing these, it will take two builds to see them in 
+				<!-- NOTE: When changing these, it will take two builds to see them in 
 					action as the next build will have the habushu-mixology project bound to 
-					the *current* lifecycle. If you break this, it means you need to pull habushu-mixology 
-					out of the build until you repair the issue. -->
+					the *current* lifecycle. -->
 				<lifecycles>
 					<lifecycle>
 						<id>default</id>

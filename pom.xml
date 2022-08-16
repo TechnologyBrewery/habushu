@@ -29,6 +29,12 @@
 			<organization>Counterpointe Solutions Inc.</organization>
 			<organizationUrl>http://www.cpointe-inc.com</organizationUrl>
 		</developer>
+		<developer>
+			<name>Eric Konieczny</name>
+			<email>ekonieczny@cpointe-inc.com</email>
+			<organization>Counterpointe Solutions Inc.</organization>
+			<organizationUrl>http://www.cpointe-inc.com</organizationUrl>
+		</developer>
 	</developers>
 
 	<scm>
@@ -46,8 +52,8 @@
 	</distributionManagement>
 
 	<properties>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
@@ -143,12 +149,6 @@
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
 						<version>3.4.0</version>
-						<configuration>
-							<javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
-							<!-- NB JDK 8 Javadoc linter is very strict, so deactivate it if we're 
-								using Java 8 -->
-							<additionalparam>-Xdoclint:none</additionalparam>
-						</configuration>
 						<executions>
 							<execution>
 								<id>attach-javadocs</id>
@@ -161,7 +161,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.6</version>
+						<version>3.0.1</version>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
@@ -174,9 +174,6 @@
 					</plugin>
 				</plugins>
 			</build>
-			<properties>
-				<additionalparam>-Xdoclint:none</additionalparam>
-			</properties>
 		</profile>
 	</profiles>
 </project>

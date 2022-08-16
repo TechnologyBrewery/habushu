@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.bitbucket.cpointe.habushu</groupId>
@@ -21,6 +23,38 @@
 	</dependencies>
 
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.bitbucket.cpointe.habushu</groupId>
+					<artifactId>habushu-maven-plugin</artifactId>
+					<version>${project.version}</version>
+					<extensions>true</extensions>
+					<configuration>
+						<pythonVersion>3.9.13</pythonVersion>
+						<!-- Skips any scenarios tagged with @integration-test - these will 
+							be executed via the "integration-test" Maven profile -->
+						<behaveOptions>--tags ~integration_test</behaveOptions>
+					</configuration>
+					<!-- Utilize the run-command-in-virtual-env goal to demonstrate how 
+						commands/scripts may be executed via "poetry run" and bound to the build 
+						lifecycle phases -->
+					<executions>
+						<execution>
+							<configuration>
+								<runCommandArgs>python -m grpc_tools.protoc -I=src
+									--python_out=src/habushu_mixology/generated src/person.proto</runCommandArgs>
+							</configuration>
+							<id>generate-protobuf-bindings</id>
+							<phase>compile</phase>
+							<goals>
+								<goal>run-command-in-virtual-env</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
 		<!-- Projects migrating from Habushu 1.x.x, or without access to a PyPi registry for artifact storage, can use this plugin to import
 			dependencies packaged/tagged using maven
@@ -44,30 +78,6 @@
 			<plugin>
 				<groupId>org.bitbucket.cpointe.habushu</groupId>
 				<artifactId>habushu-maven-plugin</artifactId>
-				<version>${project.version}</version>
-				<extensions>true</extensions>
-				<configuration>
-					<pythonVersion>3.9.9</pythonVersion>
-					<!-- NB Temporarily skip WIP scenarios related to krausening-python that aren't yet supported -->
-					<behaveOptions>--tags=-wip</behaveOptions>
-					<systemPropertyVariables>
-						<KRAUSENING_BASE>${project.basedir}/src/test/resources/config</KRAUSENING_BASE>
-					</systemPropertyVariables>
-				</configuration>
-				<!-- Utilize the run-command-in-virtual-env goal to demonstrate how commands/scripts may be
-					executed via "poetry run" and bound to the build lifecycle phases -->
-				<executions>
-					<execution>
-						<configuration>
-							<runCommandArgs>python -m grpc_tools.protoc -I=src --python_out=src/habushu_mixology/generated src/person.proto</runCommandArgs>
-						</configuration>
-						<id>generate-protobuf-bindings</id>
-						<phase>compile</phase>
-						<goals>
-							<goal>run-command-in-virtual-env</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
@@ -81,9 +91,9 @@
 						<groupId>org.bitbucket.cpointe.habushu</groupId>
 						<artifactId>habushu-maven-plugin</artifactId>
 						<configuration>
-							<systemPropertyVariables>
-								<KRAUSENING_EXTENSIONS>${project.basedir}/src/test/resources/config_extension</KRAUSENING_EXTENSIONS>
-							</systemPropertyVariables>
+							<!-- Demonstrates how different sets of environment variables may 
+								be injected into the virtual environment when executing tests through behave -->
+							<behaveOptions>-D environment=integration_test --tags integration_test</behaveOptions>
 						</configuration>
 					</plugin>
 				</plugins>

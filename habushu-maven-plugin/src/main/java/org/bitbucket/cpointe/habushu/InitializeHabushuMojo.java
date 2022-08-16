@@ -24,7 +24,7 @@ public class InitializeHabushuMojo extends AbstractHabushuMojo {
     /**
      * The desired version of Python to use.
      */
-    @Parameter(defaultValue = "3.9.9", property = "habushu.pythonVersion")
+    @Parameter(defaultValue = "3.9.13", property = "habushu.pythonVersion")
     protected String pythonVersion;
 
     /**
