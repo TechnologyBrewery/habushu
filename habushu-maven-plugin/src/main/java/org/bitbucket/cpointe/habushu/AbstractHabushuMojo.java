@@ -2,301 +2,221 @@ package org.bitbucket.cpointe.habushu;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
-import org.bitbucket.cpointe.habushu.util.HabushuUtil;
-import org.bitbucket.cpointe.habushu.util.Platform;
-import org.bitbucket.cpointe.habushu.util.PyenvUtil;
-import org.bitbucket.cpointe.habushu.util.VenvExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.bitbucket.cpointe.habushu.exec.PoetryCommandHelper;
+import org.bitbucket.cpointe.habushu.exec.PyenvCommandHelper;
 
 /**
  * Contains logic common across the various Habushu mojos.
  */
 public abstract class AbstractHabushuMojo extends AbstractMojo {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractHabushuMojo.class);
-
     /**
-     * Default name of the directory in the output target folder to use to stage content for archiving.
-     */
-    static final String DEFAULT_STAGING_FOLDER = "staging";
-
-    /**
-     * Default name of the directory in the output target folder to use to stage test content for running behave tests.
-     */
-    static final String DEFAULT_TEST_STAGING_FOLDER = "test-staging";
-
-    /**
-     * Default name of the file for dependencies for the virtual environment.
-     */
-    static final String VENV_DEPENDENCY_FILE_NAME = "requirements.txt";
-    
-    /**
-     * Default name of the file for dependencies for the virtual environment.
-     */
-    static final String SETUP_PY_FILE_NAME = "setup.py";
-
-    /**
-     * The command used to run python on the user's machine, locally.
-     */
-    static final String[] pythonCommands = new String[] { "pyenv", "exec", "python" };
-
-    static final String[] installCommands = new String[] { "pip" };
-
-    /**
-     * The version of python to pull down to your .habushu directory and use for running scripts
-     */
-    @Parameter(defaultValue = "3.9.9", property = "pythonVersion", required = false)
-    protected String pythonVersion;
-
-    /**
-     * The working directory for the build results. Usually the target directory.
-     */
-    @Parameter(defaultValue = "${project.build.directory}", property = "workingDirectory", required = false)
-    protected File workingDirectory;
-
-    /**
-     * The directory containing the virtual environments that have been created. Located under the working directory.
-     */
-    @Parameter(defaultValue = "${project.build.directory}/virtualenvs", property = "venvDirectory", required = false)
-    protected File venvDirectory;
-
-    /**
-     * Represents the path to the environment we want to use for this build.
-     */
-    @Parameter(defaultValue = "${project.build.directory}/virtualenvs/${project.artifactId}", property = "pathToVirtualEnvironment", required = false)
-    protected String pathToVirtualEnvironment;
-
-    /**
-     * The file containing the dependencies for the Python virtual environment.
-     */
-    @Parameter(property = "venvDependencyFile", required = true, defaultValue = "${project.basedir}/"
-            + VENV_DEPENDENCY_FILE_NAME)
-    protected File venvDependencyFile;
-
-    /**
-     * The current Maven user's settings, pulled dynamically from their settings.xml file.
+     * The current Maven user's settings, pulled dynamically from their settings.xml
+     * file.
      */
     @Parameter(defaultValue = "${settings}", readonly = true, required = true)
     protected Settings settings;
 
     /**
-     * Represents the path to the activation script for the virtual environment.
+     * Folder in which Python source files are located - should align with Poetry's
+     * project structure conventions.
      */
-    @Parameter(defaultValue = "${project.build.directory}/virtualenvs/${project.artifactId}/bin/activate", property = "pathToActivationScript", required = false)
-    protected String pathToActivationScript = pathToVirtualEnvironment + "/bin/activate";
+    @Parameter(property = "habushu.sourceDirectory", required = true, defaultValue = "${project.basedir}/src")
+    protected File sourceDirectory;
 
     /**
-     * The generated shell script that updates the python version if a normal install fails file.
+     * Folder in which Python test files are located - should align with Poetry's
+     * project structure conventions.
      */
-    @Parameter(defaultValue = "${project.build.directory}/change-python-version.sh", property = "pythonVersionScript", required = false)
-    private File changeVersionScript;
-    
-    /**
-     * Folder in which python source files are located.
-     */
-    @Parameter(property = "pythonSourceDirectory", required = true, defaultValue = "${project.basedir}/src/main/python")
-    protected File pythonSourceDirectory;
+    @Parameter(property = "habushu.testDirectory", required = true, defaultValue = "${project.basedir}/tests")
+    protected File testDirectory;
 
     /**
-     * Handles basic set up used across steps so that the current environments and environment name are available.
+     * Specifies the {@code <id>} of the {@code <server>} element declared within
+     * the utilized settings.xml configuration that represents the desired
+     * credentials to use when publishing the package to the official public PyPI
+     * repository.
+     */
+    protected static final String PUBLIC_PYPI_REPO_ID = "pypi";
+
+    /**
+     * Specifies the {@code <id>} of the {@code <server>} element declared within
+     * the utilized settings.xml configuration that represents the PyPI repository
+     * to which this project's archives will be published and/or used as a secondary
+     * repository from which dependencies may be installed. This property is
+     * <b>REQUIRED</b> if publishing to or consuming dependencies from a private
+     * PyPI repository that requires authentication - it is expected that the
+     * relevant {@code <server>} element provides the needed authentication details.
+     * If this property is *not* specified, this property will default to
+     * {@link #PUBLIC_PYPI_REPO_ID} and the execution of the {@code deploy}
+     * lifecycle phase will publish this package to the official public PyPI
+     * repository. Downstream package publishing functionality (i.e.
+     * {@link PublishToPyPiRepoMojo}) will use the relevant settings.xml
+     * {@code <server>} declaration with a matching {@code <id>} as credentials for
+     * publishing the package to the official public PyPI repository.
+     */
+    @Parameter(property = "habushu.pypiRepoId", defaultValue = PUBLIC_PYPI_REPO_ID)
+    protected String pypiRepoId;
+
+    /**
+     * Specifies the URL of the private PyPI repository to which this project's
+     * archives will be published and/or used as a secondary repository from which
+     * dependencies may be installed. This property is <b>REQUIRED</b> if publishing
+     * to or consuming dependencies from a private PyPI repository.
+     */
+    @Parameter(property = "habushu.pypiRepoUrl")
+    protected String pypiRepoUrl;
+
+    /**
+     * Specifies whether the version of the encapsulated Poetry package should be
+     * automatically managed and overridden where necessary by Habushu. If this
+     * property is true, Habushu may override the pyproject.toml defined version in
+     * the following build phases/mojos:
+     * <ul>
+     * <li>validate ({@link ValidatePyenvAndPoetryMojo}): Automatically sets the
+     * Poetry package version to the version specified in the POM. If the POM is a
+     * SNAPSHOT, the Poetry package version will be set to the corresponding
+     * developmental release version without a numeric component (i.e. POM version
+     * of {@code 1.2.3-SNAPSHOT} will result in the Poetry package version being set
+     * to {@code 1.2.3.dev}).</li>
+     * <li>deploy ({@link PublishToPyPiRepoMojo}): Automatically sets the version of
+     * published Poetry packages that are SNAPSHOT modules to timestamped
+     * developmental release versions (i.e. POM version of {@code 1.2.3-SNAPSHOT}
+     * will result in the published Poetry package version to to
+     * {@code 1.2.3.dev1658238063}). After the package is published, the version of
+     * the SNAPSHOT module is reverted to its previous value (i.e.
+     * {@code 1.2.3.dev}).</li>
+     * </ul>
+     * If {@link #overridePackageVersion} is set to false, none of the above
+     * automated version management operations will be performed.
+     */
+    @Parameter(defaultValue = "true", property = "habushu.overridePackageVersion")
+    protected boolean overridePackageVersion;
+
+    /**
+     * Enables access to the runtime properties associated with the project's POM
+     * configuration against which Habushu is being executed.
+     */
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    protected MavenProject project;
+
+    /**
+     * Gets the canonical path for a file without having to deal w/ checked
+     * exceptions.
      * 
-     * {@inheritDoc}
-     */
-    @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
-        PyenvUtil.checkPyEnvInstall(workingDirectory);
-        checkPythonVersion();
-
-        createWorkingDirectoryIfNeeded();
-        createVirtualEnvironmentIfNeeded();
-
-        HabushuUtil.giveFullFilePermissions(pathToActivationScript);
-    }
-
-    /**
-     * Returns the logger for the concrete class to make it more clear how to control logging.
-     */
-    protected abstract Logger getLogger();
-
-    /**
-     * Gets the canonical path for a file without having to deal w/ checked exceptions.
-     * 
-     * @param file
-     *            file for which to get the canonical format
+     * @param file file for which to get the canonical format
      * @return canonical format
      */
     protected String getCanonicalPathForFile(File file) {
-        try {
-            return file.getCanonicalPath();
+	try {
+	    return file.getCanonicalPath();
 
-        } catch (IOException ioe) {
-            throw new HabushuException("Could not access file: " + file.getName(), ioe);
-        }
-    }
-
-    protected void checkPythonVersion() {
-        String foundPythonVersion = getActivePythonVersion();
-
-        if (!checkPythonVersion(foundPythonVersion)) {            
-            PyenvUtil.updatePythonVersion(pythonVersion, changeVersionScript, workingDirectory);
-
-        }
-
-        // sanity check that the version update was completed successfully:
-        String foundPythonVersionPostUpdate = getActivePythonVersion();
-        if (!checkPythonVersion(foundPythonVersionPostUpdate)) {
-            throw new HabushuException("Expected python version " + pythonVersion + ", but found version "
-                    + foundPythonVersionPostUpdate + ".");
-        }
-
-        getLogger().info("Using python {}", foundPythonVersionPostUpdate);
-    }
-
-    private String getActivePythonVersion() {
-        List<String> commands = new ArrayList<>();
-        commands.addAll(Arrays.asList(pythonCommands));
-        commands.add("--version");
-
-        VenvExecutor executor = new VenvExecutor(workingDirectory, commands, Platform.guess(), new HashMap<>());
-        String foundPythonVersion = executor.executeAndGetResult(logger);
-
-        // Remove the leading "Python "
-        String foundPythonVersionShort = foundPythonVersion.substring(7, foundPythonVersion.length());
-        return foundPythonVersionShort;
+	} catch (IOException ioe) {
+	    throw new HabushuException("Could not access file: " + file.getName(), ioe);
+	}
     }
 
     /**
-     * Checks the passed python version against the expected version.
+     * Creates a {@link PyenvCommandHelper} that may be used to invoke Pyenv
+     * commands from the project's working directory.
      * 
-     * @param foundPythonVersion
-     *            version to check against what is expected
-     * @return whether or not versions match
+     * @return
      */
-    public boolean checkPythonVersion(String foundPythonVersion) {
-        return pythonVersion.equals(foundPythonVersion);
+    protected PyenvCommandHelper createPyenvCommandHelper() {
+	return new PyenvCommandHelper(getPoetryProjectBaseDir());
     }
 
     /**
-     * Creates the Python virtual environment at the specified path if needed.
+     * Creates a {@link PoetryCommandHelper} that may be used to invoke Poetry
+     * commands from the project's working directory.
      * 
-     * @return system output
+     * @return
      */
-    private void createVirtualEnvironmentIfNeeded() {
-        String activePythonVersion = getActivePythonVersion();
-        String majorMinorVersion = activePythonVersion.substring(0, activePythonVersion.lastIndexOf("."));
-        BigDecimal numericMajorMinorVersion = new BigDecimal(majorMinorVersion);
-        BigDecimal firstVersionSupportingVenv = new BigDecimal("3.3");
-        if (numericMajorMinorVersion.compareTo(firstVersionSupportingVenv) < 0) {
-            throw new HabushuException("Python versions older than 3.3 do not support venv "
-                    + "- update python or override this build step!");
-        }
-
-        File virtualEnvDirectory = new File(pathToVirtualEnvironment);
-        if (virtualEnvDirectory.exists()) {
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Virtual environment already created at {}.", venvDirectory.getAbsolutePath());
-            } else {
-                getLogger().info("Virtual environment already created.");
-            }
-
-            return;
-        }
-
-        List<String> commands = new ArrayList<>();
-        commands.addAll(Arrays.asList(pythonCommands));
-        commands.add("-m");
-        commands.add("venv");
-        commands.add(pathToVirtualEnvironment);
-
-        VenvExecutor executor = new VenvExecutor(workingDirectory, commands, Platform.guess(), new HashMap<>());
-        executor.executeAndGetResult(getLogger());
+    protected PoetryCommandHelper createPoetryCommandHelper() {
+	return new PoetryCommandHelper(getPoetryProjectBaseDir());
     }
 
     /**
-     * Invoked a Venv command and return the exit code. System output is logged to the console as it happens while
-     * system errors are queued up and logged upon exiting from the command.
+     * Base directory in which Poetry projects will be located - should always be
+     * the basedir of the encapsulating Maven project.
+     */
+    protected File getPoetryProjectBaseDir() {
+	return this.project.getBasedir();
+    }
+
+    /**
+     * Returns a {@link File} representing this project's Poetry pyproject.toml
+     * configuration.
      * 
-     * @param directoryForVenv
-     *            the directory for the virtual environment
-     * @param command
-     *            command to invoke
-     * @return return code
+     * @return
      */
-    protected int invokeVenvCommandAndRedirectOutput(File directoryForVenv, String command) {
-        VenvExecutor executor = createExecutorWithDirectory(directoryForVenv, command);
-        return executor.executeAndRedirectOutput(getLogger());
+    protected File getPoetryPyProjectTomlFile() {
+	return new File(getPoetryProjectBaseDir(), "pyproject.toml");
     }
 
     /**
-     * Invoked multiple Venv commands and return the exit code. System output is logged to the console as it happens
-     * while system errors are queued up and logged upon exiting from the command.
+     * Gets the PEP-440 compliant Python package version associated with the given
+     * POM version.
+     * <p>
+     * If the provided POM version is a SNAPSHOT, the version is converted into its
+     * corresponding developmental release version, with its numeric component
+     * optionally included based on the given {@code addSnapshotNumber} and
+     * {@code snapshotNumberDateFormatPattern} parameters. For example, given the
+     * POM version of {@code 1.2.3-SNAPSHOT}, a Python package version of
+     * {@code 1.2.3.dev} will be returned if {@code addSnapshotNumber} is false. If
+     * {@code addSnapshotNumber} is true, the numeric component will be added and
+     * defaults to the number of seconds from the epoch (i.e.
+     * {@code 1.2.3.dev1658238063}). The format of the snapshot number may be
+     * modified by providing a date format pattern (i.e. "YYYYMMddHHmm" would yield
+     * {@code 1.2.3.dev202207191002})
+     * <p>
+     * If the provided POM version is a release version, it is expected to align
+     * with a valid PEP-440 final release version and is returned unmodified.
      * 
-     * @param directoryForVenv
-     *            the directory for the virtual environment
-     * @param commands
-     *            commands to invoke
-     * @return return code
+     * @param pomVersion POM version of the encapsulating module in which Habushu is
+     *                   being executed.
+     * @return version number of the encapsulated Python package, appropriately
+     *         formatted by the given parameters.
      */
-    protected int runMultipleVenvCommandsAndRedirectOutput(File directoryForVenv, List<String> commands) {
-        VenvExecutor executor = new VenvExecutor(directoryForVenv, commands, Platform.guess(), new HashMap<>());
-        return executor.executeAndRedirectOutput(getLogger());
+    protected String getPythonPackageVersion(String pomVersion, boolean addSnapshotNumber,
+	    String snapshotNumberDateFormatPattern) {
+	String pythonPackageVersion = pomVersion;
+
+	if (isPomVersionSnapshot(pomVersion)) {
+	    pythonPackageVersion = pomVersion.substring(0, pomVersion.indexOf("-SNAPSHOT")) + ".dev";
+
+	    if (addSnapshotNumber) {
+		String snapshotNumber;
+		LocalDateTime currentTime = LocalDateTime.now();
+
+		if (StringUtils.isNotEmpty(snapshotNumberDateFormatPattern)) {
+		    snapshotNumber = currentTime.format(DateTimeFormatter.ofPattern(snapshotNumberDateFormatPattern));
+		} else {
+		    snapshotNumber = String.valueOf(currentTime.toEpochSecond(ZoneOffset.UTC));
+		}
+		pythonPackageVersion += snapshotNumber;
+	    }
+	}
+
+	return pythonPackageVersion;
     }
 
     /**
-     * Creates and returns an executor for Venv tied to a specified directory.
+     * Returns whether the given POM version is a SNAPSHOT version.
      * 
-     * @param directoryForVenv
-     *            the directory for the virtual environment
-     * @param command
-     *            the command to invoke
-     * @return Venv Executor
+     * @param pomVersion
+     * @return
      */
-    protected VenvExecutor createExecutorWithDirectory(File directoryForVenv, String command) {
-        List<String> commands = new ArrayList<>();
-        commands.add("/bin/bash");
-        commands.add("-c");
-
-        commands.add(command);
-        VenvExecutor executor = new VenvExecutor(directoryForVenv, commands, Platform.guess(), new HashMap<>());
-        return executor;
+    protected boolean isPomVersionSnapshot(String pomVersion) {
+	return pomVersion.endsWith("-SNAPSHOT");
     }
-
-    /**
-     * Create the working directory and virtual environment container directories.
-     */
-    private void createWorkingDirectoryIfNeeded() {
-        if (!workingDirectory.exists()) {
-            getLogger().debug("Working directory did not exist - creating {}",
-                    getCanonicalPathForFile(workingDirectory));
-            workingDirectory.mkdirs();
-
-            if (!workingDirectory.exists()) {
-                throw new HabushuException("Working directory STILL does not exist after trying to create it!");
-            }
-        }
-
-        if (!venvDirectory.exists()) {
-            getLogger().debug("Virtual environment directory did not exist - creating {}",
-                    getCanonicalPathForFile(venvDirectory));
-            venvDirectory.mkdirs();
-
-            if (!venvDirectory.exists()) {
-                throw new HabushuException(
-                        "Virtual environment directory STILL does not exist after trying to create it!");
-            }
-        }
-    }
-
 }

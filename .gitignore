@@ -56,3 +56,8 @@ Thumbs.db
 
 # Pyenv
 .python-version
+
+# Local Poetry configuration
+poetry.toml
+# https://python-poetry.org/docs/configuration/#virtualenvsin-project
+.venv

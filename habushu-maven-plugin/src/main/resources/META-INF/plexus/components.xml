@@ -6,30 +6,26 @@
 			<implementation>org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping
 			</implementation>
 			<configuration>
-				<!-- NOTE: when changing these, it will take two builds to see them in 
+				<!-- NOTE: When changing these, it will take two builds to see them in 
 					action as the next build will have the habushu-mixology project bound to 
-					the *current* lifecycle. If you break this, it means you need to pull habushu-mixology 
-					out of the build until you repair the issue. -->
+					the *current* lifecycle. -->
 				<lifecycles>
 					<lifecycle>
 						<id>default</id>
 						<phases>
-							<process-resources>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:resources</process-resources>
-							<process-sources>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:unpack-python-dependencies</process-sources>
-							<compile>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:configure-environment</compile>
+							<validate>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:validate-pyenv-and-poetry</validate>
+							<initialize>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:initialize-habushu</initialize>
+							<compile>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:install-dependencies</compile>
 							<process-classes>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:format-python</process-classes>
-							<process-test-resources>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:test-resources</process-test-resources>
-							<test>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:test</test>
-							<package>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:zip</package>
-							<post-integration-test>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:package-and-release-python</post-integration-test>
-							<install>org.apache.maven.plugins:maven-install-plugin:2.5.2:install</install>
-							<deploy>org.apache.maven.plugins:maven-deploy-plugin:2.8.2:deploy</deploy>
+							<test>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:behave-bdd-test</test>
+							<package>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:build-archive</package>
+							<deploy>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:publish-to-pypi-repo</deploy>
 						</phases>
 					</lifecycle>
 					<lifecycle>
 						<id>clean</id>
 						<phases>
-							<clean>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:habushu-clean</clean>
+							<clean>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:clean-habushu</clean>
 						</phases>
 					</lifecycle>
 				</lifecycles>

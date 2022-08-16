@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "habushu_mixology_consumer"
+version = "2.0.0.dev"
+description = "Example of how to use the habushu-maven-plugin to consume other Habushu modules"
+authors = ["Eric Konieczny <ekonieczny@cpointe-inc.com>"]
+license = "MIT License"
+
+[tool.poetry.dependencies]
+python = "3.9.13"
+habushu-mixology = {path = "../habushu-mixology", develop = true}
+
+[tool.poetry.dev-dependencies]
+black = "^22.3.0"
+behave = "^1.2.6"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
