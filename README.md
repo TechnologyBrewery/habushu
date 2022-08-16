@@ -15,6 +15,7 @@ No one person will agree with all the opinions implemented by Habushu. The value
 ## Requirements ##
 
 In order to use Habushu, the following prerequisites must be installed:
+
 * Maven 3.6+
 * Java 11+
 * [Poetry 1.1+](https://python-poetry.org/)
@@ -27,17 +28,17 @@ Habushu automates a consistent and predictable build lifecycle by delegating *ne
 A Poetry project using the `src/` packaging layout only needs an appropriately configured `pom.xml` within the root level of the project to instrumented through Habushu and participate in a Maven build lifecycle.  The following depicts the required folder structure within an example Habushu module named `spam-ham-eggs`, including the placement of the required `pom.xml` and `pyproject.toml` configurations and utilization of [behave](https://behave.readthedocs.io/en/stable/index.html) for automated testing:
 
 ```
-spam-ham-eggs
-├── pyproject.toml
-├── pom.xml
-├── src
-│   └── spam_ham_eggs
-│       └── __init__.py
-└── tests
-    └── features
-        ├── spam_ham_eggs.feature
-        └── steps
-            └── spam_ham_eggs_step.py
+	spam-ham-eggs
+	├── pyproject.toml
+	├── pom.xml
+	├── src
+	│   └── spam_ham_eggs
+	│       └── __init__.py
+	└── tests
+	    └── features
+	        ├── spam_ham_eggs.feature
+    	    └── steps
+	            └── spam_ham_eggs_step.py
 ```
 
 Best practices for creating a new Poetry project (possibly based on an existing Python package or older Habushu module) and adding needed Habushu plugin declaration to the module's `pom.xml` are described below.
@@ -45,12 +46,13 @@ Best practices for creating a new Poetry project (possibly based on an existing 
 ### Creating a New Poetry Project ###
 If starting from scratch, use the `poetry new --src` command to create a new Poetry project:
 
-```
+```sh
 $ poetry new spam-ham-eggs --src
 Created package spam_ham_eggs in spam-ham-eggs
 $ ls spam-ham-eggs 
 README.rst     pyproject.toml src            tests
 ```
+
 If migrating an existing Python package, consider using `poetry init` and use the interactive guide to create the desired `pyproject.toml` configuration with the appropriate dependencies.  
 
 If migrating an earlier release of Habushu, follow the same process, but note the following required changes:
@@ -58,7 +60,7 @@ If migrating an earlier release of Habushu, follow the same process, but note th
 * Python source and test files must be migrated into the folder structure described above, which aligns with the standard `src/` packaging layout.  Assuming that the package name is `spam_ham_eggs`, `src/main/python/*` from the existing Habushu project must be moved into `src/spam_ham_eggs` and `src/test/python/*` from the existing Habushu project must be moved into `tests`
 * Previously, Habushu 1.x modules depended on each other via Maven `<dependency>` declarations.  This approach is deprecated as Habushu 2.x+ expects that other Habushu modules are published to PyPI repositories and consumed as Python packages using Poetry's built-in dependency management capabilties.  For Habushu module dependencies within the same Maven multi-module build hierarchy, consider using editable development installs:
 
-```
+```toml
 # pyproject.toml
 [tool.poetry.dependencies]
 my-package = {path = "../spam-eggs-ham-dependency", develop = true}
@@ -69,12 +71,12 @@ my-package = {path = "../spam-eggs-ham-dependency", develop = true}
 Once you have a valid Poetry project, add the following configurations to your `pom.xml` to enable your Poetry project to be managed as a part of Habushu's custom Maven build lifecycle.
 
 Set the `<packaging>` type of your module's `pom.xml` to `habushu`:
-```
+```xml
 	<packaging>habushu</packaging>
 ```
 
 Add the following plugin definition to your module's `pom.xml` `<build>` section:
-```
+```xml
 	<plugin>
 		<groupId>org.bitbucket.cpointe.habushu</groupId>
 		<artifactId>habushu-maven-plugin</artifactId>
@@ -85,7 +87,7 @@ Add the following plugin definition to your module's `pom.xml` `<build>` section
 
 If publishing packages to or consuming dependencies from a private PyPI repository that requires authentication, add your repository credentials to your Maven's `settings.xml` file, usually located under your `~/.m2` folder. See the Configuration section below on how to 
 
-```
+```xml
     <server>
         <!-- ID of the PyPI repository - this ID will be used to reference this repository in
              the habushu-maven-plugin configuration -->
@@ -121,28 +123,28 @@ In addition to creating a custom Maven lifecycle that automates the execution of
 
 For example, developers may use this feature to bind a Habushu module's `compile` phase to the appropriate Python command that generates gRPC/protobuf bindings as an automated part of the build following dependency installation:
 
-```
-<plugin>
-	<groupId>org.bitbucket.cpointe.habushu</groupId>
-	<artifactId>habushu-maven-plugin</artifactId>
-	<extensions>true</extensions>
-	<configuration>
-	...
-	</configuration>
-	<executions>
-		<execution>
-			<configuration>
-				<runCommandArgs>python -m grpc_tools.protoc -I=src
-								--python_out=src/habushu_mixology/generated src/person.proto</runCommandArgs>
-			</configuration>
-			<id>generate-protobuf-bindings</id>
-			<phase>compile</phase>
-			<goals>
-				<goal>run-command-in-virtual-env</goal>
-			</goals>
-		</execution>
-	</executions>
-</plugin>
+```xml
+	<plugin>
+		<groupId>org.bitbucket.cpointe.habushu</groupId>
+		<artifactId>habushu-maven-plugin</artifactId>
+		<extensions>true</extensions>
+		<configuration>
+		...
+		</configuration>
+		<executions>
+			<execution>
+				<configuration>
+					<runCommandArgs>python -m grpc_tools.protoc -I=src
+									--python_out=src/habushu_mixology/generated src/person.proto</runCommandArgs>
+				</configuration>
+				<id>generate-protobuf-bindings</id>
+				<phase>compile</phase>
+				<goals>
+					<goal>run-command-in-virtual-env</goal>
+				</goals>
+			</execution>
+		</executions>
+	</plugin>
 ```
 
 ## Configuration ##
@@ -151,29 +153,29 @@ All Habushu configurations may be set either via the `habushu-maven-plugin`'s `<
 
 1. Plugin `<configuration>`
 
-```
-<plugin>
-	<groupId>org.bitbucket.cpointe.habushu</groupId>
-	<artifactId>habushu-maven-plugin</artifactId>
-	<extensions>true</extensions>
-	<configuration>
-		<pythonVersion>3.10.4</pythonVersion>
-	</configuration>
-</plugin>
+```xml
+	<plugin>
+		<groupId>org.bitbucket.cpointe.habushu</groupId>
+		<artifactId>habushu-maven-plugin</artifactId>
+		<extensions>true</extensions>
+		<configuration>
+			<pythonVersion>3.10.4</pythonVersion>
+		</configuration>
+	</plugin>
 ```
 
 2. `-D` via command line
 
-```
+```shell
 mvn clean install -Dhabushu.pythonVersion=3.10.4
 ```
 
 3. POM properties
 
-```
-<properties>
-	<habushu.pythonVersion>3.10.4</habushu.pythonVersion>
-</properties>
+```xml
+	<properties>
+		<habushu.pythonVersion>3.10.4</habushu.pythonVersion>
+	</properties>
 ```
 
 **NOTE:** The above list's order reflects the precedence in which configurations will be applied.  For example, configuration values that are specified in the plugin's `<configuration>` definition will always take precedence, while system properties via the command line (`-D`) will take precedence over `<properties>` definitions.
@@ -209,7 +211,7 @@ If this property is **not** specified, this property will default to `pypi` and 
 
 This property will typically be specified as a command line option during the `deploy` lifecycle phase.  For example, given the following configuration in the utilized `settings.xml`:
 
-```
+```xml
     <server>
         <id>private-pypi-repo</id>
         <username>pypi-repo-username</username>
@@ -219,7 +221,7 @@ This property will typically be specified as a command line option during the `d
 
 The following command may be utilized to publish the package to the specified private PyPI repository at `https://private-pypi-repo-url/repository/pypi-repo/`:
 
-``` 
+```sh 
 $ mvn deploy -Dhabushu.pypiRepoId=private-pypi-repo -Dhabushu.pypiRepoUrl=https://private-pypi-repo-url/repository/pypi-repo/
 ```
 Default: `pypi`
@@ -230,15 +232,15 @@ Specifies the URL of the private PyPI repository to which this project's archive
 
 If the Habushu project depends on internal packages that may only be found on a private PyPI repository, developers should specify this property through the plugin's `<configuration>` definition:
 
-```
-<plugin>
-	<groupId>org.bitbucket.cpointe.habushu</groupId>
-	<artifactId>habushu-maven-plugin</artifactId>
-	<extensions>true</extensions>
-	<configuration>
-		<pypiRepoUrl>https://private-pypi-repo-url/repository/pypi-repo</pypiRepoUrl>
-	</configuration>
-</plugin>
+```xml
+	<plugin>
+		<groupId>org.bitbucket.cpointe.habushu</groupId>
+		<artifactId>habushu-maven-plugin</artifactId>
+		<extensions>true</extensions>
+		<configuration>
+			<pypiRepoUrl>https://private-pypi-repo-url/repository/pypi-repo</pypiRepoUrl>
+		</configuration>
+	</plugin>
 ```
 
 Default: None
@@ -249,27 +251,27 @@ Default: None
 
 Whitespace-delimited command arguments that will be provided to `poetry run` to execute. For example, the following property configuration will execute `poetry run python -V` within the project's virtual environment during the `validate` phase of the build:
 
-```
-<plugin>
-	<groupId>org.bitbucket.cpointe.habushu</groupId>
-	<artifactId>habushu-maven-plugin</artifactId>
-	<extensions>true</extensions>
-	<configuration>
-	...
-	</configuration>
-	<executions>
-		<execution>
-			<configuration>
-				<runCommandArgs>python -V</runCommandArgs>
-			</configuration>
-			<id>get-python-version</id>
-			<phase>validate</phase>
-			<goals>
-				<goal>run-command-in-virtual-env</goal>
-			</goals>
-		</execution>
-	</executions>
-</plugin>
+```xml
+	<plugin>
+		<groupId>org.bitbucket.cpointe.habushu</groupId>
+		<artifactId>habushu-maven-plugin</artifactId>
+		<extensions>true</extensions>
+		<configuration>
+		...
+		</configuration>
+		<executions>
+			<execution>
+				<configuration>
+					<runCommandArgs>python -V</runCommandArgs>
+				</configuration>
+				<id>get-python-version</id>
+				<phase>validate</phase>
+				<goals>
+					<goal>run-command-in-virtual-env</goal>
+				</goals>
+			</execution>
+		</executions>
+	</plugin>
 ```
 
 Default: None
@@ -305,6 +307,7 @@ Default: Number of seconds since epoch
 #### overridePackageVersion ####
 
 Specifies whether the version of the encapsulated Poetry package should be automatically managed and overridden where necessary by Habushu. If this property is `true`, Habushu may override the `pyproject.toml` defined version in the following build phases/mojos:
+
 * `validate`: Automatically sets the Poetry package version to the version specified in the POM. If the POM is a `SNAPSHOT`, the Poetry package version will be set to the corresponding developmental release version without a numeric component (i.e. POM version of `1.2.3-SNAPSHOT` will result in the Poetry package version being set to `1.2.3.dev`)
 * `deploy`: Automatically sets the version of published Poetry packages that are `SNAPSHOT` modules to timestamped developmental release versions (i.e. POM version of `1.2.3-SNAPSHOT` will result in the published Poetry package version to to `1.2.3.dev1658238063`). After the package is published, the version of the `SNAPSHOT` module is reverted to its previous value (i.e. `1.2.3.dev`)
 
