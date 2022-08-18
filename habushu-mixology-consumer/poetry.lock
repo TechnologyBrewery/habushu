@@ -58,7 +58,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "habushu-mixology"
-version = "2.0.0.dev"
+version = "2.0.1.dev"
 description = "Example of how to use the habushu-maven-plugin"
 category = "main"
 optional = false

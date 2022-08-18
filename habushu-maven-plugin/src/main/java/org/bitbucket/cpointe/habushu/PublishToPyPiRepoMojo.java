@@ -133,8 +133,11 @@ public class PublishToPyPiRepoMojo extends AbstractHabushuMojo {
 
 	if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
 	    publishToRepoWithCredsArgs = new ArrayList<Pair<String, Boolean>>();
-	    publishToRepoWithCredsArgs.add(new ImmutablePair<String, Boolean>("--repository", false));
-	    publishToRepoWithCredsArgs.add(new ImmutablePair<String, Boolean>(pypiRepoId, false));
+	    
+	    if (!PUBLIC_PYPI_REPO_ID.equals(this.pypiRepoId)) {
+		publishToRepoWithCredsArgs.add(new ImmutablePair<String, Boolean>("--repository", false));
+		publishToRepoWithCredsArgs.add(new ImmutablePair<String, Boolean>(pypiRepoId, false));
+	    }
 	    publishToRepoWithCredsArgs.add(new ImmutablePair<String, Boolean>("--username", false));
 	    publishToRepoWithCredsArgs.add(new ImmutablePair<String, Boolean>(username, false));
 	    publishToRepoWithCredsArgs.add(new ImmutablePair<String, Boolean>("--password", false));
