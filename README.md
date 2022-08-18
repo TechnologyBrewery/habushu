@@ -56,15 +56,16 @@ README.rst     pyproject.toml src            tests
 If migrating an existing Python package, consider using `poetry init` and use the interactive guide to create the desired `pyproject.toml` configuration with the appropriate dependencies.  
 
 If migrating an earlier release of Habushu, follow the same process, but note the following required changes:
+
 * Dependencies specified in `requirements.txt` must be specified in `pyproject.toml` - either use `poetry add` or add them interactively via `poetry init`
 * Python source and test files must be migrated into the folder structure described above, which aligns with the standard `src/` packaging layout.  Assuming that the package name is `spam_ham_eggs`, `src/main/python/*` from the existing Habushu project must be moved into `src/spam_ham_eggs` and `src/test/python/*` from the existing Habushu project must be moved into `tests`
 * Previously, Habushu 1.x modules depended on each other via Maven `<dependency>` declarations.  This approach is deprecated as Habushu 2.x+ expects that other Habushu modules are published to PyPI repositories and consumed as Python packages using Poetry's built-in dependency management capabilties.  For Habushu module dependencies within the same Maven multi-module build hierarchy, consider using editable development installs:
-
-```toml
-# pyproject.toml
-[tool.poetry.dependencies]
-my-package = {path = "../spam-eggs-ham-dependency", develop = true}
-```
+  
+    ```toml
+    # pyproject.toml
+    [tool.poetry.dependencies]
+    my-package = {path = "../spam-eggs-ham-dependency", develop = true}
+    ```
 
 ### Integrating Your Poetry Project with Habushu and Maven ###
 
