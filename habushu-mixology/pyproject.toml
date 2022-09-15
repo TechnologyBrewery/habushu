@@ -6,12 +6,12 @@ authors = ["Eric Konieczny <ekonieczny@cpointe-inc.com>"]
 license = "MIT License"
 
 [tool.poetry.dependencies]
-python = "3.9.13"
+python = "^3.9"
+krausening = "13"
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
 behave = "^1.2.6"
-krausening-python = {path = "target/dependencies/krausening-python-10"}
 grpcio-tools = "^1.48.0"
 python-dotenv = "^0.20.0"
 

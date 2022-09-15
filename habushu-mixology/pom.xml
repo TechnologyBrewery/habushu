@@ -13,14 +13,6 @@
 
 	<artifactId>habushu-mixology</artifactId>
 	<packaging>habushu</packaging>
-    <dependencies>
-        <dependency>
-            <groupId>org.bitbucket.askllc.krausening</groupId>
-            <artifactId>krausening-python</artifactId>
-			<version>10</version>
-            <type>zip</type>
-        </dependency>
-	</dependencies>
 
 	<build>
 		<pluginManagement>
@@ -56,25 +48,6 @@
 			</plugins>
 		</pluginManagement>
 		<plugins>
-		<!-- Projects migrating from Habushu 1.x.x, or without access to a PyPi registry for artifact storage, can use this plugin to import
-			dependencies packaged/tagged using maven
-		-->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>unpack-dependencies</id>
-                        <phase>validate</phase>
-						<goals>
-							<goal>unpack-dependencies</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/dependencies</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<groupId>org.bitbucket.cpointe.habushu</groupId>
 				<artifactId>habushu-maven-plugin</artifactId>
