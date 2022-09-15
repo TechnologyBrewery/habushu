@@ -88,7 +88,7 @@ test = ["pytest (>=6.2.0)", "pytest-benchmark", "pytest-cov", "pytest-subtests",
 
 [[package]]
 name = "habushu-mixology"
-version = "2.0.1.dev"
+version = "2.0.1"
 description = "Example of how to use the habushu-maven-plugin"
 category = "main"
 optional = false
