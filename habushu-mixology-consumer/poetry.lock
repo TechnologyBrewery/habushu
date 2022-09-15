@@ -92,7 +92,7 @@ version = "2.0.1.dev"
 description = "Example of how to use the habushu-maven-plugin"
 category = "main"
 optional = false
-python-versions = "3.9.13"
+python-versions = "^3.9"
 develop = true
 
 [package.dependencies]
@@ -208,8 +208,8 @@ python-versions = ">=3.7"
 
 [metadata]
 lock-version = "1.1"
-python-versions = "3.9.13"
-content-hash = "91584cbb22eaf7d279f5d22ae53753788936bc28ff6036361c28c3d1277d4460"
+python-versions = "^3.9"
+content-hash = "aad840a7c6afaccc52233c2271782b75fb4aacbdf66e9044c950e86587fb6a4a"
 
 [metadata.files]
 behave = [

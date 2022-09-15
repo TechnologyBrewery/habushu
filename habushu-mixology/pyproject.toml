@@ -6,7 +6,7 @@ authors = ["Eric Konieczny <ekonieczny@cpointe-inc.com>"]
 license = "MIT License"
 
 [tool.poetry.dependencies]
-python = "3.9.13"
+python = "^3.9"
 krausening = "13"
 
 [tool.poetry.dev-dependencies]
