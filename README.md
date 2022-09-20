@@ -277,6 +277,12 @@ Whitespace-delimited command arguments that will be provided to `poetry run` to 
 
 Default: None
 
+#### skipPoetryLockUpdate ####
+
+Enables skipping the update of the poetry lock file on build. Note if the lock file does not exist then the install will recreate it regardless of this configuration. If the lock file has a mismatch with the toml definition then the build will fail. 
+
+Default: `false`
+
 #### deleteVirtualEnv ####
 
 Enables the explicit deletion of the virtual environment that is created/managed by Poetry.

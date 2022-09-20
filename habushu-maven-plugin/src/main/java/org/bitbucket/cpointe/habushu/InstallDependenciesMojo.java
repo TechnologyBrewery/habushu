@@ -45,6 +45,12 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
     @Parameter(defaultValue = "true", property = "habushu.addPypiRepoAsPackageSources")
     private boolean addPypiRepoAsPackageSources;
 
+	/**
+	 * Configures whether the poetry lock file will be updated before poetry install.
+	 */
+	@Parameter(defaultValue = "false", property = "habushu.skipPoetryLockUpdate")
+	private boolean skipPoetryLockUpdate;
+
     /**
      * Path within a Poetry project's pyproject.toml configuration at which private
      * PyPi repositories may be specified as sources from which dependencies may be
@@ -114,11 +120,13 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
 
 	}
 
-	getLog().info("Locking dependencies specified in pyproject.toml...");
-	poetryHelper.executeAndLogOutput(Arrays.asList("lock"));
+	if(!this.skipPoetryLockUpdate) {
+		getLog().info("Locking dependencies specified in pyproject.toml...");
+		poetryHelper.executeAndLogOutput(Collections.singletonList("lock"));
+	}
 
 	getLog().info("Installing dependencies...");
-	poetryHelper.executeAndLogOutput(Arrays.asList("install"));
+	poetryHelper.executeAndLogOutput(Collections.singletonList("install"));
     }
 
     /**
@@ -132,7 +140,7 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
      * returned by this method will be
      * https://my-company-sonatype-nexus/repository/internal-pypi/simple/ (the
      * trailing slash is required!).
-     * 
+     *
      * @param pypiRepoUrl URL of the private PyPi repository for which to generate
      *                    the simple index API URL.
      * @return simple index API URL associated with the given PyPi repository URL.
