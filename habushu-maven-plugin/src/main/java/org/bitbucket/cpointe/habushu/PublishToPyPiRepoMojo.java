@@ -63,8 +63,25 @@ public class PublishToPyPiRepoMojo extends AbstractHabushuMojo {
     @Parameter(property = "habushu.snapshotNumberDateFormatPattern")
     protected String snapshotNumberDateFormatPattern;
 
+    /**
+     * Skips the entire execution of the deploy phase and does *not* publish the
+     * Poetry package to the configured PyPI repository. This configuration may be
+     * useful when individual Habushu modules within a larger multi-module project
+     * hierarchy should *not* be published to PyPI, but it is still desirable to
+     * automate the project's release via the {@code maven-release-plugin}.
+     */
+    @Parameter(property = "habushu.skipDeploy", defaultValue = "false")
+    protected boolean skipDeploy;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+	if (this.skipDeploy) {
+	    getLog().info(String.format(
+		    "Skipping deploy phase - package for %s will not be published to the configured PyPI repository",
+		    this.project.getId()));
+	    return;
+	}
+
 	PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
 
 	String pomVersion = project.getVersion();
@@ -133,7 +150,7 @@ public class PublishToPyPiRepoMojo extends AbstractHabushuMojo {
 
 	if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
 	    publishToRepoWithCredsArgs = new ArrayList<Pair<String, Boolean>>();
-	    
+
 	    if (!PUBLIC_PYPI_REPO_ID.equals(this.pypiRepoId)) {
 		publishToRepoWithCredsArgs.add(new ImmutablePair<String, Boolean>("--repository", false));
 		publishToRepoWithCredsArgs.add(new ImmutablePair<String, Boolean>(pypiRepoId, false));

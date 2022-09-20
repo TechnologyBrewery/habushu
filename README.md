@@ -310,16 +310,25 @@ Default: `true`
 Specifies where the requirements.txt file will be generated to during the package phase.
 
 Default: `project-directory/dist` to be with the generated wheels.
+
 #### exportRequirementsWithUrls ####
 
 Whether or not the requirements.txt file should include source repository urls.
 
 Default: `false` so will not add the --without-urls flag and thus include urls
+
 #### exportRequirementsWithHashes ####
 
 Whether or not the requirements.txt file should include package hashes.
 
 Default: `false` so will not add the --without-urls flag and thus export with hashes
+
+#### skipDeploy ####
+
+Skips the execution of the `deploy` phase and does *not* publish the Poetry package to the configured PyPI repository. This configuration may be useful when individual Habushu modules within a larger multi-module project hierarchy should *not* be published to PyPI.
+
+Default: `false`
+
 #### snapshotNumberDateFormatPattern ####
     
 [DateTimeFormatter](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/format/DateTimeFormatter.html) compliant pattern that configures the numeric portion of `SNAPSHOT` Poetry package versions that are published to the configured PyPI repository. By default, the version of `SNAPSHOT` published packages align with [PEP-440 developmental releases](https://peps.python.org/pep-0440/#developmental-releases) and use a numeric component that corresponds to the number of seconds since the epoch. For example, if the POM version is `1.2.3-SNAPSHOT`, the package may be published by default as `1.2.3.dev1658238063`. If this property is specified, the numeric component will reflect the given date format pattern applied to the current build time. For example, if `YYYYMMddHHmm` is provided, `1.2.3.dev202207191002` be published.
