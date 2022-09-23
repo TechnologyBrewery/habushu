@@ -246,6 +246,64 @@ If the Habushu project depends on internal packages that may only be found on a 
 
 Default: None
 
+#### pypiSimpleSuffix ####
+
+Specifies the path to the simple index relative to the pypiRepoUrl.  Certain private repository solutions use non-standard paths (ie: devpi uses `+simple`).
+
+Default: `simple`
+
+#### withGroups ####
+
+Specifies which Poetry dependency groups to include within the installation.  Example usage:
+```shell
+mvn clean install -Dhabushu.withGroups=dev,test
+```
+or
+```xml
+<plugin>
+    <groupId>org.bitbucket.cpointe.habushu</groupId>
+    <artifactId>habushu-maven-plugin</artifactId>
+    <extensions>true</extensions>
+    <configuration>
+        <withGroups>
+            <withGroup>dev</withGroup>
+            <withGroup>test</withGroup>
+        </withGroups>
+    </configuration>
+</plugin>
+```
+
+Default: None
+
+#### withoutGroups ####
+Specifies Poetry dependency groups to exclude within the installation.  Example usage:
+
+```shell
+mvn clean install -Dhabushu.withoutGroups=dev,test
+```
+or
+```xml
+<plugin>
+    <groupId>org.bitbucket.cpointe.habushu</groupId>
+    <artifactId>habushu-maven-plugin</artifactId>
+    <extensions>true</extensions>
+    <configuration>
+        <withoutGroups>
+            <withoutGroup>dev</withoutGroup>
+            <withoutGroup>test</withoutGroup>
+        </withoutGroups>
+    </configuration>
+</plugin>
+```
+
+Default: None
+
+#### forceSync ####
+
+A value of `true` will result in Poetry installing packages with the --sync parameter.
+
+Default: `false`
+
 #### runCommandArgs ####
 
 **Only applicable when executing the `run-command-in-virtual-env` plugin goal**
