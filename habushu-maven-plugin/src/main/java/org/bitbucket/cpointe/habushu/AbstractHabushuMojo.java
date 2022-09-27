@@ -13,6 +13,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
 import org.bitbucket.cpointe.habushu.exec.PoetryCommandHelper;
 import org.bitbucket.cpointe.habushu.exec.PyenvCommandHelper;
+import org.bitbucket.cpointe.habushu.exec.PythonVersionHelper;
 
 /**
  * Contains logic common across the various Habushu mojos.
@@ -117,6 +118,12 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     protected MavenProject project;
 
     /**
+     * Should habushu use pyenv to manage python versioning.
+     */
+    @Parameter(defaultValue = "true", property = "habushu.usePyenv")
+    protected boolean usePyenv;
+
+    /**
      * Gets the canonical path for a file without having to deal w/ checked
      * exceptions.
      * 
@@ -130,6 +137,17 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
 	} catch (IOException ioe) {
 	    throw new HabushuException("Could not access file: " + file.getName(), ioe);
 	}
+    }
+
+    /**
+     * Creates a {@link PythonVersionHelper} that may be used to invoke Pyenv
+     * commands from the project's working directory.
+     *
+     * @param pythonVersion The desired version of Python to use
+     * @return
+     */
+    protected PythonVersionHelper createPythonVersionHelper(String pythonVersion) {
+        return new PythonVersionHelper(getPoetryProjectBaseDir(), pythonVersion);
     }
 
     /**
