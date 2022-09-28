@@ -27,6 +27,13 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     protected Settings settings;
 
     /**
+     * Configures whether to bypass use of poetry-lock-groups.  Setting this to true
+     * may cause certain dependency group operations to fail.
+     */
+    @Parameter(defaultValue = "false", property = "habushu.useLockWithGroups")
+    protected boolean useLockWithGroups;
+
+    /**
      * Folder in which Python source files are located - should align with Poetry's
      * project structure conventions.
      */
