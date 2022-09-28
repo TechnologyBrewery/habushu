@@ -63,7 +63,7 @@ public class PoetryCommandHelper {
      * @param packageName
      */
     public void installDevelopmentDependency(String packageName) throws MojoExecutionException {
-	execute(Arrays.asList("add", packageName, "-D"));
+	execute(Arrays.asList("add", packageName, "--group", "dev"));
     }
 
     /**
@@ -134,4 +134,12 @@ public class PoetryCommandHelper {
 	fullCommandArgs.addAll(arguments);
 	return new ProcessExecutor(workingDirectory, fullCommandArgs, Platform.guess(), null);
     }
+
+	public int installPoetryPlugin(String name) throws MojoExecutionException {
+		List<String> args = new ArrayList<String>();
+		args.add("self");
+		args.add("add");
+		args.add(name);
+		return this.executeAndLogOutput(args);
+	}
 }

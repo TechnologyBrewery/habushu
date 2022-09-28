@@ -43,6 +43,10 @@ public class ValidatePyenvAndPoetryMojo extends AbstractHabushuMojo {
 	    throw new MojoExecutionException(StringUtils.join(missingRequiredToolMsgs, System.lineSeparator()));
 
 	}
+	if(this.useLockWithGroups) {
+		getLog().info("Checking for updates to poetry-lock-groups-plugin...");
+		poetryHelper.installPoetryPlugin("poetry-lock-groups-plugin");
+	}
     }
 
 }

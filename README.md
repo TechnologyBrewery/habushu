@@ -21,6 +21,10 @@ In order to use Habushu, the following prerequisites must be installed:
 * [Poetry 1.1+](https://python-poetry.org/)
 * [Pyenv](https://github.com/pyenv/pyenv)
 
+Additionally, Habushu may install and manage:
+
+* [poetry-lock-groups-plugin](https://pypi.org/project/poetry-lock-groups-plugin/)
+
 ## Usage ##
 
 Habushu automates a consistent and predictable build lifecycle by delegating *nearly all* commands related to dependency management, virtual environment activation, and package publishing to [Poetry](https://python-poetry.org/).  As a result, Habushu projects are Poetry projects and are expected to align with the conventions, structure, and configurations utilized by Poetry projects with the `src/` packaging layout.  
@@ -202,6 +206,13 @@ Exclude any BDD scenario or feature file tagged with `@manual`.
 **NOTE:** If **behaveOptions** are provided, this property is ignored.
 
 Default: `true`
+
+#### useLockWithGroups ####
+Enables the use of the poetry lock groups plugin.  Setting this to true
+will result in inclusion/exclusion of group dependencies at the lock
+stage, rather than solely the install stage.
+
+Default: `false`
 
 #### pypiRepoId ####
 

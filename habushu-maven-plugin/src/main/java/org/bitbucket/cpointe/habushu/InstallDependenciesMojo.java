@@ -147,23 +147,27 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
 
 	}
 
+	List<String> executionCmds = new ArrayList<String>();
+
+	executionCmds.add("lock");
+	if (this.useLockWithGroups) {
+		for (String groupName : this.withGroups) {
+			executionCmds.add("--with");
+			executionCmds.add(groupName);
+		}
+
+		for (String groupName : this.withoutGroups) {
+			executionCmds.add("--without");
+			executionCmds.add(groupName);
+		}
+	}
+
 	if(!this.skipPoetryLockUpdate) {
 		getLog().info("Locking dependencies specified in pyproject.toml...");
-		poetryHelper.executeAndLogOutput(Collections.singletonList("lock"));
+		poetryHelper.executeAndLogOutput(executionCmds);
 	}
 
-	List<String> executionCmds = new ArrayList<String>();
-	executionCmds.add("install");
-
-	for (String groupName : this.withGroups) {
-		executionCmds.add("--with");
-		executionCmds.add(groupName);
-	}
-
-	for (String groupName : this.withoutGroups) {
-		executionCmds.add("--without");
-		executionCmds.add(groupName);
-	}
+	executionCmds.set(0, "install");
 
 	if (this.forceSync) {
 		executionCmds.add("--sync");
