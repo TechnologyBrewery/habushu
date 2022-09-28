@@ -18,35 +18,36 @@ import org.bitbucket.cpointe.habushu.exec.PyenvCommandHelper;
 @Mojo(name = "validate-pyenv-and-poetry", defaultPhase = LifecyclePhase.VALIDATE)
 public class ValidatePyenvAndPoetryMojo extends AbstractHabushuMojo {
 
-    @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
-	PyenvCommandHelper pyenvHelper = createPyenvCommandHelper();
+	@Override
+	public void execute() throws MojoExecutionException, MojoFailureException {
+		List<String> missingRequiredToolMsgs = new ArrayList<>();
 
-	getLog().info("Checking if pyenv is installed...");
-	boolean pyenvInstalled = pyenvHelper.isPyenvInstalled();
+		if (usePyenv) {
+			PyenvCommandHelper pyenvHelper = createPyenvCommandHelper();
 
-	getLog().info("Checking if Poetry is installed...");
-	PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
-	boolean poetryInstalled = poetryHelper.isPoetryInstalled();
+			getLog().info("Checking if pyenv is installed...");
+			if(!pyenvHelper.isPyenvInstalled()) {
+				missingRequiredToolMsgs.add(
+						"'pyenv' is not currently installed! Please install pyenv and try again. Visit https://github.com/pyenv/pyenv for more information.");
+			}
+		}
 
-	if (!pyenvInstalled || !poetryInstalled) {
-	    List<String> missingRequiredToolMsgs = new ArrayList<>();
-	    if (!pyenvInstalled) {
-		missingRequiredToolMsgs.add(
-			"'pyenv' is not currently installed! Please install pyenv and try again. Visit https://github.com/pyenv/pyenv for more information.");
-	    }
+		getLog().info("Checking if Poetry is installed...");
+		PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
+		boolean poetryInstalled = poetryHelper.isPoetryInstalled();
 
-	    if (!poetryInstalled) {
-		missingRequiredToolMsgs.add(
-			"'poetry' is not currently installed! Execute 'curl -sSL https://install.python-poetry.org | python -' to install or visit https://github.com/python-poetry/poetry for more information and installation options");
-	    }
-	    throw new MojoExecutionException(StringUtils.join(missingRequiredToolMsgs, System.lineSeparator()));
+		if (!poetryInstalled) {
+			missingRequiredToolMsgs.add(
+					"'poetry' is not currently installed! Execute 'curl -sSL https://install.python-poetry.org | python -' to install or visit https://github.com/python-poetry/poetry for more information and installation options");
+		}
 
-	}
-	if(this.useLockWithGroups) {
-		getLog().info("Checking for updates to poetry-lock-groups-plugin...");
-		poetryHelper.installPoetryPlugin("poetry-lock-groups-plugin");
-	}
+		if(!missingRequiredToolMsgs.isEmpty()) {
+			throw new MojoExecutionException(StringUtils.join(missingRequiredToolMsgs, System.lineSeparator()));
+		}
+		if(this.useLockWithGroups) {
+			getLog().info("Checking for updates to poetry-lock-groups-plugin...");
+			poetryHelper.installPoetryPlugin("poetry-lock-groups-plugin");
+		}
     }
 
 }

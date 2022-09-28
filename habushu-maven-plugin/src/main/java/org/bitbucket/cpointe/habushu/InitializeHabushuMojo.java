@@ -11,6 +11,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.bitbucket.cpointe.habushu.exec.PoetryCommandHelper;
 import org.bitbucket.cpointe.habushu.exec.PyenvCommandHelper;
+import org.bitbucket.cpointe.habushu.exec.PythonVersionHelper;
 
 /**
  * Initializes and configures the usage of the specified version of Python for
@@ -35,47 +36,55 @@ public class InitializeHabushuMojo extends AbstractHabushuMojo {
     @Parameter(defaultValue = "${project.build.directory}/pyenv-patch-install-python-version.sh", readonly = true)
     private File patchInstallScript;
 
-    @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
-	PyenvCommandHelper pyenvHelper = createPyenvCommandHelper();
-	String currentPythonVersion = pyenvHelper.getCurrentPythonVersion();
+	@Override
+	public void execute() throws MojoExecutionException, MojoFailureException {
+		String currentPythonVersion;
+		if (usePyenv) {
+			PyenvCommandHelper pyenvHelper = createPyenvCommandHelper();
+			currentPythonVersion = pyenvHelper.getCurrentPythonVersion();
 
-	if (!pythonVersion.equals(currentPythonVersion)) {
+			if (!pythonVersion.equals(currentPythonVersion)) {
+				pyenvHelper.updatePythonVersion(pythonVersion, patchInstallScript);
+			}
+			currentPythonVersion = pyenvHelper.getCurrentPythonVersion();
+		} else {
+			PythonVersionHelper pythonVersionHelper = createPythonVersionHelper(pythonVersion);
+			try {
+				currentPythonVersion = pythonVersionHelper.getCurrentPythonVersion();
+			} catch (MojoExecutionException mojoExecutionException) {
+				throw new MojoExecutionException("Expected Python version " + pythonVersion + ", but it was not installed");
+			}
+		}
 
-	    pyenvHelper.updatePythonVersion(pythonVersion, patchInstallScript);
+		if (!currentPythonVersion.equals(pythonVersion)) {
+			throw new MojoExecutionException(String.format("Expected Python version %s, but found version %s",
+					pythonVersion, currentPythonVersion));
+		}
 
-	    // sanity check that the version update was completed successfully:
-	    currentPythonVersion = pyenvHelper.getCurrentPythonVersion();
-	    if (!pythonVersion.equals(currentPythonVersion)) {
-		throw new MojoExecutionException(String.format("Expected Python version %s, but found version %s",
-			pythonVersion, currentPythonVersion));
-	    }
+		getLog().info(String.format("Using Python %s", currentPythonVersion));
+
+		getLog().info("Validating Poetry-based project structure...");
+		PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
+		poetryHelper.execute(Arrays.asList("check"));
+
+		String currentPythonPackageVersion = poetryHelper.execute(Arrays.asList("version", "-s"));
+		String pomVersion = project.getVersion();
+		String expectedPythonPackageVersion = getPythonPackageVersion(pomVersion, false, null);
+
+		if (!StringUtils.equals(currentPythonPackageVersion, expectedPythonPackageVersion)) {
+			if (overridePackageVersion) {
+				getLog().info(String.format("Setting Poetry package version to %s", expectedPythonPackageVersion));
+				getLog().info(
+						"If you do *not* want the Poetry package version to be automatically synced with the POM version, set <overridePackageVersion>false</overridePackageVersion> in the plugin's <configuration>");
+				poetryHelper.executeAndLogOutput(Arrays.asList("version", expectedPythonPackageVersion));
+			} else {
+				getLog().debug(String.format(
+						"Poetry package version set to %s in pyproject.toml does not align with expected POM-derived version of %s",
+						currentPythonPackageVersion, expectedPythonPackageVersion));
+			}
+
+		}
+
 	}
-
-	getLog().info(String.format("Using Python %s", currentPythonVersion));
-
-	getLog().info("Validating Poetry-based project structure...");
-	PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
-	poetryHelper.execute(Arrays.asList("check"));
-
-	String currentPythonPackageVersion = poetryHelper.execute(Arrays.asList("version", "-s"));
-	String pomVersion = project.getVersion();
-	String expectedPythonPackageVersion = getPythonPackageVersion(pomVersion, false, null);
-
-	if (!StringUtils.equals(currentPythonPackageVersion, expectedPythonPackageVersion)) {
-	    if (overridePackageVersion) {
-		getLog().info(String.format("Setting Poetry package version to %s", expectedPythonPackageVersion));
-		getLog().info(
-			"If you do *not* want the Poetry package version to be automatically synced with the POM version, set <overridePackageVersion>false</overridePackageVersion> in the plugin's <configuration>");
-		poetryHelper.executeAndLogOutput(Arrays.asList("version", expectedPythonPackageVersion));
-	    } else {
-		getLog().debug(String.format(
-			"Poetry package version set to %s in pyproject.toml does not align with expected POM-derived version of %s",
-			currentPythonPackageVersion, expectedPythonPackageVersion));
-	    }
-
-	}
-
-    }
 
 }
