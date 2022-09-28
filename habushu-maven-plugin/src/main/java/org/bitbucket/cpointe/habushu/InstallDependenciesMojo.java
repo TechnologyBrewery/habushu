@@ -5,8 +5,8 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -46,19 +46,20 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
     @Parameter(defaultValue = "true", property = "habushu.addPypiRepoAsPackageSources")
     private boolean addPypiRepoAsPackageSources;
 
-	/**
-	 * Configures the path for the simple index on a private pypi repository.  Certain
-	 * private repository solutions (ie: devpi) use different names for the simple index.
-	 * devpi, for instance, uses "+simple".
-	 */
-	@Parameter(property = "habushu.pypiSimpleSuffix", defaultValue = "simple")
-	private String pypiSimpleSuffix;
+    /**
+     * Configures the path for the simple index on a private pypi repository.
+     * Certain private repository solutions (ie: devpi) use different names for the
+     * simple index. devpi, for instance, uses "+simple".
+     */
+    @Parameter(property = "habushu.pypiSimpleSuffix", defaultValue = "simple")
+    private String pypiSimpleSuffix;
 
-	/**
-	 * Configures whether the poetry lock file will be updated before poetry install.
-	 */
-	@Parameter(defaultValue = "false", property = "habushu.skipPoetryLockUpdate")
-	private boolean skipPoetryLockUpdate;
+    /**
+     * Configures whether the poetry lock file will be updated before poetry
+     * install.
+     */
+    @Parameter(defaultValue = "false", property = "habushu.skipPoetryLockUpdate")
+    private boolean skipPoetryLockUpdate;
 
     /**
      * Path within a Poetry project's pyproject.toml configuration at which private
@@ -67,23 +68,23 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
      */
     protected final String PYPROJECT_PACKAGE_SOURCES_PATH = "tool.poetry.source";
 
-	/**
-	 * Specifies Poetry groups to include in the installation.
-	 */
-	@Parameter(property = "habushu.withGroups")
-	private String[] withGroups;
+    /**
+     * Specifies Poetry groups to include in the installation.
+     */
+    @Parameter(property = "habushu.withGroups")
+    private String[] withGroups;
 
-	/**
-	 * Specifies Poetry groups to exclude from the installation.
-	 */
-	@Parameter(property = "habushu.withoutGroups")
-	private String[] withoutGroups;
+    /**
+     * Specifies Poetry groups to exclude from the installation.
+     */
+    @Parameter(property = "habushu.withoutGroups")
+    private String[] withoutGroups;
 
-	/**
-	 * Configuration option to include the --sync option on poetry install
-	 */
-	@Parameter(defaultValue = "false", property = "habushu.forceSync")
-	private boolean forceSync;
+    /**
+     * Configuration option to include the --sync option on poetry install
+     */
+    @Parameter(defaultValue = "false", property = "habushu.forceSync")
+    private boolean forceSync;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -151,26 +152,26 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
 
 	executionCmds.add("lock");
 	if (this.useLockWithGroups) {
-		for (String groupName : this.withGroups) {
-			executionCmds.add("--with");
-			executionCmds.add(groupName);
-		}
+	    for (String groupName : this.withGroups) {
+		executionCmds.add("--with");
+		executionCmds.add(groupName);
+	    }
 
-		for (String groupName : this.withoutGroups) {
-			executionCmds.add("--without");
-			executionCmds.add(groupName);
-		}
+	    for (String groupName : this.withoutGroups) {
+		executionCmds.add("--without");
+		executionCmds.add(groupName);
+	    }
 	}
 
-	if(!this.skipPoetryLockUpdate) {
-		getLog().info("Locking dependencies specified in pyproject.toml...");
-		poetryHelper.executeAndLogOutput(executionCmds);
+	if (!this.skipPoetryLockUpdate) {
+	    getLog().info("Locking dependencies specified in pyproject.toml...");
+	    poetryHelper.executeAndLogOutput(executionCmds);
 	}
 
 	executionCmds.set(0, "install");
 
 	if (this.forceSync) {
-		executionCmds.add("--sync");
+	    executionCmds.add("--sync");
 	}
 
 	getLog().info("Installing dependencies...");

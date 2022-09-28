@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.slf4j.Logger;
@@ -27,16 +28,24 @@ public class PoetryCommandHelper {
     }
 
     /**
-     * Returns a boolean value indicating whether Poetry is installed.
+     * Returns a {@link Boolean} and {@link String} {@link Pair} indicating whether
+     * Poetry is installed and if so, the version of Poetry that is installed. If
+     * Poetry is not installed, the returned {@link String} part of the {@link Pair}
+     * will be {@code null}.
+     * 
+     * @return
      */
-    public boolean isPoetryInstalled() {
+    public Pair<Boolean, String> getIsPoetryInstalledAndVersion() {
 	try {
 	    ProcessExecutor executor = createPoetryExecutor(Arrays.asList("--version"));
-	    executor.executeAndGetResult(logger);
+	    String versionResult = executor.executeAndGetResult(logger);
+
+	    // Expected output is in the form "Poetry (version 1.2.1)"
+	    String version = StringUtils.trim(StringUtils.substringBetween(versionResult, "(version", ")"));
+	    return new ImmutablePair<Boolean, String>(true, version);
 	} catch (Throwable e) {
-	    return false;
+	    return new ImmutablePair<Boolean, String>(false, null);
 	}
-	return true;
     }
 
     /**
@@ -135,11 +144,11 @@ public class PoetryCommandHelper {
 	return new ProcessExecutor(workingDirectory, fullCommandArgs, Platform.guess(), null);
     }
 
-	public int installPoetryPlugin(String name) throws MojoExecutionException {
-		List<String> args = new ArrayList<String>();
-		args.add("self");
-		args.add("add");
-		args.add(name);
-		return this.executeAndLogOutput(args);
-	}
+    public int installPoetryPlugin(String name) throws MojoExecutionException {
+	List<String> args = new ArrayList<String>();
+	args.add("self");
+	args.add("add");
+	args.add(name);
+	return this.executeAndLogOutput(args);
+    }
 }
