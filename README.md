@@ -122,6 +122,12 @@ def step_impl(context):
     raise NotImplementedError(u'STEP: Given any SSL leveraged within the System')
 ```
 
+### Running Specified Tagged Tests ###
+
+"tagged-tests" is an example profile within habushu-mixology-consumer used to specify a tag(s) to test.  The variable "tags" is used to specify which tags to test. To run multiple tests, comma separate them. To exclude a test, add "\~" in front of the tag. 
+
+Ex: mvn clean test -Ptagged-tests -Dtags="one_tag"
+
 ### Running Custom Python Scripts During Build Phases ###
 
 In addition to creating a custom Maven lifecycle that automates the execution of a predictable Poetry-based workflow, Habushu exposes a `run-command-in-virtual-env` plugin goal that provides developers with the ability to [execute any Python command or script](https://python-poetry.org/docs/cli/#run) within the Poetry project's virtual environment through `poetry run` during the desired build phase. 
