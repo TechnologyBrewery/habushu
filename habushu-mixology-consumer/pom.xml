@@ -26,4 +26,21 @@
 		</plugins>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>tagged-tests</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.bitbucket.cpointe.habushu</groupId>
+						<artifactId>habushu-maven-plugin</artifactId>
+						<configuration>
+							<!-- Use this profile to test specific tagged tests -->
+							<behaveOptions>--tags ${tags}</behaveOptions>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
