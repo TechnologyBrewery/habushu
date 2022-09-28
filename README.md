@@ -18,7 +18,7 @@ In order to use Habushu, the following prerequisites must be installed:
 
 * Maven 3.6+
 * Java 11+
-* [Poetry 1.1+](https://python-poetry.org/)
+* [Poetry 1.2+](https://python-poetry.org/)
 * [Pyenv](https://github.com/pyenv/pyenv)
 
 Additionally, Habushu may install and manage:
@@ -193,7 +193,7 @@ Default: `3.9.13`
 
 #### usePyenv ####
 
-If true then Habushu will delegate to `pyenv` for managing and (if needed) installing the specified version of Python. If false then it will look for the available Python installation on the PATH. If Python is not found or if the version does not match the configuration pythonVersion, the build will fail.
+If true then Habushu will delegate to `pyenv` for managing and (if needed) installing the specified version of Python. If false then it will look for the available Python installation on the PATH. If Python is not found or if the version does not match the configured `pythonVersion`, the build will fail.
 
 Default: `true`
 

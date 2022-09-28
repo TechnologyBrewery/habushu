@@ -140,7 +140,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     }
 
     /**
-     * Creates a {@link PythonVersionHelper} that may be used to invoke Pyenv
+     * Creates a {@link PythonVersionHelper} that may be used to invoke Python
      * commands from the project's working directory.
      *
      * @param pythonVersion The desired version of Python to use
