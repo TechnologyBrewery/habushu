@@ -21,6 +21,8 @@ public class PoetryCommandHelper {
     private static final String POETRY_COMMAND = "poetry";
     private static final Logger logger = LoggerFactory.getLogger(PoetryCommandHelper.class);
 
+	private static final String extractVersionRegex = "[^0-9\\.]";
+
     private File workingDirectory;
 
     public PoetryCommandHelper(File workingDirectory) {
@@ -40,8 +42,8 @@ public class PoetryCommandHelper {
 	    ProcessExecutor executor = createPoetryExecutor(Arrays.asList("--version"));
 	    String versionResult = executor.executeAndGetResult(logger);
 
-	    // Expected output is in the form "Poetry (version 1.2.1)"
-	    String version = StringUtils.trim(StringUtils.substringBetween(versionResult, "(version", ")"));
+		// Extracts version number from output, whether  it's "Poetry version 1.1.15" or "Poetry (version 1.2.1)"
+	    String version = versionResult.replaceAll(extractVersionRegex, "");
 	    return new ImmutablePair<Boolean, String>(true, version);
 	} catch (Throwable e) {
 	    return new ImmutablePair<Boolean, String>(false, null);
