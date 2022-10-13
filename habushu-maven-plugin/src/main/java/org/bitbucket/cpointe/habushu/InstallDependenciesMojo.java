@@ -202,6 +202,7 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
 		? repoUriPathSegments.get(repoUriPathSegments.size() - 1)
 		: null;
 	if (!this.pypiSimpleSuffix.equals(lastPathSegment)) {
+		repoUriPathSegments = new ArrayList<>(repoUriPathSegments);
 	    repoUriPathSegments.add(this.pypiSimpleSuffix);
 	    pypiRepoUriBuilder.setPathSegments(repoUriPathSegments);
 	}
