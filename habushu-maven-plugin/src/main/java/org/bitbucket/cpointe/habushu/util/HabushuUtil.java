@@ -37,6 +37,16 @@ public final class HabushuUtil {
 	return server != null ? server.getUsername() : null;
     }
 
+	/**
+	 * Find the plain-text server password, without decryption steps, extracted from Maven's user settings.
+	 *
+	 * @return the password for the specified server from Maven's settings.xml
+	 */
+	public static String findPlaintextPasswordForServer(Settings settings, String serverId) {
+	Server server = settings.getServer(serverId);
+	return server != null ? server.getPassword() : null;
+	}
+
     /**
      * Simple utility method to decrypt a stored password for a server.
      * 
