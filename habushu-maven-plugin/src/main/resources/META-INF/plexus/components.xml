@@ -18,7 +18,7 @@
 							<compile>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:install-dependencies</compile>
 							<process-classes>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:format-python</process-classes>
 							<test>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:behave-bdd-test</test>
-							<package>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:build-archive</package>
+							<package>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:build-deployment-artifacts</package>
 							<deploy>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:publish-to-pypi-repo</deploy>
 						</phases>
 					</lifecycle>

@@ -148,34 +148,28 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
 
 	}
 
-	List<String> executionCmds = new ArrayList<String>();
-
-	executionCmds.add("lock");
-	if (this.useLockWithGroups) {
-	    for (String groupName : this.withGroups) {
-		executionCmds.add("--with");
-		executionCmds.add(groupName);
-	    }
-
-	    for (String groupName : this.withoutGroups) {
-		executionCmds.add("--without");
-		executionCmds.add(groupName);
-	    }
-	}
-
 	if (!this.skipPoetryLockUpdate) {
 	    getLog().info("Locking dependencies specified in pyproject.toml...");
-	    poetryHelper.executeAndLogOutput(executionCmds);
+	    poetryHelper.executeAndLogOutput(Arrays.asList("lock"));
 	}
 
-	executionCmds.set(0, "install");
+	List<String> installCommand = new ArrayList<String>();
 
+	installCommand.add("install");
+	for (String groupName : this.withGroups) {
+	    installCommand.add("--with");
+	    installCommand.add(groupName);
+	}
+	for (String groupName : this.withoutGroups) {
+	    installCommand.add("--without");
+	    installCommand.add(groupName);
+	}
 	if (this.forceSync) {
-	    executionCmds.add("--sync");
+	    installCommand.add("--sync");
 	}
 
 	getLog().info("Installing dependencies...");
-	poetryHelper.executeAndLogOutput(executionCmds);
+	poetryHelper.executeAndLogOutput(installCommand);
     }
 
     /**
@@ -202,7 +196,9 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
 		? repoUriPathSegments.get(repoUriPathSegments.size() - 1)
 		: null;
 	if (!this.pypiSimpleSuffix.equals(lastPathSegment)) {
-		repoUriPathSegments = new ArrayList<>(repoUriPathSegments);
+	    // If the URL has no path, an unmodifiable Collections.emptyList() is returned,
+	    // so wrap in an ArrayList to enable later modifications
+	    repoUriPathSegments = new ArrayList<>(repoUriPathSegments);
 	    repoUriPathSegments.add(this.pypiSimpleSuffix);
 	    pypiRepoUriBuilder.setPathSegments(repoUriPathSegments);
 	}

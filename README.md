@@ -219,11 +219,16 @@ Exclude any BDD scenario or feature file tagged with `@manual`.
 
 Default: `true`
 
-#### useLockWithGroups ####
-Enables the use of the poetry lock groups plugin.  Setting this to true
-will result in inclusion/exclusion of group dependencies at the lock
-stage, rather than solely the install stage.
+#### rewriteLocalPathDepsInArchives ####
 
+Enables the use of the [poetry-monorepo-dependency-plugin](https://pypi.org/project/poetry-monorepo-dependency-plugin/) to rewrite 
+any local path dependencies (to other Poetry projects) as versioned packaged dependencies in generated `wheel`/`sdist` archives. If `true`,
+Habushu will replace invocations of Poetry's `build` and `publish` commands with the extensions of those commands exposed by the
+`poetry-monorepo-dependency-plugin`, which are `build-rewrite-path-deps` and `publish-rewrite-path-deps`, respectively.
+
+Typically, this flag will only be `true` when deploying/releasing Habushu modules within a CI environment that are part of a monorepo project
+structure which multiple Poetry projects depend on one another.
+    
 Default: `false`
 
 #### pypiRepoId ####
