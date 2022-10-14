@@ -63,6 +63,16 @@ public class PublishToPyPiRepoMojo extends AbstractHabushuMojo {
     @Parameter(property = "habushu.snapshotNumberDateFormatPattern")
     protected String snapshotNumberDateFormatPattern;
 
+	/**
+	 * Toggle for whether the server password should be decrypted or retrieved as plain
+	 * text.
+	 *
+	 * true (default) -> decrypt
+	 * false -> plain text
+	 */
+	@Parameter(property = "habushu.decryptPassword", defaultValue = "true")
+	protected boolean decryptPassword;
+
     /**
      * Skips the entire execution of the deploy phase and does *not* publish the
      * Poetry package to the configured PyPI repository. This configuration may be
@@ -132,7 +142,12 @@ public class PublishToPyPiRepoMojo extends AbstractHabushuMojo {
 	String password = null;
 	if (StringUtils.isNotEmpty(pypiRepoId)) {
 	    username = HabushuUtil.findUsernameForServer(settings, pypiRepoId);
-	    password = HabushuUtil.decryptServerPassword(settings, pypiRepoId);
+		if (decryptPassword) {
+			password = HabushuUtil.decryptServerPassword(settings, pypiRepoId);
+		} else {
+			getLog().warn("Detected use of plain-text password!  This is a security risk!  Please consider using an encrypted password!");
+			password = HabushuUtil.findPlaintextPasswordForServer(settings, pypiRepoId);
+		}
 	}
 
 	if (StringUtils.isNotEmpty(pypiRepoUrl)) {

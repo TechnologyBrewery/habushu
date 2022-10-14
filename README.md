@@ -275,6 +275,14 @@ Specifies the path to the simple index relative to the pypiRepoUrl.  Certain pri
 
 Default: `simple`
 
+#### decryptPassword ####
+
+Specifies whether Habushu should attempt to decrypt the remote server password provided in Maven's `settings.xml file`.  If `false`, the password will be retrieved as-is and assumed to be unencrypted.
+
+Warning: Storage of plain-text passwords is a security risk!  This functionality is best used when the password is stored in a safe manner outside of Maven's native credential system, and is decrypted prior to execution (Jenkins credentials, for instance).
+
+Default: `true`
+
 #### withGroups ####
 
 Specifies which Poetry dependency groups to include within the installation.  Example usage:
