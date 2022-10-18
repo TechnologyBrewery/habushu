@@ -1,5 +1,6 @@
 package org.bitbucket.cpointe.habushu;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,8 +10,10 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.bitbucket.cpointe.habushu.exec.PoetryCommandHelper;
 import org.bitbucket.cpointe.habushu.exec.PyenvCommandHelper;
+import org.bitbucket.cpointe.habushu.exec.PythonVersionHelper;
 
 import com.vdurmont.semver4j.Semver;
 import com.vdurmont.semver4j.Semver.SemverType;
@@ -35,20 +38,61 @@ public class ValidatePyenvAndPoetryMojo extends AbstractHabushuMojo {
      * must be installed and available for Habushu to use.
      */
     protected static final String POETRY_VERSION_REQUIREMENT = "~1.2.0";
+    
+    /**
+     * The desired version of Python to use.
+     */
+    @Parameter(defaultValue = "3.9.13", property = "habushu.pythonVersion")
+    protected String pythonVersion;
+    
+    /**
+     * File specifying the location of a generated shell script that will attempt to
+     * install the specified version of Python using "pyenv install --patch" with a
+     * patch that attempts to resolve the expected compilation error.
+     */
+    @Parameter(defaultValue = "${project.build.directory}/pyenv-patch-install-python-version.sh", readonly = true)
+    private File patchInstallScript;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
 
 	List<String> missingRequiredToolMsgs = new ArrayList<>();
+	String currentPythonVersion = "";
 
 	if (usePyenv) {
 	    PyenvCommandHelper pyenvHelper = createPyenvCommandHelper();
 	    getLog().info("Checking if pyenv is installed...");
 	    if (!pyenvHelper.isPyenvInstalled()) {
-		missingRequiredToolMsgs.add(
-			"'pyenv' is not currently installed! Please install pyenv and try again. Visit https://github.com/pyenv/pyenv for more information.");
+	        missingRequiredToolMsgs.add(
+                "'pyenv' is not currently installed! Please install pyenv and try again. Visit https://github.com/pyenv/pyenv for more information.");
+	    } else {
+	        currentPythonVersion = pyenvHelper.getCurrentPythonVersion();
+	        
+	        if (!pythonVersion.equals(currentPythonVersion)) {
+	            pyenvHelper.updatePythonVersion(pythonVersion, patchInstallScript);
+	            currentPythonVersion = pyenvHelper.getCurrentPythonVersion();
+	        }
+	    }
+	} else {
+	    PythonVersionHelper pythonVersionHelper = createPythonVersionHelper(pythonVersion);
+	    try {
+	        currentPythonVersion = pythonVersionHelper.getCurrentPythonVersion();
+	    } catch (MojoExecutionException mojoExecutionException) {
+	        throw new MojoExecutionException(
+                "Expected Python version " + pythonVersion + ", but it was not installed");
 	    }
 	}
+	
+	// If a version of python is installed, verify that it matches the desired version
+	if (StringUtils.isNotBlank(currentPythonVersion)) {
+	    if (!currentPythonVersion.equals(pythonVersion)) {
+	        throw new MojoExecutionException(String.format("Expected Python version %s, but found version %s",
+                pythonVersion, currentPythonVersion));
+	    }
+	    getLog().info(String.format("Using Python %s", currentPythonVersion));
+	}
+
+	
 
 	getLog().info("Checking if Poetry is installed...");
 	PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
