@@ -24,7 +24,7 @@ import com.vdurmont.semver4j.Semver.SemverType;
  * <li>Poetry (installed version must satisfy
  * {@link #POETRY_VERSION_REQUIREMENT})</li>
  * <li>Required Poetry plugins (currently only
- * {@code poetry-lock-groups-plugin})</li>
+ * {@code poetry-monorepo-dependency-plugin})</li>
  * </ul>
  */
 @Mojo(name = "validate-pyenv-and-poetry", defaultPhase = LifecyclePhase.VALIDATE)
@@ -71,9 +71,9 @@ public class ValidatePyenvAndPoetryMojo extends AbstractHabushuMojo {
 
 	}
 
-	if (this.useLockWithGroups) {
-	    getLog().info("Checking for updates to poetry-lock-groups-plugin...");
-	    poetryHelper.installPoetryPlugin("poetry-lock-groups-plugin");
+	if (this.rewriteLocalPathDepsInArchives) {
+	    getLog().info("Checking for updates to poetry-monorepo-dependency-plugin...");
+	    poetryHelper.installPoetryPlugin("poetry-monorepo-dependency-plugin");
 	}
     }
 

@@ -48,17 +48,24 @@ public class CleanHabushuMojo extends CleanMojo {
     public void execute() throws MojoExecutionException {
 
 	if (deleteVirtualEnv) {
-		try {
-			PoetryCommandHelper poetryHelper = new PoetryCommandHelper(this.workingDirectory);
 
-			String virtualEnvFullPath = poetryHelper.execute(Arrays.asList("env", "info", "--path"));
-			String virtualEnvName = new File(virtualEnvFullPath).getName();
+	    PoetryCommandHelper poetryHelper = new PoetryCommandHelper(this.workingDirectory);
 
-			getLog().info(String.format("Deleting virtual environment managed by Poetry %s...", virtualEnvName));
-			poetryHelper.execute(Arrays.asList("env", "remove", virtualEnvName));
-		} catch(HabushuException he) {
-			getLog().warn("No Poetry virtual environment was detected for deletion.");
-		}
+	    String virtualEnvFullPath = null;
+	    try {
+		virtualEnvFullPath = poetryHelper.execute(Arrays.asList("env", "info", "--path"));
+	    } catch (RuntimeException e) {
+		getLog().debug("Could not retrieve Poetry-managed virtual environment path - it likely does not exist",
+			e);
+	    }
+
+	    if (virtualEnvFullPath == null) {
+		getLog().warn("No Poetry virtual environment was detected for deletion.");
+	    } else {
+		String virtualEnvName = new File(virtualEnvFullPath).getName();
+		getLog().info(String.format("Deleting virtual environment managed by Poetry %s...", virtualEnvName));
+		poetryHelper.execute(Arrays.asList("env", "remove", virtualEnvName));
+	    }
 	}
 
 	List<Fileset> filesetsToDelete = new ArrayList<>();

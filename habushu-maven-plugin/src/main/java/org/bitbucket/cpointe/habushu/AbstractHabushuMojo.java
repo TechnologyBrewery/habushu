@@ -28,13 +28,6 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     protected Settings settings;
 
     /**
-     * Configures whether to bypass use of poetry-lock-groups.  Setting this to true
-     * may cause certain dependency group operations to fail.
-     */
-    @Parameter(defaultValue = "false", property = "habushu.useLockWithGroups")
-    protected boolean useLockWithGroups;
-
-    /**
      * Folder in which Python source files are located - should align with Poetry's
      * project structure conventions.
      */
@@ -118,10 +111,29 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     protected MavenProject project;
 
     /**
-     * Should habushu use pyenv to manage python versioning.
+     * Should Habushu use pyenv to manage the utilized version of Python?
      */
     @Parameter(defaultValue = "true", property = "habushu.usePyenv")
     protected boolean usePyenv;
+
+    /**
+     * Indicates whether Habushu should leverage the
+     * {@code poetry-monorepo-dependency-plugin} to rewrite any local path
+     * dependencies (to other Poetry projects) as versioned packaged dependencies in
+     * generated wheel/sdist archives. If {@code true}, Habushu will replace
+     * invocations of Poetry's {@code build} and {@code publish} commands in the
+     * {@link BuildDeploymentArtifactsMojo} and {@link PublishToPyPiRepoMojo} with
+     * the extensions of those commands exposed by the
+     * {@code poetry monorepo-dependency-plugin}, which are
+     * {@code build-rewrite-path-deps} and {@code publish-rewrite-path-deps}
+     * respectively.
+     * <p>
+     * Typically, this flag will only be {@code true} when deploying/releasing
+     * Habushu modules within a CI environment that are part of a monorepo project
+     * structure which multiple Poetry projects depend on one another.
+     */
+    @Parameter(defaultValue = "false", property = "habushu.rewriteLocalPathDepsInArchives")
+    protected boolean rewriteLocalPathDepsInArchives;
 
     /**
      * Gets the canonical path for a file without having to deal w/ checked
@@ -147,7 +159,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * @return
      */
     protected PythonVersionHelper createPythonVersionHelper(String pythonVersion) {
-        return new PythonVersionHelper(getPoetryProjectBaseDir(), pythonVersion);
+	return new PythonVersionHelper(getPoetryProjectBaseDir(), pythonVersion);
     }
 
     /**
