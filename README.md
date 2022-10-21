@@ -464,11 +464,11 @@ Habushu applies a [custom Maven lifecycle that binds Poetry-based DevSecOps work
 
 ##### validate #####
 
-Ensures that Pyenv and Poetry are installed.
+Ensures that Pyenv and Poetry are installed and utilizes Pyenv to configure the usage of the specified version of Python for the execution of all downstream Python/Poetry operations.
 
 ##### initialize #####
 
-Utilizes Pyenv to initialize and configure the usage of the specified version of Python for the execution of all downstream Python/Poetry operations. If configured via **overridePackageVersion**, automatically syncs the Poetry project version with the appropriate version that is derived from the Habushu module's POM. 
+Configures the build state needed by Habushu, ensures that the current project is a Poetry project and initializes and aligns POM and pyproject.toml versions. If configured via **overridePackageVersion**, automatically syncs the Poetry project version with the appropriate version that is derived from the Habushu module's POM. 
 
 ##### compile #####
 
