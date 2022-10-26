@@ -100,7 +100,7 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
 			return future.get(timeout, timeUnit);
 		} catch (TimeoutException e) {
 			getLog().warn(
-					"Poetry lock has been running for quite some time, you may want to quit the mvn process (Ctrl+c) and run \"poetry cache clear . --all \" and restart your build.");
+					"poetry " + String.join(" ", commandArgs) + " has been running for quite some time, you may want to quit the mvn process (Ctrl+c) and run \"poetry cache clear . --all \" and restart your build.");
 			try {
 				return future.get();
 			} catch (InterruptedException | ExecutionException e1) {
