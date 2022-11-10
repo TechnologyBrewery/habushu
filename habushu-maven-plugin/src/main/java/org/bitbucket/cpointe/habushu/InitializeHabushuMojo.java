@@ -10,9 +10,10 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.bitbucket.cpointe.habushu.exec.PoetryCommandHelper;
 
 /**
- * Initializes poetry and checks python package version. Later
- * iterations will also attempt to migration Habushu 1.x projects from their
- * setuptools/pip based configurations to Poetry's pyproject.toml configuration.
+ * Ensures that the current project is a valid Poetry project and initializes
+ * Habushu versioning conventions, specifically aligning the version specified
+ * in the {@code pom.xml} with the version in the project's
+ * {@code pyproject.toml}.
  */
 @Mojo(name = "initialize-habushu", defaultPhase = LifecyclePhase.INITIALIZE)
 public class InitializeHabushuMojo extends AbstractHabushuMojo {
