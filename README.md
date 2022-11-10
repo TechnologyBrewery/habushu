@@ -23,7 +23,7 @@ In order to use Habushu, the following prerequisites must be installed:
 
 Additionally, Habushu may install and manage:
 
-* [poetry-lock-groups-plugin](https://pypi.org/project/poetry-lock-groups-plugin/)
+* [poetry-monorepo-dependency-plugin](https://pypi.org/project/poetry-monorepo-dependency-plugin/)
 
 ## Usage ##
 
@@ -199,7 +199,7 @@ Default: `3.9.13`
 
 #### usePyenv ####
 
-If true then Habushu will delegate to `pyenv` for managing and (if needed) installing the specified version of Python. If false then it will look for the available Python installation on the PATH. If Python is not found or if the version does not match the configured `pythonVersion`, the build will fail.
+If true, Habushu will delegate to `pyenv` for managing and (if needed) installing the specified version of Python. If false, Habushu will look for the desired version of Python on the `PATH`. If Python is not found or if the version does not match the configured `pythonVersion`, the build will fail.
 
 Default: `true`
 
@@ -282,7 +282,7 @@ Default: `simple`
 
 #### decryptPassword ####
 
-Specifies whether Habushu should attempt to decrypt the remote server password provided in Maven's `settings.xml file`.  If `false`, the password will be retrieved as-is and assumed to be unencrypted.
+Specifies whether Habushu should attempt to decrypt the remote server password provided in Maven's `settings.xml` file.  If `false`, the password will be retrieved as-is and assumed to be unencrypted.
 
 Warning: Storage of plain-text passwords is a security risk!  This functionality is best used when the password is stored in a safe manner outside of Maven's native credential system, and is decrypted prior to execution (Jenkins credentials, for instance).
 
@@ -336,7 +336,7 @@ Default: None
 
 #### forceSync ####
 
-A value of `true` will result in Poetry installing packages with the --sync parameter.
+A value of `true` will result in Poetry installing packages with the `--sync` parameter.
 
 Default: `false`
 
@@ -373,7 +373,7 @@ Default: None
 
 #### skipPoetryLockUpdate ####
 
-Enables skipping the update of the poetry lock file on build. Note if the lock file does not exist then the install will recreate it regardless of this configuration. If the lock file has a mismatch with the toml definition then the build will fail. 
+Typically enabled when running CI, this configuration enables skipping the update of Poetry's lock file via `poetry lock`. If `poetry.lock` does not exist, the subsequent execution of `poetry install` will create it regardless of this configuration. If `poetry.lock` has a mismatch with its `pyproject.toml` definition, the build will fail. 
 
 Default: `false`
 
@@ -464,7 +464,7 @@ Habushu applies a [custom Maven lifecycle that binds Poetry-based DevSecOps work
 
 ##### validate #####
 
-Ensures that Pyenv and Poetry are installed and utilizes Pyenv to configure the usage of the specified version of Python for the execution of all downstream Python/Poetry operations.
+Ensures that necessary required tools are installed, specifically Pyenv, Poetry, and any needed Poetry plugins. Additionally, if **usePyenv** is enabled, Pyenv will install/configure the specified version of Python to be used in all downstream Python/Poetry operations.
 
 ##### initialize #####
 
@@ -484,7 +484,7 @@ Uses [behave](https://github.com/behave/behave) to execute BDD scenarios that ar
 
 ##### package #####
 
-Builds the `sdist` and `wheel` archives of this project using `poetry build`. It also generates a requirements.txt file which is useful when installing the package in a docker container where you may want to install the dependencies in a specific docker layer to optimize caching.
+Builds the `sdist` and `wheel` archives of this project using `poetry build`. It also generates a `requirements.txt` file which is useful when installing the package in a Docker container where you may want to install the dependencies in a specific Docker layer to optimize caching.
 
 ##### deploy #####
 

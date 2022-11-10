@@ -14,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Facilitates the execution of pyenv commands to help manage the selection and
- * installation of Python versions.
+ * Facilitates the execution of pyenv commands related to managing, selecting,
+ * and installation desired Python versions.
  */
 public class PyenvCommandHelper {
 

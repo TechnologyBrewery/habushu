@@ -111,12 +111,6 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     protected MavenProject project;
 
     /**
-     * Should Habushu use pyenv to manage the utilized version of Python?
-     */
-    @Parameter(defaultValue = "true", property = "habushu.usePyenv")
-    protected boolean usePyenv;
-
-    /**
      * Indicates whether Habushu should leverage the
      * {@code poetry-monorepo-dependency-plugin} to rewrite any local path
      * dependencies (to other Poetry projects) as versioned packaged dependencies in
@@ -149,17 +143,6 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
 	} catch (IOException ioe) {
 	    throw new HabushuException("Could not access file: " + file.getName(), ioe);
 	}
-    }
-
-    /**
-     * Creates a {@link PythonVersionHelper} that may be used to invoke Python
-     * commands from the project's working directory.
-     *
-     * @param pythonVersion The desired version of Python to use
-     * @return
-     */
-    protected PythonVersionHelper createPythonVersionHelper(String pythonVersion) {
-	return new PythonVersionHelper(getPoetryProjectBaseDir(), pythonVersion);
     }
 
     /**
