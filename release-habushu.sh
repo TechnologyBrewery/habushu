@@ -56,7 +56,7 @@ if [[ "$?" -ne 0 ]] ; then
 fi
 
 echo "/////////// Update POM versions to the next development version ///////////"
-mvn versions:set -DnewVersion=$2-SNAPSHOT -DgenerateBackupPoms=false
+mvn versions:set -DnewVersion=$2 -DgenerateBackupPoms=false
 
 if [[ "$?" -ne 0 ]] ; then
   echo 'Process failed! Unable to update POM versions to the next development version!'; exit 1
