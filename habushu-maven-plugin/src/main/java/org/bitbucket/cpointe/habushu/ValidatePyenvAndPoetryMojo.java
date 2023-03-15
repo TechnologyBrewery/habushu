@@ -38,7 +38,7 @@ public class ValidatePyenvAndPoetryMojo extends AbstractHabushuMojo {
      * Specifies the semver compliant requirement for the version of Poetry that
      * must be installed and available for Habushu to use.
      */
-    protected static final String POETRY_VERSION_REQUIREMENT = "~1.2.0";
+    protected static final String POETRY_VERSION_REQUIREMENT = "^1.2.0";
 
     /**
      * The desired version of Python to use.
