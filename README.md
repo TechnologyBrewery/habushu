@@ -1,5 +1,5 @@
 # Habushu #
-[![Maven Central](https://img.shields.io/maven-central/v/org.bitbucket.cpointe.habushu/habushu.svg)](https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.bitbucket.cpointe.habushu%22%20AND%20a%3A%22habushu%22)
+[![Maven Central](https://img.shields.io/maven-central/v/org.technologybrewery.habushu/habushu.svg)](https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.technologybrewery.habushu%22%20AND%20a%3A%22habushu%22)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit)
 
 In Okinawa, habushu (pronounced HA-BU-SHU) is a sake that is made with venomous snake. The alcohol in the snake assists in dissolving the snake's venom and making it non-poinsonous. **In Maven, Habushu allows virtual environment-based Python projects to be included as part a Maven build. This brings some order and consistency to what can otherwise be haphazardly structured projects.**
@@ -83,7 +83,7 @@ Set the `<packaging>` type of your module's `pom.xml` to `habushu`:
 Add the following plugin definition to your module's `pom.xml` `<build>` section:
 ```xml
 	<plugin>
-		<groupId>org.bitbucket.cpointe.habushu</groupId>
+		<groupId>org.technologybrewery.habushu</groupId>
 		<artifactId>habushu-maven-plugin</artifactId>
 		<version>2.0.0</version>
 		<extensions>true</extensions>
@@ -136,7 +136,7 @@ For example, developers may use this feature to bind a Habushu module's `compile
 
 ```xml
 	<plugin>
-		<groupId>org.bitbucket.cpointe.habushu</groupId>
+		<groupId>org.technologybrewery.habushu</groupId>
 		<artifactId>habushu-maven-plugin</artifactId>
 		<extensions>true</extensions>
 		<configuration>
@@ -166,7 +166,7 @@ All Habushu configurations may be set either via the `habushu-maven-plugin`'s `<
 
 ```xml
 	<plugin>
-		<groupId>org.bitbucket.cpointe.habushu</groupId>
+		<groupId>org.technologybrewery.habushu</groupId>
 		<artifactId>habushu-maven-plugin</artifactId>
 		<extensions>true</extensions>
 		<configuration>
@@ -263,7 +263,7 @@ If the Habushu project depends on internal packages that may only be found on a 
 
 ```xml
 	<plugin>
-		<groupId>org.bitbucket.cpointe.habushu</groupId>
+		<groupId>org.technologybrewery.habushu</groupId>
 		<artifactId>habushu-maven-plugin</artifactId>
 		<extensions>true</extensions>
 		<configuration>
@@ -297,7 +297,7 @@ mvn clean install -Dhabushu.withGroups=dev,test
 or
 ```xml
 <plugin>
-    <groupId>org.bitbucket.cpointe.habushu</groupId>
+    <groupId>org.technologybrewery.habushu</groupId>
     <artifactId>habushu-maven-plugin</artifactId>
     <extensions>true</extensions>
     <configuration>
@@ -320,7 +320,7 @@ mvn clean install -Dhabushu.withoutGroups=dev,test
 or
 ```xml
 <plugin>
-    <groupId>org.bitbucket.cpointe.habushu</groupId>
+    <groupId>org.technologybrewery.habushu</groupId>
     <artifactId>habushu-maven-plugin</artifactId>
     <extensions>true</extensions>
     <configuration>
@@ -348,7 +348,7 @@ Whitespace-delimited command arguments that will be provided to `poetry run` to 
 
 ```xml
 	<plugin>
-		<groupId>org.bitbucket.cpointe.habushu</groupId>
+		<groupId>org.technologybrewery.habushu</groupId>
 		<artifactId>habushu-maven-plugin</artifactId>
 		<extensions>true</extensions>
 		<configuration>
@@ -505,9 +505,9 @@ Pyenv is utilized to install and use the specified version of Python, while Poet
 If you encounter the following error, please see the "Building Habushu" section for details on how to use the `bootstrap` profile to appropriately build the `habushu-maven-plugin` and its associated custom Maven lifecycle. This error will typically only occur when attempting to use an in-flight `SNAPSHOT` version of Habushu that is not yet published to the Maven Central repository.
 
 ```
-[WARNING] The POM for org.bitbucket.cpointe.habushu:habushu-maven-plugin:jar:0.0.1-SNAPSHOT is missing, no dependency information available
+[WARNING] The POM for org.technologybrewery.habushu:habushu-maven-plugin:jar:0.0.1-SNAPSHOT is missing, no dependency information available
 [ERROR] [ERROR] Some problems were encountered while processing the POMs:
-[ERROR] Unresolveable build extension: Plugin org.bitbucket.cpointe.habushu:habushu-maven-plugin:0.0.1-SNAPSHOT or one of its dependencies could not be resolved: Could not find artifact org.bitbucket.cpointe.habushu:habushu-maven-plugin:jar:0.0.1-SNAPSHOT @ 
+[ERROR] Unresolveable build extension: Plugin org.technologybrewery.habushu:habushu-maven-plugin:0.0.1-SNAPSHOT or one of its dependencies could not be resolved: Could not find artifact org.technologybrewery.habushu:habushu-maven-plugin:jar:0.0.1-SNAPSHOT @ 
 [ERROR] Unknown packaging: habushu @ line 15, column 13
 ```
 
@@ -518,8 +518,4 @@ If you are working on Habushu, please be aware of some nuances in working with a
 * `mvn clean install -Pbootstrap`: Builds the `habushu-maven-plugin` such that the custom `habushu` lifecycle may be utilized within subsequent builds.
   * **NOTE:** If updates are made to the `habushu` lifecycle (i.e. updates to the `habushu` lifecycle mapping configuration made in `habushu-maven-plugin/src/main/resources/META-INF/plexus/components.xml`), developers **MUST**  changes require two builds to test - one to build the lifecycle, then a second to use that updated lifecycle.  Code changes to `Mojo` classes within the existing `habushu` lifecycle work via normal builds without the need for a second pass.
 * `mvn clean install -Pdefault`: (ACTIVE BY DEFAULT - `-Pdefault` does not need to be specified) builds all modules.  Developers may use this profile to build and apply changes to existing `habushu-maven-plugin` `Mojo` classes
-
-## Release Notes ##
-
-[Release notes can be found of the Habushu wiki](https://fermenter.atlassian.net/wiki/spaces/HAB/pages/1995505666/Release+Notes).
 

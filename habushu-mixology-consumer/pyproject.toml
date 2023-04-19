@@ -2,7 +2,7 @@
 name = "habushu_mixology_consumer"
 version = "2.3.0.dev"
 description = "Example of how to use the habushu-maven-plugin to consume other Habushu modules"
-authors = ["Eric Konieczny <ekonieczny@cpointe-inc.com>"]
+authors = ["Eric Konieczny <ekoniec1@gmail.com>"]
 license = "MIT License"
 
 [tool.poetry.dependencies]

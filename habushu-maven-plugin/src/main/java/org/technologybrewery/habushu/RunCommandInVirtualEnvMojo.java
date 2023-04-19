@@ -1,4 +1,4 @@
-package org.bitbucket.cpointe.habushu;
+package org.technologybrewery.habushu;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,7 +9,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.bitbucket.cpointe.habushu.exec.PoetryCommandHelper;
+import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 
 /**
  * Leverages {@code poetry run} to execute a Python command or script within

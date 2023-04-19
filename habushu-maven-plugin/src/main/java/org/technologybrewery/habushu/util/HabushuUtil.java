@@ -1,4 +1,4 @@
-package org.bitbucket.cpointe.habushu.util;
+package org.technologybrewery.habushu.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
 
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
-import org.bitbucket.cpointe.habushu.HabushuException;
+import org.technologybrewery.habushu.HabushuException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.plexus.components.cipher.PlexusCipherException;

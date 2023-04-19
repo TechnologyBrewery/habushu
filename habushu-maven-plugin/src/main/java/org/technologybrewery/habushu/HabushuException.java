@@ -1,4 +1,4 @@
-package org.bitbucket.cpointe.habushu;
+package org.technologybrewery.habushu;
 
 /**
  * Habushu-specific exception.

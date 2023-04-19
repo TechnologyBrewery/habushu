@@ -1,4 +1,4 @@
-package org.bitbucket.cpointe.habushu;
+package org.technologybrewery.habushu;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,9 +11,9 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
-import org.bitbucket.cpointe.habushu.exec.PoetryCommandHelper;
-import org.bitbucket.cpointe.habushu.exec.PyenvCommandHelper;
-import org.bitbucket.cpointe.habushu.exec.PythonVersionHelper;
+import org.technologybrewery.habushu.exec.PoetryCommandHelper;
+import org.technologybrewery.habushu.exec.PyenvCommandHelper;
+import org.technologybrewery.habushu.exec.PythonVersionHelper;
 
 /**
  * Contains logic common across the various Habushu mojos.
