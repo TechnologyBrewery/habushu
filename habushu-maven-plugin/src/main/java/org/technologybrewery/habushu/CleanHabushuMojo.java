@@ -1,4 +1,4 @@
-package org.bitbucket.cpointe.habushu;
+package org.technologybrewery.habushu;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -13,7 +13,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.clean.CleanMojo;
 import org.apache.maven.plugins.clean.Fileset;
-import org.bitbucket.cpointe.habushu.exec.PoetryCommandHelper;
+import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 
 /**
  * Overrides the default {@link CleanMojo} behavior to additionally delete the

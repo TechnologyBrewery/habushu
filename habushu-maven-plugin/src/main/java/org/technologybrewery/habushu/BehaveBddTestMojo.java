@@ -1,4 +1,4 @@
-package org.bitbucket.cpointe.habushu;
+package org.technologybrewery.habushu;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +17,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.bitbucket.cpointe.habushu.exec.PoetryCommandHelper;
+import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 
 /**
  * Leverages the behave package to execute BDD scenarios that are defined in the

@@ -13,19 +13,19 @@
 					<lifecycle>
 						<id>default</id>
 						<phases>
-							<validate>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:validate-pyenv-and-poetry</validate>
-							<initialize>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:initialize-habushu</initialize>
-							<compile>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:install-dependencies</compile>
-							<process-classes>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:format-python</process-classes>
-							<test>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:behave-bdd-test</test>
-							<package>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:build-deployment-artifacts</package>
-							<deploy>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:publish-to-pypi-repo</deploy>
+							<validate>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:validate-pyenv-and-poetry</validate>
+							<initialize>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:initialize-habushu</initialize>
+							<compile>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:install-dependencies</compile>
+							<process-classes>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:format-python</process-classes>
+							<test>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:behave-bdd-test</test>
+							<package>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:build-deployment-artifacts</package>
+							<deploy>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:publish-to-pypi-repo</deploy>
 						</phases>
 					</lifecycle>
 					<lifecycle>
 						<id>clean</id>
 						<phases>
-							<clean>org.bitbucket.cpointe.habushu:habushu-maven-plugin:${project.version}:clean-habushu</clean>
+							<clean>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:clean-habushu</clean>
 						</phases>
 					</lifecycle>
 				</lifecycles>

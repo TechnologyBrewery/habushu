@@ -1,4 +1,4 @@
-package org.bitbucket.cpointe.habushu;
+package org.technologybrewery.habushu;
 
 import java.util.Arrays;
 
@@ -7,7 +7,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.bitbucket.cpointe.habushu.exec.PoetryCommandHelper;
+import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 
 /**
  * Ensures that the current project is a valid Poetry project and initializes

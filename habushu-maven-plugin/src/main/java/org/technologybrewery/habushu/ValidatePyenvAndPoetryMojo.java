@@ -1,4 +1,4 @@
-package org.bitbucket.cpointe.habushu;
+package org.technologybrewery.habushu;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,9 +12,9 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.bitbucket.cpointe.habushu.exec.PoetryCommandHelper;
-import org.bitbucket.cpointe.habushu.exec.PyenvCommandHelper;
-import org.bitbucket.cpointe.habushu.exec.PythonVersionHelper;
+import org.technologybrewery.habushu.exec.PoetryCommandHelper;
+import org.technologybrewery.habushu.exec.PyenvCommandHelper;
+import org.technologybrewery.habushu.exec.PythonVersionHelper;
 
 import com.vdurmont.semver4j.Semver;
 import com.vdurmont.semver4j.Semver.SemverType;

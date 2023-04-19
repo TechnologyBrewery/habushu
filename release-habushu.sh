@@ -3,7 +3,7 @@
 #This script requires two input parameter, 1)target release version 2)next development version.
 #To run the script, enter a command like this: ./release-habushu.sh <target-release-version> <next-development-version>
 
-#After the script is executed, navigate to bitbucket to create a PR to merge your release branch
+#After the script is executed, navigate to github to create a PR to merge your release branch
 #and validate that the released version of habushu-maven-plugin may be found in Maven Central
 
 echo "////////////////////////////////////////////"

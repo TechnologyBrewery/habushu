@@ -1,7 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.bitbucket.cpointe.habushu</groupId>
+
+	<parent>
+		<groupId>org.technologybrewery</groupId>
+		<artifactId>parent</artifactId>
+		<version>1</version>
+	</parent>
+
+	<groupId>org.technologybrewery.habushu</groupId>
 	<version>2.3.0-SNAPSHOT</version>
 	<artifactId>habushu</artifactId>
 	<packaging>pom</packaging>
@@ -12,7 +18,7 @@
 	   it non-poinsonous. In Maven, habushu allows pyhton projects to be build as part a Maven build.  This brings some order and consistency to what can otherwise be 
 	   haphazardly structured projects.
 	</description>
-	<url>https://bitbucket.org/cpointe/habushu</url>
+	<url>https://github.com/TechnologyBrewery/habushu</url>
 
 	<licenses>
 		<license>
@@ -25,37 +31,24 @@
 	<developers>
 		<developer>
 			<name>Ryan Ashcraft</name>
-			<email>ryan@cpointe-inc.com</email>
-			<organization>Counterpointe Solutions Inc.</organization>
-			<organizationUrl>http://www.cpointe-inc.com</organizationUrl>
+			<email>dryanashcraft@gmail.com</email>
+			<organization>Technology Brewery</organization>
+			<organizationUrl>https://technologybrewery.org</organizationUrl>
 		</developer>
 		<developer>
 			<name>Eric Konieczny</name>
-			<email>ekonieczny@cpointe-inc.com</email>
-			<organization>Counterpointe Solutions Inc.</organization>
-			<organizationUrl>http://www.cpointe-inc.com</organizationUrl>
+			<email>ekoniec1@gmail.com</email>
+			<organization>Technology Brewery</organization>
+			<organizationUrl>https://technologybrewery.org</organizationUrl>
 		</developer>
 	</developers>
 
 	<scm>
-		<connection>scm:git:ssh://git@bitbucket.org/cpointe/habushu.git</connection>
-		<developerConnection>scm:git:ssh://git@bitbucket.org/cpointe/habushu.git</developerConnection>
-		<url>https://bitbucket.org/cpointe/habushu/</url>
+		<connection>scm:git:ssh://git@github.org/TechnologyBrewery/habushu.git</connection>
+		<developerConnection>scm:git:ssh://git@github.org/TechnologyBrewery/habushu.git</developerConnection>
+		<url>https://github.com/TechnologyBrewery/habushu/</url>
 		<tag>HEAD</tag>
 	</scm>
-
-	<distributionManagement>
-		<snapshotRepository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
-
-	<properties>
-		<maven.compiler.release>8</maven.compiler.release>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-	</properties>
 
 	<dependencyManagement>
 		<dependencies>
@@ -81,39 +74,12 @@
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>1.6.13</version>
 				<extensions>true</extensions>
 				<configuration>
 					<serverId>ossrh</serverId>
-					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+					<nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
 					<autoReleaseAfterClose>true</autoReleaseAfterClose>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-enforcer-plugin</artifactId>
-				<version>3.1.0</version>
-				<executions>
-					<execution>
-						<id>enforce-maven</id>
-						<goals>
-							<goal>enforce</goal>
-						</goals>
-						<configuration>
-							<rules>
-								<requireMavenVersion>
-									<version>[3.6,)</version>
-									<message>Error - update your version of maven to at least 3.6.x</message>
-								</requireMavenVersion>
-							</rules>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.10.1</version>
 			</plugin>
 		</plugins>
 	</build>
@@ -140,53 +106,6 @@
 			<modules>
 				<module>habushu-maven-plugin</module>
 			</modules>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-source-plugin</artifactId>
-						<version>3.2.1</version>
-						<executions>
-							<execution>
-								<id>attach-sources</id>
-								<goals>
-									<goal>jar-no-fork</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>3.4.0</version>
-						<configuration>
-							<failOnError>false</failOnError>
-						</configuration>
-						<executions>
-							<execution>
-								<id>attach-javadocs</id>
-								<goals>
-									<goal>jar</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-						<version>3.0.1</version>
-						<executions>
-							<execution>
-								<id>sign-artifacts</id>
-								<phase>verify</phase>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
 		</profile>
 	</profiles>
 </project>
