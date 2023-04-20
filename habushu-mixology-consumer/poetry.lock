@@ -88,7 +88,7 @@ test = ["hypothesis (>=1.11.4,!=3.79.2)", "iso8601", "pretend", "pytest (>=6.2.0
 
 [[package]]
 name = "habushu-mixology"
-version = "2.3.0.dev"
+version = "2.3.0"
 description = "Example of how to use the habushu-maven-plugin"
 category = "main"
 optional = false

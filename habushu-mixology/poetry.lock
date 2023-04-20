@@ -211,7 +211,7 @@ cli = ["click (>=5.0)"]
 
 [[package]]
 name = "setuptools"
-version = "67.6.1"
+version = "67.7.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 category = "dev"
 optional = false
@@ -513,8 +513,8 @@ python-dotenv = [
     {file = "python_dotenv-0.20.0-py3-none-any.whl", hash = "sha256:d92a187be61fe482e4fd675b6d52200e7be63a12b724abbf931a40ce4fa92938"},
 ]
 setuptools = [
-    {file = "setuptools-67.6.1-py3-none-any.whl", hash = "sha256:e728ca814a823bf7bf60162daf9db95b93d532948c4c0bea762ce62f60189078"},
-    {file = "setuptools-67.6.1.tar.gz", hash = "sha256:257de92a9d50a60b8e22abfcbb771571fde0dbf3ec234463212027a4eeecbe9a"},
+    {file = "setuptools-67.7.0-py3-none-any.whl", hash = "sha256:888be97fde8cc3afd60f7784e678fa29ee13c4e5362daa7104a93bba33646c50"},
+    {file = "setuptools-67.7.0.tar.gz", hash = "sha256:b7e53a01c6c654d26d2999ee033d8c6125e5fa55f03b7b193f937ae7ac999f22"},
 ]
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
