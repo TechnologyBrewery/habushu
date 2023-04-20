@@ -44,8 +44,8 @@
 	</developers>
 
 	<scm>
-		<connection>scm:git:ssh://git@github.org/TechnologyBrewery/habushu.git</connection>
-		<developerConnection>scm:git:ssh://git@github.org/TechnologyBrewery/habushu.git</developerConnection>
+		<connection>scm:git:ssh://git@github.com/TechnologyBrewery/habushu.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/TechnologyBrewery/habushu.git</developerConnection>
 		<url>https://github.com/TechnologyBrewery/habushu/</url>
 		<tag>HEAD</tag>
 	</scm>
