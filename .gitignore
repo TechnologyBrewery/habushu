@@ -61,3 +61,5 @@ Thumbs.db
 poetry.toml
 # https://python-poetry.org/docs/configuration/#virtualenvsin-project
 .venv
+/habushu-mixology/poetry.lock
+/habushu-mixology-consumer/poetry.lock
