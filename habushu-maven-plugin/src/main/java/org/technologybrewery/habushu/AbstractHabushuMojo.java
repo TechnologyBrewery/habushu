@@ -132,37 +132,37 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     /**
      * Gets the canonical path for a file without having to deal w/ checked
      * exceptions.
-     * 
+     *
      * @param file file for which to get the canonical format
      * @return canonical format
      */
     protected String getCanonicalPathForFile(File file) {
-	try {
-	    return file.getCanonicalPath();
+        try {
+            return file.getCanonicalPath();
 
-	} catch (IOException ioe) {
-	    throw new HabushuException("Could not access file: " + file.getName(), ioe);
-	}
+        } catch (IOException ioe) {
+            throw new HabushuException("Could not access file: " + file.getName(), ioe);
+        }
     }
 
     /**
      * Creates a {@link PyenvCommandHelper} that may be used to invoke Pyenv
      * commands from the project's working directory.
-     * 
+     *
      * @return
      */
     protected PyenvCommandHelper createPyenvCommandHelper() {
-	return new PyenvCommandHelper(getPoetryProjectBaseDir());
+        return new PyenvCommandHelper(getPoetryProjectBaseDir());
     }
 
     /**
      * Creates a {@link PoetryCommandHelper} that may be used to invoke Poetry
      * commands from the project's working directory.
-     * 
+     *
      * @return
      */
     protected PoetryCommandHelper createPoetryCommandHelper() {
-	return new PoetryCommandHelper(getPoetryProjectBaseDir());
+        return new PoetryCommandHelper(getPoetryProjectBaseDir());
     }
 
     /**
@@ -170,17 +170,17 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * the basedir of the encapsulating Maven project.
      */
     protected File getPoetryProjectBaseDir() {
-	return this.project.getBasedir();
+        return this.project.getBasedir();
     }
 
     /**
      * Returns a {@link File} representing this project's Poetry pyproject.toml
      * configuration.
-     * 
+     *
      * @return
      */
     protected File getPoetryPyProjectTomlFile() {
-	return new File(getPoetryProjectBaseDir(), "pyproject.toml");
+        return new File(getPoetryProjectBaseDir(), "pyproject.toml");
     }
 
     /**
@@ -201,42 +201,42 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * <p>
      * If the provided POM version is a release version, it is expected to align
      * with a valid PEP-440 final release version and is returned unmodified.
-     * 
+     *
      * @param pomVersion POM version of the encapsulating module in which Habushu is
      *                   being executed.
      * @return version number of the encapsulated Python package, appropriately
-     *         formatted by the given parameters.
+     * formatted by the given parameters.
      */
     protected String getPythonPackageVersion(String pomVersion, boolean addSnapshotNumber,
-	    String snapshotNumberDateFormatPattern) {
-	String pythonPackageVersion = pomVersion;
+                                             String snapshotNumberDateFormatPattern) {
+        String pythonPackageVersion = pomVersion;
 
-	if (isPomVersionSnapshot(pomVersion)) {
-	    pythonPackageVersion = pomVersion.substring(0, pomVersion.indexOf("-SNAPSHOT")) + ".dev";
+        if (isPomVersionSnapshot(pomVersion)) {
+            pythonPackageVersion = pomVersion.substring(0, pomVersion.indexOf("-SNAPSHOT")) + ".dev";
 
-	    if (addSnapshotNumber) {
-		String snapshotNumber;
-		LocalDateTime currentTime = LocalDateTime.now();
+            if (addSnapshotNumber) {
+                String snapshotNumber;
+                LocalDateTime currentTime = LocalDateTime.now();
 
-		if (StringUtils.isNotEmpty(snapshotNumberDateFormatPattern)) {
-		    snapshotNumber = currentTime.format(DateTimeFormatter.ofPattern(snapshotNumberDateFormatPattern));
-		} else {
-		    snapshotNumber = String.valueOf(currentTime.toEpochSecond(ZoneOffset.UTC));
-		}
-		pythonPackageVersion += snapshotNumber;
-	    }
-	}
+                if (StringUtils.isNotEmpty(snapshotNumberDateFormatPattern)) {
+                    snapshotNumber = currentTime.format(DateTimeFormatter.ofPattern(snapshotNumberDateFormatPattern));
+                } else {
+                    snapshotNumber = String.valueOf(currentTime.toEpochSecond(ZoneOffset.UTC));
+                }
+                pythonPackageVersion += snapshotNumber;
+            }
+        }
 
-	return pythonPackageVersion;
+        return pythonPackageVersion;
     }
 
     /**
      * Returns whether the given POM version is a SNAPSHOT version.
-     * 
+     *
      * @param pomVersion
      * @return
      */
     protected boolean isPomVersionSnapshot(String pomVersion) {
-	return pomVersion.endsWith("-SNAPSHOT");
+        return pomVersion.endsWith("-SNAPSHOT");
     }
 }
