@@ -27,8 +27,18 @@
 						<!-- Skips any scenarios tagged with @integration-test - these will 
 							be executed via the "integration-test" Maven profile -->
 						<behaveOptions>--tags ~integration_test</behaveOptions>
+						<managedDependencies>
+							<packageDefinition>
+								<packageName>black</packageName>
+								<operatorAndVersion>^23.3.0</operatorAndVersion>
+                                <!-- optional - active is true by default:-->
+                                <active>true</active> 
+							</packageDefinition>
+						</managedDependencies>
+						<updateManagedDependenciesWhenFound>false</updateManagedDependenciesWhenFound>
+                        <failOnManagedDependenciesMismatches>false</failOnManagedDependenciesMismatches>
 					</configuration>
-					<!-- Utilize the run-command-in-virtual-env goal to demonstrate how 
+					<!-- Utilize the run-command-in-virtual-env goal to demonstrate how
 						commands/scripts may be executed via "poetry run" and bound to the build 
 						lifecycle phases -->
 					<executions>
