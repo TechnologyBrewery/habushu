@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "habushu_mixology"
+version = "2.4.0.dev"
+description = "Example of how to use the habushu-maven-plugin"
+authors = ["Eric Konieczny <ekoniec1@gmail.com>"]
+license = "MIT License"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+krausening = "16"
+cryptography = "^39.0.1"
+
+[tool.poetry.dev-dependencies]
+black = "^18.0.0"
+behave = "^1.2.6"
+grpcio-tools = "^1.48.0"
+python-dotenv = "^0.20.0"
+
+[tool.poetry.group.custom.dependencies]
+packageFoo = "^1.0.0"
+packageBar = "^2.0.0"
+
+[tool.poetry.group.test]
+packageFooTest = "^10.0"
+packageBarTest = "^23"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

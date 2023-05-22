@@ -458,6 +458,40 @@ Folder in which Python test files are located - should align with Poetry's proje
 
 Default: `${project.basedir}/tests`
 
+#### managedDependencies ####
+
+Optional set of dependencies to manage across modules extending a parent pom. This allows packages to be managed to a specific version, which is often useful to ensure that information assurance patches, common versions, etc. are enforced across a series of modules. Can be used with the next several variables to control automatic update, logging, or failing the build when mismatches are found between the managed dependency operator/version and what is currently specified. Looks at dependencies in `[tool.poetry.dependencies]`, `[tool.poetry.dev-dependencies]`, and any `[tool.poetry.group.<subgroup>]` of your `pyproject.toml`.
+```xml
+<plugin>
+	<groupId>org.technologybrewery.habushu</groupId>
+	<artifactId>habushu-maven-plugin</artifactId>
+	...
+	<configuration>
+		<managedDependencies>
+			<packageDefinition>
+				<packageName>black</packageName>
+				<operatorAndVersion>^23.3.0</operatorAndVersion>
+				<!-- active defaults to true, but can be used to overriden in child pom.xml files to remove or add managed dependencies at each level: -->
+				<active>true</active>
+			</packageDefinition>
+		</managedDependencies>
+		...
+	</configuration>
+</plugin>
+```
+
+#### updateManagedDependenciesWhenFound ####
+
+Determines if managed dependency mismatches are automatically updated when encountered.
+
+Default: `true`
+
+#### failOnManagedDependenciesMismatches ####
+
+Determines if the build should be failed when managed dependency mismatches are found.
+
+Default: `false`
+
 ## The Habushu Build Lifecycle ##
 
 Habushu applies a [custom Maven lifecycle that binds Poetry-based DevSecOps workflow commands](https://fermenter.atlassian.net/wiki/spaces/HAB/pages/2056749057/Dependency+Management+and+Build+Automation+through+Poetry+and+Maven) to the following phases:
