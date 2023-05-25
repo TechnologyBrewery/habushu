@@ -5,6 +5,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.junit.jupiter.api.Assertions;
 
 import java.io.File;
@@ -62,7 +63,7 @@ public class DependencyManagementSteps {
         List<PackageDefinition> managedDependencies = new ArrayList<>();
         PackageDefinition packageDefinition = new PackageDefinition();
         packageDefinition.setPackageName(packageName);
-        packageDefinition.setOperatorAndVersion(operatorAndVersion);
+        packageDefinition.setOperatorAndVersion(StringEscapeUtils.unescapeJava(operatorAndVersion));
         packageDefinition.setActive(isActive);
         managedDependencies.add(packageDefinition);
 
@@ -97,7 +98,7 @@ public class DependencyManagementSteps {
 
     @Then("the pyproject.toml file has updates")
     public void the_pyproject_toml_file_has_updates() throws IOException {
-        Assertions.assertFalse(FileUtils.contentEquals(originalPyProjectToml, finalPyProjectToml), "Unexpected pyproject.toml changes found!");
+        Assertions.assertFalse(FileUtils.contentEquals(originalPyProjectToml, finalPyProjectToml), "Expected pyproject.toml changes, but found none!");
     }
 
     @Then("the build process is halted")

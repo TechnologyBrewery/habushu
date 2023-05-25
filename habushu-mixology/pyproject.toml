@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "habushu_mixology"
-version = "2.5.0.dev"
+version = "2.4.1.dev"
 description = "Example of how to use the habushu-maven-plugin"
 authors = ["Eric Konieczny <ekoniec1@gmail.com>"]
 license = "MIT License"
@@ -9,6 +9,7 @@ license = "MIT License"
 python = "^3.9"
 krausening = "16"
 cryptography = "^39.0.1"
+uvicorn = {version = "^0.18.0", extras = ["standard"]}
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"

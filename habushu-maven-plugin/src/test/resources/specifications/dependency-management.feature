@@ -34,10 +34,12 @@ Feature: Test dependency management capabilities to help align package versions 
     Then the pyproject.toml file has updates
 
     Examples:
-      | package | operatorAndVersion |
-      | black   | ^23.3.0            |
-      | black   | >=17.0.0           |
-      | behave  | ^1.2.7             |
+      | package | operatorAndVersion                                               |
+      | uvicorn | ^0.18.0                                      |
+      | uvicorn | {version = \u0022^0.18.0\u0022, extras = [\u0022standard\u0022]} |
+      | black   | ^23.3.0                                      |
+      | black   | >=17.0.0                                     |
+      | behave  | ^1.2.7                                       |
 
   Scenario Outline: [tool.poetry.group.<group>] dependency is changed when managed and not matching current value
     Given a Habushu configuration with a managed dependency of "<package>" and "<operatorAndVersion>"
