@@ -1,5 +1,6 @@
 package org.technologybrewery.habushu;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.file.FileConfig;
 import org.apache.commons.collections4.CollectionUtils;
@@ -281,7 +282,8 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
             for (PackageDefinition def : managedDependencies) {
                 String packageName = def.getPackageName();
                 if (dependencyMap.containsKey(packageName)) {
-                    String originalOperatorAndVersion = (String) dependencyMap.get(packageName);
+                    Object packageRhs = dependencyMap.get(packageName);
+                    String originalOperatorAndVersion = getOperatorAndVersion(packageRhs);
                     String updatedOperatorAndVersion = def.getOperatorAndVersion();
 
                     boolean mismatch = !originalOperatorAndVersion.equals(updatedOperatorAndVersion);
@@ -294,7 +296,7 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
                             getLog().info(String.format("Package %s is not up to date with common project package definition guidance, "
                                     + "but the check has been inactivated", packageName));
                         }
-                   }
+                    }
                 }
             }
         }
@@ -360,8 +362,8 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
 
                                 TomlReplacementTuple matchedTuple = replacements.get(key);
                                 if (matchedTuple != null) {
-                                    String original = DOUBLE_QUOTE + matchedTuple.getOriginalOperatorAndVersion() + DOUBLE_QUOTE;
-                                    String updated = DOUBLE_QUOTE + matchedTuple.getUpdatedOperatorAndVersion() + DOUBLE_QUOTE;
+                                    String original = escapeTomlRightHandSide(matchedTuple.getOriginalOperatorAndVersion());
+                                    String updated = escapeTomlRightHandSide(matchedTuple.getUpdatedOperatorAndVersion());
 
                                     if (line.endsWith(original)) {
                                         line = line.replace(original, updated);
@@ -386,6 +388,16 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
         }
     }
 
+    /**
+     * Handles escaping with double quotes only if the value is not an inline table.
+     *
+     * @param valueToEscape value to potentially escape
+     * @return value ready to write to toml file
+     */
+    protected static String escapeTomlRightHandSide(String valueToEscape) {
+        return (!valueToEscape.contains("{")) ? DOUBLE_QUOTE + valueToEscape + DOUBLE_QUOTE : valueToEscape;
+    }
+
     private static void writeTomlFile(File pyProjectTomlFile, String fileContent) {
         if (fileContent != null) {
             try (Writer writer = new FileWriter(pyProjectTomlFile)) {
@@ -394,6 +406,47 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
                 throw new HabushuException("Problem writing pyproject.toml with managed dependency updates!", e);
             }
         }
+    }
+
+    protected String getOperatorAndVersion(Object rawData) {
+        String operatorAndVersion = null;
+        if (rawData instanceof String) {
+            operatorAndVersion = (String) rawData;
+
+        } else if (rawData instanceof CommentedConfig) {
+            operatorAndVersion = convertCommentedConfigToToml((CommentedConfig) rawData);
+
+        } else {
+            getLog().warn(String.format("Could not process type %s - attempting to use toString() value!", rawData.getClass()));
+            operatorAndVersion = rawData.toString();
+        }
+
+        return operatorAndVersion;
+
+    }
+
+    protected static String convertCommentedConfigToToml(CommentedConfig config) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        sb.append("version = \"").append(config.get("version").toString()).append("\"");
+        List<String> extras = config.get("extras");
+        if (CollectionUtils.isNotEmpty(extras)) {
+            sb.append(", extras = [");
+            // NB: if we expect more complex values, such as multiple extras, more work would need to be done for
+            // both consistent formatting and comparison of these values.  However, at the time of initially writing
+            // this method, there isn't a clear demand signal, so we are going to KISS for now:
+
+            for (int i = 0; i < extras.size(); i++) {
+                if (i > 0) {
+                    sb.append(", ");
+                }
+                sb.append("\"").append(extras.get(i)).append("\"");
+            }
+            sb.append("]");
+        }
+        sb.append("}");
+
+        return sb.toString();
     }
 
     private class TomlReplacementTuple {
