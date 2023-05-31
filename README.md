@@ -1,6 +1,7 @@
 # Habushu #
 [![Maven Central](https://img.shields.io/maven-central/v/org.technologybrewery.habushu/habushu.svg)](https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.technologybrewery.habushu%22%20AND%20a%3A%22habushu%22)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit)
+[![Build (github)](https://github.com/TechnologyBrewery/habushu/actions/workflows/maven.yaml/badge.svg)](https://github.com/TechnologyBrewery/habushu/actions/workflows/maven.yaml) |
 
 In Okinawa, habushu (pronounced HA-BU-SHU) is a sake that is made with venomous snake. The alcohol in the snake assists in dissolving the snake's venom and making it non-poinsonous. **In Maven, Habushu allows virtual environment-based Python projects to be included as part a Maven build. This brings some order and consistency to what can otherwise be haphazardly structured projects.**
 
