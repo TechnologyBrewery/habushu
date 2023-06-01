@@ -1,46 +1,63 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.technologybrewery.habushu</groupId>
-		<artifactId>habushu</artifactId>
-		<version>2.5.0-SNAPSHOT</version>
-	</parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.technologybrewery.habushu</groupId>
+        <artifactId>habushu</artifactId>
+        <version>2.5.0-SNAPSHOT</version>
+    </parent>
 
-	<name>habushu::Mixing Drinks with Habushu consumer</name>
-	<description>Example of how to use the habushu-maven-plugin to consume other Habushu modules</description>
+    <name>habushu::Mixing Drinks with Habushu consumer</name>
+    <description>Example of how to use the habushu-maven-plugin to consume other Habushu modules</description>
 
-	<artifactId>habushu-mixology-consumer</artifactId>
-	<packaging>habushu</packaging>
+    <artifactId>habushu-mixology-consumer</artifactId>
+    <packaging>habushu</packaging>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.technologybrewery.habushu</groupId>
-				<artifactId>habushu-maven-plugin</artifactId>
-				<version>${project.version}</version>
-				<extensions>true</extensions>
-				<configuration>
-					<pythonVersion>${version.python.default}</pythonVersion>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.technologybrewery.habushu</groupId>
+                <artifactId>habushu-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <pythonVersion>${version.python.default}</pythonVersion>
+                    <managedDependencies>
+                        <packageDefinition>
+                            <packageName>black</packageName>
+                            <operatorAndVersion>^23.3.0</operatorAndVersion>
+                            <!-- optional - active is true by default:-->
+                            <active>true</active>
+                        </packageDefinition>
+                        <packageDefinition>
+                            <packageName>uvicorn</packageName>
+                            <operatorAndVersion>^0.18.0</operatorAndVersion>
+                        </packageDefinition>
+                        <packageDefinition>
+                            <packageName>habushu-mixology</packageName>
+                            <operatorAndVersion>${project.version}</operatorAndVersion>
+                        </packageDefinition>
+                    </managedDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
-	<profiles>
-		<profile>
-			<id>tagged-tests</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.technologybrewery.habushu</groupId>
-						<artifactId>habushu-maven-plugin</artifactId>
-						<configuration>
-							<!-- Use this profile to test specific tagged tests -->
-							<behaveOptions>--tags ${tags}</behaveOptions>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+    <profiles>
+        <profile>
+            <id>tagged-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.technologybrewery.habushu</groupId>
+                        <artifactId>habushu-maven-plugin</artifactId>
+                        <configuration>
+                            <!-- Use this profile to test specific tagged tests -->
+                            <behaveOptions>--tags ${tags}</behaveOptions>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

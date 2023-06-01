@@ -1,90 +1,91 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.technologybrewery.habushu</groupId>
-		<artifactId>habushu</artifactId>
-		<version>2.5.0-SNAPSHOT</version>
-	</parent>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.technologybrewery.habushu</groupId>
+        <artifactId>habushu</artifactId>
+        <version>2.5.0-SNAPSHOT</version>
+    </parent>
 
-	<name>habushu::Mixing Drinks with Habushu</name>
-	<description>Example of how to use the habushu-maven-plugin</description>
+    <name>habushu::Mixing Drinks with Habushu</name>
+    <description>Example of how to use the habushu-maven-plugin</description>
 
-	<artifactId>habushu-mixology</artifactId>
-	<packaging>habushu</packaging>
+    <artifactId>habushu-mixology</artifactId>
+    <packaging>habushu</packaging>
 
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.technologybrewery.habushu</groupId>
-					<artifactId>habushu-maven-plugin</artifactId>
-					<version>${project.version}</version>
-					<extensions>true</extensions>
-					<configuration>
-						<pythonVersion>${version.python.default}</pythonVersion>
-						<!-- Skips any scenarios tagged with @integration-test - these will 
-							be executed via the "integration-test" Maven profile -->
-						<behaveOptions>--tags ~integration_test</behaveOptions>
-						<managedDependencies>
-							<packageDefinition>
-								<packageName>black</packageName>
-								<operatorAndVersion>^23.3.0</operatorAndVersion>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.technologybrewery.habushu</groupId>
+                    <artifactId>habushu-maven-plugin</artifactId>
+                    <version>${project.version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <pythonVersion>${version.python.default}</pythonVersion>
+                        <!-- Skips any scenarios tagged with @integration-test - these will
+                            be executed via the "integration-test" Maven profile -->
+                        <behaveOptions>--tags ~integration_test</behaveOptions>
+                        <managedDependencies>
+                            <packageDefinition>
+                                <packageName>black</packageName>
+                                <operatorAndVersion>^23.3.0</operatorAndVersion>
                                 <!-- optional - active is true by default:-->
-                                <active>true</active> 
-							</packageDefinition>
-							<packageDefinition>
+                                <active>true</active>
+                            </packageDefinition>
+                            <packageDefinition>
                                 <packageName>uvicorn</packageName>
                                 <operatorAndVersion>^0.18.0</operatorAndVersion>
                             </packageDefinition>
-						</managedDependencies>
-						<updateManagedDependenciesWhenFound>false</updateManagedDependenciesWhenFound>
+                        </managedDependencies>
+                        <updateManagedDependenciesWhenFound>false</updateManagedDependenciesWhenFound>
                         <failOnManagedDependenciesMismatches>false</failOnManagedDependenciesMismatches>
-					</configuration>
-					<!-- Utilize the run-command-in-virtual-env goal to demonstrate how
-						commands/scripts may be executed via "poetry run" and bound to the build 
-						lifecycle phases -->
-					<executions>
-						<execution>
-							<configuration>
-								<runCommandArgs>python -m grpc_tools.protoc -I=src
-									--python_out=src/habushu_mixology/generated src/person.proto</runCommandArgs>
-							</configuration>
-							<id>generate-protobuf-bindings</id>
-							<phase>compile</phase>
-							<goals>
-								<goal>run-command-in-virtual-env</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-		<plugins>
-			<plugin>
-				<groupId>org.technologybrewery.habushu</groupId>
-				<artifactId>habushu-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
+                    </configuration>
+                    <!-- Utilize the run-command-in-virtual-env goal to demonstrate how
+                        commands/scripts may be executed via "poetry run" and bound to the build
+                        lifecycle phases -->
+                    <executions>
+                        <execution>
+                            <configuration>
+                                <runCommandArgs>python -m grpc_tools.protoc -I=src
+                                    --python_out=src/habushu_mixology/generated src/person.proto
+                                </runCommandArgs>
+                            </configuration>
+                            <id>generate-protobuf-bindings</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>run-command-in-virtual-env</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.technologybrewery.habushu</groupId>
+                <artifactId>habushu-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
-	<profiles>
-		<profile>
-			<id>integration-test</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.technologybrewery.habushu</groupId>
-						<artifactId>habushu-maven-plugin</artifactId>
-						<configuration>
-							<!-- Demonstrates how different sets of environment variables may 
-								be injected into the virtual environment when executing tests through behave -->
-							<behaveOptions>-D environment=integration_test --tags integration_test</behaveOptions>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+    <profiles>
+        <profile>
+            <id>integration-test</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.technologybrewery.habushu</groupId>
+                        <artifactId>habushu-maven-plugin</artifactId>
+                        <configuration>
+                            <!-- Demonstrates how different sets of environment variables may
+                                be injected into the virtual environment when executing tests through behave -->
+                            <behaveOptions>-D environment=integration_test --tags integration_test</behaveOptions>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

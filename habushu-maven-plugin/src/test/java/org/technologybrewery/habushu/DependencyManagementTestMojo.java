@@ -15,6 +15,7 @@ public class DependencyManagementTestMojo extends InstallDependenciesMojo {
 
         //mimic defaults in Mojo:
         this.updateManagedDependenciesWhenFound = true;
+        this.overridePackageVersion = true;
     }
 
     void setManagedDependencies(List<PackageDefinition> managedDependencies) {

@@ -6,9 +6,12 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,6 +84,10 @@ public class DependencyManagementSteps {
         mojo.setFailOnManagedDependenciesMismatches(true);
     }
 
+    @Given("replace development version is disabled")
+    public void replace_development_version_is_disabled() {
+        mojo.overridePackageVersion = false;
+    }
 
     @When("Habushu executes")
     public void habushu_executes() throws Exception {
@@ -104,6 +111,27 @@ public class DependencyManagementSteps {
     @Then("the build process is halted")
     public void the_build_process_is_halted() {
         Assertions.assertNotNull(encounteredException, "An exception should have been thrown to stop the build!");
+    }
+
+    @Then("the pyproject.toml file is updated to contain {string} and {string}")
+    public void the_pyproject_toml_file_is_updated_to_contain_and(String packageName, String updatedOperatorAndVersion) throws Exception {
+        String expectedTomlUpdate = packageName + " = \"" + updatedOperatorAndVersion + "\"";
+
+        boolean foundMatch = false;
+        try (BufferedReader reader = new BufferedReader(new FileReader(finalPyProjectToml))) {
+            String line = reader.readLine();
+
+            while (line != null) {
+                if (line.equals(expectedTomlUpdate)) {
+                    foundMatch = true;
+                }
+
+                line = reader.readLine();
+            }
+        }
+
+        Assertions.assertTrue(foundMatch, "Expected to find the following update: " + expectedTomlUpdate);
+
     }
 
     private void createPyProjectTomlFiles() throws IOException {

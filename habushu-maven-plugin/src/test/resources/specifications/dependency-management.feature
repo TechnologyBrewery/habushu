@@ -35,11 +35,11 @@ Feature: Test dependency management capabilities to help align package versions 
 
     Examples:
       | package | operatorAndVersion                                               |
-      | uvicorn | ^0.18.0                                      |
+      | uvicorn | ^0.18.0                                                          |
       | uvicorn | {version = \u0022^0.18.0\u0022, extras = [\u0022standard\u0022]} |
-      | black   | ^23.3.0                                      |
-      | black   | >=17.0.0                                     |
-      | behave  | ^1.2.7                                       |
+      | black   | ^23.3.0                                                          |
+      | black   | >=17.0.0                                                         |
+      | behave  | ^1.2.7                                                           |
 
   Scenario Outline: [tool.poetry.group.<group>] dependency is changed when managed and not matching current value
     Given a Habushu configuration with a managed dependency of "<package>" and "<operatorAndVersion>"
@@ -54,12 +54,43 @@ Feature: Test dependency management capabilities to help align package versions 
       | packageBarTest | ^0.9.0             |
 
   Scenario: Inactive managed dependencies are skipped
-    Given a Habushu configuration with an inactive managed dependency of "<package>" and "<operatorAndVersion>"
+    Given a Habushu configuration with a managed dependency of "<package>" and "<operatorAndVersion>"
     When Habushu executes
-    Then the pyproject.toml file has no updates
+    Then the pyproject.toml file has updates
 
     Examples:
       | package    | operatorAndVersion |
       | krausening | 15                 |
       | black      | ^23.3.0            |
       | packageFoo | ^1.1.0             |
+
+  Scenario: SNAPSHOT managed dependencies get corrected to dev dependencies by default (overridePackageVersion is true)
+    Given a Habushu configuration with a managed dependency of "<package>" and "<operatorAndVersion>"
+    When Habushu executes
+    Then the pyproject.toml file is updated to contain "<package>" and "<updatedOperatorAndVersion>"
+
+    Examples:
+      | package   | operatorAndVersion | updatedOperatorAndVersion |
+      | package-a | 1.1.0-SNAPSHOT     | 1.1.0.dev                 |
+      | package-b | 2-SNAPSHOT         | 2.dev                     |
+
+  Scenario: SNAPSHOT managed dependencies do NOT get corrected to dev dependencies when overridePackageVersion is false
+    Given a Habushu configuration with a managed dependency of "<package>" and "<operatorAndVersion>"
+    And replace development version is disabled
+    When Habushu executes
+    Then the pyproject.toml file is updated to contain "<package>" and "<operatorAndVersion>"
+
+    Examples:
+      | package   | operatorAndVersion |
+      | package-a | 1.1.0-SNAPSHOT     |
+      | package-b | 2-SNAPSHOT         |
+
+  Scenario: Skip altering local development versions when processing SNAPSHOT managed dependencies
+    Given a Habushu configuration with a managed dependency of "<package>" and "<operatorAndVersion>"
+    When Habushu executes
+    Then the pyproject.toml file has no updates
+
+    Examples:
+      | package                     | operatorAndVersion |
+      | local-dev-package-example-a | 10-SNAPSHOT        |
+      | local-dev-package-example-b | 2.14.5-SNAPSHOT    |

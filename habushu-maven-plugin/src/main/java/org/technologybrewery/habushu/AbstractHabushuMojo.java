@@ -13,12 +13,13 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 import org.technologybrewery.habushu.exec.PyenvCommandHelper;
-import org.technologybrewery.habushu.exec.PythonVersionHelper;
 
 /**
  * Contains logic common across the various Habushu mojos.
  */
 public abstract class AbstractHabushuMojo extends AbstractMojo {
+
+    protected static final String SNAPSHOT = "-SNAPSHOT";
 
     /**
      * The current Maven user's settings, pulled dynamically from their settings.xml
@@ -212,7 +213,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
         String pythonPackageVersion = pomVersion;
 
         if (isPomVersionSnapshot(pomVersion)) {
-            pythonPackageVersion = pomVersion.substring(0, pomVersion.indexOf("-SNAPSHOT")) + ".dev";
+            pythonPackageVersion = replaceSnapshotWithDev(pomVersion);
 
             if (addSnapshotNumber) {
                 String snapshotNumber;
@@ -230,6 +231,10 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
         return pythonPackageVersion;
     }
 
+    protected static String replaceSnapshotWithDev(String pomVersion) {
+        return pomVersion.substring(0, pomVersion.indexOf(SNAPSHOT)) + ".dev";
+    }
+
     /**
      * Returns whether the given POM version is a SNAPSHOT version.
      *
@@ -237,6 +242,6 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * @return
      */
     protected boolean isPomVersionSnapshot(String pomVersion) {
-        return pomVersion.endsWith("-SNAPSHOT");
+        return pomVersion.endsWith(SNAPSHOT);
     }
 }

@@ -283,21 +283,38 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
                 String packageName = def.getPackageName();
                 if (dependencyMap.containsKey(packageName)) {
                     Object packageRhs = dependencyMap.get(packageName);
-                    String originalOperatorAndVersion = getOperatorAndVersion(packageRhs);
-                    String updatedOperatorAndVersion = def.getOperatorAndVersion();
 
-                    boolean mismatch = !originalOperatorAndVersion.equals(updatedOperatorAndVersion);
-
-                    if (mismatch) {
-                        if (def.isActive()) {
-                            TomlReplacementTuple tuple = new TomlReplacementTuple(packageName, originalOperatorAndVersion, updatedOperatorAndVersion);
-                            replacements.put(packageName, tuple);
-                        } else {
-                            getLog().info(String.format("Package %s is not up to date with common project package definition guidance, "
-                                    + "but the check has been inactivated", packageName));
-                        }
+                    if (representsLocalDevelopmentVersion(packageRhs)) {
+                        getLog().info(String.format("%s does not have a specific version to manage - skipping", packageName));
+                        getLog().debug(String.format("\t %s", packageRhs.toString()));
+                        continue;
                     }
+
+                    performComparisonAndStageNeededChanges(replacements, def, packageRhs);
                 }
+            }
+        }
+    }
+
+    private void performComparisonAndStageNeededChanges(Map<String, TomlReplacementTuple> replacements, PackageDefinition def, Object packageRhs) {
+        String originalOperatorAndVersion = getOperatorAndVersion(packageRhs);
+        String updatedOperatorAndVersion = def.getOperatorAndVersion();
+
+        String packageName = def.getPackageName();
+
+        if (overridePackageVersion && updatedOperatorAndVersion.contains(SNAPSHOT)) {
+            updatedOperatorAndVersion = replaceSnapshotWithDev(updatedOperatorAndVersion);
+        }
+
+        boolean mismatch = !originalOperatorAndVersion.equals(updatedOperatorAndVersion);
+
+        if (mismatch) {
+            if (def.isActive()) {
+                TomlReplacementTuple tuple = new TomlReplacementTuple(packageName, originalOperatorAndVersion, updatedOperatorAndVersion);
+                replacements.put(packageName, tuple);
+            } else {
+                getLog().info(String.format("Package %s is not up to date with common project package definition guidance, "
+                        + "but the check has been inactivated", packageName));
             }
         }
     }
@@ -408,6 +425,20 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
         }
     }
 
+    protected boolean representsLocalDevelopmentVersion(Object rawData) {
+        boolean localDevelopmentVersion = false;
+
+        if (rawData instanceof CommentedConfig) {
+            CommentedConfig config = (CommentedConfig) rawData;
+            if (!config.contains("version")) {
+                localDevelopmentVersion = true;
+            }
+
+        }
+
+        return localDevelopmentVersion;
+    }
+
     protected String getOperatorAndVersion(Object rawData) {
         String operatorAndVersion = null;
         if (rawData instanceof String) {
@@ -428,6 +459,7 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
     protected static String convertCommentedConfigToToml(CommentedConfig config) {
         StringBuilder sb = new StringBuilder();
         sb.append("{");
+
         sb.append("version = \"").append(config.get("version").toString()).append("\"");
         List<String> extras = config.get("extras");
         if (CollectionUtils.isNotEmpty(extras)) {
