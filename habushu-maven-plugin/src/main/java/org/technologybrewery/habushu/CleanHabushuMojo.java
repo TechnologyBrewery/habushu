@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -14,7 +15,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.clean.CleanMojo;
 import org.apache.maven.plugins.clean.Fileset;
-import org.codehaus.plexus.util.StringUtils;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 
 /**
@@ -110,9 +110,11 @@ public class CleanHabushuMojo extends CleanMojo {
             if (StringUtils.isBlank(virtualEnvFullPath)) {
                 getLog().warn("No Poetry virtual environment was detected for deletion.");
             } else {
+                // Remove (Activated) from path in 1.3.x and higher versions:
+                virtualEnvFullPath = virtualEnvFullPath.replace(" (Activated)", StringUtils.EMPTY);
+
                 String virtualEnvName = new File(virtualEnvFullPath).getName();
                 if (StringUtils.isNotBlank(virtualEnvName)) {
-                    getLog().info(String.format("Deleting virtual environment managed by Poetry %s...", virtualEnvName));
                     poetryHelper.execute(Arrays.asList("env", "remove", virtualEnvName));
                 }
             }
