@@ -303,7 +303,7 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
         String packageName = def.getPackageName();
 
         if (overridePackageVersion && updatedOperatorAndVersion.contains(SNAPSHOT)) {
-            updatedOperatorAndVersion = replaceSnapshotWithDev(updatedOperatorAndVersion);
+            updatedOperatorAndVersion = replaceSnapshotWithWildcard(updatedOperatorAndVersion);
         }
 
         boolean mismatch = !originalOperatorAndVersion.equals(updatedOperatorAndVersion);
@@ -479,6 +479,10 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
         sb.append("}");
 
         return sb.toString();
+    }
+
+    protected static String replaceSnapshotWithWildcard(String pomVersion) {
+        return pomVersion.substring(0, pomVersion.indexOf(SNAPSHOT)) + ".*";
     }
 
     private class TomlReplacementTuple {
