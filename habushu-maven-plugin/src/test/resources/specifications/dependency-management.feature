@@ -71,8 +71,8 @@ Feature: Test dependency management capabilities to help align package versions 
 
     Examples:
       | package   | operatorAndVersion | updatedOperatorAndVersion |
-      | package-a | 1.1.0-SNAPSHOT     | 1.1.0.dev                 |
-      | package-b | 2-SNAPSHOT         | 2.dev                     |
+      | package-a | 1.1.0-SNAPSHOT     | 1.1.0.*                   |
+      | package-b | 2-SNAPSHOT         | 2.*                       |
 
   Scenario: SNAPSHOT managed dependencies do NOT get corrected to dev dependencies when overridePackageVersion is false
     Given a Habushu configuration with a managed dependency of "<package>" and "<operatorAndVersion>"

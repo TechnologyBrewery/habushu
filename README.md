@@ -441,7 +441,7 @@ Default: Number of seconds since epoch
 Specifies whether the version of the encapsulated Poetry package should be automatically managed and overridden where necessary by Habushu. If this property is `true`, Habushu may override the `pyproject.toml` defined version in the following build phases/mojos:
 
 * `validate`: Automatically sets the Poetry package version to the version specified in the POM. If the POM is a `SNAPSHOT`, the Poetry package version will be set to the corresponding developmental release version without a numeric component (i.e. POM version of `1.2.3-SNAPSHOT` will result in the Poetry package version being set to `1.2.3.dev`)
-* `compile`: Automatically set up any `managedDependency` that is a `SNAPSHOT` to instead include `.dev`.  Same result as what happens in the `validate` step above, but operating on `managedDependency` entires instead.  This is useful when you are working with multi-module builds where several versions are covered via managed dependencies.  See `managedDependencies` section below for more context.
+* `compile`: Automatically set up any `managedDependency` that is a `SNAPSHOT` to instead include `.*`.  `.*` is used rather than `.dev` so the latest dev version will resolve as `.dev` is not a valid version.  Same result as what happens in the `validate` step above, but operating on `managedDependency` entries instead.  This is useful when you are working with multi-module builds where several versions are covered via managed dependencies.  See `managedDependencies` section below for more context.
 * `deploy`: Automatically sets the version of published Poetry packages that are `SNAPSHOT` modules to timestamped developmental release versions (i.e. POM version of `1.2.3-SNAPSHOT` will result in the published Poetry package version to to `1.2.3.dev1658238063`). After the package is published, the version of the `SNAPSHOT` module is reverted to its previous value (i.e. `1.2.3.dev`)
 
 If this property is set to `false`, none of the above automated version management operations will be performed.
@@ -475,6 +475,14 @@ Optional set of dependencies to manage across modules extending a parent pom. Th
 				<operatorAndVersion>^23.3.0</operatorAndVersion>
 				<!-- active defaults to true, but can be used to overriden in child pom.xml files to remove or add managed dependencies at each level: -->
 				<active>true</active>
+			</packageDefinition>
+            <packageDefinition>
+				<packageName>some-local-module</packageName>
+				<!-- 
+				  Will follow rules in overridePackageVersion:compile to 
+				  update to a final version of 1.2.3.* to resolve 1.2.3.dev versions 
+				  -->
+				<operatorAndVersion>1.2.3-SNAPSHOT</operatorAndVersion>	              
 			</packageDefinition>
 		</managedDependencies>
 		...
