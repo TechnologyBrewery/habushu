@@ -52,19 +52,12 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<!-- Explicitly upgrading transitive dependency for habushu-maven-plugin 
-				to mitigate vulnerability - httpcomponents:httpcore:4.4.13 -->
+			<!-- Explicitly upgrading transitive dependency for habushu-maven-plugin
+				to mitigate vulnerability - httpcomponents:httpcore:4.4.16 -->
 			<dependency>
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
-				<version>1.15</version>
-			</dependency>
-			<!-- Explicitly upgrading transient dependency for habushu-maven-plugin 
-				to mitigate vulnerability - maven-clean-plugin:3.2.0 -->
-			<dependency>
-				<groupId>commons-io</groupId>
-				<artifactId>commons-io</artifactId>
-				<version>2.7</version>
+				<version>1.16.0</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

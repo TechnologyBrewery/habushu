@@ -7,8 +7,8 @@ license = "MIT License"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-krausening = "16"
-cryptography = "^39.0.1"
+krausening = "17"
+cryptography = "^41.0.3"
 uvicorn = {version = "^0.18.0", extras = ["standard"]}
 
 [tool.poetry.dev-dependencies]

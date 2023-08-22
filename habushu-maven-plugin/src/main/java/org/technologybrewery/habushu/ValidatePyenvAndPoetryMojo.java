@@ -15,7 +15,7 @@ import org.apache.maven.plugins.annotations.Parameter;
  * <ul>
  * <li>pyenv</li>
  * <li>Poetry (installed version must satisfy
- * {@link #POETRY_VERSION_REQUIREMENT})</li>
+ * {@link PyenvAndPoetrySetup#POETRY_VERSION_REQUIREMENT poetryVersion})</li>
  * <li>Required Poetry plugins (currently only
  * {@code poetry-monorepo-dependency-plugin})</li>
  * </ul>
