@@ -64,15 +64,27 @@ Feature: Test dependency management capabilities to help align package versions 
       | black      | ^23.3.0            |
       | packageFoo | ^1.1.0             |
 
-  Scenario: SNAPSHOT managed dependencies get corrected to dev dependencies by default (overridePackageVersion is true)
-    Given a Habushu configuration with a managed dependency of "<package>" and "<operatorAndVersion>"
+  Scenario: SNAPSHOT managed dependencies get corrected to dev dependencies by default with Poetry version 1.5.0 + (overridePackageVersion is true)
+    Given a Habushu configuration with a managed dependency of "<package>" and "<operatorAndVersion>" and "<poetryVersion>"
     When Habushu executes
     Then the pyproject.toml file is updated to contain "<package>" and "<updatedOperatorAndVersion>"
 
     Examples:
-      | package   | operatorAndVersion | updatedOperatorAndVersion |
-      | package-a | 1.1.0-SNAPSHOT     | 1.1.0.*                   |
-      | package-b | 2-SNAPSHOT         | 2.*                       |
+      | package   | operatorAndVersion | updatedOperatorAndVersion | poetryVersion |
+      | package-a | 1.1.0-SNAPSHOT     | 1.1.0.*                   | 1.5.0         |
+      | package-b | 2-SNAPSHOT         | 2.*                       | 1.6.0         |
+
+  Scenario: SHIM - SNAPSHOT managed dependencies get corrected to ^ dev dependencies with any Poetry version and a ^ in the version (overridePackageVersion is true)
+    Given a Habushu configuration with a managed dependency of "<package>" and "<operatorAndVersion>" and "<poetryVersion>"
+    When Habushu executes
+    Then the pyproject.toml file is updated to contain "<package>" and "<updatedOperatorAndVersion>"
+
+    Examples:
+      | package   | operatorAndVersion | updatedOperatorAndVersion | poetryVersion |
+      | package-a | ^1.1.0-SNAPSHOT    | ^1.1.0.dev                | 1.5.0         |
+      | package-b | ^2-SNAPSHOT        | ^2.dev                    | 1.6.0         |
+      | package-a | ^3.3.0-SNAPSHOT    | ^3.3.0.dev                | 1.2.2         |
+      | package-b | ^4-SNAPSHOT        | ^4.dev                    | 1.3.0         |
 
   Scenario: SNAPSHOT managed dependencies do NOT get corrected to dev dependencies when overridePackageVersion is false
     Given a Habushu configuration with a managed dependency of "<package>" and "<operatorAndVersion>"

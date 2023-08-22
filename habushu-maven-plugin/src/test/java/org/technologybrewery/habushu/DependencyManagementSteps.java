@@ -55,6 +55,12 @@ public class DependencyManagementSteps {
         createMojoWithManagedDependency(packageName, operatorAndVersion, true);
     }
 
+    @Given("a Habushu configuration with a managed dependency of {string} and {string} and {string}")
+    public void a_habushu_configuration_with_a_managed_dependency_of_and_and(String packageName, String operatorAndVersion, String poetryVersion) {
+        createMojoWithManagedDependency(packageName, operatorAndVersion, true);
+        mojo.setPoetryVersion(poetryVersion);
+    }
+
     @Given("a Habushu configuration with an inactive managed dependency of {string} and {string}")
     public void a_habushu_configuration_with_an_inactive_managed_dependency_of_and(String packageName, String operatorAndVersion) {
         createMojoWithManagedDependency(packageName, operatorAndVersion, false);
