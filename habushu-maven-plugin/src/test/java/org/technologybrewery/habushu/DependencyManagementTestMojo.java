@@ -1,5 +1,7 @@
 package org.technologybrewery.habushu;
 
+import com.vdurmont.semver4j.Semver;
+
 import java.io.File;
 import java.util.List;
 
@@ -9,6 +11,8 @@ import java.util.List;
 public class DependencyManagementTestMojo extends InstallDependenciesMojo {
 
     private File pyProjectTomlFile;
+
+    private Semver poetryVersion;
 
     public DependencyManagementTestMojo(File pyProjectTomlFile) {
         this.pyProjectTomlFile = pyProjectTomlFile;
@@ -32,5 +36,13 @@ public class DependencyManagementTestMojo extends InstallDependenciesMojo {
 
     protected File getPoetryPyProjectTomlFile() {
         return pyProjectTomlFile;
+    }
+
+    protected void setPoetryVersion(String version) {
+        this.poetryVersion = new Semver(version);
+    }
+
+    protected Semver getPoetryVersion() {
+        return poetryVersion != null ? poetryVersion : new Semver("1.5.0");
     }
 }
