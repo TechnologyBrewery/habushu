@@ -7,7 +7,7 @@
         <version>2.7.0-SNAPSHOT</version>
     </parent>
 
-    <name>habushu::Mixing Drinks with Habushu consumer</name>
+    <name>habushu::Mixing Drinks with Habushu Consumer</name>
     <description>Example of how to use the habushu-maven-plugin to consume other Habushu modules</description>
 
     <artifactId>habushu-mixology-consumer</artifactId>
@@ -60,4 +60,14 @@
             </build>
         </profile>
     </profiles>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>habushu-mixology</artifactId>
+            <version>${project.version}</version>
+            <type>habushu</type>
+        </dependency>
+    </dependencies>
+
 </project>
