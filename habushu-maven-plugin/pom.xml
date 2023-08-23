@@ -77,17 +77,17 @@
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-clean-plugin</artifactId>
-            <version>3.3.1</version>
+            <version>${version.maven.clean.plugin}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-install-plugin</artifactId>
-            <version>3.1.1</version>
+            <version>${version.maven.install.plugin}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-deploy-plugin</artifactId>
-            <version>3.1.1</version>
+            <version>${version.maven.deploy.plugin}</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
