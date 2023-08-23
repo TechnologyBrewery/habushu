@@ -18,6 +18,7 @@ No one person will agree with all the opinions implemented by Habushu. The value
 In order to use Habushu, the following prerequisites must be installed:
 
 * Maven 3.6+
+  * Maven 3.9+ for use with Maven Build Cache
 * Java 11+
 * [Poetry 1.2+](https://python-poetry.org/)
 * [Pyenv](https://github.com/pyenv/pyenv)
@@ -157,6 +158,70 @@ For example, developers may use this feature to bind a Habushu module's `compile
 			</execution>
 		</executions>
 	</plugin>
+```
+
+### Leveraging Maven Build Cache for Faster Builds ###
+
+Habushu enables support for faster builds via
+the [Maven Build Cache](https://maven.apache.org/extensions/maven-build-cache-extension/) (only available in Maven
+3.9+). This functionality
+is enabled through two mechanisms: the Maven Reactor and Maven Build Cache Configuration. Both require manual action
+to enable.
+
+#### Maven Reactor Configuration ####
+
+The [Reactor](https://maven.apache.org/guides/mini/guide-multiple-modules.html#the-reactor) allows Maven to understand
+the relative structure and local hierarchy of Habushu/non-Habushu modules in your build. This can be accomplished by
+adding a standard Maven dependency to the modules that should be tied together. For instance, the dependency below is
+used in Habushu's test modules to create a dependency such that `habushu-mixology-consumer` depends on `habushu-mixology`.
+By adding this, any time a change occurs in `habushu-mixology`, all dependent Habushu modules will be rebuilt automatically.
+
+```xml
+<!-- SNIPPET from habushu-mixology-consumer/pom.xml: -->
+<dependency>
+    <!-- Follow standard Maven GAV (GroupId-ArtifactId-Version) referencing: -->
+    <groupId>org.technologybrewery.habushu</groupId>
+    <artifactId>habushu-mixology</artifactId>
+    <version>2.7.0</version>
+    <!-- type of habushu needed for habushu modules specifically: -->
+    <type>habushu</type>
+</dependency>
+```
+
+#### Maven Build Cache Configuration ####
+
+You also need to add the following to your Maven Build Cache `maven-build-cache-config.xml` file:
+
+```xml
+
+<cache>
+    <configuration>
+        ...
+        <attachedOutputs>
+            <dirNames>
+                <!-- Critical to enable Maven to process the artifacts created by Habushu: -->
+                <dirName>../dist</dirName>
+            </dirNames>
+        </attachedOutputs>
+        ...
+    </configuration>
+    <input>
+        <global>
+            <!-- The following glob values should be ADDED to your existing values: -->
+            <glob>
+                {*.xml,*.proto,*.properties,*.py,*.txt,*.toml,.env*,*.feature}
+            </glob>
+            <includes>
+                <include>src/</include>
+                <include>pyproject.toml</include>
+            </includes>
+            <excludes>
+                <exclude>poetry.lock</exclude>
+            </excludes>
+        </global>
+    </input>
+    ...
+</cache>
 ```
 
 ## Configuration ##

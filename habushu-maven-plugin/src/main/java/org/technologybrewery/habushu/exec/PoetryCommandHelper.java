@@ -168,7 +168,7 @@ public class PoetryCommandHelper {
 	    return future.get(timeout, timeUnit);
 	} catch (TimeoutException e) {
 	    logger.warn("poetry " + String.join(" ", arguments)
-		    + " has been running for quite some time, you may want to quit the mvn process (Ctrl+c) and run \"poetry cache clear . --all \" and restart your build.");
+		    + " has been running for quite some time, you may want to quit the mvn process (Ctrl+c) and run \"poetry cache clear . --all\" and restart your build.");
 	    try {
 		return future.get();
 	    } catch (InterruptedException | ExecutionException e1) {
