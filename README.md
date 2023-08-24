@@ -164,9 +164,17 @@ For example, developers may use this feature to bind a Habushu module's `compile
 
 Habushu enables support for faster builds via
 the [Maven Build Cache](https://maven.apache.org/extensions/maven-build-cache-extension/) (only available in Maven
-3.9+). This functionality
-is enabled through two mechanisms: the Maven Reactor and Maven Build Cache Configuration. Both require manual action
-to enable.
+3.9+). This functionality is enabled through three mechanisms: Maven build directory customization, the Maven Reactor, 
+and Maven Build Cache Configuration. All require manual action to enable.
+
+#### Maven Build Directory Customization ####
+Update Maven's build configuration to point to the `dist` directory for output in the pom file for each Habushu module:
+```xml
+    <build>
+        <directory>dist</directory>
+        ...
+    </build>
+```
 
 #### Maven Reactor Configuration ####
 
