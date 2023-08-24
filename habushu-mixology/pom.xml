@@ -15,6 +15,7 @@
     <packaging>habushu</packaging>
 
     <build>
+        <directory>dist</directory>
         <pluginManagement>
             <plugins>
                 <plugin>
