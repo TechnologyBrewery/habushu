@@ -6,7 +6,7 @@ authors = ["Eric Konieczny <ekoniec1@gmail.com>"]
 license = "MIT License"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.11"
 krausening = "17"
 cryptography = "^41.0.3"
 uvicorn = {version = "^0.18.0", extras = ["standard"]}

@@ -269,7 +269,7 @@ mvn clean install -Dhabushu.pythonVersion=3.10.4
 
 The desired version of Python to use. Habushu delegates to `pyenv` for managing versions of Python depending on the configuration `usePyenv`.
 
-Default: `3.9.13`
+Default: `3.11.4`
 
 #### usePyenv ####
 

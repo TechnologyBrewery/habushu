@@ -22,7 +22,7 @@ jobs:
         steps:
             - uses: actions/checkout@v3
             - name: Setup Pyenv
-              uses: gabrielfalcao/pyenv-action@v13
+              uses: gabrielfalcao/pyenv-action@v16
             - name: Install Poetry
               uses: snok/install-poetry@v1
             - name: Set up JDK 11
