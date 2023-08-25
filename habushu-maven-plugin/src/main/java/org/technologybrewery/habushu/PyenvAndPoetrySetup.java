@@ -32,7 +32,7 @@ class PyenvAndPoetrySetup {
      * Specifies the semver compliant requirement for the default version of Python that
      * must be installed and available for Habushu to use.
      */
-    static final String PYTHON_DEFAULT_VERSION_REQUIREMENT = "3.9.16";
+    static final String PYTHON_DEFAULT_VERSION_REQUIREMENT = "3.11.4";
 
     /**
      * Specifies the semver compliant requirement for the version of Poetry that

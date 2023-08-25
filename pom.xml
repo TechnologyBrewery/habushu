@@ -50,6 +50,11 @@
 		<tag>HEAD</tag>
 	</scm>
 
+	<properties>
+		<!-- override parent POM until it is next upgrade (arguably, this property should not be in parent at all: -->
+		<version.python.default>3.11.4</version.python.default>
+	</properties>
+
 	<dependencyManagement>
 		<dependencies>
 			<!-- Explicitly upgrading transitive dependency for habushu-maven-plugin
