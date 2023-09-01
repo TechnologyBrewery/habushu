@@ -40,6 +40,12 @@ public class CleanHabushuMojo extends CleanMojo {
     protected File distDirectory;
 
     /**
+     * Directory in which Maven places build-time artifacts - should NOT include dist items.
+     */
+    @Parameter(defaultValue = "${project.basedir}/target", readonly = true, required = true)
+    protected File targetDirectory;
+
+    /**
      * Enables the explicit deletion of the virtual environment that is
      * created/managed by Poetry.
      */
@@ -125,11 +131,15 @@ public class CleanHabushuMojo extends CleanMojo {
         try {
             Fileset distArchivesFileset = createFileset(distDirectory);
             filesetsToDelete.add(distArchivesFileset);
+
+            Fileset targetArchivesFileset = createFileset(targetDirectory);
+            filesetsToDelete.add(targetArchivesFileset);
         } catch (IllegalAccessException e) {
             throw new MojoExecutionException("Could not write to private field in Fileset class.", e);
         }
 
         getLog().info(String.format("Deleting distribution archives at %s", distDirectory));
+        getLog().info(String.format("Deleting distribution archives at %s", targetDirectory));
 
         setPrivateParentField("filesets", filesetsToDelete.toArray(new Fileset[0]));
         super.execute();

@@ -597,6 +597,21 @@ normal circumstances.
 
 Default: `${project.basedir}/target/habushu.placeholder.txt`
 
+
+#### distDirectory ####
+
+Controls where the clean plugin will delete dist artifacts.  
+
+Default: `${project.basedir}/dist`
+
+
+#### targetirectory ####
+
+Controls where the clean plugin will delete target artifacts.  
+
+Default: `${project.basedir}/target`
+
+
 ## The Habushu Build Lifecycle ##
 
 Habushu applies a [custom Maven lifecycle that binds Poetry-based DevSecOps workflow commands](https://fermenter.atlassian.net/wiki/spaces/HAB/pages/2056749057/Dependency+Management+and+Build+Automation+through+Poetry+and+Maven) to the following phases:
