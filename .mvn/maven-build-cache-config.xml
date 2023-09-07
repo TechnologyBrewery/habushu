@@ -54,6 +54,11 @@
                         <goal>deploy</goal>
                     </goals>
                 </goalsList>
+                <goalsList artifactId="nexus-staging-maven-plugin">
+                    <goals>
+                        <goal>deploy</goal>
+                    </goals>
+                </goalsList>
             </goalsLists>
         </runAlways>
         <reconcile logAllProperties="true">

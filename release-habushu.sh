@@ -34,7 +34,7 @@ if [[ "$?" -ne 0 ]] ; then
 fi
 
 echo "///////////  Rebuild Habushu modules ///////////"
-mvn clean install -Pbootstrap && mvn clean install
+mvn clean install -Pbootstrap -Dmaven.build.cache.enabled=false && mvn clean install -Dmaven.build.cache.enabled=false
 
 if [[ "$?" -ne 0 ]] ; then
   echo 'Rebuilding Habushu failed!'; exit 1
@@ -49,7 +49,7 @@ if [[ "$?" -ne 0 ]] ; then
 fi
 
 echo "/////////// Deploy Habushu to Maven Central ///////////"
-mvn deploy -P ossrh-release
+mvn deploy -P ossrh-release -Dmaven.build.cache.enabled=false
 
 if [[ "$?" -ne 0 ]] ; then
   echo 'Process failed! Unable to deploy Habushu to Maven Central!'; exit 1
