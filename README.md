@@ -20,7 +20,7 @@ In order to use Habushu, the following prerequisites must be installed:
 * Maven 3.6+
   * Maven 3.9+ for use with Maven Build Cache
 * Java 11+
-* [Poetry 1.2+](https://python-poetry.org/)
+* [Poetry 1.5+](https://python-poetry.org/)
 * [Pyenv](https://github.com/pyenv/pyenv)
 
 Additionally, Habushu may install and manage:
