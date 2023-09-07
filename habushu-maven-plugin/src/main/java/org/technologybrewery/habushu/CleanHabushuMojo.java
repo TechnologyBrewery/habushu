@@ -139,7 +139,7 @@ public class CleanHabushuMojo extends CleanMojo {
         }
 
         getLog().info(String.format("Deleting distribution archives at %s", distDirectory));
-        getLog().info(String.format("Deleting distribution archives at %s", targetDirectory));
+        getLog().info(String.format("Deleting target archives at %s", targetDirectory));
 
         setPrivateParentField("filesets", filesetsToDelete.toArray(new Fileset[0]));
         super.execute();

@@ -605,7 +605,7 @@ Controls where the clean plugin will delete dist artifacts.
 Default: `${project.basedir}/dist`
 
 
-#### targetirectory ####
+#### targetDirectory ####
 
 Controls where the clean plugin will delete target artifacts.  
 
