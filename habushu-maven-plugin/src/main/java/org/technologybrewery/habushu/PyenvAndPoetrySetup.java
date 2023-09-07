@@ -139,7 +139,7 @@ class PyenvAndPoetrySetup {
         }
 
         if (!missingRequiredToolMsgs.isEmpty()) {
-            throw new MojoExecutionException(StringUtils.join(missingRequiredToolMsgs, System.lineSeparator()));
+            throw new MojoExecutionException(StringUtils.join(System.lineSeparator(), missingRequiredToolMsgs, System.lineSeparator()));
 
         }
 
@@ -189,6 +189,17 @@ class PyenvAndPoetrySetup {
             if (!pythonVersion.equals(currentPythonVersion)) {
                 pyenvHelper.updatePythonVersion(pythonVersion, patchInstallScript);
                 currentPythonVersion = pyenvHelper.getCurrentPythonVersion();
+            }
+
+            // Check for misconfigured pyenv that looks right, but is actually not "taking" due to missing PATH setup:
+            PythonVersionHelper pythonVersionHelper = new PythonVersionHelper(baseDir, pythonVersion);
+            String postPyenvActivatedPythonVersion = pythonVersionHelper.getCurrentPythonVersion();
+            if (!pythonVersion.equals(postPyenvActivatedPythonVersion)) {
+                missingRequiredToolMsgs.add(String.format("Expected 'pyenv' to set Python to %s but instead found %s!",
+                        pythonVersion, postPyenvActivatedPythonVersion));
+                missingRequiredToolMsgs.add("'pyenv' is installed, but not configured correctly.  " +
+                        "Ensure your PATH includes 'pyenv init -' expected content " +
+                        "OR do not configure habushu to use 'pyenv' to manage the Python version!");
             }
 
             log.debug("pyenv already installed");
