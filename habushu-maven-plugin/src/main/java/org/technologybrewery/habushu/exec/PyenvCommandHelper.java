@@ -1,33 +1,29 @@
 package org.technologybrewery.habushu.exec;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
-import org.slf4j.event.Level;
 import org.technologybrewery.habushu.HabushuException;
 import org.technologybrewery.habushu.util.HabushuUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.technologybrewery.shell.exec.CommandHelper;
 
 /**
  * Facilitates the execution of pyenv commands related to managing, selecting,
  * and installation desired Python versions.
  */
-public class PyenvCommandHelper {
+public class PyenvCommandHelper extends CommandHelper {
 
     private static final String PYENV_COMMAND = "pyenv";
     private static final Logger logger = LoggerFactory.getLogger(PyenvCommandHelper.class);
 
-    private File workingDirectory;
-
     public PyenvCommandHelper(File workingDirectory) {
-        this.workingDirectory = workingDirectory;
+        super(workingDirectory, PYENV_COMMAND);
     }
 
     /**
@@ -35,7 +31,7 @@ public class PyenvCommandHelper {
      */
     public boolean isPyenvInstalled() {
         try {
-            String foundVersion = executeWithDebugLogging(Arrays.asList("--version"));
+            String foundVersion = executeWithDebugLogging(Arrays.asList("--version")).getStdout();
             logger.debug("Found " + foundVersion);
         } catch (Throwable e) {
             return false;
@@ -51,7 +47,7 @@ public class PyenvCommandHelper {
      * @return
      */
     public String getCurrentPythonVersion() throws MojoExecutionException {
-        return executeWithDebugLogging(Arrays.asList("version-name"));
+        return executeWithDebugLogging(Arrays.asList("version-name")).getStdout();
     }
 
     /**
@@ -91,7 +87,7 @@ public class PyenvCommandHelper {
      * @return
      */
     private List<String> getInstalledPythonVersions() throws MojoExecutionException {
-        String versionsResult = execute(Arrays.asList("versions", "--bare"));
+        String versionsResult = execute(Arrays.asList("versions", "--bare")).getStdout();
 
         if (StringUtils.isNotEmpty(versionsResult)) {
             return Arrays.asList(StringUtils.split(versionsResult));
@@ -147,49 +143,5 @@ public class PyenvCommandHelper {
             throw new HabushuException(String.format("Failed to install Python version %s with patch", pythonVersion), t);
         }
 
-    }
-
-    /**
-     * Executes a pyenv command with the given arguments, logs the executed command at the info level,
-     * and returns the resultant process output as a string.
-     *
-     * @param arguments
-     * @return
-     * @throws MojoExecutionException
-     */
-    protected String execute(List<String> arguments) throws MojoExecutionException {
-        return execute(arguments, Level.INFO);
-    }
-
-    /**
-     * Executes a pyenv command with the given arguments, logs the executed command at the debug level,
-     * and returns the resultant process output as a string.
-     *
-     * @param arguments
-     * @return
-     * @throws MojoExecutionException
-     */
-    protected String executeWithDebugLogging(List<String> arguments) throws MojoExecutionException {
-        return execute(arguments, Level.DEBUG);
-    }
-
-    private String execute(List<String> arguments, Level logLevel) {
-        ProcessExecutor executor = createPyenvExecutor(arguments);
-        if (Level.DEBUG.equals(logLevel) && logger.isDebugEnabled()) {
-            logger.debug("Executing pyenv command: {} {}", PYENV_COMMAND, StringUtils.join(arguments, " "));
-
-        } else if (Level.INFO.equals(logLevel) && logger.isInfoEnabled()) {
-            logger.info("Executing pyenv command: {} {}", PYENV_COMMAND, StringUtils.join(arguments, " "));
-
-        }
-
-        return executor.executeAndGetResult(logger);
-    }
-
-    protected ProcessExecutor createPyenvExecutor(List<String> arguments) {
-        List<String> fullCommandArgs = new ArrayList<>();
-        fullCommandArgs.add(PYENV_COMMAND);
-        fullCommandArgs.addAll(arguments);
-        return new ProcessExecutor(workingDirectory, fullCommandArgs, Platform.guess(), null);
     }
 }

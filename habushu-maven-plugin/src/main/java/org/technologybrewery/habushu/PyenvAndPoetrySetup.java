@@ -127,7 +127,6 @@ class PyenvAndPoetrySetup {
             missingRequiredToolMsgs.add(
                     "'poetry' is not currently installed! Execute 'curl -sSL https://install.python-poetry.org | python -' to install or visit https://python-poetry.org/ for more information and installation options");
         } else {
-
             Semver poetryVersionSemver = new Semver(poetryInstallStatusAndVersion.getRight(), SemverType.NPM);
             if (!poetryVersionSemver.satisfies(POETRY_VERSION_REQUIREMENT)) {
                 missingRequiredToolMsgs.add(String.format(

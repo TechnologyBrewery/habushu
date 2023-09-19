@@ -95,7 +95,7 @@ public class PublishToPyPiRepoMojo extends AbstractHabushuMojo {
 
 	String pomVersion = project.getVersion();
 	if (this.overridePackageVersion && isPomVersionSnapshot(pomVersion)) {
-	    String currentPythonPackageVersion = poetryHelper.execute(Arrays.asList("version", "-s"));
+	    String currentPythonPackageVersion = poetryHelper.execute(Arrays.asList("version", "-s")).getStdout();
 
 	    String snapshotVersionToPublish = getPythonPackageVersion(pomVersion, true,
 		    snapshotNumberDateFormatPattern);
