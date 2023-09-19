@@ -33,7 +33,7 @@ public class InitializeHabushuMojo extends AbstractHabushuMojo {
             getLog().warn("Corrected - pyproject.toml and poetry.lock now synced");
         }
 
-        String currentPythonPackageVersion = poetryHelper.execute(Arrays.asList("version", "-s"));
+        String currentPythonPackageVersion = poetryHelper.execute(Arrays.asList("version", "-s")).getStdout();
         String pomVersion = project.getVersion();
         String expectedPythonPackageVersion = getPythonPackageVersion(pomVersion, false, null);
 

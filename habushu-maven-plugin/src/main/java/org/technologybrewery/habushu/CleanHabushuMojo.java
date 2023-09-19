@@ -107,7 +107,7 @@ public class CleanHabushuMojo extends CleanMojo {
 
             String virtualEnvFullPath = null;
             try {
-                virtualEnvFullPath = poetryHelper.execute(Arrays.asList("env", "list", "--full-path"));
+                virtualEnvFullPath = poetryHelper.execute(Arrays.asList("env", "list", "--full-path")).getStdout();
             } catch (RuntimeException e) {
                 getLog().debug("Could not retrieve Poetry-managed virtual environment path - it likely does not exist",
                         e);

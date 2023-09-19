@@ -11,12 +11,14 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
+import org.technologybrewery.shell.exec.CommandHelper;
+import org.technologybrewery.shell.exec.ProcessExecutor;
 
 /**
  * Helps determine the version of Python that is available on the user's
  * {@code PATH}.
  */
-public class PythonVersionHelper {
+public class PythonVersionHelper extends CommandHelper {
 
     private static final Logger logger = LoggerFactory.getLogger(PythonVersionHelper.class);
 
@@ -25,14 +27,14 @@ public class PythonVersionHelper {
     private static final String PYTHON_VERSION_3_REGEX = "^3.*";
     private static final String EXTRACT_VERSION_REGEX = "^.*?(?=(\\d))";
 
-    private final String desiredPythonVersion;
-    private final File workingDirectory;
 
     public PythonVersionHelper(File workingDirectory, String desiredPythonVersion) {
+        super(workingDirectory, PYTHON_COMMAND);
         Validate.notNull(desiredPythonVersion);
 
-        this.workingDirectory = workingDirectory;
-        this.desiredPythonVersion = desiredPythonVersion;
+        if (desiredPythonVersion.matches(PYTHON_VERSION_3_REGEX) && isPython3Installed()) {
+            setBaseCommand(PYTHON_3_COMMAND);
+        }
     }
 
     /**
@@ -42,78 +44,13 @@ public class PythonVersionHelper {
      * @return
      */
     public String getCurrentPythonVersion() throws MojoExecutionException {
-        String version = quietlyExecute(Collections.singletonList("--version"));
+        String version = executeWithDebugLogging(Collections.singletonList("--version")).getStdout();
         return version.replaceAll(EXTRACT_VERSION_REGEX, "");
-    }
-
-    /**
-     * Executes a python command with the given arguments, logs the executed command
-     * at DEBUG level, and returns the resultant process output as a string.
-     *
-     * @param arguments
-     * @return
-     * @throws MojoExecutionException
-     */
-    protected String quietlyExecute(List<String> arguments) throws MojoExecutionException {
-        return execute(arguments, Level.DEBUG);
-    }
-
-    /**
-     * Executes a python command with the given arguments, logs the executed command
-     * at INFO level, and returns the resultant process output as a string.
-     *
-     * @param arguments
-     * @return
-     * @throws MojoExecutionException
-     */
-    protected String execute(List<String> arguments) throws MojoExecutionException {
-        return execute(arguments, Level.INFO);
-    }
-
-    /**
-     * Executes a python command with the given arguments, logs the executed
-     * command, and returns the resultant process output as a string.
-     *
-     * @param arguments
-     * @return
-     * @throws MojoExecutionException
-     */
-    private String execute(List<String> arguments, Level logLevel) throws MojoExecutionException {
-        ProcessExecutor executor;
-        String pythonCommand;
-
-        if (desiredPythonVersion.matches(PYTHON_VERSION_3_REGEX) && isPython3Installed()) {
-            executor = createPythonExecutor(PYTHON_3_COMMAND, arguments);
-            pythonCommand = PYTHON_3_COMMAND;
-
-        } else {
-            executor = createPythonExecutor(PYTHON_COMMAND, arguments);
-            pythonCommand = PYTHON_COMMAND;
-        }
-
-        if (logger.isInfoEnabled() || logger.isDebugEnabled()) {
-            String logStatement = String.format("Executing command: %s %s", pythonCommand, StringUtils.join(arguments, " "));
-            if (Level.INFO.equals(logLevel)) {
-                logger.info(logStatement);
-            } else if (Level.DEBUG.equals(logLevel)) {
-                logger.debug(logStatement);
-            }
-        }
-
-        return executor.executeAndGetResult(logger);
-    }
-
-    private ProcessExecutor createPythonExecutor(String pythonCommand, List<String> arguments) {
-        List<String> fullCommandArgs = new ArrayList<>();
-        fullCommandArgs.add(pythonCommand);
-        fullCommandArgs.addAll(arguments);
-        return new ProcessExecutor(workingDirectory, fullCommandArgs, Platform.guess(), null);
     }
 
     private boolean isPython3Installed() {
         try {
-            ProcessExecutor executor = createPythonExecutor(PYTHON_3_COMMAND, Collections.singletonList("--version"));
-            executor.executeAndGetResult(logger);
+            execute(List.of("--version"));
         } catch (Throwable e) {
             return false;
         }
