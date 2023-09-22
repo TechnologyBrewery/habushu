@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
  * private PyPi repository is defined via
  * {@link AbstractHabushuMojo#pypiRepoUrl} (and
  * {@link AbstractHabushuMojo#pypiRepoId}), it will be automatically added to
- * the module's pyproject.toml configuration as a secondary source of
+ * the module's pyproject.toml configuration as a supplemental source of
  * dependencies, if it is not already configured in the pyproject.toml
  */
 @Mojo(name = "install-dependencies", defaultPhase = LifecyclePhase.COMPILE)
@@ -168,11 +168,11 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
                                 StringUtils.isNotEmpty(this.pypiRepoId) && !PUBLIC_PYPI_REPO_ID.equals(this.pypiRepoId)
                                         ? this.pypiRepoId
                                         : "private-pypi-repo"),
-                        String.format("url = \"%s\"", pypiRepoSimpleIndexUrl), "secondary = true");
+                        String.format("url = \"%s\"", pypiRepoSimpleIndexUrl), "priority = \"supplemental\"");
                 getLog().info(String.format("Private PyPi repository entry for %s not found in pyproject.toml",
                         this.pypiRepoUrl));
                 getLog().info(String.format(
-                        "Adding %s to pyproject.toml as secondary repository from which dependencies may be installed",
+                        "Adding %s to pyproject.toml as supplemental repository from which dependencies may be installed",
                         pypiRepoSimpleIndexUrl));
                 try {
                     Files.write(getPoetryPyProjectTomlFile().toPath(), newPypiRepoSourceConfig,

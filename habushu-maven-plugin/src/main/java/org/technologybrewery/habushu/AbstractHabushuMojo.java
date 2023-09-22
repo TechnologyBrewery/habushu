@@ -53,7 +53,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     /**
      * Specifies the {@code <id>} of the {@code <server>} element declared within
      * the utilized settings.xml configuration that represents the PyPI repository
-     * to which this project's archives will be published and/or used as a secondary
+     * to which this project's archives will be published and/or used as a supplemental
      * repository from which dependencies may be installed. This property is
      * <b>REQUIRED</b> if publishing to or consuming dependencies from a private
      * PyPI repository that requires authentication - it is expected that the
@@ -71,7 +71,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
 
     /**
      * Specifies the URL of the private PyPI repository to which this project's
-     * archives will be published and/or used as a secondary repository from which
+     * archives will be published and/or used as a supplemental repository from which
      * dependencies may be installed. This property is <b>REQUIRED</b> if publishing
      * to or consuming dependencies from a private PyPI repository.
      */
