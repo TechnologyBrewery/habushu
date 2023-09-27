@@ -308,7 +308,7 @@ Default: `false`
 #### pypiRepoId ####
 
 Specifies the `<id>` of the `<server>` element declared within the utilized Maven `settings.xml` configuration that represents the PyPI repository
-to which this project's archives will be published and/or used as a secondary repository from which dependencies may be installed. This property is **REQUIRED** if publishing to or consuming dependencies from a private PyPI repository that requires authentication - it is expected that the relevant `<server>` element provides the needed authentication details.
+to which this project's archives will be published and/or used as a supplemental repository from which dependencies may be installed. This property is **REQUIRED** if publishing to or consuming dependencies from a private PyPI repository that requires authentication - it is expected that the relevant `<server>` element provides the needed authentication details.
 
 If this property is **not** specified, this property will default to `pypi` and the execution of the `deploy` lifecycle phase will publish this package to the official public PyPI repository.  Downstream package publishing functionality will use the relevant `settings.xml` `<server>` declaration with `<id>pypi</id>` as credentials for publishing the package to PyPI. If developers want to use PyPI's [API tokens](https://pypi.org/help/#apitoken) instead of username/password credentials, they may do so by manually executing the appropriate Poetry command (`poetry config pypi-token.pypi my-token`) in an ad-hoc fashion prior to running `deploy`.
 
@@ -331,7 +331,7 @@ Default: `pypi`
 
 #### pypiRepoUrl ####
 
-Specifies the URL of the private PyPI repository to which this project's archives will be published and/or used as a secondary repository from which dependencies may be installed. This property is **REQUIRED** if publishing to or consuming dependencies from a private PyPI repository.  
+Specifies the URL of the private PyPI repository to which this project's archives will be published and/or used as a supplemental repository from which dependencies may be installed. This property is **REQUIRED** if publishing to or consuming dependencies from a private PyPI repository.  
 
 If the Habushu project depends on internal packages that may only be found on a private PyPI repository, developers should specify this property through the plugin's `<configuration>` definition:
 
@@ -626,7 +626,7 @@ Configures the build state needed by Habushu, ensures that the current project i
 
 ##### compile #####
 
-Installs dependencies defined in the project's `pyproject.toml` configuration, specifically by running `poetry lock` followed by `poetry install`. If a private PyPi repository is defined via **pypiRepoUrl**, it will be automatically added to the module's `pyproject.toml` configuration as a secondary source of dependencies, if it is not already configured in the `pyproject.toml`
+Installs dependencies defined in the project's `pyproject.toml` configuration, specifically by running `poetry lock` followed by `poetry install`. If a private PyPi repository is defined via **pypiRepoUrl**, it will be automatically added to the module's `pyproject.toml` configuration as a supplemental source of dependencies, if it is not already configured in the `pyproject.toml`
 
 ##### process-classes #####
 
