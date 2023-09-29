@@ -44,7 +44,7 @@ public class ValidatePyenvAndPoetryMojo extends AbstractHabushuMojo {
     private File patchInstallScript;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void doExecute() throws MojoExecutionException, MojoFailureException {
         PyenvAndPoetrySetup configureTools = new PyenvAndPoetrySetup(pythonVersion, usePyenv,
                 patchInstallScript, getPoetryProjectBaseDir(), rewriteLocalPathDepsInArchives, getLog());
         configureTools.execute();

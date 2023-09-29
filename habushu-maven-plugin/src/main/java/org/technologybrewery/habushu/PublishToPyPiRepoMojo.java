@@ -83,7 +83,7 @@ public class PublishToPyPiRepoMojo extends AbstractHabushuMojo {
     protected boolean skipDeploy;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void doExecute() throws MojoExecutionException, MojoFailureException {
 	if (this.skipDeploy) {
 	    getLog().info(String.format(
 		    "Skipping deploy phase - package for %s will not be published to the configured PyPI repository",

@@ -122,7 +122,7 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
     protected boolean failOnManagedDependenciesMismatches;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void doExecute() throws MojoExecutionException, MojoFailureException {
         PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
 
         processManagedDependencyMismatches();

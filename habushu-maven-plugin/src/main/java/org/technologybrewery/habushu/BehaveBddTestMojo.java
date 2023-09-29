@@ -57,7 +57,7 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
     protected boolean skipTests;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void doExecute() throws MojoExecutionException, MojoFailureException {
 
 	if (skipTests) {
 	    getLog().warn("Tests are skipped (-DskipTests=true)");

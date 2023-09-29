@@ -58,7 +58,7 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
     protected File mavenArtifactFile;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void doExecute() throws MojoExecutionException, MojoFailureException {
         PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
 
         String buildCommand, buildLogMessage;

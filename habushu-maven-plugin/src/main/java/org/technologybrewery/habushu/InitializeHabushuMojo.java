@@ -19,7 +19,7 @@ import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 public class InitializeHabushuMojo extends AbstractHabushuMojo {
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void doExecute() throws MojoExecutionException, MojoFailureException {
 
         getLog().info("Validating Poetry-based project structure...");
         PoetryCommandHelper poetryHelper = createPoetryCommandHelper();

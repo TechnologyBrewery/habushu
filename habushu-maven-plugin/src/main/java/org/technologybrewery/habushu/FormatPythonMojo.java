@@ -20,7 +20,7 @@ public class FormatPythonMojo extends AbstractHabushuMojo {
     protected static final String BLACK_PACKAGE = "black";
 
     @Override
-    public void execute() throws MojoExecutionException {
+    public void doExecute() throws MojoExecutionException {
 
 	List<String> directoriesToFormat = new ArrayList<>();
 	if (this.sourceDirectory.exists()) {
