@@ -342,30 +342,6 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
                 + "Currently %s, but should be %s!", packageName, originalOperatorAndVersion, updatedOperatorAndVersion));
     }
 
-    protected List<String> findCustomToolPoetryGroups() {
-        List<String> toolPoetryGroupSections = new ArrayList<>();
-
-        File pyProjectTomlFile = getPoetryPyProjectTomlFile();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(pyProjectTomlFile))) {
-            String line = reader.readLine();
-
-            while (line != null) {
-                line = line.strip();
-
-                if (line.startsWith("[tool.poetry.group")) {
-                    toolPoetryGroupSections.add(line.replace("[", StringUtils.EMPTY).replace("]", StringUtils.EMPTY));
-                }
-
-                line = reader.readLine();
-            }
-        } catch (IOException e) {
-            throw new HabushuException("Problem reading pyproject.toml to search for custom dependency groups!", e);
-        }
-
-        return toolPoetryGroupSections;
-    }
-
     protected void performPendingDependencyReplacements(Map<String, TomlReplacementTuple> replacements) {
         if (MapUtils.isNotEmpty(replacements)) {
             if (failOnManagedDependenciesMismatches) {
