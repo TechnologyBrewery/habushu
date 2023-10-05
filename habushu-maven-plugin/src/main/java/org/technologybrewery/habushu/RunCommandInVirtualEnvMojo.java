@@ -31,7 +31,7 @@ public class RunCommandInVirtualEnvMojo extends AbstractHabushuMojo {
     protected String runCommandArgs;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void doExecute() throws MojoExecutionException, MojoFailureException {
 	PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
 	List<String> poetryRunCommandArgs = new ArrayList<>(Arrays.asList(StringUtils.split(runCommandArgs)));
 	poetryRunCommandArgs.add(0, "run");

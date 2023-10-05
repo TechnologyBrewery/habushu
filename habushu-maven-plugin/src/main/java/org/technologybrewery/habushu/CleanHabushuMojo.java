@@ -46,6 +46,12 @@ public class CleanHabushuMojo extends CleanMojo {
     protected File targetDirectory;
 
     /**
+     * The packaging type of the current Maven project. If it is not "habushu", then this mojo will be skipped.
+     */
+    @Parameter(defaultValue = "${project.packaging}", readonly = true, required = true)
+    protected String packaging;
+
+    /**
      * Enables the explicit deletion of the virtual environment that is
      * created/managed by Poetry.
      */
@@ -93,7 +99,14 @@ public class CleanHabushuMojo extends CleanMojo {
 
     @Override
     public void execute() throws MojoExecutionException {
+        if ("habushu".equals(packaging)) {
+            clean();
+        } else {
+            getLog().info("Skipping execution - packaging type is not 'habushu'");
+        }
+    }
 
+    private void clean() throws MojoExecutionException {
         if (deleteVirtualEnv) {
             try {
                 PyenvAndPoetrySetup configureTools = new PyenvAndPoetrySetup(pythonVersion, usePyenv,

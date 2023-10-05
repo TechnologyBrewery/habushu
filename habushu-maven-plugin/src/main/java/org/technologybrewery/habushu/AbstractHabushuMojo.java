@@ -8,6 +8,8 @@ import java.time.format.DateTimeFormatter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
@@ -27,6 +29,13 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "${settings}", readonly = true, required = true)
     protected Settings settings;
+
+    /**
+     * The packaging type of the current Maven project. If it is not "habushu", then habushu packaging-related mojos
+     * will skip execution.
+     */
+    @Parameter(defaultValue = "${project.packaging}", readonly = true, required = true)
+    protected String packaging;
 
     /**
      * Folder in which Python source files are located - should align with Poetry's
@@ -129,6 +138,17 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "false", property = "habushu.rewriteLocalPathDepsInArchives")
     protected boolean rewriteLocalPathDepsInArchives;
+
+    @Override
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        if ("habushu".equals(packaging)) {
+            doExecute();
+        } else {
+            getLog().info("Skipping execution - packaging type is not 'habushu'");
+        }
+    }
+
+    protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;
 
     /**
      * Gets the canonical path for a file without having to deal w/ checked
