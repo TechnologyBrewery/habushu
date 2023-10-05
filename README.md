@@ -300,6 +300,12 @@ any local path dependencies (to other Poetry projects) as versioned packaged dep
 Habushu will replace invocations of Poetry's `build` and `publish` commands with the extensions of those commands exposed by the
 `poetry-monorepo-dependency-plugin`, which are `build-rewrite-path-deps` and `publish-rewrite-path-deps`, respectively.
 
+To further ease working with monorepo dependencies, Habushu will specially handle how these dependencies are written to 
+intermediate `requirements.txt` exports if they are included in the `[tool.poetry.group.monorepo.dependencies]` group 
+within your `pyproject.toml` file.  In this case, the dependencies will be excluded from the export unless `rewriteLocalPathDepsInArchives`
+is set to true.  This feature can be useful if installing the exported `requirements.txt` on another machine and/or 
+Docker container.  If a monorepo dependency is not included in this specific group, it will be exported with a local path.
+
 Typically, this flag will only be `true` when deploying/releasing Habushu modules within a CI environment that are part of a monorepo project
 structure which multiple Poetry projects depend on one another.
     

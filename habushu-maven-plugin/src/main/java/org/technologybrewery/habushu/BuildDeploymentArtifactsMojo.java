@@ -1,18 +1,21 @@
 package org.technologybrewery.habushu;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import com.electronwill.nightconfig.core.Config;
+import com.electronwill.nightconfig.core.file.FileConfig;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Delegates to Poetry during the {@link LifecyclePhase#PACKAGE} build phase to
@@ -27,6 +30,7 @@ import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 @Mojo(name = "build-deployment-artifacts", defaultPhase = LifecyclePhase.PACKAGE)
 public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
 
+    public static final String TOOL_POETRY_GROUP_MONOREPO_DEPENDENCIES = "tool.poetry.group.monorepo.dependencies";
     /**
      * By default, export requirements.txt file.
      */
@@ -61,7 +65,8 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
     public void doExecute() throws MojoExecutionException, MojoFailureException {
         PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
 
-        String buildCommand, buildLogMessage;
+        String buildCommand;
+        String buildLogMessage;
         if (this.rewriteLocalPathDepsInArchives) {
             buildCommand = "build-rewrite-path-deps";
             buildLogMessage = "Building source and wheel archives with poetry-monorepo-dependency-plugin...";
@@ -87,6 +92,14 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
             command.add("--output");
             command.add(outputFile);
 
+            List<String> customPoetryToolGroups = findCustomToolPoetryGroups();
+            if (!rewriteLocalPathDepsInArchives && customPoetryToolGroups.contains(TOOL_POETRY_GROUP_MONOREPO_DEPENDENCIES)) {
+                command.add("--without");
+                command.add("monorepo");
+                logLocalMonorepoCaveats();
+            }
+
+
             if (!exportRequirementsWithHashes) {
                 command.add("--without-hashes");
             }
@@ -94,9 +107,27 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
             if (!exportRequirementsWithUrls) {
                 command.add("--without-urls");
             }
+
             poetryHelper.executeAndLogOutput(command);
 
             setUpPlaceholderFileAsMavenArtifact();
+        }
+    }
+
+    private void logLocalMonorepoCaveats() {
+        getLog().info(String.format("Excluding [%s] to prevent path references in requirements.txt",
+                TOOL_POETRY_GROUP_MONOREPO_DEPENDENCIES));
+        getLog().info("The following dependencies must be install manually if using requirements.txt (e.g., pip install needed-dependency.whl):");
+
+        try (FileConfig pyProjectConfig = FileConfig.of(getPoetryPyProjectTomlFile())) {
+            pyProjectConfig.load();
+            Optional<Config> packageSources = pyProjectConfig.getOptional(TOOL_POETRY_GROUP_MONOREPO_DEPENDENCIES);
+            if (packageSources.isPresent()) {
+                Config monoRepoDependencies = packageSources.get();
+                for (String dependencyKey : monoRepoDependencies.valueMap().keySet()) {
+                    getLog().info(String.format("\t- %s", dependencyKey));
+                }
+            }
         }
     }
 
@@ -112,7 +143,7 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
                     project.getArtifactId()));
 
         } catch (FileNotFoundException e) {
-            throw new RuntimeException("Could not create placeholder artifact file!", e);
+            throw new HabushuException("Could not create placeholder artifact file!", e);
         }
 
         project.getArtifact().setFile(mavenArtifactFile);

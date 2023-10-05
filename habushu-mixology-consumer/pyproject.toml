@@ -7,6 +7,8 @@ license = "MIT License"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+
+[tool.poetry.group.monorepo.dependencies]
 habushu-mixology = {path = "../habushu-mixology", develop = true}
 
 [tool.poetry.dev-dependencies]
