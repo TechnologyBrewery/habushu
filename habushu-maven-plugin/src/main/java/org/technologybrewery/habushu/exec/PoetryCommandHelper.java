@@ -32,7 +32,7 @@ public class PoetryCommandHelper {
     private File workingDirectory;
 
     public PoetryCommandHelper(File workingDirectory) {
-	this.workingDirectory = workingDirectory;
+        this.workingDirectory = workingDirectory;
     }
 
     /**
@@ -40,48 +40,48 @@ public class PoetryCommandHelper {
      * Poetry is installed and if so, the version of Poetry that is installed. If
      * Poetry is not installed, the returned {@link String} part of the {@link Pair}
      * will be {@code null}.
-     * 
+     *
      * @return
      */
     public Pair<Boolean, String> getIsPoetryInstalledAndVersion() {
-	try {
-	    ProcessExecutor executor = createPoetryExecutor(Arrays.asList("--version"));
-	    String versionResult = executor.executeAndGetResult(logger);
+        try {
+            ProcessExecutor executor = createPoetryExecutor(Arrays.asList("--version"));
+            String versionResult = executor.executeAndGetResult(logger);
 
-	    // Extracts version number from output, whether it's "Poetry version 1.1.15" or
-	    // "Poetry (version 1.2.1)"
-	    String version = versionResult.replaceAll(extractVersionRegex, "");
-	    return new ImmutablePair<Boolean, String>(true, version);
-	} catch (Throwable e) {
-	    return new ImmutablePair<Boolean, String>(false, null);
-	}
+            // Extracts version number from output, whether it's "Poetry version 1.1.15" or
+            // "Poetry (version 1.2.1)"
+            String version = versionResult.replaceAll(extractVersionRegex, "");
+            return new ImmutablePair<Boolean, String>(true, version);
+        } catch (Throwable e) {
+            return new ImmutablePair<Boolean, String>(false, null);
+        }
     }
 
     /**
      * Returns whether the specified dependency package is installed within this
      * Poetry project's virtual environment (and pyproject.toml).
-     * 
+     *
      * @param packageName
      * @return
      */
     public boolean isDependencyInstalled(String packageName) {
-	try {
-	    execute(Arrays.asList("show", packageName));
-	} catch (Throwable e) {
-	    return false;
-	}
-	return true;
+        try {
+            execute(Arrays.asList("show", packageName));
+        } catch (Throwable e) {
+            return false;
+        }
+        return true;
 
     }
 
     /**
      * Installs the specified package as a development dependency to this Poetry
      * project's virtual environment and pyproject.toml specification.
-     * 
+     *
      * @param packageName
      */
     public void installDevelopmentDependency(String packageName) throws MojoExecutionException {
-	execute(Arrays.asList("add", packageName, "--group", "dev"));
+        execute(Arrays.asList("add", packageName, "--group", "dev"));
     }
 
     /**
@@ -90,17 +90,17 @@ public class PoetryCommandHelper {
      * should be utilized when performing downstream logic based on the output of a
      * Poetry command, or it is desirable to not show the command's generated
      * stdout.
-     * 
+     *
      * @param arguments
      * @return
      * @throws MojoExecutionException
      */
     public String execute(List<String> arguments) throws MojoExecutionException {
-	if (logger.isInfoEnabled()) {
-	    logger.info("Executing Poetry command: {} {}", POETRY_COMMAND, StringUtils.join(arguments, " "));
-	}
-	ProcessExecutor executor = createPoetryExecutor(arguments);
-	return executor.executeAndGetResult(logger);
+        if (logger.isInfoEnabled()) {
+            logger.info("Executing Poetry command: {} {}", POETRY_COMMAND, StringUtils.join(arguments, " "));
+        }
+        ProcessExecutor executor = createPoetryExecutor(arguments);
+        return executor.executeAndGetResult(logger);
     }
 
     /**
@@ -109,17 +109,17 @@ public class PoetryCommandHelper {
      * process exit code. This method should be utilized when it is desirable to
      * immediately show all of the stdout/stderr produced by a Poetry command for
      * diagnostic purposes.
-     * 
+     *
      * @param arguments
      * @return
      * @throws MojoExecutionException
      */
     public int executeAndLogOutput(List<String> arguments) throws MojoExecutionException {
-	if (logger.isInfoEnabled()) {
-	    logger.info("Executing Poetry command: {} {}", POETRY_COMMAND, StringUtils.join(arguments, " "));
-	}
-	ProcessExecutor executor = createPoetryExecutor(arguments);
-	return executor.executeAndRedirectOutput(logger);
+        if (logger.isInfoEnabled()) {
+            logger.info("Executing Poetry command: {} {}", POETRY_COMMAND, StringUtils.join(arguments, " "));
+        }
+        ProcessExecutor executor = createPoetryExecutor(arguments);
+        return executor.executeAndRedirectOutput(logger);
     }
 
     /**
@@ -128,22 +128,22 @@ public class PoetryCommandHelper {
      * marked as sensitive. This method should be utilized if any Poetry command
      * line arguments contain sensitive values that are not desirable to log, such
      * as passwords.
-     * 
+     *
      * @param argAndIsSensitivePairs
      * @return
      * @throws MojoExecutionException
      */
     public int executeWithSensitiveArgsAndLogOutput(List<Pair<String, Boolean>> argAndIsSensitivePairs)
-	    throws MojoExecutionException {
-	if (logger.isInfoEnabled()) {
-	    List<String> argsWithSensitiveArgsMasked = argAndIsSensitivePairs.stream()
-		    .map(pair -> pair.getRight() ? "XXXX" : pair.getLeft()).collect(Collectors.toList());
-	    logger.info("Executing Poetry command: {} {}", POETRY_COMMAND,
-		    StringUtils.join(argsWithSensitiveArgsMasked, " "));
-	}
-	ProcessExecutor executor = createPoetryExecutor(
-		argAndIsSensitivePairs.stream().map(Pair::getLeft).collect(Collectors.toList()));
-	return executor.executeAndRedirectOutput(logger);
+            throws MojoExecutionException {
+        if (logger.isInfoEnabled()) {
+            List<String> argsWithSensitiveArgsMasked = argAndIsSensitivePairs.stream()
+                    .map(pair -> pair.getRight() ? "XXXX" : pair.getLeft()).collect(Collectors.toList());
+            logger.info("Executing Poetry command: {} {}", POETRY_COMMAND,
+                    StringUtils.join(argsWithSensitiveArgsMasked, " "));
+        }
+        ProcessExecutor executor = createPoetryExecutor(
+                argAndIsSensitivePairs.stream().map(Pair::getLeft).collect(Collectors.toList()));
+        return executor.executeAndRedirectOutput(logger);
     }
 
     /**
@@ -155,52 +155,52 @@ public class PoetryCommandHelper {
      * <b>NOTE:</b>The executed Poetry command will *not* be halted nor terminated
      * when the timeout expires. After the timeout expires, this method will
      * continue to wait until underlying Poetry command completes.
-     * 
+     *
      * @param arguments
      * @param timeout
      * @param timeUnit
      * @return
      */
     public Integer executePoetryCommandAndLogAfterTimeout(List<String> arguments, int timeout, TimeUnit timeUnit) {
-	ExecutorService executor = Executors.newSingleThreadExecutor();
-	Future<Integer> future = executor.submit(() -> this.executeAndLogOutput(arguments));
-	try {
-	    return future.get(timeout, timeUnit);
-	} catch (TimeoutException e) {
-	    logger.warn("poetry " + String.join(" ", arguments)
-		    + " has been running for quite some time, you may want to quit the mvn process (Ctrl+c) and run \"poetry cache clear . --all\" and restart your build.");
-	    try {
-		return future.get();
-	    } catch (InterruptedException | ExecutionException e1) {
-		throw new RuntimeException("Error occurred while waiting for Poetry command to complete", e1);
-	    }
-	} catch (Exception e) {
-	    throw new RuntimeException(String.format("Error occurred while performing Poetry command: poetry %s",
-		    StringUtils.join(arguments, " ")), e);
-	} finally {
-	    executor.shutdown();
-	}
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Integer> future = executor.submit(() -> this.executeAndLogOutput(arguments));
+        try {
+            return future.get(timeout, timeUnit);
+        } catch (TimeoutException e) {
+            logger.warn("poetry " + String.join(" ", arguments)
+                    + " has been running for quite some time, you may want to quit the mvn process (Ctrl+c) and run \"poetry cache clear . --all\" and restart your build.");
+            try {
+                return future.get();
+            } catch (InterruptedException | ExecutionException e1) {
+                throw new RuntimeException("Error occurred while waiting for Poetry command to complete", e1);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Error occurred while performing Poetry command: poetry %s",
+                    StringUtils.join(arguments, " ")), e);
+        } finally {
+            executor.shutdown();
+        }
     }
 
     /**
      * Installs a Poetry plugin with the given name.
-     * 
+     *
      * @param name
      * @return
      * @throws MojoExecutionException
      */
     public int installPoetryPlugin(String name) throws MojoExecutionException {
-	List<String> args = new ArrayList<String>();
-	args.add("self");
-	args.add("add");
-	args.add(name);
-	return this.executeAndLogOutput(args);
+        List<String> args = new ArrayList<String>();
+        args.add("self");
+        args.add("add");
+        args.add(name);
+        return this.executeAndLogOutput(args);
     }
 
     protected ProcessExecutor createPoetryExecutor(List<String> arguments) {
-	List<String> fullCommandArgs = new ArrayList<>();
-	fullCommandArgs.add(POETRY_COMMAND);
-	fullCommandArgs.addAll(arguments);
-	return new ProcessExecutor(workingDirectory, fullCommandArgs, Platform.guess(), null);
+        List<String> fullCommandArgs = new ArrayList<>();
+        fullCommandArgs.add(POETRY_COMMAND);
+        fullCommandArgs.addAll(arguments);
+        return new ProcessExecutor(workingDirectory, fullCommandArgs, Platform.guess(), null);
     }
 }
