@@ -9,6 +9,8 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
@@ -26,6 +28,8 @@ import org.technologybrewery.habushu.exec.PyenvCommandHelper;
 public abstract class AbstractHabushuMojo extends AbstractMojo {
 
     protected static final String SNAPSHOT = "-SNAPSHOT";
+    protected static final Pattern SEMVER2_PATTERN = Pattern.compile("\\d+\\.\\d+\\.\\d+-(rc|alpha|beta)\\.\\d+$",
+                                                                     Pattern.CASE_INSENSITIVE);
 
     /**
      * The current Maven user's settings, pulled dynamically from their settings.xml
@@ -97,12 +101,14 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * property is true, Habushu may override the pyproject.toml defined version in
      * the following build phases/mojos:
      * <ul>
-     * <li>validate ({@link ValidatePyenvAndPoetryMojo}): Automatically sets the
+     * <li>initialize ({@link InitializeHabushuMojo}): Automatically sets the
      * Poetry package version to the version specified in the POM. If the POM is a
      * SNAPSHOT, the Poetry package version will be set to the corresponding
      * developmental release version without a numeric component (i.e. POM version
      * of {@code 1.2.3-SNAPSHOT} will result in the Poetry package version being set
-     * to {@code 1.2.3.dev}).</li>
+     * to {@code 1.2.3.dev}). If the version is a release candidate (`rc`), `alpha`,
+     * or `beta` version in SemVer 2.0 format then it is translated to the equivalent
+     * PEP 440 format.</li>
      * <li>deploy ({@link PublishToPyPiRepoMojo}): Automatically sets the version of
      * published Poetry packages that are SNAPSHOT modules to timestamped
      * developmental release versions (i.e. POM version of {@code 1.2.3-SNAPSHOT}
@@ -232,8 +238,13 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * @return version number of the encapsulated Python package, appropriately
      * formatted by the given parameters.
      */
-    protected String getPythonPackageVersion(String pomVersion, boolean addSnapshotNumber,
+    protected static String getPythonPackageVersion(String pomVersion, boolean addSnapshotNumber,
                                              String snapshotNumberDateFormatPattern) {
+        Matcher matcher = SEMVER2_PATTERN.matcher(pomVersion);
+        if(matcher.matches()) {
+            String qualifier = matcher.group(1);
+            pomVersion = pomVersion.replace("-" + qualifier + ".", qualifier);
+        }
         String pythonPackageVersion = pomVersion;
 
         if (isPomVersionSnapshot(pomVersion)) {
@@ -265,7 +276,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * @param pomVersion
      * @return
      */
-    protected boolean isPomVersionSnapshot(String pomVersion) {
+    protected static boolean isPomVersionSnapshot(String pomVersion) {
         return pomVersion.endsWith(SNAPSHOT);
     }
 

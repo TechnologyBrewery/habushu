@@ -76,7 +76,6 @@ public class ProcessExecutor {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public int executeAndRedirectOutput(final Logger logger) {
         OutputStream stdout = new LoggerOutputStream(logger, 0);
         ByteArrayOutputStream stderr = new ByteArrayOutputStream();
