@@ -1,0 +1,11 @@
+[
+  {
+    "name": "custom-monorepo-group-migration",
+    "implementation": "org.technologybrewery.habushu.migration.CustomMonorepoGroupMigration",
+    "fileSets": [
+      {
+        "includes": ["pyproject.toml"]
+      }
+    ]
+  }
+]

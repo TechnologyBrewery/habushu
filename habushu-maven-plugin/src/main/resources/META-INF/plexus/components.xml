@@ -13,8 +13,11 @@
 					<lifecycle>
 						<id>default</id>
 						<phases>
-							<validate>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:validate-pyenv-and-poetry</validate>
-							<initialize>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:initialize-habushu</initialize>
+							<initialize>
+								org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:initialize-habushu,
+								org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:validate-pyenv-and-poetry,
+								org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:baton-migrate
+							</initialize>
 							<compile>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:install-dependencies</compile>
 							<process-classes>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:format-python</process-classes>
 							<test>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:behave-bdd-test</test>

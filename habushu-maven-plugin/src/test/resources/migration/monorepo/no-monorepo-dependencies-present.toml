@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "no-monorepo-dependencies-present"
+version = "2.9.0.dev"
+description = "Test monorepo migration does not impact toml file with no applicable changes"
+authors = ["Test <blah@foobar.com>"]
+license = "MIT License"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[tool.poetry.dev-dependencies]
+black = "^18.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.6.0"]
+build-backend = "poetry.core.masonry.api"

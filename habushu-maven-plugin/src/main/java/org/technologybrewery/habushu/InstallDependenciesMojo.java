@@ -15,6 +15,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
+import org.technologybrewery.habushu.util.TomlReplacementTuple;
+import org.technologybrewery.habushu.util.TomlUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -286,7 +288,7 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
                 if (dependencyMap.containsKey(packageName)) {
                     Object packageRhs = dependencyMap.get(packageName);
 
-                    if (representsLocalDevelopmentVersion(packageRhs)) {
+                    if (TomlUtils.representsLocalDevelopmentVersion(packageRhs)) {
                         getLog().info(String.format("%s does not have a specific version to manage - skipping", packageName));
                         getLog().debug(String.format("\t %s", packageRhs.toString()));
                         continue;
@@ -373,8 +375,8 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
 
                                 TomlReplacementTuple matchedTuple = replacements.get(key);
                                 if (matchedTuple != null) {
-                                    String original = escapeTomlRightHandSide(matchedTuple.getOriginalOperatorAndVersion());
-                                    String updated = escapeTomlRightHandSide(matchedTuple.getUpdatedOperatorAndVersion());
+                                    String original = TomlUtils.escapeTomlRightHandSide(matchedTuple.getOriginalOperatorAndVersion());
+                                    String updated =  TomlUtils.escapeTomlRightHandSide(matchedTuple.getUpdatedOperatorAndVersion());
 
                                     if (line.endsWith(original)) {
                                         line = line.replace(original, updated);
@@ -394,43 +396,15 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
                     throw new HabushuException("Problem reading pyproject.toml to update with managed dependencies!", e);
                 }
 
-                writeTomlFile(pyProjectTomlFile, fileContent);
+                try {
+                    TomlUtils.writeTomlFile(pyProjectTomlFile, fileContent);
+
+                } catch (IOException e) {
+                    throw new HabushuException("Problem writing pyproject.toml with managed dependency updates!", e);
+                }
+
             }
         }
-    }
-
-    /**
-     * Handles escaping with double quotes only if the value is not an inline table.
-     *
-     * @param valueToEscape value to potentially escape
-     * @return value ready to write to toml file
-     */
-    protected static String escapeTomlRightHandSide(String valueToEscape) {
-        return (!valueToEscape.contains("{")) ? DOUBLE_QUOTE + valueToEscape + DOUBLE_QUOTE : valueToEscape;
-    }
-
-    private static void writeTomlFile(File pyProjectTomlFile, String fileContent) {
-        if (fileContent != null) {
-            try (Writer writer = new FileWriter(pyProjectTomlFile)) {
-                writer.write(fileContent);
-            } catch (IOException e) {
-                throw new HabushuException("Problem writing pyproject.toml with managed dependency updates!", e);
-            }
-        }
-    }
-
-    protected boolean representsLocalDevelopmentVersion(Object rawData) {
-        boolean localDevelopmentVersion = false;
-
-        if (rawData instanceof CommentedConfig) {
-            CommentedConfig config = (CommentedConfig) rawData;
-            if (!config.contains("version")) {
-                localDevelopmentVersion = true;
-            }
-
-        }
-
-        return localDevelopmentVersion;
     }
 
     protected String getOperatorAndVersion(Object rawData) {
@@ -439,7 +413,7 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
             operatorAndVersion = (String) rawData;
 
         } else if (rawData instanceof CommentedConfig) {
-            operatorAndVersion = convertCommentedConfigToToml((CommentedConfig) rawData);
+            operatorAndVersion = TomlUtils.convertCommentedConfigToToml((CommentedConfig) rawData);
 
         } else {
             getLog().warn(String.format("Could not process type %s - attempting to use toString() value!", rawData.getClass()));
@@ -448,31 +422,6 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
 
         return operatorAndVersion;
 
-    }
-
-    protected static String convertCommentedConfigToToml(CommentedConfig config) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{");
-
-        sb.append("version = \"").append(config.get("version").toString()).append("\"");
-        List<String> extras = config.get("extras");
-        if (CollectionUtils.isNotEmpty(extras)) {
-            sb.append(", extras = [");
-            // NB: if we expect more complex values, such as multiple extras, more work would need to be done for
-            // both consistent formatting and comparison of these values.  However, at the time of initially writing
-            // this method, there isn't a clear demand signal, so we are going to KISS for now:
-
-            for (int i = 0; i < extras.size(); i++) {
-                if (i > 0) {
-                    sb.append(", ");
-                }
-                sb.append("\"").append(extras.get(i)).append("\"");
-            }
-            sb.append("]");
-        }
-        sb.append("}");
-
-        return sb.toString();
     }
 
     protected static String replaceSnapshotWithWildcard(String pomVersion) {
@@ -490,33 +439,6 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
     @Deprecated
     protected static String replaceSnapshotWithDev(String pomVersion) {
         return pomVersion.substring(0, pomVersion.indexOf(SNAPSHOT)) + ".dev";
-    }
-
-    private class TomlReplacementTuple {
-        private String packageName;
-
-        private String originalOperatorAndVersion;
-
-        private String updatedOperatorAndVersion;
-
-        public TomlReplacementTuple(String packageName, String originalOperatorAndVersion, String updatedOperatorAndVersion) {
-            this.packageName = packageName;
-            this.originalOperatorAndVersion = originalOperatorAndVersion;
-            this.updatedOperatorAndVersion = updatedOperatorAndVersion;
-
-        }
-
-        public String getPackageName() {
-            return packageName;
-        }
-
-        public String getOriginalOperatorAndVersion() {
-            return originalOperatorAndVersion;
-        }
-
-        public String getUpdatedOperatorAndVersion() {
-            return updatedOperatorAndVersion;
-        }
     }
 
 }
