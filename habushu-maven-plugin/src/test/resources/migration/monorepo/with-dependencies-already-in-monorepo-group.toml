@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "with-dependencies-already-in-monorepo-group"
+version = "2.9.0.dev"
+description = "Test moving monorepo dependecies when monorepo group already exists and no more chages are needed"
+authors = ["Test <blah@foobar.com>"]
+license = "MIT License"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[tool.poetry.group.monorepo.dependencies]
+some-local-monorepo-dependencies-1 = {path = "../some-local-monorepo-dependencies-1", develop = true}
+some-local-monorepo-dependencies-2 = {path = "../some-local-monorepo-dependencies-2", develop = true}
+some-local-monorepo-dependencies-3 = {path = "../some-local-monorepo-dependencies-3", develop = true}
+
+[tool.poetry.dev-dependencies]
+black = "^18.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.6.0"]
+build-backend = "poetry.core.masonry.api"

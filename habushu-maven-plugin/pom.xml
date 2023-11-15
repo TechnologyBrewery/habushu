@@ -90,6 +90,11 @@
             <version>${version.maven.deploy.plugin}</version>
         </dependency>
         <dependency>
+            <groupId>org.technologybrewery.baton</groupId>
+            <artifactId>baton-maven-plugin</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-sec-dispatcher</artifactId>
             <version>2.0</version>
