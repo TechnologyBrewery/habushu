@@ -1,15 +1,5 @@
 package org.technologybrewery.habushu;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -18,6 +8,13 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Leverages the behave package to execute BDD scenarios that are defined in the
@@ -59,51 +56,49 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
 
-	if (skipTests) {
-	    getLog().warn("Tests are skipped (-DskipTests=true)");
-	    return;
-	}
+        if (skipTests) {
+            getLog().warn("Tests are skipped (-DskipTests=true)");
+            return;
+        }
 
-	File behaveDirectory = new File(testDirectory, "features");
+        File behaveDirectory = new File(testDirectory, "features");
 
-	boolean hasTests;
-	try {
-	    hasTests = Files.list(behaveDirectory.toPath()).findAny().isPresent();
-	} catch (IOException e) {
-	    throw new MojoExecutionException("Could not load behave features directory", e);
-	}
+        boolean hasTests;
+        try {
+            hasTests = behaveDirectory.exists() && Files.list(behaveDirectory.toPath()).findAny().isPresent();
+        } catch (IOException e) {
+            throw new MojoExecutionException("Could not load behave features directory", e);
+        }
 
-	if (hasTests) {
-	    PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
+        if (hasTests) {
+            PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
 
-	    if (!poetryHelper.isDependencyInstalled(BEHAVE_PACKAGE)) {
-		getLog().info(String.format("%s dependency not specified in pyproject.toml - installing now...",
-			BEHAVE_PACKAGE));
-		poetryHelper.installDevelopmentDependency(BEHAVE_PACKAGE);
-	    }
+            if (!poetryHelper.isDependencyInstalled(BEHAVE_PACKAGE)) {
+                getLog().info(String.format("%s dependency not specified in pyproject.toml - installing now...",
+                        BEHAVE_PACKAGE));
+                poetryHelper.installDevelopmentDependency(BEHAVE_PACKAGE);
+            }
 
-	    List<String> executeBehaveTestArgs = new ArrayList<>();
-	    executeBehaveTestArgs
-		    .addAll(Arrays.asList("run", BEHAVE_PACKAGE, getCanonicalPathForFile(behaveDirectory)));
+            List<String> executeBehaveTestArgs = new ArrayList<>();
+            executeBehaveTestArgs
+                    .addAll(Arrays.asList("run", BEHAVE_PACKAGE, getCanonicalPathForFile(behaveDirectory)));
 
-	    if (StringUtils.isNotEmpty(behaveOptions)) {
-		executeBehaveTestArgs.addAll(Arrays.asList(StringUtils.split(behaveOptions)));
-	    } else {
-		if (behaveExcludeManualTag) {
-		    executeBehaveTestArgs.add("--tags=-manual");
-		}
-	    }
+            if (StringUtils.isNotEmpty(behaveOptions)) {
+                executeBehaveTestArgs.addAll(Arrays.asList(StringUtils.split(behaveOptions)));
+            } else {
+                if (behaveExcludeManualTag) {
+                    executeBehaveTestArgs.add("--tags=-manual");
+                }
+            }
 
-	    getLog().info(String.format("Executing behave tests in %s...", getCanonicalPathForFile(behaveDirectory)));
-	    getLog().info("-------------------------------------------------------");
-	    getLog().info("T E S T S");
-	    getLog().info("-------------------------------------------------------");
-	    poetryHelper.executeAndLogOutput(executeBehaveTestArgs);
-	}
-
-	else {
-	    getLog().warn(String.format("No tests found in %s", getCanonicalPathForFile(behaveDirectory)));
-	}
+            getLog().info(String.format("Executing behave tests in %s...", getCanonicalPathForFile(behaveDirectory)));
+            getLog().info("-------------------------------------------------------");
+            getLog().info("T E S T S");
+            getLog().info("-------------------------------------------------------");
+            poetryHelper.executeAndLogOutput(executeBehaveTestArgs);
+        } else {
+            getLog().warn(String.format("No tests found in %s", getCanonicalPathForFile(behaveDirectory)));
+        }
 
     }
 
