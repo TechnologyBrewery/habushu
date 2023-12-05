@@ -11,6 +11,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 import org.technologybrewery.habushu.exec.PyenvCommandHelper;
 import org.technologybrewery.habushu.exec.PythonVersionHelper;
+import org.technologybrewery.habushu.util.PoetryUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,12 +34,6 @@ class PyenvAndPoetrySetup {
      * must be installed and available for Habushu to use.
      */
     static final String PYTHON_DEFAULT_VERSION_REQUIREMENT = "3.11.4";
-
-    /**
-     * Specifies the semver compliant requirement for the version of Poetry that
-     * must be installed and available for Habushu to use.
-     */
-    protected static final String POETRY_VERSION_REQUIREMENT = "^1.5.0";
 
     /**
      * The desired version of Python to use.
@@ -129,10 +124,10 @@ class PyenvAndPoetrySetup {
         } else {
 
             Semver poetryVersionSemver = new Semver(poetryInstallStatusAndVersion.getRight(), SemverType.NPM);
-            if (!poetryVersionSemver.satisfies(POETRY_VERSION_REQUIREMENT)) {
+            if (!poetryVersionSemver.satisfies(PoetryUtil.POETRY_VERSION_REQUIREMENT)) {
                 missingRequiredToolMsgs.add(String.format(
                         "Poetry version %s was installed - Habushu requires that installed version of Poetry satisfies %s.  Please update Poetry by executing 'poetry self update' or visit https://python-poetry.org/docs/#installation for more information",
-                        poetryInstallStatusAndVersion.getRight(), POETRY_VERSION_REQUIREMENT));
+                        poetryInstallStatusAndVersion.getRight(), PoetryUtil.POETRY_VERSION_REQUIREMENT));
             } else {
                 log.info("Found Poetry " + poetryInstallStatusAndVersion.getRight());
             }

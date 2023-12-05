@@ -7,5 +7,14 @@
         "includes": ["pyproject.toml"]
       }
     ]
+  },
+  {
+    "name": "custom-poetry-core-version-migration",
+    "implementation": "org.technologybrewery.habushu.migration.CustomPoetrycoreVersionMigration",
+    "fileSets": [
+      {
+        "includes": ["pyproject.toml"]
+      }
+    ]
   }
 ]

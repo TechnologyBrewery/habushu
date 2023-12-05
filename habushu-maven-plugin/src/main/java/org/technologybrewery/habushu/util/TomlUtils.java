@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Common utility methods for handling TOML files.
  */
@@ -22,6 +25,12 @@ public final class TomlUtils {
     public static final String PATH = "path";
     public static final String DEVELOP = "develop";
     public static final String EXTRAS = "extras";
+
+    public static final String BUILD_SYSTEM = "build-system";
+    public static final String REQUIRES = "requires";
+    public static final String POETRY_CORE ="poetry-core";
+    public static final String DOT = ".";
+
 
     protected TomlUtils() {
         // prevent instantiation of all static class
@@ -107,4 +116,58 @@ public final class TomlUtils {
         }
     }
 
+    /**
+     * Finds and returns the index of the first digit in a given string.
+     *
+     * @param input string
+     * @return index of the first digit. If not found then it will return -1.
+     */
+    public static int getIndexOfFirstDigit(String input) {
+        Pattern pattern = Pattern.compile("\\d");
+        Matcher matcher = pattern.matcher(input);
+        if(matcher.find()){
+            return matcher.start();
+        }
+        return -1;
+    }
+
+    /**
+     * Finds and returns the index of the last digit in a given string.
+     *
+     * @param input string
+     * @return index of the last digit. If not found then it will return -1.
+     */
+    public static int getIndexOfLastDigit(String input) {
+        Pattern pattern = Pattern.compile("\\d");
+        Matcher matcher = pattern.matcher(input);
+        int lastDigitIndex = -1;
+        while(matcher.find()){
+            lastDigitIndex =  matcher.end();
+        }
+        return lastDigitIndex;
+    }
+
+    /**
+     * Finds and returns the minor version in a given version string.
+     *
+     * @param input version string
+     * @return the minor version.
+     */
+    public static String getMinorReqVersion(String version) {
+        int minorVerReqIndex = version.indexOf(TomlUtils.DOT) + 1;
+        int endMinorVerReqIndex = version.lastIndexOf(TomlUtils.DOT);
+        return version.substring(minorVerReqIndex, endMinorVerReqIndex);
+    }
+
+    /**
+     * Finds and returns the major version in a given version string.
+     *
+     * @param input version string
+     * @return the major version.
+     */
+    public static String getMajorReqVersion(String version) {
+        int majorVerReqIndex = getIndexOfFirstDigit(version);
+        int endMajorVerReqIndex = version.indexOf(TomlUtils.DOT);
+        return version.substring(majorVerReqIndex, endMajorVerReqIndex);
+    }
 }
