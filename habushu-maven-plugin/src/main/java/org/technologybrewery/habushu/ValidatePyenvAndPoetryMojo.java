@@ -45,8 +45,12 @@ public class ValidatePyenvAndPoetryMojo extends AbstractHabushuMojo {
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
+        String username = findUsernameForServer();
+        String password = findPasswordForServer();
+
         PyenvAndPoetrySetup configureTools = new PyenvAndPoetrySetup(pythonVersion, usePyenv,
-                patchInstallScript, getPoetryProjectBaseDir(), rewriteLocalPathDepsInArchives, getLog());
+                patchInstallScript, getPoetryProjectBaseDir(), rewriteLocalPathDepsInArchives,
+                username, password, pypiRepoId, getLog());
         configureTools.execute();
     }
 

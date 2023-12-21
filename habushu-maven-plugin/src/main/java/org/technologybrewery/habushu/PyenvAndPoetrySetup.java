@@ -7,7 +7,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 import org.technologybrewery.habushu.exec.PyenvCommandHelper;
 import org.technologybrewery.habushu.exec.PythonVersionHelper;
@@ -80,6 +79,39 @@ class PyenvAndPoetrySetup {
      */
     private File patchInstallScript;
 
+    protected String username;
+
+    protected String password;
+
+    protected String pypiRepoId;
+
+    /**
+     * New instance - these values are typically passed in from Maven-enabled parameters in the calling Mojo.
+     *
+     * @param pythonVersion                  version of python to leverage
+     * @param usePyenv                       whether or not we are using pyenv to instance and activate python versions
+     * @param patchInstallScript             patch install script path
+     * @param baseDir                        base directory from which to operate for this module
+     * @param rewriteLocalPathDepsInArchives see memeber variable for details
+     * @param username                       username for server
+     * @param password                       password for server
+     * @param pypiRepoId                     id of the pypi repo server
+     * @param log                            the logger to use for output
+     */
+    public PyenvAndPoetrySetup(String pythonVersion, boolean usePyenv, File patchInstallScript,
+                               File baseDir, boolean rewriteLocalPathDepsInArchives,
+                               String username, String password, String pypiRepoId, Log log) {
+        this.pythonVersion = pythonVersion;
+        this.usePyenv = usePyenv;
+        this.patchInstallScript = patchInstallScript;
+        this.baseDir = baseDir;
+        this.rewriteLocalPathDepsInArchives = rewriteLocalPathDepsInArchives;
+        this.log = log;
+        this.username = username;
+        this.password = password;
+        this.pypiRepoId = pypiRepoId;
+    }
+
     /**
      * New instance - these values are typically passed in from Maven-enabled parameters in the calling Mojo.
      *
@@ -98,6 +130,9 @@ class PyenvAndPoetrySetup {
         this.baseDir = baseDir;
         this.rewriteLocalPathDepsInArchives = rewriteLocalPathDepsInArchives;
         this.log = log;
+        this.username = null;
+        this.password = null;
+        this.pypiRepoId = null;
     }
 
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -146,6 +181,15 @@ class PyenvAndPoetrySetup {
         if (rewriteLocalPathDepsInArchives) {
             log.info("Checking for updates to poetry-monorepo-dependency-plugin...");
             poetryHelper.installPoetryPlugin("poetry-monorepo-dependency-plugin");
+        }
+
+        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
+            log.info(String.format("Did not find username and password for the server with <id> %s. Will use existing configuration.", pypiRepoId));
+        }
+        else {
+            log.info(String.format("Adding username and password configuration for %s", pypiRepoId));
+            poetryHelper.execute(
+                    Arrays.asList("config", String.format("http-basic.%s", pypiRepoId), username, password));
         }
     }
 
