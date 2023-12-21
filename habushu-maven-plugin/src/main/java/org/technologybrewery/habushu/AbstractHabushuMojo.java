@@ -18,9 +18,13 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
+import org.sonatype.plexus.components.cipher.PlexusCipherException;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 import org.technologybrewery.habushu.exec.PyenvCommandHelper;
+import org.technologybrewery.habushu.util.MavenPasswordDecoder;
 
 /**
  * Contains logic common across the various Habushu mojos.
@@ -37,6 +41,15 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "${settings}", readonly = true, required = true)
     protected Settings settings;
+
+    /**
+     * Toggle for whether the server password should be decrypted or retrieved as
+     * plain text.
+     * <p>
+     * true (default) -> decrypt false -> plain text
+     */
+    @Parameter(property = "habushu.decryptPassword", defaultValue = "true")
+    protected boolean decryptPassword;
 
     /**
      * The packaging type of the current Maven project. If it is not "habushu", then habushu packaging-related mojos
@@ -148,6 +161,58 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "false", property = "habushu.rewriteLocalPathDepsInArchives")
     protected boolean rewriteLocalPathDepsInArchives;
+
+    /**
+     * Find the username for a given server in Maven's user settings.
+     *
+     * @return the username for the server specified in Maven's settings.xml
+     */
+    public String findUsernameForServer() {
+        Server server = this.settings.getServer(this.pypiRepoId);
+        return server != null ? server.getUsername() : null;
+    }
+
+    /**
+     * Find the password for a given server in Maven's user settings, decrypting password if needed.
+     *
+     * @return the password for the server specified in Maven's settings.xml
+     */
+    public String findPasswordForServer() {
+        String password = "";
+        if (this.decryptPassword) {
+            password = decryptServerPassword();
+        } else {
+            getLog().warn(
+                    "Detected use of plain-text password!  This is a security risk!  Please consider using an encrypted password!");
+            password = findPlaintextPasswordForServer();
+        }
+        return password;
+    }
+
+    /**
+     * Simple utility method to decrypt a stored password for a server.
+     */
+    public String decryptServerPassword() {
+        String decryptedPassword = null;
+
+        try {
+            decryptedPassword = MavenPasswordDecoder.decryptPasswordForServer(this.settings, this.pypiRepoId);
+        } catch (PlexusCipherException | SecDispatcherException e) {
+            throw new HabushuException("Unable to decrypt stored passwords.", e);
+        }
+
+        return decryptedPassword;
+    }
+
+    /**
+     * Find the plain-text server password, without decryption steps, extracted from Maven's user settings.
+     *
+     * @return the password for the specified server from Maven's settings.xml
+     */
+    public String findPlaintextPasswordForServer() {
+        Server server = this.settings.getServer(this.pypiRepoId);
+        return server != null ? server.getPassword() : null;
+    }
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
