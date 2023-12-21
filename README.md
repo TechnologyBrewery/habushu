@@ -542,6 +542,12 @@ Folder in which Python test files are located - should align with Poetry's proje
 
 Default: `${project.basedir}/tests`
 
+#### cacheBuildWheelFiles ####
+
+Enables or Disables the copying of poetry build wheel files into Poetry cache.
+
+Default: `false`
+
 #### managedDependencies ####
 
 Optional set of dependencies to manage across modules extending a parent pom. This allows packages to be managed to a 
@@ -693,4 +699,3 @@ If you are working on Habushu, please be aware of some nuances in working with a
 * `mvn clean install -Pbootstrap`: Builds the `habushu-maven-plugin` such that the custom `habushu` lifecycle may be utilized within subsequent builds.
   * **NOTE:** If updates are made to the `habushu` lifecycle (i.e. updates to the `habushu` lifecycle mapping configuration made in `habushu-maven-plugin/src/main/resources/META-INF/plexus/components.xml`), developers **MUST**  changes require two builds to test - one to build the lifecycle, then a second to use that updated lifecycle.  Code changes to `Mojo` classes within the existing `habushu` lifecycle work via normal builds without the need for a second pass.
 * `mvn clean install -Pdefault`: (ACTIVE BY DEFAULT - `-Pdefault` does not need to be specified) builds all modules.  Developers may use this profile to build and apply changes to existing `habushu-maven-plugin` `Mojo` classes
-
