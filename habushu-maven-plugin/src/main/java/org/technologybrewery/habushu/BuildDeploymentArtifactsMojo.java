@@ -47,10 +47,10 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
     protected boolean exportRequirementsFile;
 
     /**
-     * By default, do not cache wheel (*.whl) file.
+     * By default, do not cache wheel (*.whl) file(s).
      */
-    @Parameter(property = "habushu.cacheBuildWheelFiles", required = false, defaultValue = "false")
-    protected boolean cacheBuildWheelFiles;
+    @Parameter(property = "habushu.cacheWheels", required = false, defaultValue = "false")
+    protected boolean cacheWheels;
 
     /**
      * By default, do not include the --without-urls flag when exporting.
@@ -128,8 +128,8 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
             setUpPlaceholderFileAsMavenArtifact();
         }
 
-        if(cacheBuildWheelFiles){
-            cacheWheelFiles();
+        if(cacheWheels){
+            cacheWheelFile();
         }
     }
 
@@ -168,7 +168,7 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
         project.getArtifact().setFile(mavenArtifactFile);
     }
 
-    private void cacheWheelFiles() {
+    private void cacheWheelFile() {
         PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
         try{
             File wheelSourceDirectory = new File(String.format("%s/dist", project.getBasedir()));

@@ -542,9 +542,9 @@ Folder in which Python test files are located - should align with Poetry's proje
 
 Default: `${project.basedir}/tests`
 
-#### cacheBuildWheelFiles ####
+#### cacheWheels ####
 
-Enables or Disables the copying of poetry build wheel files into Poetry cache.
+Enables or Disables the copying of wheels into Poetry cache.
 
 Default: `false`
 
