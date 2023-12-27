@@ -67,6 +67,9 @@
             <plugin>
                 <groupId>org.technologybrewery.habushu</groupId>
                 <artifactId>habushu-maven-plugin</artifactId>
+                <configuration>
+                    <cacheWheels>true</cacheWheels>
+                </configuration>
             </plugin>
         </plugins>
     </build>
