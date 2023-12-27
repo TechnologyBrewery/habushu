@@ -194,7 +194,7 @@ public final class HabushuUtil {
             File destinationFile = new File(destinationFilePath);
             FileUtils.copyFile(sourceFile, destinationFile);
         } catch(IOException ioe){
-            throw new HabushuException("Could not copy the "+ sourceFilePath +" file!", ioe);
+            throw new HabushuException("Could not copy the file ["+ sourceFilePath +"] to [" + destinationFilePath +"]!", ioe);
         }
 
     }    
