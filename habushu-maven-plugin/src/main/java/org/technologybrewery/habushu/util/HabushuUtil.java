@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.technologybrewery.habushu.HabushuException;
@@ -144,4 +145,20 @@ public final class HabushuUtil {
 		}
     }
 
+    /**
+     * Copies specified file into specified path.
+     * 
+     * @param filePath the path to the file to copy
+     * @param destinationFilePath the path to where the new copy should be created
+     */
+    public static void copyFile(String sourceFilePath, String destinationFilePath) {
+        try{
+            File sourceFile = new File(sourceFilePath);
+            File destinationFile = new File(destinationFilePath);
+            FileUtils.copyFile(sourceFile, destinationFile);
+        } catch(IOException ioe){
+            throw new HabushuException("Could not copy the file ["+ sourceFilePath +"] to [" + destinationFilePath +"]!", ioe);
+        }
+
+    }    
 }

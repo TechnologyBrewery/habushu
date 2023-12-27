@@ -11,6 +11,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
+import java.io.InputStreamReader;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -55,6 +56,16 @@ public class PoetryCommandHelper {
         } catch (Throwable e) {
             return new ImmutablePair<Boolean, String>(false, null);
         }
+    }
+
+    /**
+     * Returns a {@link String} indicating the relative path to the poetry 
+     * cache directory. This is equivalent to {@code poetry config cache-dir}.
+     *
+     * @return
+     */
+    public String getPoetryCacheDirectoryPath() throws MojoExecutionException {
+        return execute(Arrays.asList("config", "cache-dir"));
     }
 
     /**
