@@ -186,7 +186,7 @@ public final class HabushuUtil {
      * Copies specified file into specified path.
      * 
      * @param filePath the path to the file to copy
-     * @param destinationFilePath the path to the file to copy
+     * @param destinationFilePath the path to where the new copy should be created
      */
     public static void copyFile(String sourceFilePath, String destinationFilePath) {
         try{

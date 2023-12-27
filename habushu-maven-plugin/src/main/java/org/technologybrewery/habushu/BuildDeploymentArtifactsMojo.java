@@ -171,10 +171,10 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
     private void cacheWheelFile() {
         PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
         try{
-            File wheelSourceDirectory = new File(String.format("%s/dist", project.getBasedir()));
+            File wheelSourceDirectory = new File(project.getBuild().getDirectory());
             String poetryCacheDirectoryPath = poetryHelper.getPoetryCacheDirectoryPath();
             File poetryWheelCacheDirectory = new File(String.format("%s/cache/repositories/wheels/%s", poetryCacheDirectoryPath, project.getArtifactId()));
-
+            //conditional will throw an error if cache directory isn't created 
             if(poetryWheelCacheDirectory.exists() || poetryWheelCacheDirectory.mkdirs()){
                 List<File> wheelFiles = Stream.of(wheelSourceDirectory.listFiles())
                                               .filter(file -> file.getAbsolutePath().endsWith(".whl"))

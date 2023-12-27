@@ -60,7 +60,7 @@ public class PoetryCommandHelper {
 
     /**
      * Returns a {@link String} indicating the relative path to the poetry 
-     * to cache directory. 
+     * cache directory. This is equivalent to {@code poetry config cache-dir}.
      *
      * @return
      */
