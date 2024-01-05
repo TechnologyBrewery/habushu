@@ -22,7 +22,10 @@
 							<process-classes>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:format-python</process-classes>
 							<test>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:behave-bdd-test</test>
 							<package>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:build-deployment-artifacts</package>
-							<install>org.apache.maven.plugins:maven-install-plugin:install</install>
+							<install>
+								org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:cache-wheels,
+								org.apache.maven.plugins:maven-install-plugin:install
+							</install>
 							<deploy>
 								org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:publish-to-pypi-repo,
 								org.apache.maven.plugins:maven-deploy-plugin:deploy
