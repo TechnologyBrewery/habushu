@@ -653,7 +653,7 @@ Uses [behave](https://github.com/behave/behave) to execute BDD scenarios that ar
 Builds the `sdist` and `wheel` archives of this project using `poetry build`. It also generates a `requirements.txt` file which is useful when installing the package in a Docker container where you may want to install the dependencies in a specific Docker layer to optimize caching.
 
 ##### install #####
-Publishes the `pom.xml` for the module into your local Maven Repository (`~/.m2/repository`).
+Publishes the `pom.xml` for the module into your local Maven Repository (`~/.m2/repository`). If the **cacheWheels** configuration is set to True, the `wheel` archive will be copied to the poetry cache directory (`~/{poetry-cache-dir}/cache/repositories/wheels/{artifact-id}/`). The **cacheWheels** configuration default behavior is not to cache the `wheel` archive.
 
 ##### deploy #####
 
