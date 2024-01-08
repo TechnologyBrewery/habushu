@@ -46,6 +46,16 @@ public class PoetrycoreVersionMigrationSteps {
         pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-2-0-0.toml");
     }
 
+    @Given("an existing pyproject.toml file with poetry-core version 1.5 in the build-system group")
+    public void an_existing_pyproject_toml_file_with_poetry_core_version_of_1_5_in_the_build_system_group() {
+        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-1-5.toml");
+    }
+
+    @Given("an existing pyproject.toml file with poetry-core version 1.5.8 in the build-system group")
+    public void an_existing_pyproject_toml_file_with_poetry_core_version_of_1_5_8_in_the_build_system_group() {
+        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-1-5-8.toml");
+    }
+
     @When("Habushu poetry core migration executes")
     public void habushu_migrations_execute() {
         CustomPoetrycoreVersionMigration migration = new CustomPoetrycoreVersionMigration();
