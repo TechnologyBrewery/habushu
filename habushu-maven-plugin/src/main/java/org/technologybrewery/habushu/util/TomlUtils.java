@@ -147,27 +147,4 @@ public final class TomlUtils {
         return lastDigitIndex;
     }
 
-    /**
-     * Finds and returns the minor version in a given version string.
-     *
-     * @param input version string
-     * @return the minor version.
-     */
-    public static String getMinorReqVersion(String version) {
-        int minorVerReqIndex = version.indexOf(TomlUtils.DOT) + 1;
-        int endMinorVerReqIndex = version.lastIndexOf(TomlUtils.DOT);
-        return version.substring(minorVerReqIndex, endMinorVerReqIndex);
-    }
-
-    /**
-     * Finds and returns the major version in a given version string.
-     *
-     * @param input version string
-     * @return the major version.
-     */
-    public static String getMajorReqVersion(String version) {
-        int majorVerReqIndex = getIndexOfFirstDigit(version);
-        int endMajorVerReqIndex = version.indexOf(TomlUtils.DOT);
-        return version.substring(majorVerReqIndex, endMajorVerReqIndex);
-    }
 }
