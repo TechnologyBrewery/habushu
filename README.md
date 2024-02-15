@@ -548,6 +548,28 @@ Enables or Disables the copying of wheels into Poetry cache.
 
 Default: `false`
 
+#### wheelDependencies ####
+
+Optional set of wheel dependencies to retrieve from poetry cache. This allows previously cached external 
+wheel dependencies to be copied into a given target directory if it exists in poetry cache. This logic 
+depends on wheels to have first been cached by `cacheWheels` habushu-maven-plugin configuration. Warnings 
+will be logged if the specified wheel isn't found. 
+```xml
+<plugin>
+	<groupId>org.technologybrewery.habushu</groupId>
+	<artifactId>habushu-maven-plugin</artifactId>
+	...
+	<configuration>
+		<wheelDependencies>
+			<wheelDependency>
+				<artifactId>black</artifactId>
+				<tartgetDirectory>${project.build.directory}</tartgetDirectory>
+			</wheelDependency>
+		</managedDependencies>
+		...
+	</configuration>
+</plugin>
+```
 #### managedDependencies ####
 
 Optional set of dependencies to manage across modules extending a parent pom. This allows packages to be managed to a 
@@ -653,7 +675,8 @@ Uses [behave](https://github.com/behave/behave) to execute BDD scenarios that ar
 Builds the `sdist` and `wheel` archives of this project using `poetry build`. It also generates a `requirements.txt` file which is useful when installing the package in a Docker container where you may want to install the dependencies in a specific Docker layer to optimize caching.
 
 ##### install #####
-Publishes the `pom.xml` for the module into your local Maven Repository (`~/.m2/repository`). If the **cacheWheels** configuration is set to True, the `wheel` archive will be copied to the poetry cache directory (`~/{poetry-cache-dir}/cache/repositories/wheels/{artifact-id}/`). The **cacheWheels** configuration default behavior is not to cache the `wheel` archive.
+Publishes the `pom.xml` for the module into your local Maven Repository (`~/.m2/repository`). If the **cacheWheels** configuration is set to True, the `wheel` archive will be copied to the poetry cache directory (`~/{poetry-cache-dir}/cache/repositories/wheels/{artifact-id}/`). The **cacheWheels** configuration default behavior is not to cache the `wheel` archive. If the **wheelDependencies** list is set, each specified wheel dependency will be 
+retrieve and placed into the given target directory.
 
 ##### deploy #####
 

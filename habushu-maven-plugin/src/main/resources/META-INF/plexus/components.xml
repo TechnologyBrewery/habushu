@@ -23,7 +23,7 @@
 							<test>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:behave-bdd-test</test>
 							<package>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:build-deployment-artifacts</package>
 							<install>
-								org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:cache-wheels,
+								org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:manage-wheels,
 								org.apache.maven.plugins:maven-install-plugin:install
 							</install>
 							<deploy>
