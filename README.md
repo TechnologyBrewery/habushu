@@ -562,7 +562,7 @@ will be logged if the specified wheel isn't found.
 	<configuration>
 		<wheelDependencies>
 			<wheelDependency>
-				<artifactId>black</artifactId>
+				<artifactId>foundation-core-python</artifactId>
 				<tartgetDirectory>${project.build.directory}</tartgetDirectory>
 			</wheelDependency>
 		</managedDependencies>
