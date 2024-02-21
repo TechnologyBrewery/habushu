@@ -13,6 +13,8 @@ Habushu is implemented as a series of [Maven](https://maven.apache.org/) plugins
 
 No one person will agree with all the opinions implemented by Habushu. The value in being able to run entire builds from a single `mvn clean install` command regardless of your prior experience with the projects adds substantial value - both locally and in DevSecOps scenarios.
 
+More information about how Habushu can be used and benefit your project can be found in [this blog post, which covers how Habushu helps acheive repeatable Python builds in polyglot monorepos](https://codifyiq.substack.com/p/habushu-supporting-python-in-polyglot).
+
 ## Requirements ##
 
 In order to use Habushu, the following prerequisites must be installed:
