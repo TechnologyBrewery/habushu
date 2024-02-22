@@ -19,7 +19,6 @@ public class DependencyManagementSteps {
 
     private DependencyManagementTestMojo mojo;
     private File originalPyProjectToml = new File("target/orig.pyproject.toml");
-    private File originalPyProjectToml2 = new File("target/orig.pyproject2.toml");
     private File finalPyProjectToml = new File("target/final.pyproject.toml");
     private HabushuException encounteredException;
 
