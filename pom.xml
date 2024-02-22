@@ -53,6 +53,7 @@
 	<properties>
 		<!-- override parent POM until it is next upgrade (arguably, this property should not be in parent at all: -->
 		<version.python.default>3.11.4</version.python.default>
+		<version.cucumber.reporting.plugin>5.7.5</version.cucumber.reporting.plugin>
 	</properties>
 
 	<dependencyManagement>
@@ -68,6 +69,36 @@
 	</dependencyManagement>
 
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>net.masterthought</groupId>
+					<artifactId>maven-cucumber-reporting</artifactId>
+					<version>${version.cucumber.reporting.plugin}</version>
+					<executions>
+						<execution>
+							<id>execution</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>generate</goal>
+							</goals>
+							<configuration>
+								<projectName>${project.artifactId}</projectName>
+								<skipEmptyJSONFiles>true</skipEmptyJSONFiles>
+								<checkBuildResult>true</checkBuildResult>
+								<treatUndefinedAsFailed>true</treatUndefinedAsFailed>
+								<treatSkippedAsFailed>false</treatSkippedAsFailed>
+								<outputDirectory>${project.build.directory}/cucumber-reports</outputDirectory>
+								<inputDirectory>${project.build.directory}/cucumber-reports</inputDirectory>
+								<jsonFiles>
+									<param>**/cucumber.json</param>
+								</jsonFiles>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>

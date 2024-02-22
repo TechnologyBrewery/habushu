@@ -14,6 +14,15 @@
     <artifactId>habushu-mixology</artifactId>
     <packaging>habushu</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>net.masterthought</groupId>
+            <artifactId>cucumber-reporting</artifactId>
+            <version>${version.cucumber.reporting.plugin}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <directory>dist</directory>
         <pluginManagement>
@@ -67,6 +76,10 @@
             <plugin>
                 <groupId>org.technologybrewery.habushu</groupId>
                 <artifactId>habushu-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>net.masterthought</groupId>
+                <artifactId>maven-cucumber-reporting</artifactId>
             </plugin>
         </plugins>
     </build>

@@ -29,6 +29,7 @@ import java.util.List;
 public class BehaveBddTestMojo extends AbstractHabushuMojo {
 
     protected static final String BEHAVE_PACKAGE = "behave";
+    protected static final String BEHAVE_CUCUMBER_FORMATTER = "behave-cucumber-formatter";
 
     /**
      * Options that should be passed to the behave command. <b>NOTE:</b> If this
@@ -36,6 +37,20 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
      */
     @Parameter(property = "habushu.behaveOptions", required = false)
     protected String behaveOptions;
+
+    /**
+     * By default, format Behave test results in a JSON compatible with Cucumber Reports plugin
+     */
+    @Parameter(property = "habushu.outputCucumberStyleTestReports", required = false, defaultValue = "true")
+    protected boolean outputCucumberStyleTestReports;
+
+    /**
+     * By default, Behave marks Scenarios and Features with skipped steps as failures in its reports even if the
+     * other test steps themselves pass. To match Cucumber's default logic, this setting will prevent capturing skipped
+     * tests if there are no failures.
+     */
+    @Parameter(property = "habushu.dontFailBehaveTestsWithSkippedTestSteps", required = false, defaultValue = "true")
+    protected boolean dontFailBehaveTestsWithSkippedTestSteps;
 
 
     /**
@@ -82,6 +97,17 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
             List<String> executeBehaveTestArgs = new ArrayList<>();
             executeBehaveTestArgs
                     .addAll(Arrays.asList("run", BEHAVE_PACKAGE, getCanonicalPathForFile(behaveDirectory)));
+
+            if (outputCucumberStyleTestReports) {
+                poetryHelper.installDevelopmentDependency(BEHAVE_CUCUMBER_FORMATTER);
+                executeBehaveTestArgs.add("--format=behave_cucumber_formatter:PrettyCucumberJSONFormatter");
+                executeBehaveTestArgs.add("--outfile=dist/cucumber-reports/cucumber.json");
+            }
+
+            if (dontFailBehaveTestsWithSkippedTestSteps) {
+                executeBehaveTestArgs.add("--no-skipped");
+            }
+
 
             if (StringUtils.isNotEmpty(behaveOptions)) {
                 executeBehaveTestArgs.addAll(Arrays.asList(StringUtils.split(behaveOptions)));

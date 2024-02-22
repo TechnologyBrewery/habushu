@@ -41,6 +41,10 @@
                     </managedDependencies>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>net.masterthought</groupId>
+                <artifactId>maven-cucumber-reporting</artifactId>
+            </plugin>
         </plugins>
     </build>
 
@@ -68,6 +72,12 @@
             <artifactId>habushu-mixology</artifactId>
             <version>${project.version}</version>
             <type>habushu</type>
+        </dependency>
+        <dependency>
+            <groupId>net.masterthought</groupId>
+            <artifactId>cucumber-reporting</artifactId>
+            <version>${version.cucumber.reporting.plugin}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

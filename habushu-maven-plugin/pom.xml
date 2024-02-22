@@ -187,6 +187,10 @@
                     </properties>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>net.masterthought</groupId>
+                <artifactId>maven-cucumber-reporting</artifactId>
+            </plugin>
         </plugins>
     </build>
 </project>
