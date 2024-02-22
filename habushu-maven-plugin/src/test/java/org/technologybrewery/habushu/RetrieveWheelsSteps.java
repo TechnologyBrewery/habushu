@@ -53,8 +53,8 @@ public class RetrieveWheelsSteps {
     /**
      * Asserts that the wheel artifact Identified by artifactId has been copied exactly into the target
      * directory. For instance, if the passed in artifactId has a cooresponding directory in poetry cache
-     * a file at "poetry_cache_dir/artifacts/wheels/myWheelArtifact.whl" and the target directory has a file at "c/myWheelArtifact.whl", 
-     * this method will pass.
+     * a file at "poetry_cache_dir/artifacts/wheels/myWheelArtifact.whl" and the target directory has a file at 
+     * "targetDirectory/myWheelArtifact.whl", this method will pass.
      */    
     @Then("the wheel artifact is copied")
     public void the_wheel_artifact_is_copied() {
