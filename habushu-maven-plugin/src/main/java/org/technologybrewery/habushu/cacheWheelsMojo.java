@@ -22,7 +22,7 @@ import org.technologybrewery.habushu.util.HabushuUtil;
  * @throws HabushuException
  */
 @Mojo(name = "cache-wheels", defaultPhase = LifecyclePhase.INSTALL)
-public class cacheWheelsMojo extends AbstractHabushuMojo {
+public class CacheWheelsMojo extends AbstractHabushuMojo {
     /**
      * A boolean that when implemented will cache a project's wheel files in poetry.
      */
