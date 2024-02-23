@@ -3,7 +3,7 @@ package org.technologybrewery.habushu;
 import java.io.File;
 import java.util.List;
 
-public class RetrieveWheelsTestMojo extends retrieveWheelsMojo{
+public class RetrieveWheelsTestMojo extends RetrieveWheelsMojo{
 
     private File sampleWheelFile;
 
