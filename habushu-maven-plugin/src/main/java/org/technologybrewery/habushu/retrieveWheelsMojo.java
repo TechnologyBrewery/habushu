@@ -25,7 +25,7 @@ import org.technologybrewery.habushu.util.HabushuUtil;
  * @throws HabushuException
  */
 @Mojo(name = "retrieve-wheels", defaultPhase = LifecyclePhase.VALIDATE)
-public class retrieveWheelsMojo extends AbstractHabushuMojo {
+public class RetrieveWheelsMojo extends AbstractHabushuMojo {
     /**
     * A List of Wheel Dependencies to retrieve from poetry cache. 
     */    
