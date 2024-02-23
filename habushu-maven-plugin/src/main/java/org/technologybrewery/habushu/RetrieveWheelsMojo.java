@@ -10,16 +10,13 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 import org.technologybrewery.habushu.util.HabushuUtil;
 
 /**
- * Helper mojo that encapsulates management of wheel dependencies,
- * both caching and retrieving of wheel artifacts into and from
- * Poetry cache during the {@link LifecyclePhase#INSTALL} build phase. 
+ * Helper mojo that handles the retrieving of wheel artifacts from poetry
+ * cache by artifactId and into a given targetDirectory during the 
+ * {@link LifecyclePhase#VALIDATE} build phase. 
  *
- * @param cacheWheels       A boolean that when implemented will cache a project's 
- *                          wheel files in poetry.
  * @param wheelDependencies A List of Wheel Dependencies which will identify wheel 
  *                          files by {@WheelDependency.artifactId} in poetry cache and place them into 
  *                          a given {@WheelDependency.targetDirectory}. This logic specifically targets
@@ -27,14 +24,8 @@ import org.technologybrewery.habushu.util.HabushuUtil;
  *                          the requested wheel to have first been cached prior to setting this config
  * @throws HabushuException
  */
-@Mojo(name = "manage-wheels", defaultPhase = LifecyclePhase.INSTALL)
-public class ManageWheelDependenciesMojo extends AbstractHabushuMojo {
-    /**
-     * A boolean that when implemented will cache a project's wheel files in poetry.
-     */
-    @Parameter(property = "habushu.cacheWheels", required = false, defaultValue = "false")
-    protected boolean cacheWheels;
-
+@Mojo(name = "retrieve-wheels", defaultPhase = LifecyclePhase.VALIDATE)
+public class RetrieveWheelsMojo extends AbstractHabushuMojo {
     /**
     * A List of Wheel Dependencies to retrieve from poetry cache. 
     */    
@@ -43,34 +34,8 @@ public class ManageWheelDependenciesMojo extends AbstractHabushuMojo {
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
-        if (cacheWheels) {
-            cacheWheels();
-        }
-
         if (!wheelDependencies.isEmpty()) {
             processWheelDependencies();
-        }
-    }
-
-    private void cacheWheels() {
-        getLog().info("Processing Cache Wheels..");
-        try {
-            File wheelSourceDirectory = getProjectBuildDirectory();
-            File poetryWheelCacheDirectory = getCachedWheelDirectory(project.getArtifactId());
-            // conditional will throw an error if cache directory isn't created
-            if (poetryWheelCacheDirectory.exists() || poetryWheelCacheDirectory.mkdirs()) {
-                List<File> wheelFiles = Stream.of(wheelSourceDirectory.listFiles())
-                        .filter(file -> file.getAbsolutePath().endsWith(".whl"))
-                        .map(File::getAbsoluteFile)
-                        .collect(Collectors.toList());
-                for (File file : wheelFiles) {
-                    HabushuUtil.copyFile(file.getPath(),
-                            String.format("%s/%s", poetryWheelCacheDirectory.toPath().toString(), file.getName()));
-                    getLog().info(String.format("Cached the %s file", file.getName()));
-                }
-            }
-        } catch (Exception e) {
-            throw new HabushuException("Could not cache the " + project.getArtifactId() + " wheel file(s)!", e);
         }
     }
 
@@ -103,16 +68,6 @@ public class ManageWheelDependenciesMojo extends AbstractHabushuMojo {
             }
         } catch (Exception e) {
             throw new HabushuException("Could not process Wheel Dependencies!", e);
-        }
-    }
-
-    public File getCachedWheelDirectory(String artifactId) {
-        try {
-            PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
-            String poetryCacheDirectoryPath = poetryHelper.getPoetryCacheDirectoryPath();
-            return new File(String.format("%s/cache/repositories/wheels/%s", poetryCacheDirectoryPath, artifactId));
-        } catch (Exception e) {
-            throw new HabushuException("Could not get the Poetry Cache Wheel directory!", e);
         }
     }
 
