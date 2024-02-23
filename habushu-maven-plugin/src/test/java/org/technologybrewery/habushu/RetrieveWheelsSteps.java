@@ -77,9 +77,6 @@ public class RetrieveWheelsSteps {
                                           .collect(Collectors.toList());    
             for (File f : wheelFiles){
                 isWheelCopied = new File(targetDirectory, f.getName()).exists();
-                System.out.println(targetDirectory);
-                System.out.println(f.getName());
-                System.out.println(isWheelCopied);
             }     
         }  
         return isWheelCopied;      
