@@ -13,7 +13,7 @@ habushu-mixology = {path = "../habushu-mixology", develop = true}
 
 
 [tool.poetry.group.dev.dependencies]
-behave-cucumber-formatter = "^1.0.1"
+behave-cucumber-formatter = ">=1.0.1"
 
 [tool.poetry.dev-dependencies]
 black = "^23.3.0"

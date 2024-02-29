@@ -19,7 +19,7 @@ python-dotenv = "^0.20.0"
 uvicorn = {version = "^0.16.0", extras = ["standard"]}
 package-b = "1"
 local-dev-package-example-a = {path = "../local-dev-package-example-a", develop = true}
-behave-cucumber-formatter = "1.0.1"
+behave-cucumber-formatter = ">=1.0.1"
 
 [tool.poetry.group.custom.dependencies]
 packageFoo = "^1.0.0"
