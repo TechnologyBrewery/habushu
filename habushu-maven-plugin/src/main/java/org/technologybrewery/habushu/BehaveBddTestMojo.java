@@ -49,8 +49,8 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
      * other test steps themselves pass. To match Cucumber's default logic, this setting will prevent capturing skipped
      * tests if there are no failures.
      */
-    @Parameter(property = "habushu.dontFailBehaveTestsWithSkippedTestSteps", required = false, defaultValue = "true")
-    protected boolean dontFailBehaveTestsWithSkippedTestSteps;
+    @Parameter(property = "habushu.omitSkippedTests", required = false, defaultValue = "true")
+    protected boolean omitSkippedTests;
 
 
     /**
@@ -104,7 +104,7 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
                 executeBehaveTestArgs.add("--outfile=dist/cucumber-reports/cucumber.json");
             }
 
-            if (dontFailBehaveTestsWithSkippedTestSteps) {
+            if (omitSkippedTests) {
                 executeBehaveTestArgs.add("--no-skipped");
             }
 

@@ -14,7 +14,6 @@ import static io.cucumber.junit.platform.engine.Constants.GLUE_PROPERTY_NAME;
 @IncludeEngines("cucumber")
 @SelectClasspathResource("specifications")
 @ExcludeTags("manual")
-@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "not manual")
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "org.technologybrewery.habushu")
 public class TestSpecifications {
 
