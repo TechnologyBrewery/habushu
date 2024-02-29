@@ -17,6 +17,9 @@ behave = "^1.2.6"
 grpcio-tools = "^1.48.0"
 python-dotenv = "^0.20.0"
 
+[tool.poetry.group.dev.dependencies]
+behave-cucumber-formatter = ">=1.0.1"
+
 [build-system]
 requires = ["poetry-core>=1.6.0"]
 build-backend = "poetry.core.masonry.api"
