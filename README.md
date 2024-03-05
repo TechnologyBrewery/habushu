@@ -554,8 +554,8 @@ Default: `false`
 
 Optional set of wheel dependencies to retrieve from poetry cache. This allows previously cached external 
 wheel dependencies to be copied into a given target directory if it exists in poetry cache. This logic 
-depends on wheels to have first been cached by `cacheWheels` habushu-maven-plugin configuration. Warnings 
-will be logged if the specified wheel isn't found. 
+depends on wheels to have first been cached by `cacheWheels` habushu-maven-plugin configuration and executes
+during the VALIDATE maven phase. Warnings will be logged if the specified wheel isn't found. 
 ```xml
 <plugin>
 	<groupId>org.technologybrewery.habushu</groupId>
@@ -565,9 +565,9 @@ will be logged if the specified wheel isn't found.
 		<wheelDependencies>
 			<wheelDependency>
 				<artifactId>foundation-core-python</artifactId>
-				<tartgetDirectory>${project.build.directory}</tartgetDirectory>
+				<targetDirectory>${project.build.directory}</targetDirectory>
 			</wheelDependency>
-		</managedDependencies>
+		</wheelDependencies>
 		...
 	</configuration>
 </plugin>

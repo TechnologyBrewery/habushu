@@ -33,6 +33,11 @@ public class RetrieveWheelsMojo extends AbstractHabushuMojo {
     protected List<WheelDependency> wheelDependencies;
 
     @Override
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        doExecute();
+    }    
+
+    @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
         if (!wheelDependencies.isEmpty()) {
             processWheelDependencies();
