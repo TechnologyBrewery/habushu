@@ -101,7 +101,7 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
             if (outputCucumberStyleTestReports) {
                 poetryHelper.installDevelopmentDependency(BEHAVE_CUCUMBER_FORMATTER);
                 executeBehaveTestArgs.add("--format=behave_cucumber_formatter:PrettyCucumberJSONFormatter");
-                executeBehaveTestArgs.add("--outfile=dist/cucumber-reports/cucumber.json");
+                executeBehaveTestArgs.add("--outfile=target/cucumber-reports/cucumber.json");
             }
 
             if (omitSkippedTests) {
