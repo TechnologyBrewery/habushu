@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "habushu_mixology"
-version = "2.11.0"
+version = "2.11.1"
 description = "Example of how to use the habushu-maven-plugin"
 authors = ["Eric Konieczny <ekoniec1@gmail.com>"]
 license = "MIT License"
