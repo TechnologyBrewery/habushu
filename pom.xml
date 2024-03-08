@@ -88,8 +88,8 @@
 								<checkBuildResult>true</checkBuildResult>
 								<treatUndefinedAsFailed>true</treatUndefinedAsFailed>
 								<treatSkippedAsFailed>false</treatSkippedAsFailed>
-								<outputDirectory>${project.build.directory}/cucumber-reports</outputDirectory>
-								<inputDirectory>${project.build.directory}/cucumber-reports</inputDirectory>
+								<outputDirectory>${project.basedir}/target/cucumber-reports</outputDirectory>
+								<inputDirectory>${project.basedir}/target/cucumber-reports</inputDirectory>
 								<jsonFiles>
 									<param>**/cucumber.json</param>
 								</jsonFiles>
