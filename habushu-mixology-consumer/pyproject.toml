@@ -6,10 +6,9 @@ authors = ["Eric Konieczny <ekoniec1@gmail.com>"]
 license = "MIT License"
 
 [tool.poetry.dependencies]
+habushu-mixology = {path = "../habushu-mixology", develop = true}
 python = "^3.11"
 
-[tool.poetry.group.monorepo.dependencies]
-habushu-mixology = {path = "../habushu-mixology", develop = true}
 
 
 [tool.poetry.group.dev.dependencies]

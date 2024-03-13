@@ -1,7 +1,7 @@
 [
   {
-    "name": "custom-monorepo-group-migration",
-    "implementation": "org.technologybrewery.habushu.migration.CustomMonorepoGroupMigration",
+    "name": "remove-monorepo-group-migration",
+    "implementation": "org.technologybrewery.habushu.migration.RemoveMonorepoGroupMigration",
     "fileSets": [
       {
         "includes": ["pyproject.toml"]

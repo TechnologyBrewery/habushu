@@ -2,6 +2,7 @@ package org.technologybrewery.habushu.migration;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.Config;
+import com.electronwill.nightconfig.core.ConfigFormat;
 import com.electronwill.nightconfig.core.file.FileConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -26,44 +27,42 @@ import java.util.Optional;
  * project's README.md, this prevents these dependencies from causing issues when Poetry projects are exported in
  * development releases.
  */
-public class CustomMonorepoGroupMigration extends AbstractMigration {
+public class RemoveMonorepoGroupMigration extends AbstractMigration {
 
-    public static final Logger logger = LoggerFactory.getLogger(CustomMonorepoGroupMigration.class);
+    public static final Logger logger = LoggerFactory.getLogger(RemoveMonorepoGroupMigration.class);
 
     protected Map<String, TomlReplacementTuple> replacements = new HashMap<>();
 
-    protected boolean hasExistingMonoRepoDependenciesGroup;
+    private boolean hasExistingDependenciesGroup = false;
 
     @Override
     protected boolean shouldExecuteOnFile(File file) {
         replacements.clear();
-        hasExistingMonoRepoDependenciesGroup = false;
-
         boolean shouldExecute = false;
         try (FileConfig tomlFileConfig = FileConfig.of(file)) {
             tomlFileConfig.load();
 
-            Optional<Config> toolPoetryDependencies = tomlFileConfig.getOptional(TomlUtils.TOOL_POETRY_DEPENDENCIES);
-            if (toolPoetryDependencies.isPresent()) {
-                Config foundDependencies = toolPoetryDependencies.get();
+            Optional<Config> toolPoetryMonorepoDependencies = tomlFileConfig.getOptional(TomlUtils.TOOL_POETRY_GROUP_MONOREPO_DEPENDENCIES);
+            if (toolPoetryMonorepoDependencies.isPresent()) {
+                Config foundDependencies = toolPoetryMonorepoDependencies.get();
                 Map<String, Object> dependencyMap = foundDependencies.valueMap();
 
                 for (Map.Entry<String, Object> dependency : dependencyMap.entrySet()) {
                     String packageName = dependency.getKey();
                     Object packageRhs = dependency.getValue();
-                    if (TomlUtils.representsLocalDevelopmentVersion(packageRhs)) {
-                        String packageRshAsString = TomlUtils.convertCommentedConfigToToml((CommentedConfig) packageRhs);
-                        logger.info("Found local dependency not within monorepo group! ({} = {})", packageName, packageRshAsString);
-                        TomlReplacementTuple replacementTuple = new TomlReplacementTuple(packageName, packageRshAsString, "");
-                        replacements.put(packageName, replacementTuple);
-                        shouldExecute = true;
+                    String packageRshAsString = null;
+                    if (packageRhs instanceof CommentedConfig) {
+                        packageRshAsString = TomlUtils.convertCommentedConfigToToml((CommentedConfig) packageRhs);
+                    } else {
+                        packageRshAsString = (String) packageRhs;
                     }
+                    logger.info("Found local dependency within monorepo group! ({} = {})", packageName, packageRshAsString);
+                    TomlReplacementTuple replacementTuple = new TomlReplacementTuple(packageName, packageRshAsString, "");
+                    replacements.put(packageName, replacementTuple);
                 }
-            }
-
-            Optional<Config> toolPoetryMonorepoDependencies = tomlFileConfig.getOptional(TomlUtils.TOOL_POETRY_GROUP_MONOREPO_DEPENDENCIES);
-            if (toolPoetryMonorepoDependencies.isPresent()) {
-                hasExistingMonoRepoDependenciesGroup = true;
+                Optional<Config> toolPoetryDependecies = tomlFileConfig.getOptional(TomlUtils.TOOL_POETRY_DEPENDENCIES);
+                hasExistingDependenciesGroup = toolPoetryDependecies.isPresent();
+                shouldExecute = true;
             }
         }
 
@@ -93,7 +92,7 @@ public class CustomMonorepoGroupMigration extends AbstractMigration {
 
                         TomlReplacementTuple matchedTuple = replacements.get(key);
                         if (matchedTuple != null) {
-                            // skip this line, we will add it back to [tool.poetry.group.monorepo.dependencies] later
+                            // skip this line, we will add it back to [tool.poetry.dependencies] later
                             addLine = false;
                         }
                     }
@@ -101,19 +100,23 @@ public class CustomMonorepoGroupMigration extends AbstractMigration {
                 } else if (line.contains("[") && line.contains("]")) {
                     String key = line.strip();
 
-                    if (hasExistingMonoRepoDependenciesGroup && (key.equals("[" + TomlUtils.TOOL_POETRY_GROUP_MONOREPO_DEPENDENCIES + "]"))) {
-                        // skip this line as we are overriding with the line plus monorepo dependencies here:
+                    if (hasExistingDependenciesGroup && (key.equals("[" + TomlUtils.TOOL_POETRY_DEPENDENCIES + "]"))) {
+                        // skip this line as we are overriding with the line plus dependencies here:
                         addLine = false;
                         fileContent += line + "\n";
-                        fileContent = injectMonorepoDependencies(fileContent);
-                    } else if (!hasExistingMonoRepoDependenciesGroup && (key.equals("[" + TomlUtils.TOOL_POETRY_DEPENDENCIES + "]"))) {
+                        fileContent = injectDependencies(fileContent);
+                    } else if (!hasExistingDependenciesGroup) {
                         injectAfterNextEmptyLine = true;
+                    }
+
+                    if ((key.equals("[" + TomlUtils.TOOL_POETRY_GROUP_MONOREPO_DEPENDENCIES + "]"))){
+                        addLine = false;
                     }
                 }
 
                 if (isEmptyLine && injectAfterNextEmptyLine) {
-                    fileContent += "\n[" + TomlUtils.TOOL_POETRY_GROUP_MONOREPO_DEPENDENCIES + "]" + "\n";
-                    fileContent = injectMonorepoDependencies(fileContent);
+                    fileContent += "\n[" + TomlUtils.TOOL_POETRY_DEPENDENCIES + "]" + "\n";
+                    fileContent = injectDependencies(fileContent);
                     injectAfterNextEmptyLine = false;
                 }
 
@@ -131,14 +134,14 @@ public class CustomMonorepoGroupMigration extends AbstractMigration {
         try {
             TomlUtils.writeTomlFile(pyProjectTomlFile, fileContent);
         } catch (IOException e) {
-            throw new BatonException("Problem moving monorepo dependencies to [tool.poetry.group.monorepo.dependencies]!", e);
+            throw new BatonException("Problem moving monorepo dependencies to [tool.poetry.dependencies]!", e);
         }
 
         return true;
 
     }
 
-    private String injectMonorepoDependencies(String fileContent) {
+    private String injectDependencies(String fileContent) {
         for (Map.Entry<String, TomlReplacementTuple> entry : replacements.entrySet()) {
             fileContent += entry.getKey() + " = " + TomlUtils.escapeTomlRightHandSide(entry.getValue().getOriginalOperatorAndVersion()) + "\n";
         }

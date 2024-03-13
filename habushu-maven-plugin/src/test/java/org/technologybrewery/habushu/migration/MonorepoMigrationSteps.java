@@ -24,13 +24,8 @@ public class MonorepoMigrationSteps {
 
     private boolean executionSucceeded;
 
-    @Given("an existing pyproject.toml file with two monorepo dependencies in the tool.poetry.dependencies group")
-    public void an_existing_pyproject_toml_file_with_two_monorepo_dependencies_in_the_tool_poetry_dependencies_group() {
-        pyProjectToml = new File(testTomlFileDirectory, "with-dependencies-no-monorepo-group.toml");
-    }
-
     @Given("an existing pyproject.toml file with two monorepo dependencies each in the tool.poetry.dependencies and tool.poetry.group.monorepo.dependencies groups")
-    public void an_existing_pyproject_toml_file_with_two_monorepo_dependencies_each_in_the_tool_poetry_dependencies_and_tool_poetry_group_monorepo_dependencies_groups() {
+    public void an_existing_pyproject_toml_file_with_two_monorepo_dependencies_each_in_the_tool_poetry_group_dependencies_groups() {
         pyProjectToml = new File(testTomlFileDirectory, "with-dependencies-in-both-groups.toml");
     }
 
@@ -47,28 +42,28 @@ public class MonorepoMigrationSteps {
 
     @When("Habushu migrations execute")
     public void habushu_migrations_execute() {
-        CustomMonorepoGroupMigration migration = new CustomMonorepoGroupMigration();
+        RemoveMonorepoGroupMigration migration = new RemoveMonorepoGroupMigration();
         shouldExecute = migration.shouldExecuteOnFile(pyProjectToml);
         executionSucceeded = (shouldExecute) ? migration.performMigration(pyProjectToml) : false;
     }
 
     @Then("{int} pyproject.toml monorepo dependencies exist in the tool.poetry.group.monorepo.dependencies group")
     public void pyproject_toml_monorepo_dependencies_exist_in_the_tool_poetry_group_monorepo_dependencies_group(Integer expectedMonorepoGroupDependencies) {
-        verifyExeuctionOccurred();
+        verifyExecutionOccurred();
         try (FileConfig tomlFileConfig = FileConfig.of(pyProjectToml)) {
             tomlFileConfig.load();
 
             Optional<Config> toolPoetryMonorepoDependencies = tomlFileConfig.getOptional(TomlUtils.TOOL_POETRY_GROUP_MONOREPO_DEPENDENCIES);
             int numberOfMonorepoDependenciesInMonorepoGroup = getNumberOfMonorepoChildren(toolPoetryMonorepoDependencies);
             assertEquals(expectedMonorepoGroupDependencies, numberOfMonorepoDependenciesInMonorepoGroup,
-                    expectedMonorepoGroupDependencies + " monorepo dependencies should exist in monorepo group!");
+                    expectedMonorepoGroupDependencies + " monorepo  monorepo group should not exist!");
 
 
         }
     }
     @Then("{int} pyproject.toml monorepo dependencies exist in the tool.poetry.dependencies group")
     public void pyproject_toml_monorepo_dependencies_exist_in_the_tool_poetry_dependencies_group(Integer expectedMainGroupDependencies) {
-        verifyExeuctionOccurred();
+        verifyExecutionOccurred();
         try (FileConfig tomlFileConfig = FileConfig.of(pyProjectToml)) {
             tomlFileConfig.load();
 
@@ -104,7 +99,7 @@ public class MonorepoMigrationSteps {
     }
 
 
-    private void verifyExeuctionOccurred() {
+    private void verifyExecutionOccurred() {
         assertTrue(shouldExecute, "Migration should have been selected to execute!");
         assertTrue(executionSucceeded, "Migration should have executed successfully!");
     }
