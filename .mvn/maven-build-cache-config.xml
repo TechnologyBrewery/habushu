@@ -23,6 +23,7 @@
             </glob>
             <includes>
                 <include>src/</include>
+                <include>tests/</include>
                 <include>pom.xml</include>
                 <include>pyproject.toml</include>
             </includes>
