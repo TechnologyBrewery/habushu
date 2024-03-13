@@ -39,7 +39,6 @@ import java.util.stream.Stream;
 @Mojo(name = "build-deployment-artifacts", defaultPhase = LifecyclePhase.PACKAGE)
 public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
 
-    public static final String TOOL_POETRY_GROUP_MONOREPO_DEPENDENCIES = "tool.poetry.group.monorepo.dependencies";
     /**
      * By default, export requirements.txt file.
      */
@@ -96,7 +95,6 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
         if (exportRequirementsFile) {
             getLog().info("Exporting requirements.txt file...");
 
-            String outputFile = exportRequirementsFolder + "/requirements.txt";
             File directory = new File(exportRequirementsFolder);
             if (!directory.exists()) {
                 directory.mkdir();
@@ -105,15 +103,8 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
             List<String> command = new ArrayList<>();
             command.add("export");
             command.add("--output");
+            String outputFile = exportRequirementsFolder + "/requirements.txt";
             command.add(outputFile);
-
-            List<String> customPoetryToolGroups = findCustomToolPoetryGroups();
-            if (!rewriteLocalPathDepsInArchives && customPoetryToolGroups.contains(TOOL_POETRY_GROUP_MONOREPO_DEPENDENCIES)) {
-                command.add("--without");
-                command.add("monorepo");
-                logLocalMonorepoCaveats();
-            }
-
 
             if (!exportRequirementsWithHashes) {
                 command.add("--without-hashes");
@@ -126,23 +117,6 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
             poetryHelper.executeAndLogOutput(command);
 
             setUpPlaceholderFileAsMavenArtifact();
-        }
-    }
-
-    private void logLocalMonorepoCaveats() {
-        getLog().info(String.format("Excluding [%s] to prevent path references in requirements.txt",
-                TOOL_POETRY_GROUP_MONOREPO_DEPENDENCIES));
-        getLog().info("The following dependencies must be install manually if using requirements.txt (e.g., pip install needed-dependency.whl):");
-
-        try (FileConfig pyProjectConfig = FileConfig.of(getPoetryPyProjectTomlFile())) {
-            pyProjectConfig.load();
-            Optional<Config> packageSources = pyProjectConfig.getOptional(TOOL_POETRY_GROUP_MONOREPO_DEPENDENCIES);
-            if (packageSources.isPresent()) {
-                Config monoRepoDependencies = packageSources.get();
-                for (String dependencyKey : monoRepoDependencies.valueMap().keySet()) {
-                    getLog().info(String.format("\t- %s", dependencyKey));
-                }
-            }
         }
     }
 
