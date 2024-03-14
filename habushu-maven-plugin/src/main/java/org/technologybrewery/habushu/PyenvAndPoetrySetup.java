@@ -178,10 +178,8 @@ class PyenvAndPoetrySetup {
             poetryHelper.executeAndLogOutput(Arrays.asList("config", "--local", "virtualenvs.prefer-active-python", "true"));
         }
 
-        if (rewriteLocalPathDepsInArchives) {
-            log.info("Checking for updates to poetry-monorepo-dependency-plugin...");
-            poetryHelper.installPoetryPlugin("poetry-monorepo-dependency-plugin");
-        }
+        log.info("Checking for updates to poetry-monorepo-dependency-plugin...");
+        poetryHelper.installPoetryPlugin("poetry-monorepo-dependency-plugin@latest");
 
         if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
             log.info(String.format("Did not find username and password for the server with <id> %s. Will use existing configuration.", pypiRepoId));

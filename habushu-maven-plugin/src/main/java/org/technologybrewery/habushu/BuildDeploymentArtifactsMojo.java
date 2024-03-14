@@ -1,30 +1,18 @@
 package org.technologybrewery.habushu;
 
-import com.electronwill.nightconfig.core.Config;
-import com.electronwill.nightconfig.core.conversion.Path;
-import com.electronwill.nightconfig.core.file.FileConfig;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
-import org.technologybrewery.habushu.util.HabushuUtil;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Delegates to Poetry during the {@link LifecyclePhase#PACKAGE} build phase to
@@ -62,6 +50,9 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
      */
     @Parameter(property = "habushu.exportRequirementsWithHashes", required = false, defaultValue = "true")
     protected boolean exportRequirementsWithHashes;
+
+    @Parameter(property = "habushu.exportRequirementsWithoutPathDependencies", required = false, defaultValue = "true")
+    protected boolean exportRequirementsWithoutPathDependencies;
 
     /**
      * By default, export to the dist folder to be included with the build archive.
@@ -101,7 +92,7 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
             }
 
             List<String> command = new ArrayList<>();
-            command.add("export");
+            command.add( exportRequirementsWithoutPathDependencies ? "export-without-path-deps" : "export");
             command.add("--output");
             String outputFile = exportRequirementsFolder + "/requirements.txt";
             command.add(outputFile);
