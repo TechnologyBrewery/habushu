@@ -283,9 +283,18 @@ Default: `true`
 
 Options that should be passed to the `behave` command when executing tests. If this value is provided, then **behaveExcludeManualTag** is ignored. 
 
-`behave` supports a [number of command line options](https://behave.readthedocs.io/en/stable/behave.html#command-line-arguments) - developers may adjust the default test execution behavior to optimize productivity, such as selectively executing features associated with a specific in-flight tag (`mvn clean test -Dhabushu.behaveOptions="--tags wip-feature"`) or changing logging behavior (`mvn clean test -Dhabushu.behaveOptions="--no-logcapture --no-capture"`).
+`behave` supports a [number of command line options](https://behave.readthedocs.io/en/stable/behave.html#command-line-arguments) - developers may adjust the default test execution behavior to optimize productivity, such as selectively executing features associated with a specific in-flight tag (`mvn clean test -Dhabushu.behaveOptions="--tags wip-feature"`).
 
 Default: None
+
+#### disableOutputCapture ####
+
+Allow stdout, stderr and logs to be printed to the console during `behave` tests.
+
+**Note:** If user wants more granular control over logging output, can set `disableOutputCapture` to `false` and use `behaveOptions`:
+`mvn clean test -Dhabushu.disableOutputCapture=false -Dhabushu.behaveOptions="--no-logcapture --no-capture"`
+
+Default: `true`
 
 #### behaveExcludeManualTag ####
 

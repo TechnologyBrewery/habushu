@@ -78,13 +78,12 @@ public class ProcessExecutor {
 
     public int executeAndRedirectOutput(final Logger logger) {
         OutputStream stdout = new LoggerOutputStream(logger, 0);
-        ByteArrayOutputStream stderr = new ByteArrayOutputStream();
+        OutputStream stderr = new LoggerOutputStream(logger, 0);
 
         try {
             return execute(logger, stdout, stderr);
 
         } catch (Throwable e) {
-            displayProcessOutputForException(stderr, logger);
             throw new HabushuException("Could not invoke command! See output above.", e);
 
         } finally {
@@ -174,6 +173,10 @@ public class ProcessExecutor {
 
     private static class LoggerOutputStream extends LogOutputStream {
         private final Logger logger;
+        private static final String DEBUG_LOG = "DEBUG";
+        private static final String WARNING_LOG = "WARNING";
+        private static final String ERROR_LOG = "ERROR";
+        private static final String CRITICAL_LOG = "CRITICAL";
 
         LoggerOutputStream(Logger logger, int logLevel) {
             super(logLevel);
@@ -187,7 +190,15 @@ public class ProcessExecutor {
 
         @Override
         protected void processLine(final String line, final int logLevel) {
-            logger.info(line);
+            if (line.toUpperCase().contains(ERROR_LOG) || line.toUpperCase().contains(CRITICAL_LOG)) {
+                logger.error(line);
+            } else if (line.toUpperCase().contains(WARNING_LOG)) {
+                logger.warn(line);
+            } else if (line.toUpperCase().contains(DEBUG_LOG)) {
+                logger.debug(line);
+            } else {
+                logger.info(line);
+            }
         }
     }
 
