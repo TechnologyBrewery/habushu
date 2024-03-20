@@ -655,6 +655,23 @@ Controls where the clean plugin will delete target artifacts.
 
 Default: `${project.basedir}/target`
 
+#### exportRequirementsWithoutPathDependencies ####
+
+Controls whether locally pathed dependencies should be excluded from the requirements.txt export file.
+
+Default: `true`
+
+#### outputCucumberStyleTestReports ####
+
+Controls whether the Behave testing framework should export a cucumber.json and corresponding Cucumber-style HTML report instead of the default test output format.
+
+Default: `true`
+
+#### omitSkippedTests ####
+
+Controls whether skipped tests should be completely omitted from test reports rather than showing up as a skip / failure. This mimics the default behavior of Cucumber and will have no effect if outputCuucumberStyleTestReports is not set to `true`
+
+Default: `true`
 
 ## The Habushu Build Lifecycle ##
 
