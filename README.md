@@ -283,9 +283,18 @@ Default: `true`
 
 Options that should be passed to the `behave` command when executing tests. If this value is provided, then **behaveExcludeManualTag** is ignored. 
 
-`behave` supports a [number of command line options](https://behave.readthedocs.io/en/stable/behave.html#command-line-arguments) - developers may adjust the default test execution behavior to optimize productivity, such as selectively executing features associated with a specific in-flight tag (`mvn clean test -Dhabushu.behaveOptions="--tags wip-feature"`) or changing logging behavior (`mvn clean test -Dhabushu.behaveOptions="--no-logcapture --no-capture"`).
+`behave` supports a [number of command line options](https://behave.readthedocs.io/en/stable/behave.html#command-line-arguments) - developers may adjust the default test execution behavior to optimize productivity, such as selectively executing features associated with a specific in-flight tag (`mvn clean test -Dhabushu.behaveOptions="--tags wip-feature"`).
 
 Default: None
+
+#### disableOutputCapture ####
+
+Allow stdout, stderr and logs to be printed to the console during `behave` tests.
+
+**Note:** If user wants more granular control over logging output, can set `disableOutputCapture` to `false` and use `behaveOptions`:
+`mvn clean test -Dhabushu.disableOutputCapture=false -Dhabushu.behaveOptions="--no-logcapture --no-capture"`
+
+Default: `true`
 
 #### behaveExcludeManualTag ####
 
@@ -646,6 +655,23 @@ Controls where the clean plugin will delete target artifacts.
 
 Default: `${project.basedir}/target`
 
+#### exportRequirementsWithoutPathDependencies ####
+
+Controls whether locally pathed dependencies should be excluded from the requirements.txt export file.
+
+Default: `true`
+
+#### outputCucumberStyleTestReports ####
+
+Controls whether the Behave testing framework should export a cucumber.json and corresponding Cucumber-style HTML report instead of the default test output format.
+
+Default: `true`
+
+#### omitSkippedTests ####
+
+Controls whether skipped tests should be completely omitted from test reports rather than showing up as a skip / failure. This mimics the default behavior of Cucumber and will have no effect if outputCuucumberStyleTestReports is not set to `true`
+
+Default: `true`
 
 ## The Habushu Build Lifecycle ##
 

@@ -52,7 +52,6 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
     @Parameter(property = "habushu.omitSkippedTests", required = false, defaultValue = "true")
     protected boolean omitSkippedTests;
 
-
     /**
      * By default, exclude any scenario or feature file tagged with '@manual'.
      * <b>NOTE:</b> If {@link #behaveOptions} are provided, this property is
@@ -67,6 +66,14 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
      */
     @Parameter(property = "habushu.skipTests", defaultValue = "false")
     protected boolean skipTests;
+
+    /**
+     * By default, Behave captures all logging, stdout and stderr. This setting outputs logging, stdout and stderr to
+     * the console.
+     */
+    @Parameter(property = "habushu.disableOutputCapture", defaultValue = "true")
+    protected boolean disableOutputCapture;
+
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
@@ -108,6 +115,11 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
                 executeBehaveTestArgs.add("--no-skipped");
             }
 
+            if (disableOutputCapture) {
+                executeBehaveTestArgs.add("--no-capture");
+                executeBehaveTestArgs.add("--no-capture-stderr");
+                executeBehaveTestArgs.add("--no-logcapture");
+            }
 
             if (StringUtils.isNotEmpty(behaveOptions)) {
                 executeBehaveTestArgs.addAll(Arrays.asList(StringUtils.split(behaveOptions)));
