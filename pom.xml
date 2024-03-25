@@ -53,7 +53,7 @@
 	<properties>
 		<!-- override parent POM until it is next upgrade (arguably, this property should not be in parent at all: -->
 		<version.python.default>3.11.4</version.python.default>
-		<version.cucumber.reporting.plugin>5.7.8</version.cucumber.reporting.plugin>
+		<version.cucumber.reporting.plugin>5.8.0</version.cucumber.reporting.plugin>
 	</properties>
 
 	<dependencyManagement>
