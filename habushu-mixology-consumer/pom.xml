@@ -26,7 +26,7 @@
                     <managedDependencies>
                         <packageDefinition>
                             <packageName>black</packageName>
-                            <operatorAndVersion>^23.3.0</operatorAndVersion>
+                            <operatorAndVersion>>=24.3.0</operatorAndVersion>
                             <!-- optional - active is true by default:-->
                             <active>true</active>
                         </packageDefinition>

@@ -15,7 +15,7 @@ python = "^3.11"
 behave-cucumber-formatter = ">=1.0.1"
 
 [tool.poetry.dev-dependencies]
-black = "^23.3.0"
+black = ">=24.3.0"
 behave = "^1.2.6"
 
 [build-system]

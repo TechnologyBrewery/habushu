@@ -1,135 +1,145 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.technologybrewery</groupId>
-		<artifactId>parent</artifactId>
-		<version>7</version>
-	</parent>
+    <parent>
+        <groupId>org.technologybrewery</groupId>
+        <artifactId>parent</artifactId>
+        <version>7</version>
+    </parent>
 
-	<groupId>org.technologybrewery.habushu</groupId>
-	<version>2.12.2-SNAPSHOT</version>
-	<artifactId>habushu</artifactId>
-	<packaging>pom</packaging>
+    <groupId>org.technologybrewery.habushu</groupId>
+    <version>2.12.2-SNAPSHOT</version>
+    <artifactId>habushu</artifactId>
+    <packaging>pom</packaging>
 
-	<name>habushu::Root</name>
-	<description>
-	   In Okinawa, habushu (pronounced HA-BU-SHU) is a sake that is made with venomous snake. The alcohol in the snake assists in dissolving the snake's venom and making 
-	   it non-poisonous. In Maven, habushu allows python projects to be build as part a Maven build.  This brings some order and consistency to what can otherwise be
-	   haphazardly structured projects.
-	</description>
-	<url>https://github.com/TechnologyBrewery/habushu</url>
+    <name>habushu::Root</name>
+    <description>
+        In Okinawa, habushu (pronounced HA-BU-SHU) is a sake that is made with venomous snake. The alcohol in the snake
+        assists in dissolving the snake's venom and making
+        it non-poisonous. In Maven, habushu allows python projects to be build as part a Maven build. This brings some
+        order and consistency to what can otherwise be
+        haphazardly structured projects.
+    </description>
+    <url>https://github.com/TechnologyBrewery/habushu</url>
 
-	<licenses>
-		<license>
-			<name>MIT License</name>
-			<url>http://www.opensource.org/licenses/mit-license.php</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
-	<developers>
-		<developer>
-			<name>Ryan Ashcraft</name>
-			<email>dryanashcraft@gmail.com</email>
-			<organization>Technology Brewery</organization>
-			<organizationUrl>https://technologybrewery.org</organizationUrl>
-		</developer>
-		<developer>
-			<name>Eric Konieczny</name>
-			<email>ekoniec1@gmail.com</email>
-			<organization>Technology Brewery</organization>
-			<organizationUrl>https://technologybrewery.org</organizationUrl>
-		</developer>
-	</developers>
+    <developers>
+        <developer>
+            <name>Ryan Ashcraft</name>
+            <email>dryanashcraft@gmail.com</email>
+            <organization>Technology Brewery</organization>
+            <organizationUrl>https://technologybrewery.org</organizationUrl>
+        </developer>
+        <developer>
+            <name>Eric Konieczny</name>
+            <email>ekoniec1@gmail.com</email>
+            <organization>Technology Brewery</organization>
+            <organizationUrl>https://technologybrewery.org</organizationUrl>
+        </developer>
+    </developers>
 
-	<scm>
-		<connection>scm:git:ssh://git@github.com/TechnologyBrewery/habushu.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com/TechnologyBrewery/habushu.git</developerConnection>
-		<url>https://github.com/TechnologyBrewery/habushu/</url>
-		<tag>HEAD</tag>
-	</scm>
+    <scm>
+        <connection>scm:git:ssh://git@github.com/TechnologyBrewery/habushu.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/TechnologyBrewery/habushu.git</developerConnection>
+        <url>https://github.com/TechnologyBrewery/habushu/</url>
+        <tag>HEAD</tag>
+    </scm>
 
-	<properties>
-		<!-- override parent POM until it is next upgrade (arguably, this property should not be in parent at all: -->
-		<version.python.default>3.11.4</version.python.default>
-		<version.cucumber.reporting.plugin>5.8.0</version.cucumber.reporting.plugin>
-	</properties>
+    <properties>
+        <!-- override parent POM until it is next upgrade (arguably, this property should not be in parent at all: -->
+        <version.python.default>3.11.4</version.python.default>
+        <version.cucumber.reporting.plugin>5.8.0</version.cucumber.reporting.plugin>
+    </properties>
 
-	<dependencyManagement>
-		<dependencies>
-			<!-- Explicitly upgrading transitive dependency for habushu-maven-plugin
-				to mitigate vulnerability - httpcomponents:httpcore:4.4.16 -->
-			<dependency>
-				<groupId>commons-codec</groupId>
-				<artifactId>commons-codec</artifactId>
-				<version>1.16.1</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+    <dependencyManagement>
+        <dependencies>
+            <!-- Explicitly upgrading transitive dependency for habushu-maven-plugin
+                to mitigate vulnerability - httpcomponents:httpcore:4.4.16 -->
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.16.1</version>
+            </dependency>
+            <!-- Explicitly upgrading transitive dependency for habushu-maven-plugin
+                to mitigate vulnerability - net.masterthought:cucumber-reporting:5.8.0 -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-configuration2</artifactId>
+                <version>2.10.1</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>net.masterthought</groupId>
-					<artifactId>maven-cucumber-reporting</artifactId>
-					<version>${version.cucumber.reporting.plugin}</version>
-					<executions>
-						<execution>
-							<id>execution</id>
-							<phase>verify</phase>
-							<goals>
-								<goal>generate</goal>
-							</goals>
-							<configuration>
-								<projectName>${project.artifactId}</projectName>
-								<skipEmptyJSONFiles>true</skipEmptyJSONFiles>
-								<checkBuildResult>true</checkBuildResult>
-								<treatUndefinedAsFailed>true</treatUndefinedAsFailed>
-								<treatSkippedAsFailed>false</treatSkippedAsFailed>
-								<outputDirectory>${project.basedir}/target/cucumber-reports</outputDirectory>
-								<inputDirectory>${project.basedir}/target/cucumber-reports</inputDirectory>
-								<jsonFiles>
-									<param>**/cucumber.json</param>
-								</jsonFiles>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-		<plugins>
-			<plugin>
-				<groupId>org.sonatype.plugins</groupId>
-				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<extensions>true</extensions>
-			</plugin>
-		</plugins>
-	</build>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>net.masterthought</groupId>
+                    <artifactId>maven-cucumber-reporting</artifactId>
+                    <version>${version.cucumber.reporting.plugin}</version>
+                    <executions>
+                        <execution>
+                            <id>execution</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>generate</goal>
+                            </goals>
+                            <configuration>
+                                <projectName>${project.artifactId}</projectName>
+                                <skipEmptyJSONFiles>true</skipEmptyJSONFiles>
+                                <checkBuildResult>true</checkBuildResult>
+                                <treatUndefinedAsFailed>true</treatUndefinedAsFailed>
+                                <treatSkippedAsFailed>false</treatSkippedAsFailed>
+                                <outputDirectory>${project.basedir}/target/cucumber-reports</outputDirectory>
+                                <inputDirectory>${project.basedir}/target/cucumber-reports</inputDirectory>
+                                <jsonFiles>
+                                    <param>**/cucumber.json</param>
+                                </jsonFiles>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <extensions>true</extensions>
+            </plugin>
+        </plugins>
+    </build>
 
-	<profiles>
-		<profile>
-			<id>default</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<modules>
-				<module>habushu-mixology</module>
-				<module>habushu-mixology-consumer</module>
-			</modules>
-		</profile>
-		<profile>
-			<id>bootstrap</id>
-			<modules>
-				<module>habushu-maven-plugin</module>
-			</modules>
-		</profile>
-		<profile>
-			<id>ossrh-release</id>
-			<modules>
-				<module>habushu-maven-plugin</module>
-			</modules>
-		</profile>
-	</profiles>
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>habushu-mixology</module>
+                <module>habushu-mixology-consumer</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>bootstrap</id>
+            <modules>
+                <module>habushu-maven-plugin</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>ossrh-release</id>
+            <modules>
+                <module>habushu-maven-plugin</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>
