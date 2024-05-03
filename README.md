@@ -703,9 +703,41 @@ Default: `true`
 
 #### omitSkippedTests ####
 
-Controls whether skipped tests should be completely omitted from test reports rather than showing up as a skip / failure. This mimics the default behavior of Cucumber and will have no effect if outputCuucumberStyleTestReports is not set to `true`
+Controls whether skipped tests should be completely omitted from test reports rather than showing up as a skip / failure. This mimics the default behavior of Cucumber and will have no effect if outputCucumberStyleTestReports is not set to `true`
 
 Default: `true`
+
+#### sourceLintDisabledChecker ####
+
+Controls the disabled checkers for linting in the source module. By default, checks for Convention (C), Refactor (R), and Warning (W) are disabled.  
+
+Default: `C,R,W`
+
+#### sourceLintEnabledChecker ####
+
+Controls the enabled checkers for linting in the source module.
+
+#### sourceFailOnLintErrors ####
+
+Controls whether the build will continue if lint identifies code that violate checkers in the source module. 
+
+Default: `false`
+
+#### testLintDisabledChecker ####
+
+Controls the disabled checkers for linting in the test module. By default, checks for Convention (C), Refactor (R), and Warning (W) are disabled.  
+
+Default: `C,R,W`
+
+#### testLintEnabledChecker ####
+
+Controls the enabled checkers for linting in the test module.
+
+#### testFailOnLintErrors ####
+
+Controls whether the build will continue if lint identifies code that violate checkers in the test module. 
+
+Default: `false`
 
 ## The Habushu Build Lifecycle ##
 

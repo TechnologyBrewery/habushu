@@ -39,6 +39,7 @@
                             <operatorAndVersion>${project.version}</operatorAndVersion>
                         </packageDefinition>
                     </managedDependencies>
+                    <testLintDisabledChecker>C,R,W,E0102</testLintDisabledChecker>
                 </configuration>
             </plugin>
             <plugin>

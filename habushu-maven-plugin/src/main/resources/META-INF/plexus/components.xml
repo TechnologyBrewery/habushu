@@ -22,7 +22,10 @@
                                 org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:retrieve-wheels
                             </validate>							
                             <compile>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:install-dependencies</compile>
-                            <process-classes>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:format-python</process-classes>
+                            <process-classes>
+                                org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:format-python,
+                                org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:validate-python-code
+                            </process-classes>
                             <test>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:behave-bdd-test</test>
                             <package>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:build-deployment-artifacts</package>
                             <install>

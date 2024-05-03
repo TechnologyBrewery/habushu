@@ -1,4 +1,4 @@
-from behave import *
+from behave import given, when, then  # pylint: disable=no-name-in-module
 
 
 @given("a Python module with at least one automated test and at least one manual test")

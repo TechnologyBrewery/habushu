@@ -1,4 +1,4 @@
-from behave import *
+from behave import given, when, then  # pylint: disable=no-name-in-module
 from krausening.properties import PropertyManager
 from habushu_mixology_consumer.nested.simple_dependency import (
     call_worker_from_nested_dir,
