@@ -11,7 +11,7 @@
     <groupId>org.technologybrewery.habushu</groupId>
     <version>2.16.0-SNAPSHOT</version>
     <artifactId>habushu</artifactId>
-    <packaging>pom</packaging>
+    <packagingBREAKME>pom</packagingBREAKME>
 
     <name>habushu::Root</name>
     <description>
