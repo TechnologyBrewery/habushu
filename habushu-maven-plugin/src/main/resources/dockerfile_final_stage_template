@@ -1,0 +1,6 @@
+# copy the pre-built venv from the builder and
+COPY --from=habushu_builder /venv /opt/venv
+# configure the container to use the venv
+ENV PATH="/opt/venv/bin:$PATH"
+# update the venv python symlink to point to the default python executable
+RUN ln -sf $(which python) /opt/venv/bin/python

@@ -7,9 +7,9 @@ In Okinawa, habushu (pronounced HA-BU-SHU) is a sake that is made with venomous 
 
 ## Why Do You Need Habushu? ##
 
-Habushu is implemented as a series of [Maven](https://maven.apache.org/) plugins that tie together existing tooling in an opinionated fashion similar to how Maven structures Java projects.  
+Habushu is implemented as a series of [Maven](https://maven.apache.org/) plugins that tie together existing tooling in an opinionated fashion similar to how Maven structures Java projects.
 
-**By taking care of manual steps and bringing a predictable order of execution and core naming conventions, Habushu increases time spent on impactful work rather than every developer or data scientist building out scripts that meet their personal preferences.**  
+**By taking care of manual steps and bringing a predictable order of execution and core naming conventions, Habushu increases time spent on impactful work rather than every developer or data scientist building out scripts that meet their personal preferences.**
 
 No one person will agree with all the opinions implemented by Habushu. The value in being able to run entire builds from a single `mvn clean install` command regardless of your prior experience with the projects adds substantial value - both locally and in DevSecOps scenarios.
 
@@ -20,7 +20,7 @@ More information about how Habushu can be used and benefit your project can be f
 In order to use Habushu, the following prerequisites must be installed:
 
 * Maven 3.6+
-  * Maven 3.9+ for use with Maven Build Cache
+* Maven 3.9+ for use with Maven Build Cache
 * Java 11+
 * [Poetry 1.5+](https://python-poetry.org/)
 * [Pyenv](https://github.com/pyenv/pyenv)
@@ -31,7 +31,7 @@ Additionally, Habushu may install and manage:
 
 ## Usage ##
 
-Habushu automates a consistent and predictable build lifecycle by delegating *nearly all* commands related to dependency management, virtual environment activation, and package publishing to [Poetry](https://python-poetry.org/).  As a result, Habushu projects are Poetry projects and are expected to align with the conventions, structure, and configurations utilized by Poetry projects with the `src/` packaging layout.  
+Habushu automates a consistent and predictable build lifecycle by delegating *nearly all* commands related to dependency management, virtual environment activation, and package publishing to [Poetry](https://python-poetry.org/).  As a result, Habushu projects are Poetry projects and are expected to align with the conventions, structure, and configurations utilized by Poetry projects with the `src/` packaging layout.
 
 A Poetry project using the `src/` packaging layout only needs an appropriately configured `pom.xml` within the root level of the project to instrumented through Habushu and participate in a Maven build lifecycle.  The following depicts the required folder structure within an example Habushu module named `spam-ham-eggs`, including the placement of the required `pom.xml` and `pyproject.toml` configurations and utilization of [behave](https://behave.readthedocs.io/en/stable/index.html) for automated testing:
 
@@ -61,14 +61,14 @@ $ ls spam-ham-eggs
 README.rst     pyproject.toml src            tests
 ```
 
-If migrating an existing Python package, consider using `poetry init` and use the interactive guide to create the desired `pyproject.toml` configuration with the appropriate dependencies.  
+If migrating an existing Python package, consider using `poetry init` and use the interactive guide to create the desired `pyproject.toml` configuration with the appropriate dependencies.
 
 If migrating an earlier release of Habushu, follow the same process, but note the following required changes:
 
 * Dependencies specified in `requirements.txt` must be specified in `pyproject.toml` - either use `poetry add` or add them interactively via `poetry init`
 * Python source and test files must be migrated into the folder structure described above, which aligns with the standard `src/` packaging layout.  Assuming that the package name is `spam_ham_eggs`, `src/main/python/*` from the existing Habushu project must be moved into `src/spam_ham_eggs` and `src/test/python/*` from the existing Habushu project must be moved into `tests`
 * Previously, Habushu 1.x modules depended on each other via Maven `<dependency>` declarations.  This approach is deprecated as Habushu 2.x+ expects that other Habushu modules are published to PyPI repositories and consumed as Python packages using Poetry's built-in dependency management capabilties.  For Habushu module dependencies within the same Maven multi-module build hierarchy, consider using editable development installs:
-  
+
     ```toml
     # pyproject.toml
     [tool.poetry.dependencies]
@@ -86,28 +86,28 @@ Set the `<packaging>` type of your module's `pom.xml` to `habushu`:
 
 Add the following plugin definition to your module's `pom.xml` `<build>` section:
 ```xml
-	<plugin>
-		<groupId>org.technologybrewery.habushu</groupId>
-		<artifactId>habushu-maven-plugin</artifactId>
-		<version>2.0.0</version>
-		<extensions>true</extensions>
-	</plugin>
+<plugin>
+    <groupId>org.technologybrewery.habushu</groupId>
+    <artifactId>habushu-maven-plugin</artifactId>
+    <version>2.0.0</version>
+    <extensions>true</extensions>
+</plugin>
 ```
 
-If publishing packages to or consuming dependencies from a private PyPI repository that requires authentication, add your repository credentials to your Maven's `settings.xml` file, usually located under your `~/.m2` folder. See the Configuration section below on how to 
+If publishing packages to or consuming dependencies from a private PyPI repository that requires authentication, add your repository credentials to your Maven's `settings.xml` file, usually located under your `~/.m2` folder. See the Configuration section below on how to
 
 ```xml
-    <server>
-        <!-- ID of the PyPI repository - this ID will be used to reference this repository in
-             the habushu-maven-plugin configuration -->
-        <id>private-pypi-repo</id>
-        
-        <!-- Username of the account by which to access the PyPI repository -->
-        <username>pypi-repo-username</username>
-        
-        <!-- Password of account by which to access the PyPI repository; should be encrypted as per Maven best practices  -->
-        <password>{encrypted-pypi-repo-password}</password>
-    </server>
+<server>
+    <!-- ID of the PyPI repository - this ID will be used to reference this repository in
+         the habushu-maven-plugin configuration -->
+    <id>private-pypi-repo</id>
+
+    <!-- Username of the account by which to access the PyPI repository -->
+    <username>pypi-repo-username</username>
+
+    <!-- Password of account by which to access the PyPI repository; should be encrypted as per Maven best practices  -->
+    <password>{encrypted-pypi-repo-password}</password>
+</server>
 ```
 
 ### Adding Tests ###
@@ -128,73 +128,91 @@ def step_impl(context):
 
 ### Running Specified Tagged Tests ###
 
-"tagged-tests" is an example profile within habushu-mixology-consumer used to specify a tag(s) to test.  The variable "tags" is used to specify which tags to test. To run multiple tests, comma separate them. To exclude a test, add "\~" in front of the tag. 
+"tagged-tests" is an example profile within habushu-mixology-consumer used to specify a tag(s) to test.  The variable "tags" is used to specify which tags to test. To run multiple tests, comma separate them. To exclude a test, add "\~" in front of the tag.
 
 Ex: mvn clean test -Ptagged-tests -Dtags="one_tag"
 
 ### Running Custom Python Scripts During Build Phases ###
 
-In addition to creating a custom Maven lifecycle that automates the execution of a predictable Poetry-based workflow, Habushu exposes a `run-command-in-virtual-env` plugin goal that provides developers with the ability to [execute any Python command or script](https://python-poetry.org/docs/cli/#run) within the Poetry project's virtual environment through `poetry run` during the desired build phase. 
+In addition to creating a custom Maven lifecycle that automates the execution of a predictable Poetry-based workflow, Habushu exposes a `run-command-in-virtual-env` plugin goal that provides developers with the ability to [execute any Python command or script](https://python-poetry.org/docs/cli/#run) within the Poetry project's virtual environment through `poetry run` during the desired build phase.
 
 For example, developers may use this feature to bind a Habushu module's `compile` phase to the appropriate Python command that generates gRPC/protobuf bindings as an automated part of the build following dependency installation:
 
 ```xml
-	<plugin>
-		<groupId>org.technologybrewery.habushu</groupId>
-		<artifactId>habushu-maven-plugin</artifactId>
-		<extensions>true</extensions>
-		<configuration>
-		...
-		</configuration>
-		<executions>
-			<execution>
-				<configuration>
-					<runCommandArgs>python -m grpc_tools.protoc -I=src
-									--python_out=src/habushu_mixology/generated src/person.proto</runCommandArgs>
-				</configuration>
-				<id>generate-protobuf-bindings</id>
-				<phase>compile</phase>
-				<goals>
-					<goal>run-command-in-virtual-env</goal>
-				</goals>
-			</execution>
-		</executions>
-	</plugin>
+<plugin>
+    <groupId>org.technologybrewery.habushu</groupId>
+    <artifactId>habushu-maven-plugin</artifactId>
+    <extensions>true</extensions>
+    <configuration>
+        ...
+    </configuration>
+    <executions>
+        <execution>
+            <configuration>
+                <runCommandArgs>python -m grpc_tools.protoc -I=src
+                    --python_out=src/habushu_mixology/generated src/person.proto</runCommandArgs>
+            </configuration>
+            <id>generate-protobuf-bindings</id>
+            <phase>compile</phase>
+            <goals>
+                <goal>run-command-in-virtual-env</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
 ```
 
 ### Leveraging the containerize-dependencies Goal to Prepare a Containerized Virtual Environment ###
-If the execution is specified (does not run by default), the `containerize-dependencies` goal will collect a single `habushu` dependency specified the project's `pom.xml`, including all transitive habushu-packaged dependencies. After collecting the set of necessary dependencies, Habushu will copy the project files to the build directory under `venv-support`, while preserving the original structure of the dependency modules to ensure that any path-based dependencies can be leveraged as-is. This directory can then be copied onto a Docker container and used to create a virtual environment capable of running the target Habushu project.
+If the execution is specified (does not run by default), the `containerize-dependencies` goal will collect a single `habushu` dependency specified the project's `pom.xml`, including all transitive habushu-packaged dependencies. After collecting the set of necessary dependencies, Habushu will copy the project files to the build directory under `containerize-support`, while preserving the original structure of the dependency modules to ensure that any path-based dependencies can be leveraged as-is. This directory can then be copied onto a Docker container and used to create a virtual environment capable of running the target Habushu project.
 
 ```xml
-	<plugin>
-		<groupId>org.technologybrewery.habushu</groupId>
-		<artifactId>habushu-maven-plugin</artifactId>
-		<configuration>
-		...
-		</configuration>
-		<executions>
-			<execution>
-				<id>containerize-deps</id>
-				<phase>validate</phase>
-				<goals>
-					<goal>containerize-dependencies</goal>
-				</goals>
-			</execution>
-		</executions>
-	</plugin>
+<plugin>
+    <groupId>org.technologybrewery.habushu</groupId>
+    <artifactId>habushu-maven-plugin</artifactId>
+    <executions>
+        <execution>
+            <id>containerize-deps</id>
+            <phase>package</phase>
+            <goals>
+                <goal>containerize-dependencies</goal>
+            </goals>
+        </execution>
+    </executions>
+    <configuration>
+        <dockerfile>${project.basedir}/src/main/docker/Dockerfile</dockerfile>
+    </configuration>
+</plugin>
 ```
 
-The plugin will only examine dependencies that are of the type `habushu` in the dependencies block of the `pom.xml` file. 
+
+To update the `Dockerfile` with logic to containerize the python application, specify the `Dockerfile` location by adding the `dockerfile` tag under `configuration`. To control exact insertion location use the `#HABUSHU_BUILDER_STAGE` and `#HABUSHU_FINAL_STAGE` tags in the `Dockerfile` in the preferred location.
+To disable Dockerfile update, set the `updateDockerfile` configuration to `false`.
+
+The `#HABUSHU_BUILDER_STAGE` tag will be replaced with the habushu builder stage logic to, first, copy the generated dependencies files onto a Docker container and then to create the virtual environment for building the specified habushu module.
+
+The `#HABUSHU_FINAL_STAGE` tag will be replaced with the habushu final stage logic to copy over the built virtual environment to the final stage.
+```dockerfile
+#HABUSHU_BUILDER_STAGE
+
+FROM redhat/ubi9-minimal:latest
+RUN microdnf install -y python3.11
+
+#HABUSHU_FINAL_STAGE
+
+ENTRYPOINT ["/venv/bin/python3.11", "-m", "pets.main", "--enable_docs_url", "True"]
+```
+
+The plugin will only examine dependencies that are of the type `habushu` in the dependencies block of the `pom.xml` file.
 
 ```xml
-    <dependencies>
-        <dependency>
-            <groupId>your-group-id</groupId>
-            <artifactId>your-artifact-id</artifactId>
-            <version>your-version</version>
-            <type>habushu</type>
-        </dependency>
-    </dependencies>
+<dependencies>
+    <dependency>
+        <groupId>your-group-id</groupId>
+        <artifactId>your-artifact-id</artifactId>
+        <version>your-version</version>
+        <type>habushu</type>
+    </dependency>
+</dependencies>
 ```
 
 Any transitive monorepo dependencie shoud also use this convention to ensure they are captured by the plugin.
@@ -203,16 +221,16 @@ Any transitive monorepo dependencie shoud also use this convention to ensure the
 
 Habushu enables support for faster builds via
 the [Maven Build Cache](https://maven.apache.org/extensions/maven-build-cache-extension/) (only available in Maven
-3.9+). This functionality is enabled through three mechanisms: Maven build directory customization, the Maven Reactor, 
+3.9+). This functionality is enabled through three mechanisms: Maven build directory customization, the Maven Reactor,
 and Maven Build Cache Configuration. All require manual action to enable.
 
 #### Maven Build Directory Customization ####
 Update Maven's build configuration to point to the `dist` directory for output in the pom file for each Habushu module:
 ```xml
     <build>
-        <directory>dist</directory>
-        ...
-    </build>
+    <directory>dist</directory>
+    ...
+</build>
 ```
 
 #### Maven Reactor Configuration ####
@@ -279,13 +297,13 @@ All Habushu configurations may be set either via the `habushu-maven-plugin`'s `<
 
 ```xml
 	<plugin>
-		<groupId>org.technologybrewery.habushu</groupId>
-		<artifactId>habushu-maven-plugin</artifactId>
-		<extensions>true</extensions>
-		<configuration>
-			<pythonVersion>3.10.4</pythonVersion>
-		</configuration>
-	</plugin>
+    <groupId>org.technologybrewery.habushu</groupId>
+    <artifactId>habushu-maven-plugin</artifactId>
+    <extensions>true</extensions>
+    <configuration>
+        <pythonVersion>3.10.4</pythonVersion>
+    </configuration>
+</plugin>
 ```
 
 2. `-D` via command line
@@ -298,8 +316,8 @@ mvn clean install -Dhabushu.pythonVersion=3.10.4
 
 ```xml
 	<properties>
-		<habushu.pythonVersion>3.10.4</habushu.pythonVersion>
-	</properties>
+    <habushu.pythonVersion>3.10.4</habushu.pythonVersion>
+</properties>
 ```
 
 **NOTE:** The above list's order reflects the precedence in which configurations will be applied.  For example, configuration values that are specified in the plugin's `<configuration>` definition will always take precedence, while system properties via the command line (`-D`) will take precedence over `<properties>` definitions.
@@ -318,7 +336,7 @@ Default: `true`
 
 #### behaveOptions ####
 
-Options that should be passed to the `behave` command when executing tests. If this value is provided, then **behaveExcludeManualTag** is ignored. 
+Options that should be passed to the `behave` command when executing tests. If this value is provided, then **behaveExcludeManualTag** is ignored.
 
 `behave` supports a [number of command line options](https://behave.readthedocs.io/en/stable/behave.html#command-line-arguments) - developers may adjust the default test execution behavior to optimize productivity, such as selectively executing features associated with a specific in-flight tag (`mvn clean test -Dhabushu.behaveOptions="--tags wip-feature"`).
 
@@ -343,31 +361,31 @@ Default: `true`
 
 #### behaveTestEnvironmentVariables ####
 
-Enables the ability to set environment variables when executing the behave tests. The environment variables should be 
+Enables the ability to set environment variables when executing the behave tests. The environment variables should be
 defined in the pom.xml:
 ```xml
 <plugin>
-  <groupId>org.technologybrewery.habushu</groupId>
-  <artifactId>habushu-maven-plugin</artifactId>
-  <extensions>true</extensions>
-  <configuration>
-    <behaveTestEnvironmentVariables>
-      <ENV_VAR>VALUE</ENV_VAR>
-    </behaveTestEnvironmentVariables>
-  </configuration>
+    <groupId>org.technologybrewery.habushu</groupId>
+    <artifactId>habushu-maven-plugin</artifactId>
+    <extensions>true</extensions>
+    <configuration>
+        <behaveTestEnvironmentVariables>
+            <ENV_VAR>VALUE</ENV_VAR>
+        </behaveTestEnvironmentVariables>
+    </configuration>
 </plugin>
 ```
 To pass environment variables in via the command line using the -D option, use a property placeholder in the pom.xml:
 ```xml
 <plugin>
-  <groupId>org.technologybrewery.habushu</groupId>
-  <artifactId>habushu-maven-plugin</artifactId>
-  <extensions>true</extensions>
-  <configuration>
-    <behaveTestEnvironmentVariables>
-      <ENV_VAR>${habushu.ENV_VAR}</ENV_VAR>
-    </behaveTestEnvironmentVariables>
-  </configuration>
+    <groupId>org.technologybrewery.habushu</groupId>
+    <artifactId>habushu-maven-plugin</artifactId>
+    <extensions>true</extensions>
+    <configuration>
+        <behaveTestEnvironmentVariables>
+            <ENV_VAR>${habushu.ENV_VAR}</ENV_VAR>
+        </behaveTestEnvironmentVariables>
+    </configuration>
 </plugin>
 ```
 Then you can specify the value from the cli: `mvn clean install -Dhabushu.ENV_VAR=customValue`. A default value can be
@@ -377,19 +395,19 @@ Default: None
 
 #### rewriteLocalPathDepsInArchives ####
 
-Enables the use of the [poetry-monorepo-dependency-plugin](https://pypi.org/project/poetry-monorepo-dependency-plugin/) to rewrite 
+Enables the use of the [poetry-monorepo-dependency-plugin](https://pypi.org/project/poetry-monorepo-dependency-plugin/) to rewrite
 any local path dependencies (to other Poetry projects) as versioned packaged dependencies in generated `wheel`/`sdist` archives. If `true`,
 Habushu will replace invocations of Poetry's `build` and `publish` commands with the extensions of those commands exposed by the
 `poetry-monorepo-dependency-plugin`, which are `build-rewrite-path-deps` and `publish-rewrite-path-deps`, respectively.
 
-To further ease working with monorepo dependencies, Habushu will specially handle how these dependencies are written to 
-intermediate `requirements.txt` exports.  In this case, the dependencies will be excluded from the export unless 
-`rewriteLocalPathDepsInArchives` is set to true.  This feature can be useful if installing the exported 
+To further ease working with monorepo dependencies, Habushu will specially handle how these dependencies are written to
+intermediate `requirements.txt` exports.  In this case, the dependencies will be excluded from the export unless
+`rewriteLocalPathDepsInArchives` is set to true.  This feature can be useful if installing the exported
 `requirements.txt` on another machine and/or Docker container.
 
 Typically, this flag will only be `true` when deploying/releasing Habushu modules within a CI environment that are part of a monorepo project
 structure which multiple Poetry projects depend on one another.
-    
+
 Default: `false`
 
 #### pypiRepoId ####
@@ -403,10 +421,10 @@ This property will typically be specified as a command line option during the `d
 
 ```xml
     <server>
-        <id>private-pypi-repo</id>
-        <username>pypi-repo-username</username>
-        <password>{encrypted-pypi-repo-password}</password>
-    </server> 
+    <id>private-pypi-repo</id>
+    <username>pypi-repo-username</username>
+    <password>{encrypted-pypi-repo-password}</password>
+</server> 
 ```
 
 The following command may be utilized to publish the package to the specified private PyPI repository at `https://private-pypi-repo-url/repository/pypi-repo/`:
@@ -418,19 +436,19 @@ Default: `pypi`
 
 #### pypiRepoUrl ####
 
-Specifies the URL of the private PyPI repository to which this project's archives will be published and/or used as a supplemental repository from which dependencies may be installed. This property is **REQUIRED** if publishing to or consuming dependencies from a private PyPI repository.  
+Specifies the URL of the private PyPI repository to which this project's archives will be published and/or used as a supplemental repository from which dependencies may be installed. This property is **REQUIRED** if publishing to or consuming dependencies from a private PyPI repository.
 
 If the Habushu project depends on internal packages that may only be found on a private PyPI repository, developers should specify this property through the plugin's `<configuration>` definition:
 
 ```xml
 	<plugin>
-		<groupId>org.technologybrewery.habushu</groupId>
-		<artifactId>habushu-maven-plugin</artifactId>
-		<extensions>true</extensions>
-		<configuration>
-			<pypiRepoUrl>https://private-pypi-repo-url/repository/pypi-repo</pypiRepoUrl>
-		</configuration>
-	</plugin>
+    <groupId>org.technologybrewery.habushu</groupId>
+    <artifactId>habushu-maven-plugin</artifactId>
+    <extensions>true</extensions>
+    <configuration>
+        <pypiRepoUrl>https://private-pypi-repo-url/repository/pypi-repo</pypiRepoUrl>
+    </configuration>
+</plugin>
 ```
 
 Default: None
@@ -474,31 +492,31 @@ Default: `3`
 
 #### devRepositoryId ####
 
-Specifies the `<id>` of the `<server>` element declared within the utilized Maven `settings.xml` configuration that 
-represents the development PyPI repository to which this project's archives will be published and/or used as a 
-supplemental repository from which dependencies may be installed. This property is **REQUIRED** if publishing to or 
-consuming dependencies from a private PyPI repository that requires authentication - it is expected that the relevant 
+Specifies the `<id>` of the `<server>` element declared within the utilized Maven `settings.xml` configuration that
+represents the development PyPI repository to which this project's archives will be published and/or used as a
+supplemental repository from which dependencies may be installed. This property is **REQUIRED** if publishing to or
+consuming dependencies from a private PyPI repository that requires authentication - it is expected that the relevant
 `<server>` element provides the needed authentication details.
 
-If this property is **not** specified, this property will default to `dev-pypi` and the execution of the `deploy` 
-lifecycle phase will publish this package to the official public Test PyPI repository.  Downstream package publishing 
-functionality will use the relevant `settings.xml` `<server>` declaration with `<id>dev-pypi</id>` as credentials for 
-publishing the package to PyPI. If developers want to use PyPI's [API tokens](https://pypi.org/help/#apitoken) instead of username/password 
-credentials, they may do so by manually executing the appropriate Poetry command 
+If this property is **not** specified, this property will default to `dev-pypi` and the execution of the `deploy`
+lifecycle phase will publish this package to the official public Test PyPI repository.  Downstream package publishing
+functionality will use the relevant `settings.xml` `<server>` declaration with `<id>dev-pypi</id>` as credentials for
+publishing the package to PyPI. If developers want to use PyPI's [API tokens](https://pypi.org/help/#apitoken) instead of username/password
+credentials, they may do so by manually executing the appropriate Poetry command
 (`poetry config pypi-token.pypi my-token`) in an ad-hoc fashion prior to running `deploy`.
 
-This property will typically be specified as a command line option during the `deploy` lifecycle phase.  For example, 
+This property will typically be specified as a command line option during the `deploy` lifecycle phase.  For example,
 given the following configuration in the utilized `settings.xml`:
 
 ```xml
     <server>
-        <id>dev-pypi</id>
-        <username>pypi-repo-username</username>
-        <password>{encrypted-pypi-repo-password}</password>
-    </server> 
+    <id>dev-pypi</id>
+    <username>pypi-repo-username</username>
+    <password>{encrypted-pypi-repo-password}</password>
+</server> 
 ```
 
-The following command may be utilized to publish the package to the specified private PyPI repository at 
+The following command may be utilized to publish the package to the specified private PyPI repository at
 `https://private-pypi-repo-url/repository/pypi-repo/`:
 
 ```sh 
@@ -508,28 +526,28 @@ Default: `dev-pypi`
 
 #### devRepositoryUrl ####
 
-Specifies the URL of the private development PyPI repository to which this project's archives will be published and/or 
-used as a supplemental repository from which dependencies may be installed. This property is **REQUIRED** if 
+Specifies the URL of the private development PyPI repository to which this project's archives will be published and/or
+used as a supplemental repository from which dependencies may be installed. This property is **REQUIRED** if
 publishing to or consuming dependencies from a private dev PyPI repository.
 
-If the Habushu project depends on internal packages that may only be found on a private dev PyPI repository, 
+If the Habushu project depends on internal packages that may only be found on a private dev PyPI repository,
 developers should specify this property through the plugin's `<configuration>` definition:
 
 ```xml
 	<plugin>
-		<groupId>org.technologybrewery.habushu</groupId>
-		<artifactId>habushu-maven-plugin</artifactId>
-		<extensions>true</extensions>
-		<configuration>
-			<devRepositoryUrl>https://private-pypi-repo-url/repository/pypi-repo</devRepositoryUrl>
-		</configuration>
-	</plugin>
+    <groupId>org.technologybrewery.habushu</groupId>
+    <artifactId>habushu-maven-plugin</artifactId>
+    <extensions>true</extensions>
+    <configuration>
+        <devRepositoryUrl>https://private-pypi-repo-url/repository/pypi-repo</devRepositoryUrl>
+    </configuration>
+</plugin>
 ```
 Default: `https://test.pypi.org`
 
 #### devRepositoryUrlUploadSuffix ####
 
-Specifies the path to the upload index relative to the devRepositoryUrl.  Certain private repository solutions use 
+Specifies the path to the upload index relative to the devRepositoryUrl.  Certain private repository solutions use
 non-standard paths (ie: `test.pypi.org` uses `+legacy/`).
 
 Default: `legacy/`
@@ -594,38 +612,38 @@ Whitespace-delimited command arguments that will be provided to `poetry run` to 
 
 ```xml
 	<plugin>
-		<groupId>org.technologybrewery.habushu</groupId>
-		<artifactId>habushu-maven-plugin</artifactId>
-		<extensions>true</extensions>
-		<configuration>
-		...
-		</configuration>
-		<executions>
-			<execution>
-				<configuration>
-					<runCommandArgs>python -V</runCommandArgs>
-				</configuration>
-				<id>get-python-version</id>
-				<phase>validate</phase>
-				<goals>
-					<goal>run-command-in-virtual-env</goal>
-				</goals>
-			</execution>
-		</executions>
-	</plugin>
+    <groupId>org.technologybrewery.habushu</groupId>
+    <artifactId>habushu-maven-plugin</artifactId>
+    <extensions>true</extensions>
+    <configuration>
+        ...
+    </configuration>
+    <executions>
+        <execution>
+            <configuration>
+                <runCommandArgs>python -V</runCommandArgs>
+            </configuration>
+            <id>get-python-version</id>
+            <phase>validate</phase>
+            <goals>
+                <goal>run-command-in-virtual-env</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
 ```
 
 Default: None
 
 #### skipPoetryLockUpdate ####
 
-Typically enabled when running CI, this configuration enables skipping the update of Poetry's lock file via `poetry lock`. If `poetry.lock` does not exist, the subsequent execution of `poetry install` will create it regardless of this configuration. If `poetry.lock` has a mismatch with its `pyproject.toml` definition, the build will fail. 
+Typically enabled when running CI, this configuration enables skipping the update of Poetry's lock file via `poetry lock`. If `poetry.lock` does not exist, the subsequent execution of `poetry install` will create it regardless of this configuration. If `poetry.lock` has a mismatch with its `pyproject.toml` definition, the build will fail.
 
 Default: `false`
 
 #### useInProjectVirtualEnvironment ####
 
-Enables Poetry's `virtualenvs.in-project` for this project. If configured with an existing virtual environment elsewhere, 
+Enables Poetry's `virtualenvs.in-project` for this project. If configured with an existing virtual environment elsewhere,
 the virtual environments will be migrated to this approach during the clean phase of the build.
 
 While generally easier to find and use for tasks like debugging, having your virtual environment co-located in
@@ -641,7 +659,7 @@ Enables the explicit deletion of the virtual environment that is created/managed
 Example usage: `mvn clean -Dhabushu.deleteVirtualEnv`
 
 Default: `false`
-    
+
 #### skipTests ####
 
 Skips running tests.  Using this property is **NOT RECOMMENDED** but may be convenient on occasion.
@@ -687,10 +705,10 @@ Skips the execution of the `deploy` phase and does *not* publish the Poetry pack
 Default: `false`
 
 #### snapshotNumberDateFormatPattern ####
-    
+
 [DateTimeFormatter](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/format/DateTimeFormatter.html) compliant pattern that configures the numeric portion of `SNAPSHOT` Poetry package versions that are published to the configured PyPI repository. By default, the version of `SNAPSHOT` published packages align with [PEP-440 developmental releases](https://peps.python.org/pep-0440/#developmental-releases) and use a numeric component that corresponds to the number of seconds since the epoch. For example, if the POM version is `1.2.3-SNAPSHOT`, the package may be published by default as `1.2.3.dev1658238063`. If this property is specified, the numeric component will reflect the given date format pattern applied to the current build time. For example, if `YYYYMMddHHmm` is provided, `1.2.3.dev202207191002` be published.
 
-Default: Number of seconds since epoch    
+Default: Number of seconds since epoch
 
 #### overridePackageVersion ####
 
@@ -729,62 +747,62 @@ Default: `false`
 #### wheelDependencies (deprecated) ####
 The `retrieve-wheels` goal has been `deprecated`, please see the `containerize-dependencies` goal instead.
 
-Optional set of wheel dependencies to retrieve from poetry cache. This allows previously cached external 
-wheel dependencies to be copied into a given target directory if it exists in poetry cache. This logic 
+Optional set of wheel dependencies to retrieve from poetry cache. This allows previously cached external
+wheel dependencies to be copied into a given target directory if it exists in poetry cache. This logic
 depends on wheels to have first been cached by `cacheWheels` habushu-maven-plugin configuration and executes
-during the VALIDATE maven phase. Warnings will be logged if the specified wheel isn't found. 
+during the VALIDATE maven phase. Warnings will be logged if the specified wheel isn't found.
 ```xml
 <plugin>
-	<groupId>org.technologybrewery.habushu</groupId>
-	<artifactId>habushu-maven-plugin</artifactId>
-	...
-	<configuration>
-		<wheelDependencies>
-			<wheelDependency>
-				<artifactId>foundation-core-python</artifactId>
-				<targetDirectory>${project.build.directory}</targetDirectory>
-			</wheelDependency>
-		</wheelDependencies>
-		...
-	</configuration>
+    <groupId>org.technologybrewery.habushu</groupId>
+    <artifactId>habushu-maven-plugin</artifactId>
+    ...
+    <configuration>
+        <wheelDependencies>
+            <wheelDependency>
+                <artifactId>foundation-core-python</artifactId>
+                <targetDirectory>${project.build.directory}</targetDirectory>
+            </wheelDependency>
+        </wheelDependencies>
+        ...
+    </configuration>
 </plugin>
 ```
 #### managedDependencies ####
 
-Optional set of dependencies to manage across modules extending a parent pom. This allows packages to be managed to a 
+Optional set of dependencies to manage across modules extending a parent pom. This allows packages to be managed to a
 specific version, which is often useful to ensure that information assurance patches, common versions, etc. are enforced
 across a series of modules. Can be used with the next several variables to control automatic update, logging, or failing
-the build when mismatches are found between the managed dependency operator/version and what is currently specified. 
-Looks at dependencies in `[tool.poetry.dependencies]`, `[tool.poetry.group.dev.dependencies]`, and any 
+the build when mismatches are found between the managed dependency operator/version and what is currently specified.
+Looks at dependencies in `[tool.poetry.dependencies]`, `[tool.poetry.group.dev.dependencies]`, and any
 `[tool.poetry.group.<subgroup>]` of your `pyproject.toml`.
 ```xml
 <plugin>
-	<groupId>org.technologybrewery.habushu</groupId>
-	<artifactId>habushu-maven-plugin</artifactId>
-	...
-	<configuration>
-		<managedDependencies>
-			<packageDefinition>
-				<packageName>black</packageName>
-				<operatorAndVersion>^23.3.0</operatorAndVersion>
-				<!-- 
-				  Active defaults to true, but can be used to overriden in child pom.xml files to remove or add 
-				  managed dependencies at each level: 
-				  -->
-				<active>true</active>
-			</packageDefinition>
+    <groupId>org.technologybrewery.habushu</groupId>
+    <artifactId>habushu-maven-plugin</artifactId>
+    ...
+    <configuration>
+        <managedDependencies>
             <packageDefinition>
-				<packageName>some-local-module</packageName>
-				<!-- 
-				  Will follow rules in overridePackageVersion:compile to 
-				  update to a final version of 1.2.3.* to resolve 1.2.3.dev versions 
-				  UNLESS there is a ^ or Poetry version < 1.5.0
-				  -->
-				<operatorAndVersion>1.2.3-SNAPSHOT</operatorAndVersion>	              
-			</packageDefinition>
-		</managedDependencies>
-		...
-	</configuration>
+                <packageName>black</packageName>
+                <operatorAndVersion>^23.3.0</operatorAndVersion>
+                <!-- 
+                  Active defaults to true, but can be used to overriden in child pom.xml files to remove or add 
+                  managed dependencies at each level: 
+                  -->
+                <active>true</active>
+            </packageDefinition>
+            <packageDefinition>
+                <packageName>some-local-module</packageName>
+                <!-- 
+                  Will follow rules in overridePackageVersion:compile to 
+                  update to a final version of 1.2.3.* to resolve 1.2.3.dev versions 
+                  UNLESS there is a ^ or Poetry version < 1.5.0
+                  -->
+                <operatorAndVersion>1.2.3-SNAPSHOT</operatorAndVersion>
+            </packageDefinition>
+        </managedDependencies>
+        ...
+    </configuration>
 </plugin>
 ```
 
@@ -803,9 +821,9 @@ Default: `false`
 #### mavenArtifactFile ####
 
 Location of the artifact that will be published for this module.  Maven wants to install an artifact with the pom file.
-Habushu is really just interested in publishing the pom file for Maven Reactor use, but pushing an artifact makes this 
-process more smooth.  This parameter can be updated to customize the artifact used.  A placeholder file is explicitly 
-used as the default to prevent confusion if we published a real artifact (e.g., wheel file) that would never be used in 
+Habushu is really just interested in publishing the pom file for Maven Reactor use, but pushing an artifact makes this
+process more smooth.  This parameter can be updated to customize the artifact used.  A placeholder file is explicitly
+used as the default to prevent confusion if we published a real artifact (e.g., wheel file) that would never be used in
 normal circumstances.
 
 Default: `${project.basedir}/target/habushu.placeholder.txt`
@@ -818,14 +836,14 @@ Default: `${project.basedir}`
 
 #### distDirectory ####
 
-Controls where the clean plugin will delete dist artifacts.  
+Controls where the clean plugin will delete dist artifacts.
 
 Default: `${project.basedir}/dist`
 
 
 #### targetDirectory ####
 
-Controls where the clean plugin will delete target artifacts.  
+Controls where the clean plugin will delete target artifacts.
 
 Default: `${project.basedir}/target`
 
@@ -849,13 +867,13 @@ Default: `true`
 
 #### lintSource #### 
 
-Controls if linting is enabled for the source module. 
+Controls if linting is enabled for the source module.
 
 Default: `true`
 
 #### sourceLintDisabledChecker ####
 
-Controls the disabled checkers for linting in the source module. By default, checks for Convention (C), Refactor (R), and Warning (W) are disabled.  
+Controls the disabled checkers for linting in the source module. By default, checks for Convention (C), Refactor (R), and Warning (W) are disabled.
 
 Default: `C,R,W`
 
@@ -865,19 +883,19 @@ Controls the enabled checkers for linting in the source module.
 
 #### sourceFailOnLintErrors ####
 
-Controls whether the build will continue if lint identifies code that violate checkers in the source module. 
+Controls whether the build will continue if lint identifies code that violate checkers in the source module.
 
 Default: `true`
 
 #### lintTest ####
 
-Controls if linting is enabled for the test module. 
+Controls if linting is enabled for the test module.
 
 Default: `true`
 
 #### testLintDisabledChecker ####
 
-Controls the disabled checkers for linting in the test module. By default, checks for Convention (C), Refactor (R), Warning (W), and function-redefined error (E0102) are disabled.  
+Controls the disabled checkers for linting in the test module. By default, checks for Convention (C), Refactor (R), Warning (W), and function-redefined error (E0102) are disabled.
 
 Default: `C,R,W,E0102`
 
@@ -887,7 +905,7 @@ Controls the enabled checkers for linting in the test module.
 
 #### testFailOnLintErrors ####
 
-Controls whether the build will continue if lint identifies code that violate checkers in the test module. 
+Controls whether the build will continue if lint identifies code that violate checkers in the test module.
 
 Default: `true`
 
@@ -927,6 +945,18 @@ Controls the location of where containerization files will be copied to as part 
 
 Default: `${project.build.directory}/containerize-support`
 
+#### updateDockerfile ####
+
+Enables the automatic injection of containerization logic to the dockerfile for the `containerize-dependencies` goal.
+
+Default: `true`
+
+#### dockerfile ####
+
+The Dockerfile to update with containerization logic during the `containerize-dependencies` goal. This must be set if the `updateDockerfile` is set to `true`
+
+Default: None
+
 ## The Habushu Build Lifecycle ##
 
 Habushu applies a [custom Maven lifecycle that binds Poetry-based DevSecOps workflow commands](https://fermenter.atlassian.net/wiki/spaces/HAB/pages/2056749057/Dependency+Management+and+Build+Automation+through+Poetry+and+Maven) to the following phases:
@@ -937,7 +967,7 @@ Ensures that necessary required tools are installed, specifically Pyenv, Poetry,
 
 ##### initialize #####
 
-Configures the build state needed by Habushu, ensures that the current project is a Poetry project and initializes and aligns POM and pyproject.toml versions. If configured via **overridePackageVersion**, automatically syncs the Poetry project version with the appropriate version that is derived from the Habushu module's POM. 
+Configures the build state needed by Habushu, ensures that the current project is a Poetry project and initializes and aligns POM and pyproject.toml versions. If configured via **overridePackageVersion**, automatically syncs the Poetry project version with the appropriate version that is derived from the Habushu module's POM.
 
 ##### compile #####
 
@@ -946,7 +976,7 @@ Installs dependencies defined in the project's `pyproject.toml` configuration, s
 ##### process-classes #####
 
 Leverages the [black formatter](https://github.com/psf/black) package to format both source and test Python directories via `poetry run`.
- 
+
 ##### test #####
 
 Uses [behave](https://github.com/behave/behave) to execute BDD scenarios that are defined in `tests/features`. By default, as per **behaveExcludeManualTag**, features/scenarios tagged with `@manual` are skipped.
@@ -961,7 +991,7 @@ Publishes the `pom.xml` for the module into your local Maven Repository (`~/.m2/
 ##### deploy #####
 
 Publishes the generated package archives to the specified PyPI repository (defined via **pypiRepoId** and **pypiRepoUrl**).  
-If the current Habushu module is a `SNAPSHOT` version, temporarily set the version of the package to the appropriate 
+If the current Habushu module is a `SNAPSHOT` version, temporarily set the version of the package to the appropriate
 developmental version, publish it to the specified PyPI repository, and then reset the version to the original value.
 
 Also publishes the `pom.xml` for the module into the configured Maven Repository.
@@ -972,9 +1002,9 @@ Deletes the folder in which archives generated by the **package** phase are plac
 
 ### Maven Reactor Integration ###
 Optionally, Habushu supports partial builds via the Maven Reactor. This allows functionality such as `-rf` (resume from)
-by publishing Habushu POM files as part of the standard Maven `install` and `deploy` lifecylces.  No artifacts (e.g., 
-wheel files) are managed by Maven - those are solely handled via normal PyPI lookups. To leverage this functionality, 
-add in Habushu dependencies in your project's `pom.xml`. You can find an example in [`habushu-mixology-consumer/pom.xml` 
+by publishing Habushu POM files as part of the standard Maven `install` and `deploy` lifecylces.  No artifacts (e.g.,
+wheel files) are managed by Maven - those are solely handled via normal PyPI lookups. To leverage this functionality,
+add in Habushu dependencies in your project's `pom.xml`. You can find an example in [`habushu-mixology-consumer/pom.xml`
 where it references a dependency to `habushu-mixology`](https://github.com/TechnologyBrewery/habushu/blob/dev/habushu-mixology-consumer/pom.xml)
 for Maven Reactor benefits.
 
@@ -1000,5 +1030,5 @@ If you encounter the following error, please see the "Building Habushu" section 
 If you are working on Habushu, please be aware of some nuances in working with a plugin that defines a custom Maven build lifecycle and packaging. `habushu-mixology` and `habushu-mixology-consumer` are utilized to immediately test the `habushu-maven-plugin` and associated `habushu` lifecycle.  If the `habushu-maven-plugin` has not been previously built or there are unbuilt changes to the `habusu` lifecycle, developers must manually build the `habushu-maven-plugin` and then execute **another, separate** build of `habushu-mixology` (and any other `habushu` module) to use the updated `habushu-maven-plugin` and `habushu` lifecycle.  Developers are **not** able to build updates to the `habushu` lifecycle and test their application in `habushu-mixology` within the same build.  That said, if developers do not update the `habushu` lifecycle and simply make updates to existing `Mojo`s defined in the `habushu-maven-plugin`, a single build may be used to build `habushu-maven-plugin` and apply the updates to `habushu-mixology`. To assist, there are two profiles available in the build:
 
 * `mvn clean install -Pbootstrap`: Builds the `habushu-maven-plugin` such that the custom `habushu` lifecycle may be utilized within subsequent builds.
-  * **NOTE:** If updates are made to the `habushu` lifecycle (i.e. updates to the `habushu` lifecycle mapping configuration made in `habushu-maven-plugin/src/main/resources/META-INF/plexus/components.xml`), developers **MUST**  changes require two builds to test - one to build the lifecycle, then a second to use that updated lifecycle.  Code changes to `Mojo` classes within the existing `habushu` lifecycle work via normal builds without the need for a second pass.
+* **NOTE:** If updates are made to the `habushu` lifecycle (i.e. updates to the `habushu` lifecycle mapping configuration made in `habushu-maven-plugin/src/main/resources/META-INF/plexus/components.xml`), developers **MUST**  changes require two builds to test - one to build the lifecycle, then a second to use that updated lifecycle.  Code changes to `Mojo` classes within the existing `habushu` lifecycle work via normal builds without the need for a second pass.
 * `mvn clean install -Pdefault`: (ACTIVE BY DEFAULT - `-Pdefault` does not need to be specified) builds all modules.  Developers may use this profile to build and apply changes to existing `habushu-maven-plugin` `Mojo` classes

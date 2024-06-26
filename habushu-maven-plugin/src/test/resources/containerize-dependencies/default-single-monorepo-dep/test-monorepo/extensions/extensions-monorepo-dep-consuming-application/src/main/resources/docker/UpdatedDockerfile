@@ -1,0 +1,36 @@
+# syntax=docker/dockerfile:1
+FROM scratch
+ADD hello /
+
+#HABUSHU_BUILDER_STAGE - HABUSHU GENERATED CODE (DO NOT MODIFY)
+FROM registry.access.redhat.com/ubi9/python-311:latest AS habushu_builder
+WORKDIR /work-dir
+COPY ./target/containerize-support/test-monorepo ./containerize-support/test-monorepo
+
+# Poetry and supporting plugin installations
+RUN pip install poetry && \
+poetry self add poetry-monorepo-dependency-plugin && \
+poetry self add poetry-plugin-bundle
+
+USER root
+WORKDIR /work-dir/containerize-support/extensions/extensions-python-dep-X
+# ensure Poetry's cache directory is propertly set
+ENV POETRY_CACHE_DIR="/.cache/pypoetry"
+# instruct Docker to persistently store the container's Poetry cache while
+# resolving dependencies during the lock process of the venv-specifier and
+# building/exporting the virtual environment of the venv-specifier to /venv
+RUN --mount=type=cache,target=/.cache/pypoetry/ \
+sed -i 's|develop[[:blank:]]*=[[:blank:]]*true|develop = false|g' pyproject.toml && \
+poetry lock && \
+poetry bundle venv /venv
+#HABUSHU_BUILDER_STAGE - HABUSHU GENERATED CODE (END)
+#HABUSHU_FINAL_STAGE - HABUSHU GENERATED CODE (DO NOT MODIFY)
+# copy the pre-built venv from the builder and
+COPY --from=habushu_builder /venv /venv
+# configure the container to use the venv
+ENV PATH="/venv/bin:$PATH"
+# Update the venv python symlink to point to the underlying python executable
+RUN ln -sf $(which python) /venv/bin/python
+#HABUSHU_FINAL_STAGE - HABUSHU GENERATED CODE (END)
+
+CMD ["/hello"]

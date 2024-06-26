@@ -1,0 +1,20 @@
+FROM registry.access.redhat.com/ubi9/python-311:1-66 as habushu_builder
+# Poetry and supporting plugin installations
+RUN pip install poetry && \
+    poetry self add poetry-monorepo-dependency-plugin && \
+    poetry self add poetry-plugin-bundle
+
+WORKDIR /work-dir
+COPY --chown=1001 ANCHOR_DIRECTORY ./containerize-support/
+RUN find . -type f -name pyproject.toml -exec sed -i 's|develop[[:blank:]]*=[[:blank:]]*true|develop = false|g' {} \;
+
+USER root
+WORKDIR /work-dir/containerize-support/REPLACE_WITH_SINGLE_REPO_PROJECT_DIR
+# ensure Poetry's cache directory is propertly set
+ENV POETRY_CACHE_DIR="/.cache/pypoetry"
+# instruct Docker to persistently store the container's Poetry cache while
+# resolving dependencies during the lock process of the venv-specifier and
+# building/exporting the virtual environment of the venv-specifier to /venv
+RUN --mount=type=cache,target=/.cache/pypoetry/ \
+    poetry lock && \
+    poetry bundle venv /venv
