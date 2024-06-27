@@ -163,7 +163,15 @@ For example, developers may use this feature to bind a Habushu module's `compile
 ```
 
 ### Leveraging the containerize-dependencies Goal to Prepare a Containerized Virtual Environment ###
-If the execution is specified (does not run by default), the `containerize-dependencies` goal will collect a single `habushu` dependency specified the project's `pom.xml`, including all transitive habushu-packaged dependencies. After collecting the set of necessary dependencies, Habushu will copy the project files to the build directory under `containerize-support`, while preserving the original structure of the dependency modules to ensure that any path-based dependencies can be leveraged as-is. This directory can then be copied onto a Docker container and used to create a virtual environment capable of running the target Habushu project.
+The `containerize-dependencies` goal will collect a single `habushu` dependency specified in the project's `pom.xml`,
+including all transitive habushu-packaged dependencies. After collecting the set of necessary dependencies, Habushu will
+copy the project files for each dependency to a staging directory, while preserving the original structure of the
+dependency modules to ensure that any path-based dependencies can be leveraged as-is. This directory can then be copied
+onto a Docker container and used to create a virtual environment capable of running the target Habushu project.
+
+The plugin will automatically inject logic for building and using this virtual environment into a pre-existing Dockerfile
+by default. The `dockerfile` configuration must be set to the target Dockerfile. To disable the Dockerfile update
+altogether, set the `updateDockerfile` configuration to `false`.
 
 ```xml
 <plugin>
@@ -185,12 +193,11 @@ If the execution is specified (does not run by default), the `containerize-depen
 ```
 
 
-To update the `Dockerfile` with logic to containerize the python application, specify the `Dockerfile` location by adding the `dockerfile` tag under `configuration`. To control exact insertion location use the `#HABUSHU_BUILDER_STAGE` and `#HABUSHU_FINAL_STAGE` tags in the `Dockerfile` in the preferred location.
-To disable Dockerfile update, set the `updateDockerfile` configuration to `false`.
-
-The `#HABUSHU_BUILDER_STAGE` tag will be replaced with the habushu builder stage logic to, first, copy the generated dependencies files onto a Docker container and then to create the virtual environment for building the specified habushu module.
-
-The `#HABUSHU_FINAL_STAGE` tag will be replaced with the habushu final stage logic to copy over the built virtual environment to the final stage.
+To control the exact insertion location of the Dockerfile build logic, use the `#HABUSHU_BUILDER_STAGE`and
+`#HABUSHU_FINAL_STAGE` comment tags in the `Dockerfile` in the preferred location. The `#HABUSHU_BUILDER_STAGE` tag will
+be replaced with the builder stage logic to copy the generated dependencies files onto a Docker container and then create
+the virtual environment by building the target Habushu project. The `#HABUSHU_FINAL_STAGE` tag will be replaced with the
+final stage logic to copy over the built virtual environment to the final Docker build stage.
 ```dockerfile
 #HABUSHU_BUILDER_STAGE
 
@@ -203,7 +210,6 @@ ENTRYPOINT ["/venv/bin/python3.11", "-m", "pets.main", "--enable_docs_url", "Tru
 ```
 
 The plugin will only examine dependencies that are of the type `habushu` in the dependencies block of the `pom.xml` file.
-
 ```xml
 <dependencies>
     <dependency>
@@ -214,8 +220,7 @@ The plugin will only examine dependencies that are of the type `habushu` in the 
     </dependency>
 </dependencies>
 ```
-
-Any transitive monorepo dependencie shoud also use this convention to ensure they are captured by the plugin.
+Any transitive monorepo dependencies should also use this convention to ensure they are captured by the plugin.
 
 ### Leveraging Maven Build Cache for Faster Builds ###
 
@@ -909,41 +914,27 @@ Controls whether the build will continue if lint identifies code that violate ch
 
 Default: `true`
 
-#### workingDirectoryRelativeToBasedir ####
-
-Controls the working directory relative to the `${project.basedir}` when examining monorepo dependency modules for copying source files with the `containerize-dependencies` goal. The working directory should be the `${project.basedir}`, hence the `null` default.
-
-Note: this parameter should be consistent with the `workingDirectory` configuration, such that both parameters point to the same expected working directory. For example, if the `workingDirectory` was overriden to `${project.basedir}/custom-workdir`, then `workingDirectoryRelativeToBasedir` should be set to `/custom-workdir`. Setting this parameter should only be necessary if a non-default `workingDirectory` configuration was set.
-
-Default: `null`
-
-#### distDirectoryRelativeToBasedir ####
-
-Controls the expected dist directory relative to the `${project.basedir}` when examining monorepo dependency modules for copying source files with the `containerize-dependencies` goal.
-
-Note: this parameter should be consistent with the `distDirectory` configuration. For example, if the `distDirectory` was set to `${project.basedir}/custom-dist`, then `distDirectoryRelativeToBasedir` should be set to `/custom-dist`. Setting this parameter should only be necessary if a non-default `distDirectory` configuration was set.
-
-Default: `/dist`
-
-#### targetDirectoryRelativeToBasedir ####
-
-Controls the expected target directory relative to the `${project.build.directory}` when examining monorepo dependency modules for copying source files with the `containerize-dependencies` goal.
-
-Note: this parameter should be consistent with the `targetDirectory` configuration. For example, if the `targetDirectory` was overriden to `${project.basedir}/custom-target`, then `targetDirectoryRelativeToBasedir` should be set to `/custom-target`. Setting this parameter should only be necessary if a non-default `targetDirectory` configuration was set.
-
-Default: `/target`
-
-#### anchorSourceDirectory ####
-
-Controls the directory of where containerization files will be copied from with the `containerize-dependencies` goal. If set, this value should be a directory path that houses all the necessary monorepo dependency Habushu modules (including transitive monorepo dependency modules). Additionally, if set, this path should either be an absolute path or a path relative to the `${project.basedir}` of the `containerize-dependencies` goal's execution. Typically, it is not recommended to set this parameter, as the default directory will be sufficient for monorepo use-cases.
-
-Default: the build's execution root directory
-
-#### containerizeSupportDirectory ####
+#### stagingDirectory ####
 
 Controls the location of where containerization files will be copied to as part of the `containerize-dependencies` goal.
 
 Default: `${project.build.directory}/containerize-support`
+
+#### defaultSourceSet ####
+
+For each Python project that is identified as required for containerization, the files identified by this fileset will
+be copied to the staging directory. It is not currently possible to define different filesets for different projects.
+
+Default:
+```xml
+<fileSet>
+    <excludes>
+        <exclude>target/**</exclude>
+        <exclude>dist/**</exclude>
+        <exclude>.venv/**</exclude>
+    </excludes>
+</fileSet>
+```
 
 #### updateDockerfile ####
 
@@ -953,9 +944,15 @@ Default: `true`
 
 #### dockerfile ####
 
-The Dockerfile to update with containerization logic during the `containerize-dependencies` goal. This must be set if the `updateDockerfile` is set to `true`
+The Dockerfile to update with containerization logic during the `containerize-dependencies` goal. This must be set if the `updateDockerfile` is set to `true`.
 
 Default: None
+
+#### dockerContext ####
+
+The directory that will serve as the context for the Docker build. This directory must contain the `stagingDirectory`.
+
+Default: `${project.basedir}`
 
 ## The Habushu Build Lifecycle ##
 

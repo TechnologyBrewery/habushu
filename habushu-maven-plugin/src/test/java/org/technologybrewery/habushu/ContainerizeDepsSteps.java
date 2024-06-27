@@ -58,7 +58,7 @@ public class ContainerizeDepsSteps {
         mojo = (ContainerizeDepsMojo) mojoTestCase.lookupConfiguredMojo(
                 new File(mavenProjectPath, POM_FILE), "containerize-dependencies"
         );
-        mojo.setAnchorSourceDirectory(new File("target/test-classes/containerize-dependencies/default-single-monorepo-dep/test-monorepo").getAbsoluteFile());
+        mojo.setStagingDirectory("target/test-classes/containerize-dependencies/default-single-monorepo-dep/test-monorepo");
         mojo.session.getRequest().setBaseDirectory(new File(targetDefaultSingleMonorepoDepPath));
 
     }
@@ -71,7 +71,7 @@ public class ContainerizeDepsSteps {
     @Then("the source files of the dependency and transitive Habushu-type dependencies are staged for containerization")
     public void
     the_source_files_of_the_dependency_and_transitive_habushu_type_dependencies_are_staged_for_containerization() {
-        assertStaged(mojo.getAnchorOutputDirectory());
+        assertStaged(mojo.getStagingPath());
     }
 
     @Given("no Habushu-type dependencies")
@@ -92,13 +92,12 @@ public class ContainerizeDepsSteps {
 
     @Given("a dockerfile to update")
     public void a_dockerfile_to_update() {
-        dockerfile = new File(mavenProjectPath + "/src/main/resources/docker/Dockerfile");
-        mojo.setDockerfile(dockerfile);
+        setDockerfile("/src/main/resources/docker/Dockerfile");
     }
 
     @Then("all the source files to build the dependency are staged in the build directory")
     public void all_the_source_files_to_build_the_dep_are_staged_in_the_build_directory() {
-        assertStaged(mojo.getAnchorOutputDirectory());
+        assertStaged(mojo.getStagingPath());
     }
 
     @Then("the Dockerfile is updated to leverage a virtual environment for the dependency")
@@ -117,19 +116,23 @@ public class ContainerizeDepsSteps {
 
     @Given("a dockerfile already updated")
     public void a_dockerfile_already_updated() {
-        dockerfile = new File(mavenProjectPath + "/src/main/resources/docker/UpdatedDockerfile");
-        mojo.setDockerfile(dockerfile);
+        setDockerfile("/src/main/resources/docker/UpdatedDockerfile");
     }
 
     @Given("a dockerfile without any habushu builder or final stage comment tag")
     public void a_dockerfile_without_comment_tag() {
-        dockerfile = new File(mavenProjectPath + "/src/main/resources/docker/NoHabushuCommentDockerfile");
-        mojo.setDockerfile(dockerfile);
+        setDockerfile("/src/main/resources/docker/NoHabushuCommentDockerfile");
     }
 
     @Given("updateDockerfile set false")
     public void updateDockerfile_to_false() {
         mojo.setUpdateDockerfile(false);
+    }
+
+    private void setDockerfile(String dockerPath) {
+        dockerfile = new File(mavenProjectPath + dockerPath);
+        mojo.setDockerfile(dockerfile);
+        mojo.setDockerContext(mavenProjectPath);
     }
 
     private boolean isNonExistentOrEmptyDir(File dir) {
