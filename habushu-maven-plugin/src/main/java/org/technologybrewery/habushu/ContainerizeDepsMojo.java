@@ -13,7 +13,6 @@ import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.technologybrewery.habushu.util.HabushuUtil;
 import org.technologybrewery.habushu.util.ContainerizeDepsDockerfileHelper;
 
 import java.io.File;
@@ -22,8 +21,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,7 +29,7 @@ import java.util.stream.Collectors;
  * to the target directory along with the source files of
  * any transitive path-based dependencies.
  */
-@Mojo(name = "containerize-dependencies", defaultPhase = LifecyclePhase.PACKAGE)
+@Mojo(name = "containerize-dependencies", defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
 public class ContainerizeDepsMojo extends AbstractHabushuMojo {
 
     private static final Logger logger = LoggerFactory.getLogger(ContainerizeDepsMojo.class);
@@ -41,93 +38,57 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     protected MavenSession session;
 
     /**
-     * The desired version of Python to use.
+     * The directory in which the collected Python project files will be staged for containerization.
      */
-    @Parameter(defaultValue = PyenvAndPoetrySetup.PYTHON_DEFAULT_VERSION_REQUIREMENT, property = "habushu.pythonVersion")
-    protected String pythonVersion;
+    @Parameter(defaultValue = "${project.build.directory}/containerize-support", property = "habushu.stagingDirectory")
+    protected File stagingDirectory;
 
     /**
-     * Should Habushu use pyenv to manage the utilized version of Python?
+     * For each Python project that is identified as required for containerization, the files identified by this fileset
+     * will be copied to the staging directory. It is not currently possible to define different filesets for different
+     * projects. If not set, defaults to "{habushu.sourceDirectory}/**", "pyproject.toml", "poetry.toml", "poetry.lock"
+     * and "README.md".
      */
-    @Parameter(defaultValue = "true", property = "habushu.usePyenv")
-    protected boolean usePyenv;
+    @Parameter
+    protected FileSet defaultSourceSet;
 
     /**
-     * Indicates whether Habushu should leverage the
-     * {@code poetry-monorepo-dependency-plugin} to rewrite any local path
-     * dependencies (to other Poetry projects) as versioned packaged dependencies in
-     * generated wheel/sdist archives. If {@code true}, Habushu will replace
-     * invocations of Poetry's {@code build} and {@code publish} commands in the
-     * {@link BuildDeploymentArtifactsMojo} and {@link PublishToPyPiRepoMojo} with
-     * the extensions of those commands exposed by the
-     * {@code poetry monorepo-dependency-plugin}, which are
-     * {@code build-rewrite-path-deps} and {@code publish-rewrite-path-deps}
-     * respectively.
-     * <p>
-     * Typically, this flag will only be {@code true} when deploying/releasing
-     * Habushu modules within a CI environment that are part of a monorepo project
-     * structure which multiple Poetry projects depend on one another.
-     */
-    @Parameter(defaultValue = "false", property = "habushu.rewriteLocalPathDepsInArchives")
-    protected boolean rewriteLocalPathDepsInArchives;
-
-    /**
-     * File specifying the location of a generated shell script that will attempt to
-     * install the specified version of Python using "pyenv install --patch" with a
-     * patch that attempts to resolve the expected compilation error.
-     */
-    @Parameter(defaultValue = "pyenv-patch-install-python-version.sh", readonly = true)
-    private String patchInstallScriptRelativeToBuildDirectory;
-
-    /**
-     * Working directory relative to the basedir - typically working directory and basedir are synonymous.
-     */
-    @Parameter(readonly = true)
-    protected String workingDirectoryRelativeToBasedir;
-
-    /**
-     * Expected subdirectory of the monorepo dependency's basedir
-     * in which Poetry places generated source and wheel archive distributions.
-     */
-    @Parameter(defaultValue = "/dist", readonly = true)
-    protected String distDirectoryRelativeToBasedir;
-
-    /**
-     * Expected subdirectory of the monorepo dependency's basedir
-     * in which Maven places build-time artifacts. Should NOT include dist items.
-     */
-    @Parameter(defaultValue = "/target", readonly = true)
-    protected String targetDirectoryRelativeToBasedir;
-
-    /**
-     * Location of where containerization files will be placed.
-     */
-    @Parameter(defaultValue = "${project.build.directory}/containerize-support", readonly = true)
-    protected String containerizeSupportDirectory;
-
-    /**
-     * Upstream directory that houses all necessary monorepo dependencies.
-     * Monorepo dependency source files will be copied from here.
-     */
-    @Parameter(readonly = true)
-    protected File anchorSourceDirectory;
-
-    /**
-     * Update dockerfile
+     * Controls whether a Dockerfile is updated with logic to copy and build the Habushu project and its dependencies
+     * within the container. If set to false, the Dockerfile will not be updated.
      */
     @Parameter(defaultValue = "true", property = "habushu.updateDockerfile")
     protected boolean updateDockerfile;
 
     /**
-     * Dockerfile to be updated with the stage content
+     * Dockerfile to be updated with containerization logic. Must be set if `updateDockerfile` is true.
      */
     @Parameter(property = "habushu.dockerfile")
     protected File dockerfile;
 
-    private Path anchorOutputDirectory;
+    /**
+     * The directory that will serve as the context for the Docker build. This directory must contain the `stagingDirectory`.
+     * Defaults to the project's base directory.
+     */
+    @Parameter(defaultValue = "${project.basedir}", property = "habushu.dockerContext")
+    protected File dockerContext;
+
+    /**
+     * The user to set as the owner of the virtual env. This is useful when the Docker build is run as a non-root user.
+     * Set to an empty string to disable.
+     */
+    @Parameter(defaultValue = "1001", property = "habushu.dockerUser")
+    protected String dockerUser;
+
+    /**
+     * The base image to use for the Dockerfile. The base image will be used both to bundle the virtual environment for
+     * the target project and to run the final container, as the venv must be built on the same platform as the final
+     * runtime. The base image must have the correct Python version resolvable via the PATH.
+     */
+    @Parameter(defaultValue = "python:3.11-slim", property = "habushu.dockerBase")
+    protected String dockerBase;
 
     protected final String HABUSHU = "habushu";
-    protected final String GLOB_RECURSIVE_ALL = "/**";
+
     /**
      * Overriding to allow execution in non-habushu projects.
      */
@@ -138,17 +99,11 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
 
     @Override
     protected void doExecute() throws MojoExecutionException, MojoFailureException {
-        if (this.anchorSourceDirectory == null) {
-            this.anchorSourceDirectory = new File(session.getExecutionRootDirectory());
-        }
-
-        if (this.workingDirectoryRelativeToBasedir == null) {
-            this.workingDirectoryRelativeToBasedir = "";
-        }
+        Path sourceRoot = Path.of(session.getExecutionRootDirectory());
 
         ProjectCollectionResult result = getHabushuProjects();
         try {
-            Path targetProjectPath = copySourceCode(result);
+            Path targetProjectPath = stageHabushuProjects(sourceRoot, result);
             if (this.updateDockerfile) {
                 if (this.dockerfile == null) {
                     throw new HabushuException("`updateDockerfile` is set to true but `dockerfile` is not specified");
@@ -156,80 +111,76 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
                 performDockerfileUpdateForVirtualEnvironment(targetProjectPath);
             }
         } catch (IOException e) {
-            throw new HabushuException(e);
+            throw new HabushuException("Failed to prepare containerization of Habushu dependency", e);
         }
     }
 
     /**
      * Copies the relevant source files by leveraging {@link FileSet}s to filter appropriately.
+     *
+     * @param sourceRoot the root directory that contains the source files of the projects
      * @param projectCollection corresponding projects of the pom's habushu-type dependencies
      * @return the relative path from the staging root to the primary project being containerized
-     * @throws IOException
-     * @throws MojoExecutionException
+     * @throws IOException if an error occurs while copying files
      */
-    protected Path copySourceCode(ProjectCollectionResult projectCollection) throws IOException, MojoExecutionException {
-        this.anchorOutputDirectory = Path.of(containerizeSupportDirectory, this.anchorSourceDirectory.getName());
-        Path srcRoot = this.anchorSourceDirectory.toPath();
+    protected Path stageHabushuProjects(Path sourceRoot, ProjectCollectionResult projectCollection) throws IOException {
+        Path destRoot = getStagingPath();
         Path primaryProjectPath = null;
 
-        Map<Path, FileSet> dependencyFileSets = new HashMap<>();
         for (MavenProject project : projectCollection.getAllProjects()) {
-            Path projectPath = getWorkingDirectoryPath(project);
-            Path relativeProjectPath = srcRoot.relativize(projectPath);
-            FileSet fileSet = getDefaultFileSet(project);
-            fileSet.setDirectory(projectPath.toString());
-            dependencyFileSets.put(relativeProjectPath, fileSet);
+            Path projectPath = project.getBasedir().toPath();
+            Path relativeProjectPath = sourceRoot.relativize(projectPath);
             if (project.equals(projectCollection.getPrimaryProject())) {
                 primaryProjectPath = relativeProjectPath;
             }
+
+            FileSet sourceFileSet = getSourceSet();
+            sourceFileSet.setDirectory(projectPath.toString());
+            stageSourcesForProject(sourceRoot, destRoot, sourceFileSet, relativeProjectPath);
         }
         if( primaryProjectPath == null ) {
-            throw new HabushuException("Primary project was not included in the set of projects. Ensure the habushu project is in the build and the pom dependencies are configured correctly");
-        }
-
-        FileSetManager fileSetManager = new FileSetManager();
-        for (Path project : dependencyFileSets.keySet()) {
-            FileSet fileSet = dependencyFileSets.get(project);
-            logger.info("Staging {} monorepo dependency files from {}.",
-                    fileSetManager.getIncludedFiles(fileSet).length,
-                    project.getFileName()
-            );
-            for (String includedFile : fileSetManager.getIncludedFiles(fileSet)) {
-                Path relativePath = project.resolve(includedFile);
-                Files.createDirectories(this.anchorOutputDirectory.resolve(relativePath).getParent());
-                Files.copy(srcRoot.resolve(relativePath), this.anchorOutputDirectory.resolve(relativePath), StandardCopyOption.REPLACE_EXISTING);
-            }
+            throw new HabushuException("Primary project was not included in the set of projects. Ensure the Habushu project is in the build and the POM dependencies are configured correctly.");
         }
         return primaryProjectPath;
     }
 
-    private Path getWorkingDirectoryPath(MavenProject project) {
-        return project.getBasedir().toPath().resolve(workingDirectoryRelativeToBasedir);
+    /**
+     * Moves the files identified by the given {@link FileSet} from the source root to the destination root, preserving
+     * the relative path of the project.
+     *
+     * @param sourceRoot the root directory that contains the project
+     * @param destRoot the root directory to copy sources into
+     * @param sourceFileSet the set of files to copy
+     * @param relativeProjectPath the relative path of the project from the source/destination root
+     * @throws IOException
+     */
+    protected void stageSourcesForProject(Path sourceRoot, Path destRoot, FileSet sourceFileSet, Path relativeProjectPath) throws IOException {
+        FileSetManager fileSetManager = new FileSetManager();
+        logger.info("Staging {} monorepo dependency files from {}.",
+                fileSetManager.getIncludedFiles(sourceFileSet).length,
+                relativeProjectPath.getFileName()
+        );
+        for (String includedFile : fileSetManager.getIncludedFiles(sourceFileSet)) {
+            Path relativeFilePath = relativeProjectPath.resolve(includedFile);
+            Files.createDirectories(destRoot.resolve(relativeFilePath).getParent());
+            Files.copy(sourceRoot.resolve(relativeFilePath), destRoot.resolve(relativeFilePath));
+        }
     }
 
-    private FileSet getDefaultFileSet(MavenProject project) throws MojoExecutionException {
-        FileSet fileSet = new FileSet();
-        fileSet.addExclude(distDirectoryRelativeToBasedir + GLOB_RECURSIVE_ALL);
-        fileSet.addExclude(targetDirectoryRelativeToBasedir + GLOB_RECURSIVE_ALL);
-
-        // find the virtual environment path for the given Habushu-packaged project
-        String virtualEnvironmentPath = HabushuUtil.findCurrentVirtualEnvironmentFullPath(
-                pythonVersion,
-                usePyenv,
-                new File(project.getBuild().getDirectory() + patchInstallScriptRelativeToBuildDirectory),
-                new File(project.getBasedir() + workingDirectoryRelativeToBasedir),
-                rewriteLocalPathDepsInArchives,
-                getLog()
-        );
-        virtualEnvironmentPath = HabushuUtil.getCleanVirtualEnvironmentPath(virtualEnvironmentPath);
-
-        // if a valid virtual environment was found, relativize and add to the fileSet for exclusions
-        if (virtualEnvironmentPath != null && !virtualEnvironmentPath.isEmpty()
-                && new File(virtualEnvironmentPath).isDirectory()) {
-            Path venvDirRelativeToBasedir = getWorkingDirectoryPath(project)
-                    .relativize(Paths.get(virtualEnvironmentPath));
-            fileSet.addExclude(venvDirRelativeToBasedir + GLOB_RECURSIVE_ALL);
+    protected FileSet getSourceSet() {
+        if( defaultSourceSet != null ) {
+            return defaultSourceSet;
         }
+
+        FileSet fileSet = new FileSet();
+        Path srcPath = sourceDirectory.toPath();
+        Path basePath = project.getBasedir().toPath();
+        Path relativeSrc = basePath.relativize(srcPath);
+        fileSet.addInclude(relativeSrc +"/**");
+        fileSet.addInclude("pyproject.toml");
+        fileSet.addInclude("poetry.toml");
+        fileSet.addInclude("poetry.lock");
+        fileSet.addInclude("README.md");
 
         return fileSet;
     }
@@ -243,8 +194,6 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         Set<Dependency> directHabushuDeps = session.getCurrentProject().getDependencies().stream()
                 .filter(d -> HABUSHU.equals(d.getType()))
                 .collect(Collectors.toSet());
-        // TODO: modify this exception throw, once support for
-        //  more than one direct monorepo dep specification is implemented
         if (directHabushuDeps.size() > 1) {
             throw new HabushuException("More than one `habushu` packaged dependency was found."
                     + "Only one habushu-type dependency should be specified.");
@@ -288,12 +237,8 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         return this.session;
     }
 
-    protected void setAnchorSourceDirectory(File anchorSourceDirectory) {
-        this.anchorSourceDirectory = anchorSourceDirectory;
-    }
-
-    public Path getAnchorOutputDirectory() {
-        return anchorOutputDirectory;
+    protected Path getStagingPath() {
+        return stagingDirectory.toPath();
     }
 
     protected void setDockerfile(File dockerfile) {
@@ -305,10 +250,10 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     }
 
     protected void performDockerfileUpdateForVirtualEnvironment(Path targetProjectPath) {
-        Path outputDir = session.getCurrentProject().getBasedir().toPath().relativize(this.anchorOutputDirectory);
+        Path outputDir = dockerContext.toPath().relativize(getStagingPath());
         String updatedDockerfile =
                 ContainerizeDepsDockerfileHelper.updateDockerfileWithContainerStageLogic(
-                        this.dockerfile, outputDir.toString(), targetProjectPath.toString());
+                        this.dockerfile, outputDir.toString(), targetProjectPath.toString(), dockerUser, dockerBase);
 
         try (Writer writer = new FileWriter(this.dockerfile)) {
             writer.write(updatedDockerfile);
@@ -319,24 +264,27 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     }
 
     /**
-      * Result object for collecting Maven projects that are required to containerize a given Habushu project.  There is
-      * one "primary" project that is the direct target of containerization.  Other Habushu projects are included when
-      * they are monorepo dependencies of the primary project.
-      */
+     * Result object for collecting Maven projects that are required to containerize a given Habushu project.  There is
+     * one "primary" project that is the direct target of containerization.  Other Habushu projects are included when
+     * they are monorepo dependencies of the primary project.
+     */
     protected static class ProjectCollectionResult {
         private final Dependency directDependency;
         private final Set<MavenProject> habushuProjects; //includes primaryProject
         private MavenProject primaryProject;
+
         public ProjectCollectionResult(Dependency directDependency) {
             this.directDependency = directDependency;
             this.habushuProjects = new HashSet<>();
         }
+
         public void addProject(MavenProject project) {
             this.habushuProjects.add(project);
             if (toGav(directDependency).equals(toGav(project))) {
                 primaryProject = project;
             }
         }
+
         /**
          * @return all projects including the primary project
          */
@@ -347,5 +295,4 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
             return primaryProject;
         }
     }
-
 }

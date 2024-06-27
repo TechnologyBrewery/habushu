@@ -59,6 +59,7 @@ Thumbs.db
 
 # Local Poetry configuration
 poetry.toml
+!habushu-maven-plugin/src/test/resources/**/poetry.toml
 # https://python-poetry.org/docs/configuration/#virtualenvsin-project
 .venv
 /habushu-mixology/poetry.lock
