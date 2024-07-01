@@ -22,8 +22,8 @@
                 {*.java,*.xml,*.proto,*.properties,*.py,*.txt,*.toml,.env*,*.feature,*.json}
             </glob>
             <includes>
-                <include>src/**</include>
-                <include>tests/**</include>
+                <include>src</include>
+                <include>tests</include>
                 <include>pom.xml</include>
                 <include>pyproject.toml</include>
             </includes>
