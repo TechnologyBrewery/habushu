@@ -19,6 +19,13 @@ if [[ "$?" -ne 0 ]] ; then
   echo 'Process failed! Unable to check out release branch!'; exit 1
 fi
 
+echo "///////////  Bootstrap Habushu plugin ///////////"
+mvn clean install -Pbootstrap
+
+if [[ "$?" -ne 0 ]] ; then
+  echo 'Process failed! Unable to bootstrap plugin!'; exit 1
+fi
+
 echo "/////////// Check there are no uncommitted local changes ///////////"
 mvn scm:check-local-modification
 
@@ -41,8 +48,7 @@ if [[ "$?" -ne 0 ]] ; then
 fi
 
 echo "///////////  Commit all changes that reflect the target release version and create a tag ///////////"
-mvn scm:checkin -Dmessage="Prepare release habushu-$1"
-mvn scm:tag -Dtag=habushu-$1
+mvn scm:checkin -Dmessage="Prepare release habushu-$1" && mvn scm:tag -Dtag=habushu-$1
 
 if [[ "$?" -ne 0 ]] ; then
   echo 'Process failed! Unable to commit changes and create a tag!'; exit 1
