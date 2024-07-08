@@ -17,9 +17,6 @@
                 <groupId>org.technologybrewery.habushu</groupId>
                 <artifactId>habushu-maven-plugin</artifactId>
                 <version>${project.version}</version>
-                <configuration>
-                    <usePyenv>false</usePyenv>
-                </configuration>
             </plugin>
         </plugins>
     </build>
