@@ -16,7 +16,7 @@ on:
 
 jobs:
     build:
-        if: github.event.review.state == 'approved'
+        if: github.event.review.state == 'approved' || github.ref == 'refs/heads/dev'
         runs-on: ubuntu-latest
 
         steps:
