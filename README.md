@@ -169,11 +169,14 @@ copy the project files for each dependency to a staging directory, while preserv
 dependency modules to ensure that any path-based dependencies can be leveraged as-is. This directory can then be copied
 onto a Docker container and used to create a virtual environment capable of running the target Habushu project.
 
-The plugin will automatically inject logic for building and using this virtual environment into a pre-existing Dockerfile
-by default. The `dockerfile` configuration must be set to the target Dockerfile. To disable the Dockerfile update
-altogether, set the `updateDockerfile` configuration to `false`. Because the final image must match the image that builds
-the virtual environment, Habushu must know what the base image for the final output should be. By default, `python:3.11-slim`
-is used, but this can be customized with the `dockerBase` and `dockerUser` configurations.
+The plugin will automatically inject logic for building and using this virtual environment into a pre-existing
+Dockerfile by default. The `dockerfile` configuration must be set to the target Dockerfile. To disable the Dockerfile
+update altogether, set the `updateDockerfile` configuration to `false`. Because the virtual environment that is created
+is dependent on the platform for which it is built, Habushu defaults to using `python:3.11` to build the virtual
+environment and  `python:3.11-slim` as the final image that packages/runs the virtual environment. This can be
+customized with the `dockerBuilderBase`, `dockerFinalBase`, and `dockerUser` configurations, but care must be taken to
+ensure the builder image platform is sufficiently similar to the final image platform so that the virtual environment is
+compatible.
 
 ```xml
 <plugin>

@@ -80,12 +80,22 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     protected String dockerUser;
 
     /**
-     * The base image to use for the Dockerfile. The base image will be used both to bundle the virtual environment for
-     * the target project and to run the final container, as the venv must be built on the same platform as the final
-     * runtime. The base image must have the correct Python version resolvable via the PATH.
+     * The base image to use for building the virtual env. This base image will be used to bundle the virtual
+     * environment for the target project. As the venv must be built on the same platform as the final runtime to ensure
+     * compatibility, this image must share a platform with {@link dockerFinalBase}. The base image must have the target
+     * Python version resolvable via the PATH.
      */
-    @Parameter(defaultValue = "python:3.11-slim", property = "habushu.dockerBase")
-    protected String dockerBase;
+    @Parameter(defaultValue = "python:3.11", property = "habushu.dockerBuilderBase")
+    protected String dockerBuilderBase;
+
+    /**
+     * The base image to use for final packaging of the virtual env. This base image will be used to run the final
+     * container runtime.  As the venv must be built on the same platform as the final runtime to ensure compatibility,
+     * this image must share a platform with {@link dockerBuilderBase}. The base image must have the target Python
+     * version resolvable via the PATH.
+     */
+    @Parameter(defaultValue = "python:3.11-slim", property = "habushu.dockerFinalBase")
+    protected String dockerFinalBase;
 
     protected final String HABUSHU = "habushu";
 
@@ -252,8 +262,8 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     protected void performDockerfileUpdateForVirtualEnvironment(Path targetProjectPath) {
         Path outputDir = dockerContext.toPath().relativize(getStagingPath());
         String updatedDockerfile =
-                ContainerizeDepsDockerfileHelper.updateDockerfileWithContainerStageLogic(
-                        this.dockerfile, outputDir.toString(), targetProjectPath.toString(), dockerUser, dockerBase);
+            ContainerizeDepsDockerfileHelper.updateDockerfileWithContainerStageLogic(this.dockerfile,
+                    outputDir.toString(), targetProjectPath.toString(), dockerUser, dockerBuilderBase, dockerFinalBase);
 
         try (Writer writer = new FileWriter(this.dockerfile)) {
             writer.write(updatedDockerfile);
