@@ -69,11 +69,14 @@ public class ContainerizeDepsDockerfileHelper {
      * @param dockerFile the Dockerfile to be updated
      * @param anchorDirectory the anchor directory
      * @param moduleBaseDir the module base directory
+     * @param owner the uid/name to give ownership of the virtual env to within the container
+     * @param builderBaseImage the image to use for bundling the virtual environment
+     * @param finalBaseImage the image to use for running the virtual environment
      * @return updated Dockerfile content
      */
-    public static String updateDockerfileWithContainerStageLogic(File dockerFile, String anchorDirectory, String moduleBaseDir, String owner, String baseImage) {
-        String builderStageContent = ContainerizeDepsDockerfileHelper.createContainerStageContentFrom(BUILDER_STAGE_TEMPLATE, anchorDirectory, moduleBaseDir, owner, baseImage);
-        String finalStageContent = ContainerizeDepsDockerfileHelper.createContainerStageContentFrom(FINAL_STAGE_TEMPLATE, null, null, owner, baseImage);
+    public static String updateDockerfileWithContainerStageLogic(File dockerFile, String anchorDirectory, String moduleBaseDir, String owner, String builderBaseImage, String finalBaseImage) {
+        String builderStageContent = ContainerizeDepsDockerfileHelper.createContainerStageContentFrom(BUILDER_STAGE_TEMPLATE, anchorDirectory, moduleBaseDir, owner, builderBaseImage);
+        String finalStageContent = ContainerizeDepsDockerfileHelper.createContainerStageContentFrom(FINAL_STAGE_TEMPLATE, null, null, owner, finalBaseImage);
         StringBuilder content = new StringBuilder();
         boolean builderStageContentIncluded = false;
         boolean finalStageContentIncluded = false;
