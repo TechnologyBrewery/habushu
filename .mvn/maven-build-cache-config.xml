@@ -37,13 +37,6 @@
             <plugins>
                 <plugin artifactId="maven-failsafe-plugin"/>
             </plugins>
-            <executions>
-                <execution artifactId="maven-deploy-plugin">
-                    <execIds>
-                        <execId>my-execution-id</execId>
-                    </execIds>
-                </execution>
-            </executions>
             <goalsLists>
                 <goalsList artifactId="maven-install-plugin">
                     <goals>
@@ -82,6 +75,9 @@
                     <reconciles>
                         <reconcile propertyName="skip" skipValue="true"/>
                     </reconciles>
+                    <nologs>
+                        <nolog propertyName="commandLineRules"/>
+                    </nologs>
                 </plugin>
             </plugins>
         </reconcile>
