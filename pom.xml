@@ -17,7 +17,7 @@
     <description>
         In Okinawa, habushu (pronounced HA-BU-SHU) is a sake that is made with venomous snake. The alcohol in the snake
         assists in dissolving the snake's venom and making
-        it non-poisonous. In Maven, habushu allows python projects to be build as part a Maven build. This brings some
+        it non-poisonous. In Maven, habushu allows python projects to be built as part a Maven build. This brings some
         order and consistency to what can otherwise be
         haphazardly structured projects.
     </description>
