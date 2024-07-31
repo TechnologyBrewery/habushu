@@ -171,23 +171,18 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
     }
 
     private void setUpInProjectVirtualEnvironment(PoetryCommandHelper poetryHelper) throws MojoExecutionException {
-        String inProjectVirtualEnvironmentPath = HabushuUtil.getInProjectVirtualEnvironmentPath(getPoetryProjectBaseDir());
-        File venv = new File(inProjectVirtualEnvironmentPath);
-        if (this.useInProjectVirtualEnvironment) {
-            if (!venv.exists()) {
-                getLog().info("Configuring Poetry to use an in-project virtual environment...");
-                configureVirtualEnvironmentsInProject(true);
-            }
-        } else {
-            List<String> arguments = new ArrayList<>();
-            arguments.add("config");
-            arguments.add("virtualenvs.in-project");
-            arguments.add("--local");
-            String currentInProjectSetting = poetryHelper.execute(arguments);
-
-            if (Boolean.TRUE.equals(Boolean.valueOf(currentInProjectSetting))) {
-                configureVirtualEnvironmentsInProject(false);
-            }
+        List<String> arguments = new ArrayList<>();
+        arguments.add("config");
+        arguments.add("virtualenvs.in-project");
+        arguments.add("--local");
+        String currentInProjectSetting = poetryHelper.execute(arguments);
+        
+        // update the poetry config to match the useInProjectVirtualEnvironment boolean
+        if (this.useInProjectVirtualEnvironment && Boolean.FALSE.equals(Boolean.valueOf(currentInProjectSetting))) {
+            getLog().info("Configuring Poetry to use an in-project virtual environment...");
+            configureVirtualEnvironmentsInProject(true);
+        } else if (!this.useInProjectVirtualEnvironment && Boolean.TRUE.equals(Boolean.valueOf(currentInProjectSetting))) {
+            configureVirtualEnvironmentsInProject(false);
         }
     }
 
