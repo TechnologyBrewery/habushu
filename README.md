@@ -38,6 +38,7 @@ A Poetry project using the `src/` packaging layout only needs an appropriately c
 ```
 	spam-ham-eggs
 	├── pyproject.toml
+	├── poetry.toml
 	├── pom.xml
 	├── src
 	│   └── spam_ham_eggs
@@ -48,6 +49,8 @@ A Poetry project using the `src/` packaging layout only needs an appropriately c
     	    └── steps
 	            └── spam_ham_eggs_step.py
 ```
+
+**NOTE:** The above includes an optional `poetry.toml` which includes additional configuration settings for Poetry. This file is not required but should be included in version control to ensure consistent builds.
 
 Best practices for creating a new Poetry project (possibly based on an existing Python package or older Habushu module) and adding needed Habushu plugin declaration to the module's `pom.xml` are described below.
 

@@ -137,6 +137,13 @@ public class PyenvAndPoetrySetup {
 
         }
 
+        // check for existing poetry.toml, warn that this file should be tracked in version control if one does not exist
+        String poetryTomlPath = baseDir.getAbsolutePath() + "/poetry.toml";
+        File poetryToml = new File(poetryTomlPath);
+        if (!poetryToml.exists()) {
+            log.warn("Did not find a poetry.toml within the current project. It is recommended to always include this file in version control to ensure consistent builds.");
+        }
+
         if (usePyenv) {
             log.info("Configuring Poetry to use the pyenv-activated Python binary...");
             poetryHelper.executeAndLogOutput(Arrays.asList("config", "--local", "virtualenvs.prefer-active-python", "true"));
