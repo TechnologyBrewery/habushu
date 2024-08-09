@@ -90,9 +90,10 @@ public class PublishToPyPiRepoMojo extends AbstractHabushuMojo {
      * "legacy/").  This variable allows customization in a manner that does not impact the installation API for the
      * same repository.  Defaults to empty as the most common scenario when overriding the repository URL is to leverage
      * one of the repositories mentioned above.
+     * Note: The property must be set equal to "" in order for Maven to not set the default value to null
      */
     @Parameter(property = "habushu.pypiUploadSuffix", defaultValue = "")
-    protected String pypiUploadSuffix;
+    protected String pypiUploadSuffix = "";
 
     /**
      * {{@link #pypiUploadSuffix repositoryUploadSuffix} contains critical information.  The main difference is that
@@ -192,7 +193,6 @@ public class PublishToPyPiRepoMojo extends AbstractHabushuMojo {
         }
 
         String repoUrl = getRepositoryUrl(publishToDev);
-
         if (StringUtils.isNotEmpty(repoUrl)) {
             if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
                 throw new MojoExecutionException(String.format(
@@ -308,14 +308,13 @@ public class PublishToPyPiRepoMojo extends AbstractHabushuMojo {
     }
 
     String getRepositoryUrl(boolean publishToDev) {
-        String repoUrl;
+        String repoUrl = addTrailingSlash(pypiRepoUrl);
         if (publishToDev) {
-            repoUrl = addTrailingSlash(devRepositoryUrl) + devRepositoryUrlUploadSuffix;
-        } else {
-            repoUrl = addTrailingSlash(pypiRepoUrl) + pypiUploadSuffix;
+            repoUrl = addTrailingSlash(devRepositoryUrl) + addTrailingSlash(devRepositoryUrlUploadSuffix);
+        } else if(!StringUtils.isEmpty(pypiUploadSuffix)) {
+            repoUrl += addTrailingSlash(pypiUploadSuffix);
         }
-
-        return addTrailingSlash(repoUrl);
+        return repoUrl;
     }
 
     static String addTrailingSlash(String inputUrl) {
