@@ -24,7 +24,7 @@
             <dependency>
                 <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-bom</artifactId>
-                <version>7.16.1</version>
+                <version>7.18.1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -47,7 +47,7 @@
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
-            <version>3.4.1</version>
+            <version>4.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.14.0</version>
+            <version>3.15.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -77,7 +77,7 @@
         <dependency>
             <groupId>com.electronwill.night-config</groupId>
             <artifactId>toml</artifactId>
-            <version>3.6.7</version>
+            <version>3.8.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
@@ -97,7 +97,7 @@
         <dependency>
             <groupId>org.technologybrewery.baton</groupId>
             <artifactId>baton-maven-plugin</artifactId>
-            <version>1.0.0</version>
+            <version>1.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
@@ -137,7 +137,7 @@
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.12.0</version>
+            <version>3.13.1</version>
             <scope>provided</scope>
         </dependency>
 
@@ -191,8 +191,19 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <!--
+                        While we build with Java 17, continue to release Java 11 compatible code until
+                        Maven 4 is the minimum supported version
+                        -->
+                    <release>11</release>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>3.12.0</version>
+                <version>3.13.1</version>
                 <executions>
                     <execution>
                         <id>default-descriptor</id>

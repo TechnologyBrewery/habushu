@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.technologybrewery</groupId>
         <artifactId>parent</artifactId>
-        <version>9</version>
+        <version>10</version>
     </parent>
 
     <groupId>org.technologybrewery.habushu</groupId>
@@ -54,9 +54,7 @@
     </scm>
 
     <properties>
-        <!-- override parent POM until it is next upgrade (arguably, this property should not be in parent at all: -->
-        <version.python.default>3.11.4</version.python.default>
-        <version.cucumber.reporting.plugin>5.8.0</version.cucumber.reporting.plugin>
+        <version.cucumber.reporting.plugin>5.8.1</version.cucumber.reporting.plugin>
     </properties>
 
     <dependencyManagement>
@@ -67,13 +65,6 @@
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <version>1.16.1</version>
-            </dependency>
-            <!-- Explicitly upgrading transitive dependency for habushu-maven-plugin
-                to mitigate vulnerability - net.masterthought:cucumber-reporting:5.8.0 -->
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-configuration2</artifactId>
-                <version>2.10.1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
