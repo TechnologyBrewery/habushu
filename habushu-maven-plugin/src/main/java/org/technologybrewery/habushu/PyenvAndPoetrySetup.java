@@ -22,7 +22,7 @@ import java.util.List;
  * developer's machine to support the same functionality across multiple Mojo implementations. These include:
  * <ul>
  * <li>pyenv</li>
- * <li>Poetry (installed version must satisfy {@link #POETRY_VERSION_REQUIREMENT})</li>
+ * <li>Poetry (installed version must satisfy {@link PoetryUtil#POETRY_VERSION_REQUIREMENT})</li>
  * <li>Required Poetry plugins (currently only {@code poetry-monorepo-dependency-plugin})</li>
  * </ul>
  */
@@ -33,6 +33,10 @@ public class PyenvAndPoetrySetup {
      * must be installed and available for Habushu to use.
      */
     static final String PYTHON_DEFAULT_VERSION_REQUIREMENT = "3.11.4";
+
+    private static final ThreadLocal<ValidationTrackingStatus> validationStatusContainer = ThreadLocal.withInitial(ValidationTrackingStatus::new);
+    public static final String VALIDATED_IN_PRIOR_BUILD_PHASE = " (validated in prior build phase)";
+
 
     /**
      * The desired version of Python to use.
@@ -83,10 +87,10 @@ public class PyenvAndPoetrySetup {
      * New instance - these values are typically passed in from Maven-enabled parameters in the calling Mojo.
      *
      * @param pythonVersion                  version of python to leverage
-     * @param usePyenv                       whether or not we are using pyenv to instance and activate python versions
+     * @param usePyenv                       whether we are using pyenv to instance and activate python versions
      * @param patchInstallScript             patch install script path
      * @param baseDir                        base directory from which to operate for this module
-     * @param rewriteLocalPathDepsInArchives see memeber variable for details
+     * @param rewriteLocalPathDepsInArchives see member variable for details
      * @param log                            the logger to use for output
      */
     public PyenvAndPoetrySetup(String pythonVersion, boolean usePyenv, File patchInstallScript,
@@ -101,36 +105,56 @@ public class PyenvAndPoetrySetup {
 
     public void execute() throws MojoExecutionException {
         List<String> missingRequiredToolMsgs = new ArrayList<>();
-        String currentPythonVersion = "";
 
-        if (usePyenv) {
-            currentPythonVersion = validatateAndConfigurePyenv(missingRequiredToolMsgs, currentPythonVersion);
+        ValidationTrackingStatus validationTracker = validationStatusContainer.get();
+        String priorActivePythonVersionActivated = validationTracker.getPriorActivePythonVersionActivated();
+
+        if (pythonVersion.equals(priorActivePythonVersionActivated)) {
+            log.info("Using Python version: " + priorActivePythonVersionActivated + VALIDATED_IN_PRIOR_BUILD_PHASE);
+
         } else {
-            currentPythonVersion = validateAndConfigureStraightPython();
-        }
+            String currentPythonVersion = "";
 
-        // If a version of python is installed, verify that it matches the desired
-        // version
-        validatePythonVersion(currentPythonVersion);
-
-        log.debug("Checking if Poetry is installed...");
-        PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
-        Pair<Boolean, String> poetryInstallStatusAndVersion = poetryHelper.getIsPoetryInstalledAndVersion();
-
-        if (!poetryInstallStatusAndVersion.getLeft()) {
-            missingRequiredToolMsgs.add(
-                    "'poetry' is not currently installed! Execute 'curl -sSL https://install.python-poetry.org | python -' to install or visit https://python-poetry.org/ for more information and installation options");
-        } else {
-
-            Semver poetryVersionSemver = new Semver(poetryInstallStatusAndVersion.getRight(), SemverType.NPM);
-            if (!poetryVersionSemver.satisfies(PoetryUtil.POETRY_VERSION_REQUIREMENT)) {
-                missingRequiredToolMsgs.add(String.format(
-                        "Poetry version %s was installed - Habushu requires that installed version of Poetry satisfies %s.  Please update Poetry by executing 'poetry self update' or visit https://python-poetry.org/docs/#installation for more information",
-                        poetryInstallStatusAndVersion.getRight(), PoetryUtil.POETRY_VERSION_REQUIREMENT));
+            if (usePyenv) {
+                currentPythonVersion = validateAndConfigurePyenv(missingRequiredToolMsgs, currentPythonVersion);
             } else {
-                log.info("Found Poetry " + poetryInstallStatusAndVersion.getRight());
+                currentPythonVersion = validateAndConfigureStraightPython();
             }
+
+            // If a version of python is installed, verify that it matches the desired
+            // version
+            validatePythonVersion(currentPythonVersion);
+
+            validationTracker.setPriorActivePythonVersionActivated(currentPythonVersion);
         }
+
+        PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
+        String alreadyValidatedPoetryVersion = validationTracker.getAlreadyValidatedPoetryVersion();
+        if (!validationTracker.isAlreadyValidatedPoetryInstallation()) {
+            log.debug("Checking if Poetry is installed...");
+            Pair<Boolean, String> poetryInstallStatusAndVersion = poetryHelper.getIsPoetryInstalledAndVersion();
+
+            if (!poetryInstallStatusAndVersion.getLeft()) {
+                missingRequiredToolMsgs.add(
+                        "'poetry' is not currently installed! Execute 'curl -sSL https://install.python-poetry.org | python -' to install or visit https://python-poetry.org/ for more information and installation options");
+            } else {
+
+                Semver poetryVersionSemver = new Semver(poetryInstallStatusAndVersion.getRight(), SemverType.NPM);
+                if (!poetryVersionSemver.satisfies(PoetryUtil.POETRY_VERSION_REQUIREMENT)) {
+                    missingRequiredToolMsgs.add(String.format(
+                            "Poetry version %s was installed - Habushu requires that installed version of Poetry satisfies %s.  Please update Poetry by executing 'poetry self update' or visit https://python-poetry.org/docs/#installation for more information",
+                            poetryInstallStatusAndVersion.getRight(), PoetryUtil.POETRY_VERSION_REQUIREMENT));
+                } else {
+                    alreadyValidatedPoetryVersion = poetryInstallStatusAndVersion.getRight();
+                    validationTracker.setAlreadyValidatedPoetryVersion(alreadyValidatedPoetryVersion);
+                    validationTracker.setAlreadyValidatedPoetryInstallation(true);
+                }
+            }
+        } else {
+            alreadyValidatedPoetryVersion += VALIDATED_IN_PRIOR_BUILD_PHASE;
+        }
+
+        log.info("Found Poetry " + alreadyValidatedPoetryVersion);
 
         if (!missingRequiredToolMsgs.isEmpty()) {
             throw new MojoExecutionException(StringUtils.join(System.lineSeparator(), missingRequiredToolMsgs, System.lineSeparator()));
@@ -199,7 +223,7 @@ public class PyenvAndPoetrySetup {
         return currentPythonVersion;
     }
 
-    private String validatateAndConfigurePyenv(List<String> missingRequiredToolMsgs, String currentPythonVersion) throws MojoExecutionException {
+    private String validateAndConfigurePyenv(List<String> missingRequiredToolMsgs, String currentPythonVersion) throws MojoExecutionException {
         PyenvCommandHelper pyenvHelper = createPyenvCommandHelper();
         log.debug("Checking if pyenv is installed...");
         if (!pyenvHelper.isPyenvInstalled()) {
@@ -232,7 +256,7 @@ public class PyenvAndPoetrySetup {
      * Creates a {@link PyenvCommandHelper} that may be used to invoke Pyenv
      * commands from the project's working directory.
      *
-     * @return
+     * @return command helper
      */
     protected PyenvCommandHelper createPyenvCommandHelper() {
         return new PyenvCommandHelper(baseDir);
@@ -242,7 +266,7 @@ public class PyenvAndPoetrySetup {
      * Creates a {@link PoetryCommandHelper} that may be used to invoke Poetry
      * commands from the project's working directory.
      *
-     * @return
+     * @return command helper
      */
     protected PoetryCommandHelper createPoetryCommandHelper() {
         return new PoetryCommandHelper(baseDir);
