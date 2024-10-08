@@ -85,7 +85,7 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      * compatibility, this image must share a platform with {@link dockerFinalBase}. The base image must have the target
      * Python version resolvable via the PATH.
      */
-    @Parameter(defaultValue = "python:3.11", property = "habushu.dockerBuilderBase")
+    @Parameter(defaultValue = "docker.io/python:3.11", property = "habushu.dockerBuilderBase")
     protected String dockerBuilderBase;
 
     /**
@@ -94,7 +94,7 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      * this image must share a platform with {@link dockerBuilderBase}. The base image must have the target Python
      * version resolvable via the PATH.
      */
-    @Parameter(defaultValue = "python:3.11-slim", property = "habushu.dockerFinalBase")
+    @Parameter(defaultValue = "docker.io/python:3.11-slim", property = "habushu.dockerFinalBase")
     protected String dockerFinalBase;
 
     protected final String HABUSHU = "habushu";
