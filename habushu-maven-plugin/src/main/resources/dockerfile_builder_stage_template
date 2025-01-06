@@ -3,7 +3,7 @@ FROM BASE_IMAGE AS habushu_builder
 RUN python -m ensurepip --upgrade && \
     pip install poetry && \
     poetry self add poetry-monorepo-dependency-plugin && \
-    poetry self add poetry-plugin-bundle@1.3.0
+    poetry self add poetry-plugin-bundle@1.5.0
 
 WORKDIR /work-dir
 COPY CHOWN_PLACEHOLDER ANCHOR_DIRECTORY ./containerize-support/
