@@ -21,7 +21,7 @@ import java.util.List;
  * virtual environment that is created/managed by Poetry if the
  * {@link #deleteVirtualEnv} option is enabled.
  */
-@Mojo(name = "clean-habushu", defaultPhase = LifecyclePhase.CLEAN)
+@Mojo(name = "clean-habushu", defaultPhase = LifecyclePhase.CLEAN, threadSafe = true)
 public class CleanHabushuMojo extends CleanMojo {
 
     /**

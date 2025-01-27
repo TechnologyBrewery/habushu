@@ -21,7 +21,7 @@ import org.codehaus.plexus.util.StringUtils;
  * {@code poetry-monorepo-dependency-plugin})</li>
  * </ul>
  */
-@Mojo(name = "validate-pyenv-and-poetry", defaultPhase = LifecyclePhase.VALIDATE)
+@Mojo(name = "validate-pyenv-and-poetry", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class ValidatePyenvAndPoetryMojo extends AbstractHabushuMojo {
 
     /**

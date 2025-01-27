@@ -53,7 +53,7 @@ import org.technologybrewery.habushu.exec.PoetryCommandHelper;
  * {@link #snapshotNumberDateFormatPattern} to adjust the formatting of the
  * numeric component of the published version.
  */
-@Mojo(name = "publish-to-pypi-repo", defaultPhase = LifecyclePhase.DEPLOY)
+@Mojo(name = "publish-to-pypi-repo", defaultPhase = LifecyclePhase.DEPLOY, threadSafe = true)
 public class PublishToPyPiRepoMojo extends AbstractHabushuMojo {
 
     private static final String VERSION = "version";

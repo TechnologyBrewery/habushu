@@ -8,7 +8,8 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import java.util.List;
 
-@Mojo(name = "validate-python-test", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE)
+@Mojo(name = "validate-python-test", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES,
+        requiresDependencyResolution = ResolutionScope.COMPILE, threadSafe = true)
 public class ValidatePythonTestMojo extends AbstractValidateMojo {
 
     /**

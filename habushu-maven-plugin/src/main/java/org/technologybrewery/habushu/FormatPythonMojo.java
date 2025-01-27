@@ -14,7 +14,8 @@ import org.technologybrewery.habushu.exec.PoetryCommandHelper;
  * Leverages the black formatter package to format both source and test Python
  * directories using Poetry's run command.
  */
-@Mojo(name = "format-python", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE)
+@Mojo(name = "format-python", defaultPhase = LifecyclePhase.PROCESS_CLASSES,
+		requiresDependencyResolution = ResolutionScope.COMPILE, threadSafe = true)
 public class FormatPythonMojo extends AbstractHabushuMojo {
 
     protected static final String BLACK_PACKAGE = "black";

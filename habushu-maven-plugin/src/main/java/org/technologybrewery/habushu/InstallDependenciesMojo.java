@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit;
  * the module's pyproject.toml configuration as a supplemental source of
  * dependencies, if it is not already configured in the pyproject.toml
  */
-@Mojo(name = "install-dependencies", defaultPhase = LifecyclePhase.COMPILE)
+@Mojo(name = "install-dependencies", defaultPhase = LifecyclePhase.COMPILE, threadSafe = true)
 public class InstallDependenciesMojo extends AbstractHabushuMojo {
 
     private static final String EQUALS = "=";

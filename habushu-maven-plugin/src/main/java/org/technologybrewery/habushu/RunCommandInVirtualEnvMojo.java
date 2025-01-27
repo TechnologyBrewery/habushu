@@ -18,7 +18,7 @@ import org.technologybrewery.habushu.exec.PoetryCommandHelper;
  * gRPC/protobuf bindings as an automated part of the build following dependency
  * installation.
  */
-@Mojo(name = "run-command-in-virtual-env")
+@Mojo(name = "run-command-in-virtual-env", threadSafe = true)
 public class RunCommandInVirtualEnvMojo extends AbstractHabushuMojo {
 
     /**

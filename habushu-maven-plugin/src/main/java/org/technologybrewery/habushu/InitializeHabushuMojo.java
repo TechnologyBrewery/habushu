@@ -15,7 +15,7 @@ import org.technologybrewery.habushu.exec.PoetryCommandHelper;
  * in the {@code pom.xml} with the version in the project's
  * {@code pyproject.toml}.
  */
-@Mojo(name = "initialize-habushu", defaultPhase = LifecyclePhase.INITIALIZE)
+@Mojo(name = "initialize-habushu", defaultPhase = LifecyclePhase.INITIALIZE, threadSafe = true)
 public class InitializeHabushuMojo extends AbstractHabushuMojo {
 
     @Override
