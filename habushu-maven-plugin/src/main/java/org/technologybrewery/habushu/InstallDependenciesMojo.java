@@ -148,12 +148,16 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
 
         if (!this.skipPoetryLockUpdate) {
             getLog().info("Locking dependencies specified in pyproject.toml...");
-            poetryHelper.executePoetryCommandAndLogAfterTimeout(Arrays.asList("lock"), 2, TimeUnit.MINUTES);
+            poetryHelper.executePoetryCommandAndLogAfterTimeout(
+                    poetryHelper.createLockCommand(this.skipPoetryLockUpdate),
+                    2,
+                    TimeUnit.MINUTES
+            );
+
         }
 
-        List<String> installCommand = new ArrayList<>();
+        List<String> installCommand = poetryHelper.createInstallCommand(this.forceSync);
 
-        installCommand.add("install");
         for (String groupName : this.withGroups) {
             installCommand.add("--with");
             installCommand.add(groupName);
@@ -161,9 +165,6 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
         for (String groupName : this.withoutGroups) {
             installCommand.add("--without");
             installCommand.add(groupName);
-        }
-        if (this.forceSync) {
-            installCommand.add("--sync");
         }
 
         getLog().info("Installing dependencies...");

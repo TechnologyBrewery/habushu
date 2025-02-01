@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +27,13 @@ import org.slf4j.LoggerFactory;
 public class PoetryCommandHelper {
 
     private static final String POETRY_COMMAND = "poetry";
+    private static final String BREAKING_POETRY_VERSION = "2.0.0";
     private static final Logger logger = LoggerFactory.getLogger(PoetryCommandHelper.class);
 
     private static final String extractVersionRegex = "[^0-9\\.]";
 
-    private File workingDirectory;
+    protected File workingDirectory;
+
 
     public PoetryCommandHelper(File workingDirectory) {
         this.workingDirectory = workingDirectory;
@@ -238,5 +241,70 @@ public class PoetryCommandHelper {
         fullCommandArgs.add(POETRY_COMMAND);
         fullCommandArgs.addAll(arguments);
         return new ProcessExecutor(workingDirectory, fullCommandArgs, Platform.guess(), environmentVariables);
+    }
+
+    /**
+     * Returns a {@link boolean} indicating whether the specified Poetry version is at least 2.0.0.
+     *
+     * @return
+     */
+    public boolean isPoetryVersionAtLeast2(){
+        String poetryVersion = getIsPoetryInstalledAndVersion().getRight();
+        DefaultArtifactVersion currentVersion = new DefaultArtifactVersion(poetryVersion);
+        DefaultArtifactVersion minimumVersion = new DefaultArtifactVersion(BREAKING_POETRY_VERSION);
+        return currentVersion.compareTo(minimumVersion) >= 0;
+    }
+
+
+    public List<String> createLockCommand() {
+        return createLockCommand(true);
+    }
+
+    public List<String> createLockCommand(boolean skipPoetryLockUpdate) {
+        List<String> arguments = new ArrayList<>();
+        arguments.add("lock");
+
+        if (isPoetryVersionAtLeast2()) {
+            if (!skipPoetryLockUpdate) {
+                arguments.add("--regenerate");
+            }
+        } else {
+            if (skipPoetryLockUpdate) {
+                arguments.add("--no-update");
+            }
+        }
+        return arguments;
+    }
+
+
+    public List<String> createInstallCommand(boolean forceSync) {
+        List<String> arguments = new ArrayList<>();
+
+        if(!forceSync){
+            arguments.add("install");
+        } else {
+            if(isPoetryVersionAtLeast2()){
+                arguments.add("sync");
+            } else {
+                arguments.add("install");
+                arguments.add("--sync");
+            }
+        }
+        return arguments;
+    }
+
+    public List<String> createUsePyenvCommand(){
+        List<String> arguments = new ArrayList<>();
+        arguments.add("config");
+        arguments.add("--local");
+
+        if(isPoetryVersionAtLeast2()){
+            arguments.add("virtualenvs.use-poetry-python");
+            arguments.add("false");
+        } else {
+            arguments.add("virtualenvs.prefer-active-python");
+            arguments.add("true");
+        }
+        return arguments;
     }
 }

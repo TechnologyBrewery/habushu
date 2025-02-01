@@ -97,6 +97,24 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     @Parameter(defaultValue = "docker.io/python:3.11-slim", property = "habushu.dockerFinalBase")
     protected String dockerFinalBase;
 
+    /**
+     * The version of Poetry to install in the container.
+     */
+    @Parameter(defaultValue = "2.0.1", property = "habushu.dockerPoetryVersion")
+    protected String dockerPoetryVersion;
+
+    /**
+     * The version of the poetry-plugin-bundle to install in the container.
+     */
+    @Parameter(defaultValue = "1.5.0", property = "habushu.dockerPoetryPluginBundleVersion")
+    protected String dockerPoetryPluginBundleVersion;
+
+    /**
+     * The version of the poetry-monorepo-dependency-plugin to install in the container.
+     */
+    @Parameter(defaultValue = "1.2.0", property = "habushu.dockerPoetryMonorepoDependencyPluginVersion")
+    protected String dockerPoetryMonorepoDependencyPluginVersion;
+
     protected final String HABUSHU = "habushu";
 
     /**
@@ -263,7 +281,7 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         Path outputDir = dockerContext.toPath().relativize(getStagingPath());
         String updatedDockerfile =
             ContainerizeDepsDockerfileHelper.updateDockerfileWithContainerStageLogic(this.dockerfile,
-                    outputDir.toString(), targetProjectPath.toString(), dockerUser, dockerBuilderBase, dockerFinalBase);
+                    outputDir.toString(), targetProjectPath.toString(), dockerUser, dockerBuilderBase, dockerFinalBase, dockerPoetryVersion, dockerPoetryMonorepoDependencyPluginVersion, dockerPoetryPluginBundleVersion);
 
         try (Writer writer = new FileWriter(this.dockerfile)) {
             writer.write(updatedDockerfile);
