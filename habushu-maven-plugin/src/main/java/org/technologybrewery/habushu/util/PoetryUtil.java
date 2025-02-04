@@ -14,5 +14,7 @@ public final class PoetryUtil {
      * Specifies the semver compliant requirement for the version of Poetry-core that
      * must be installed and available for Habushu to use.
      */
+    // Q: should the be changed to >= instead?
     public static final String POETRY_CORE_VERSION_REQUIREMENT = "^1.6.0";
+
 }

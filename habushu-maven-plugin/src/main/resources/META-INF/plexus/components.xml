@@ -14,7 +14,7 @@
                         <id>default</id>
                         <phases>
                             <initialize>
-                                org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:validate-pyenv-and-poetry,
+                                org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:validate-python-package-and-dependency-manager,
                                 org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:initialize-habushu,
                                 org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:baton-migrate
                             </initialize>

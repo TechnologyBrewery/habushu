@@ -3,6 +3,7 @@ package org.technologybrewery.habushu;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -25,14 +26,21 @@ import java.util.List;
 public class CleanHabushuMojo extends CleanMojo {
 
     /**
-     * Base directory in which Poetry projects will be located - should always be
+     * The desired Python package and dependency manger to use.
+     * todo: update later when poetry vs uv detection functionality is available.
+     */
+    @Parameter(defaultValue = HabushuUtil.DEFAULT_PYTHON_PACKAGE_AND_DEPENDENCY_MANAGER, property = "habushu.pythonPackageAndDependencyManager")
+    protected String pythonPackageAndDependencyManager;
+
+    /**
+     * Base directory in which Python projects will be located - should always be
      * the basedir of the encapsulating Maven project.
      */
     @Parameter(defaultValue = "${project.basedir}", readonly = true, required = true)
     protected File workingDirectory;
 
     /**
-     * Directory in which Poetry places generated source and wheel archive
+     * Directory in which Poetry/uv places generated source and wheel archive
      * distributions.
      */
     @Parameter(defaultValue = "${project.basedir}/dist", readonly = true, required = true)
@@ -52,7 +60,7 @@ public class CleanHabushuMojo extends CleanMojo {
 
     /**
      * Enables the explicit deletion of the virtual environment that is
-     * created/managed by Poetry.
+     * created/managed by Poetry/uv.
      */
     @Parameter(property = "habushu.deleteVirtualEnv", required = true, defaultValue = "false")
     protected boolean deleteVirtualEnv;
@@ -60,11 +68,11 @@ public class CleanHabushuMojo extends CleanMojo {
     /**
      * The desired version of Python to use.
      */
-    @Parameter(defaultValue = PyenvAndPoetrySetup.PYTHON_DEFAULT_VERSION_REQUIREMENT, property = "habushu.pythonVersion")
+    @Parameter(defaultValue = HabushuUtil.PYTHON_DEFAULT_VERSION_REQUIREMENT, property = "habushu.pythonVersion")
     protected String pythonVersion;
 
     /**
-     * Should Habushu use pyenv to manage the utilized version of Python?
+     * Should Habushu use pyenv with Poetry to manage the utilized version of Python?
      */
     @Parameter(defaultValue = "true", property = "habushu.usePyenv")
     protected boolean usePyenv;
@@ -79,19 +87,20 @@ public class CleanHabushuMojo extends CleanMojo {
 
     /**
      * Indicates whether Habushu should leverage the
-     * {@code poetry-monorepo-dependency-plugin} to rewrite any local path
-     * dependencies (to other Poetry projects) as versioned packaged dependencies in
+     * {@code poetry-monorepo-dependency-plugin} or the
+     * {@code uv-monorepo-dependency-plugin} (<- todo) to rewrite any local path
+     * dependencies (to other Poetry/uv projects) as versioned packaged dependencies in
      * generated wheel/sdist archives. If {@code true}, Habushu will replace
-     * invocations of Poetry's {@code build} and {@code publish} commands in the
+     * invocations of Poetry/uv's {@code build} and {@code publish} commands in the
      * {@link BuildDeploymentArtifactsMojo} and {@link PublishToPyPiRepoMojo} with
      * the extensions of those commands exposed by the
-     * {@code poetry monorepo-dependency-plugin}, which are
+     * {@code poetry-monorepo-dependency-plugin}/{@code uv-monorepo-dependency-plugin}, which are
      * {@code build-rewrite-path-deps} and {@code publish-rewrite-path-deps}
      * respectively.
      * <p>
      * Typically, this flag will only be {@code true} when deploying/releasing
      * Habushu modules within a CI environment that are part of a monorepo project
-     * structure which multiple Poetry projects depend on one another.
+     * structure in which multiple Poetry/uv projects depend on one another.
      */
     @Parameter(defaultValue = "false", property = "habushu.rewriteLocalPathDepsInArchives")
     protected boolean rewriteLocalPathDepsInArchives;
@@ -121,9 +130,11 @@ public class CleanHabushuMojo extends CleanMojo {
         List<Fileset> filesetsToDelete = new ArrayList<>();
         boolean removeVenvManually = false;
 
-        String virtualEnvFullPath = HabushuUtil.findCurrentVirtualEnvironmentFullPath(
-                pythonVersion, usePyenv, patchInstallScript,
-                workingDirectory, rewriteLocalPathDepsInArchives, getLog());
+        AbstractPythonPackageAndDependencyManagerSetup configureTools = HabushuUtil.getPythonPackageAndDependencyManager(pythonPackageAndDependencyManager,
+        pythonVersion, workingDirectory, rewriteLocalPathDepsInArchives, getLog(), usePyenv, patchInstallScript); 
+
+        String virtualEnvFullPath = configureTools.findCurrentVirtualEnvironmentFullPath();
+
         virtualEnvFullPath = HabushuUtil.getCleanVirtualEnvironmentPath(virtualEnvFullPath);
 
         String inVirtualEnvironmentPath = HabushuUtil.getInProjectVirtualEnvironmentPath(this.workingDirectory);
