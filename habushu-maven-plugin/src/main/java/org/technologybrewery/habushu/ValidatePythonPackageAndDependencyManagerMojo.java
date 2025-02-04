@@ -8,6 +8,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.StringUtils;
+import org.technologybrewery.habushu.util.PoetryUtil;
+import org.technologybrewery.habushu.util.UvUtil;
 
 /**
  * Attaches to the {@link LifecyclePhase#VALIDATE} phase to ensure that the all
@@ -15,20 +17,31 @@ import org.codehaus.plexus.util.StringUtils;
  * developer's machine. These include:
  * <ul>
  * <li>pyenv</li>
- * <li>Poetry (installed version must satisfy
- * {@link PyenvAndPoetrySetup#POETRY_VERSION_REQUIREMENT poetryVersion})</li>
+ * <li>Poetry (installed version must satisfy {@link PoetryUtil#POETRY_VERSION_REQUIREMENT})</li>
  * <li>Required Poetry plugins (currently only
  * {@code poetry-monorepo-dependency-plugin})</li>
  * </ul>
+ * or 
+ * <ul>
+ * <li>uv (installed version must satisfy {@link UvUtil#UV_VERSION_REQUIREMENT})</li>
+ * </ul>
  */
-@Mojo(name = "validate-pyenv-and-poetry", defaultPhase = LifecyclePhase.VALIDATE)
-public class ValidatePyenvAndPoetryMojo extends AbstractHabushuMojo {
+@Mojo(name = "validate-python-package-and-dependency-manager", defaultPhase = LifecyclePhase.VALIDATE)
+public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabushuMojo {
 
     /**
      * The desired version of Python to use.
      */
-    @Parameter(defaultValue = PyenvAndPoetrySetup.PYTHON_DEFAULT_VERSION_REQUIREMENT, property = "habushu.pythonVersion")
+    @Parameter(defaultValue = PythonPackageAndDependencyManagerSetup.PYTHON_DEFAULT_VERSION_REQUIREMENT, property = "habushu.pythonVersion")
     protected String pythonVersion;
+
+    /**
+     * The desired Python package and dependency manger to use.
+     * todo: update later when poetry vs uv detection functionality is available.
+     */
+    @Parameter(defaultValue = "poetry", property = "habushu.pythonPackageAndDependencyManager")
+    protected String pythonPackageAndDependencyManager;
+
 
     /**
      * Should Habushu use pyenv to manage the utilized version of Python?
@@ -47,19 +60,16 @@ public class ValidatePyenvAndPoetryMojo extends AbstractHabushuMojo {
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
 
-        PyenvAndPoetrySetup configureTools = new PyenvAndPoetrySetup(pythonVersion, usePyenv,
-                patchInstallScript, getPoetryProjectBaseDir(), rewriteLocalPathDepsInArchives,
-                getLog());
+        PythonPackageAndDependencyManagerSetup configureTools = new PythonPackageAndDependencyManagerSetup(pythonVersion, pythonPackageAndDependencyManager, 
+                usePyenv, patchInstallScript, getPythonProjectBaseDir(), rewriteLocalPathDepsInArchives, getLog());
 
         configureTools.execute();
 
-        configurePriavtePyPiRepositoryCredentials(configureTools);
+        configurePrivatePyPiRepositoryCredentials(configureTools);
         configurePrivateDevPyPiRepositoryCredentials(configureTools);
-
-        configureTools.installPoetryMonorepoDependencyPlugin();
     }
 
-    private void configurePrivateDevPyPiRepositoryCredentials(PyenvAndPoetrySetup configureTools) throws MojoExecutionException {
+    private void configurePrivateDevPyPiRepositoryCredentials(PythonPackageAndDependencyManagerSetup configureTools) throws MojoExecutionException {
         if (useDevRepository) {
             if (!TEST_PYPI_REPOSITORY_URL.equals(devRepositoryUrl)){
                 String pypiDevRepoIdUsername = findUsernameForServer(devRepositoryId);
@@ -72,7 +82,7 @@ public class ValidatePyenvAndPoetryMojo extends AbstractHabushuMojo {
         }
     }
 
-    private void configurePriavtePyPiRepositoryCredentials(PyenvAndPoetrySetup configureTools) throws MojoExecutionException {
+    private void configurePrivatePyPiRepositoryCredentials(PythonPackageAndDependencyManagerSetup configureTools) throws MojoExecutionException {
         if (StringUtils.isNotEmpty(pypiRepoUrl) && !"https://pypi.org".equals(pypiRepoUrl)) {
             String pypiRepoIdUsername = findUsernameForServer(pypiRepoId);
             String pypiRepoIdPassword = findPasswordForServer(pypiRepoId);

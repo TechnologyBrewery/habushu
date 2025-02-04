@@ -332,7 +332,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * @return
      */
     protected PyenvCommandHelper createPyenvCommandHelper() {
-        return new PyenvCommandHelper(getPoetryProjectBaseDir());
+        return new PyenvCommandHelper(getPythonProjectBaseDir());
     }
 
     /**
@@ -342,14 +342,14 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * @return
      */
     protected PoetryCommandHelper createPoetryCommandHelper() {
-        return new PoetryCommandHelper(getPoetryProjectBaseDir());
+        return new PoetryCommandHelper(getPythonProjectBaseDir());
     }
 
     /**
      * Base directory in which Poetry projects will be located - should always be
      * the basedir of the encapsulating Maven project.
      */
-    protected File getPoetryProjectBaseDir() {
+    protected File getPythonProjectBaseDir() {
         return this.project.getBasedir();
     }
 
@@ -360,7 +360,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * @return
      */
     protected File getPoetryPyProjectTomlFile() {
-        return new File(getPoetryProjectBaseDir(), "pyproject.toml");
+        return new File(getPythonProjectBaseDir(), "pyproject.toml");
     }
 
     /**
