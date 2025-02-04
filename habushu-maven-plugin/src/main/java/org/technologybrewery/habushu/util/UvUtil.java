@@ -5,28 +5,20 @@ import java.util.Arrays;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
-import org.technologybrewery.habushu.PyenvAndPoetrySetup;
 import org.technologybrewery.habushu.PythonPackageAndDependencyManagerSetup;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 
 /**
- * Common utility methods for handling TOML Poetry.
+ * Common utility methods for handling TOML uv.
  */
-public final class PoetryUtil {
+public final class UvUtil {
     /**
-     * Specifies the semver compliant requirement for the version of Poetry that
+     * Specifies the semver compliant requirement for the version of uv that
      * must be installed and available for Habushu to use.
      */
-    public static final String POETRY_VERSION_REQUIREMENT = "^1.5.0";
+    public static final String UV_VERSION_REQUIREMENT = ">=0.5.0";
 
-    /**
-     * Specifies the semver compliant requirement for the version of Poetry-core that
-     * must be installed and available for Habushu to use.
-     */
-    public static final String POETRY_CORE_VERSION_REQUIREMENT = "^1.6.0";
-
-
-    public static String findCurrentVirtualEnvironmentFullPathForPoetry(String pythonVersion, String pythonPackageAndDependencyManager,
+    public static String findCurrentVirtualEnvironmentFullPathForUv(String pythonVersion, String pythonPackageAndDependencyManager,
         boolean usePyenv, File patchInstallScript, File workingDirectory, boolean rewriteLocalPathDepsInArchives, Log log)
             throws MojoExecutionException { 
 		String virtualEnvFullPath = null;
@@ -35,13 +27,13 @@ public final class PoetryUtil {
 		configureTools.execute();
 
 		try {
-			PoetryCommandHelper poetryHelper = new PoetryCommandHelper(workingDirectory);
-			virtualEnvFullPath = poetryHelper.execute(Arrays.asList("env", "list", "--full-path"));
+			; // todo
 		} catch (RuntimeException e) {
-			log.debug("Could not retrieve Poetry-managed virtual environment path - it likely does not exist",
+			log.debug("Could not retrieve uv-managed virtual environment path - it likely does not exist",
 					e);
 		}
 
 		return virtualEnvFullPath;
 	}
+
 }

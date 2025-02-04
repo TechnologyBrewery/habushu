@@ -175,21 +175,19 @@ public final class HabushuUtil {
     }
 
 
-	public static String findCurrentVirtualEnvironmentFullPath(String pythonVersion, boolean usePyenv,
+	public static String findCurrentVirtualEnvironmentFullPath(String pythonVersion, String pythonPackageAndDependencyManager, boolean usePyenv,
 		   File patchInstallScript, File workingDirectory, boolean rewriteLocalPathDepsInArchives, Log log)
             throws MojoExecutionException {
 		String virtualEnvFullPath = null;
-		PyenvAndPoetrySetup configureTools = new PyenvAndPoetrySetup(pythonVersion, usePyenv,
-				patchInstallScript, workingDirectory, rewriteLocalPathDepsInArchives, log);
-		configureTools.execute();
 
-		try {
-			PoetryCommandHelper poetryHelper = new PoetryCommandHelper(workingDirectory);
-			virtualEnvFullPath = poetryHelper.execute(Arrays.asList("env", "list", "--full-path"));
-		} catch (RuntimeException e) {
-			log.debug("Could not retrieve Poetry-managed virtual environment path - it likely does not exist",
-					e);
-		}
+		if (pythonPackageAndDependencyManager.equals("poetry")) {
+            virtualEnvFullPath = PoetryUtil.findCurrentVirtualEnvironmentFullPathForPoetry(pythonVersion, pythonPackageAndDependencyManager,
+        		usePyenv, patchInstallScript, workingDirectory, rewriteLocalPathDepsInArchives, log);
+        } else {
+            // todo: call corresponding uv functionality 
+			virtualEnvFullPath = UvUtil.findCurrentVirtualEnvironmentFullPathForUv(pythonVersion, pythonPackageAndDependencyManager,
+        		usePyenv, patchInstallScript, workingDirectory, rewriteLocalPathDepsInArchives, log);
+        }
 
 		return virtualEnvFullPath;
 	}
