@@ -155,7 +155,6 @@ public class PublishToPyPiRepoMojo extends AbstractHabushuMojo {
         } else {
             publishPackage(poetryHelper, false);
         }
-
     }
 
     /**

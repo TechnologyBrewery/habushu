@@ -1,5 +1,6 @@
 package org.technologybrewery.habushu.util;
 
+import com.moandjiezana.toml.Toml;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -9,6 +10,7 @@ import org.apache.maven.plugin.logging.Log;
 import org.technologybrewery.habushu.AbstractPythonPackageAndDependencyManagerSetup;
 import org.technologybrewery.habushu.HabushuException;
 import org.technologybrewery.habushu.PythonPackageAndDependencyManagerFactory;
+import org.technologybrewery.habushu.exec.PackageManagerCommandHelper;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -24,6 +26,12 @@ import java.io.InputStreamReader;
  */
 public final class HabushuUtil {
 
+	public enum PackageManager {
+		POETRY,
+		UV
+	}
+
+
     private static final Logger logger = LoggerFactory.getLogger(HabushuUtil.class);
 
     /**
@@ -31,8 +39,6 @@ public final class HabushuUtil {
      * must be installed and available for Habushu to use.
      */
     public static final String PYTHON_DEFAULT_VERSION_REQUIREMENT = "3.11.4";
-
-    public static final String DEFAULT_PYTHON_PACKAGE_AND_DEPENDENCY_MANAGER = "poetry";
 
     private HabushuUtil() {
     }
@@ -157,7 +163,7 @@ public final class HabushuUtil {
     /**
      * Copies specified file into specified path.
      *
-     * @param filePath the path to the file to copy
+     * @param sourceFilePath the path to the file to copy
      * @param destinationFilePath the path to where the new copy should be created
      */
     public static void copyFile(String sourceFilePath, String destinationFilePath) {
@@ -192,11 +198,11 @@ public final class HabushuUtil {
 
 	}
 
-	public static AbstractPythonPackageAndDependencyManagerSetup getPythonPackageAndDependencyManager(String pythonPackageAndDependencyManager,
+	public static AbstractPythonPackageAndDependencyManagerSetup getPythonPackageAndDependencyManager(PackageManager pythonPackageAndDependencyManager,
 	String pythonVersion, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log, Boolean usePyenv, File patchInstallScript) throws MojoExecutionException {
     
     // Set the poetry-based parameters to null
-    if (!pythonPackageAndDependencyManager.equals(DEFAULT_PYTHON_PACKAGE_AND_DEPENDENCY_MANAGER)){
+    if (pythonPackageAndDependencyManager == PackageManager.UV){
           usePyenv = null;
           patchInstallScript = null;
         }
@@ -206,4 +212,19 @@ public final class HabushuUtil {
 
         return configureTools;
     }
+
+	/**
+	 * Finds and returns Python Package Manager.
+	 *
+	 * @return PackageManager returns which package manager Habushu uses based on build-backend.
+	 */
+	public static PackageManager checkPythonPackageManager(File pyProjectTomlFile) {
+		Toml toml = new Toml().read(pyProjectTomlFile);
+		String buildBackend = toml.getString("build-system.build-backend");
+		if (buildBackend != null && buildBackend.contains("poetry")) {
+			return PackageManager.POETRY;
+		} else {
+			return PackageManager.UV;
+		}
+	}
 }

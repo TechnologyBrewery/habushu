@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Facilitates the execution of Poetry commands.
  */
-public class PoetryCommandHelper {
+public class PoetryCommandHelper extends PackageManagerCommandHelper{
 
     private static final String POETRY_COMMAND = "poetry";
     private static final String BREAKING_POETRY_VERSION = "2.0.0";
@@ -36,6 +36,7 @@ public class PoetryCommandHelper {
 
 
     public PoetryCommandHelper(File workingDirectory) {
+        super();
         this.workingDirectory = workingDirectory;
     }
 
@@ -67,7 +68,7 @@ public class PoetryCommandHelper {
      *
      * @return
      */
-    public String getPoetryCacheDirectoryPath() throws MojoExecutionException {
+    public String getPackageManagerCacheDirectoryPath() throws MojoExecutionException {
         return execute(Arrays.asList("config", "cache-dir"));
     }
 
@@ -193,7 +194,7 @@ public class PoetryCommandHelper {
      * @param timeUnit
      * @return
      */
-    public Integer executePoetryCommandAndLogAfterTimeout(List<String> arguments, int timeout, TimeUnit timeUnit) {
+    public Integer executePackageManagerCommandAndLogAfterTimeout(List<String> arguments, int timeout, TimeUnit timeUnit) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<Integer> future = executor.submit(() -> this.executeAndLogOutput(arguments));
         try {
@@ -221,7 +222,7 @@ public class PoetryCommandHelper {
      * @return
      * @throws MojoExecutionException
      */
-    public int installPoetryPlugin(String name) throws MojoExecutionException {
+    public int installPackageManagerPlugin(String name) throws MojoExecutionException {
         List<String> args = new ArrayList<String>();
         args.add("self");
         args.add("add");

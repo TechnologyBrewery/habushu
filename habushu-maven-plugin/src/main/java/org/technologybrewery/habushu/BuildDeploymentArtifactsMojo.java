@@ -5,8 +5,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.technologybrewery.habushu.exec.PoetryCommandHelper;
-
+import org.technologybrewery.habushu.exec.PackageManagerCommandHelper;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -68,7 +67,8 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
-        PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
+
+        PackageManagerCommandHelper packageManagerCommandHelper = createPackageManagerCommandHelper();
 
         String buildCommand;
         String buildLogMessage;
@@ -81,7 +81,7 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
         }
 
         getLog().info(buildLogMessage);
-        poetryHelper.executeAndLogOutput(Arrays.asList(buildCommand));
+        packageManagerCommandHelper.executeAndLogOutput(Arrays.asList(buildCommand));
 
         if (exportRequirementsFile) {
             getLog().info("Exporting requirements.txt file...");
@@ -105,7 +105,7 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
                 command.add("--without-urls");
             }
 
-            poetryHelper.executeAndLogOutput(command);
+            packageManagerCommandHelper.executeAndLogOutput(command);
 
             setUpPlaceholderFileAsMavenArtifact();
         }

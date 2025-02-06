@@ -14,9 +14,8 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.checkerframework.checker.units.qual.A;
+import org.technologybrewery.habushu.exec.PackageManagerCommandHelper;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
-import org.technologybrewery.habushu.util.HabushuUtil;
 import org.technologybrewery.habushu.util.TomlReplacementTuple;
 import org.technologybrewery.habushu.util.TomlUtils;
 
@@ -135,9 +134,9 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
-        PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
+        PackageManagerCommandHelper packageManagerCommandHelper = createPackageManagerCommandHelper();
 
-        setUpInProjectVirtualEnvironment(poetryHelper);
+        setUpInProjectVirtualEnvironment(packageManagerCommandHelper);
 
         processManagedDependencyMismatches();
 
@@ -148,15 +147,17 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
 
         if (!this.skipPoetryLockUpdate) {
             getLog().info("Locking dependencies specified in pyproject.toml...");
-            poetryHelper.executePoetryCommandAndLogAfterTimeout(
-                    poetryHelper.createLockCommand(this.skipPoetryLockUpdate),
+            packageManagerCommandHelper.executePackageManagerCommandAndLogAfterTimeout(
+                    packageManagerCommandHelper.createLockCommand(this.skipPoetryLockUpdate),
                     2,
                     TimeUnit.MINUTES
             );
 
         }
 
-        List<String> installCommand = poetryHelper.createInstallCommand(this.forceSync);
+        //TODO: This is Poetry Specific update so that this only goes for poetry specific class
+        PoetryCommandHelper poetryCommandHelper = createPoetryCommandHelper();
+        List<String> installCommand = poetryCommandHelper.createInstallCommand(this.forceSync);
 
         for (String groupName : this.withGroups) {
             installCommand.add("--with");
@@ -168,15 +169,15 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
         }
 
         getLog().info("Installing dependencies...");
-        poetryHelper.executePoetryCommandAndLogAfterTimeout(installCommand, 2, TimeUnit.MINUTES);
+        packageManagerCommandHelper.executePackageManagerCommandAndLogAfterTimeout(installCommand, 2, TimeUnit.MINUTES);
     }
 
-    private void setUpInProjectVirtualEnvironment(PoetryCommandHelper poetryHelper) throws MojoExecutionException {
+    private void setUpInProjectVirtualEnvironment(PackageManagerCommandHelper packageManagerCommandHelper) throws MojoExecutionException {
         List<String> arguments = new ArrayList<>();
         arguments.add("config");
         arguments.add("virtualenvs.in-project");
         arguments.add("--local");
-        String currentInProjectSetting = poetryHelper.execute(arguments);
+        String currentInProjectSetting = packageManagerCommandHelper.execute(arguments);
         
         // update the poetry config to match the useInProjectVirtualEnvironment boolean
         if (this.useInProjectVirtualEnvironment && Boolean.FALSE.equals(Boolean.valueOf(currentInProjectSetting))) {
@@ -211,7 +212,7 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
             // source repositories via the "poetry source" command in future releases, but
             // for now we need to manually inspect and modify the package's pyproject.toml
             Config matchingPypiRepoSourceConfig;
-            try (FileConfig pyProjectConfig = FileConfig.of(getPoetryPyProjectTomlFile())) {
+            try (FileConfig pyProjectConfig = FileConfig.of(getPyProjectTomlFile())) {
                 pyProjectConfig.load();
 
                 Optional<List<Config>> packageSources = pyProjectConfig.getOptional(PYPROJECT_PACKAGE_SOURCES_PATH);
@@ -246,7 +247,7 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
                         "Adding %s to pyproject.toml as supplemental repository from which dependencies may be installed",
                         pypiRepoSimpleIndexUrl));
                 try {
-                    Files.write(getPoetryPyProjectTomlFile().toPath(), newPypiRepoSourceConfig,
+                    Files.write(getPyProjectTomlFile().toPath(), newPypiRepoSourceConfig,
                             StandardOpenOption.APPEND);
                 } catch (IOException e) {
                     throw new MojoExecutionException(String.format(
@@ -295,7 +296,7 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
         if (!managedDependencies.isEmpty()) {
             Map<String, TomlReplacementTuple> replacements = new HashMap<>();
 
-            try (FileConfig pyProjectConfig = FileConfig.of(getPoetryPyProjectTomlFile())) {
+            try (FileConfig pyProjectConfig = FileConfig.of(getPyProjectTomlFile())) {
                 pyProjectConfig.load();
 
                 // Look for the standard Poetry dependency groups:
@@ -379,8 +380,8 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
     }
 
     protected Semver getPoetryVersion() {
-        PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
-        Pair<Boolean, String> poetryStatus = poetryHelper.getIsPoetryInstalledAndVersion();
+        PoetryCommandHelper poetryCommandHelper = createPoetryCommandHelper();
+        Pair<Boolean, String> poetryStatus = poetryCommandHelper.getIsPoetryInstalledAndVersion();
         String versionAsString = poetryStatus.getRight();
         return new Semver(versionAsString);
     }
@@ -402,7 +403,7 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
             }
 
             if (updateManagedDependenciesWhenFound) {
-                File pyProjectTomlFile = getPoetryPyProjectTomlFile();
+                File pyProjectTomlFile = getPyProjectTomlFile();
                 String fileContent = StringUtils.EMPTY;
 
                 try (BufferedReader reader = new BufferedReader(new FileReader(pyProjectTomlFile))) {

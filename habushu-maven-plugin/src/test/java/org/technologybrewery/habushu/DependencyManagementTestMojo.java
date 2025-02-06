@@ -34,7 +34,7 @@ public class DependencyManagementTestMojo extends InstallDependenciesMojo {
         this.failOnManagedDependenciesMismatches = shouldFail;
     }
 
-    protected File getPoetryPyProjectTomlFile() {
+    protected File getPyProjectTomlFile() {
         return pyProjectTomlFile;
     }
 

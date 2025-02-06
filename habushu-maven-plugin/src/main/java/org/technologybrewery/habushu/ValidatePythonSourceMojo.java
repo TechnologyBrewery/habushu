@@ -42,6 +42,7 @@ public class ValidatePythonSourceMojo extends AbstractValidateMojo {
 
     @Override
     public void doExecute() throws MojoExecutionException {
+
         if (lintSource) {
             runLinter(this.sourceDirectory, sourceLintDisabledChecker, sourceLintEnabledChecker, sourceFailOnLintErrors, null);
         }

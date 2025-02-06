@@ -2,6 +2,7 @@ package org.technologybrewery.habushu;
 
 import java.io.File;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -10,7 +11,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.StringUtils;
 import org.technologybrewery.habushu.util.HabushuUtil;
 import org.technologybrewery.habushu.util.PoetryUtil;
-
 
 /**
  * Attaches to the {@link LifecyclePhase#VALIDATE} phase to ensure that the all
@@ -37,13 +37,6 @@ public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabus
     protected String pythonVersion;
 
     /**
-     * The desired Python package and dependency manger to use.
-     * todo: update later when poetry vs uv detection functionality is available.
-     */
-    @Parameter(defaultValue = HabushuUtil.DEFAULT_PYTHON_PACKAGE_AND_DEPENDENCY_MANAGER, property = "habushu.pythonPackageAndDependencyManager")
-    protected String pythonPackageAndDependencyManager;
-
-    /**
      * Should Habushu use pyenv to manage the utilized version of Python?
      */
     @Parameter(defaultValue = "true", property = "habushu.usePyenv")
@@ -59,7 +52,15 @@ public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabus
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
-        AbstractPythonPackageAndDependencyManagerSetup configureTools = HabushuUtil.getPythonPackageAndDependencyManager(pythonPackageAndDependencyManager,
+        //TODO: Failing since UV impl is no op. Remove once UV Impl is done.
+        // Note this doesn't imply we will implement UV solely on this check, implementation will differ based on investigation on further ticket.
+        // (whether we abstract out or just use simple check)
+        if (HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile()) == HabushuUtil.PackageManager.UV) {
+            throw new NotImplementedException(" UV not implemented yet ");
+        }
+
+        HabushuUtil.PackageManager packageManager = HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile());
+        AbstractPythonPackageAndDependencyManagerSetup configureTools = HabushuUtil.getPythonPackageAndDependencyManager(packageManager,
         pythonVersion, getPythonProjectBaseDir(), rewriteLocalPathDepsInArchives, getLog(), usePyenv, patchInstallScript);
 
         configureTools.execute();

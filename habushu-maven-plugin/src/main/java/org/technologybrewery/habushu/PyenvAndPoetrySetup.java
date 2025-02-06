@@ -120,7 +120,6 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
     @Override
     public void registerRepositoryToSupportAuthenticatedDependencyResolution(String repoId, String username, String password) throws MojoExecutionException {
         PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
-
         if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
             log.info(String.format("Did not find username and password for the server with <id> %s. Will use existing configuration.", repoId));
         } else {
@@ -211,7 +210,7 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
     void installPoetryMonorepoDependencyPlugin() throws MojoExecutionException {
         PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
         log.info("Checking for updates to poetry-monorepo-dependency-plugin...");
-        poetryHelper.installPoetryPlugin("poetry-monorepo-dependency-plugin@latest");
+        poetryHelper.installPackageManagerPlugin("poetry-monorepo-dependency-plugin@latest");
     }
     
     /**

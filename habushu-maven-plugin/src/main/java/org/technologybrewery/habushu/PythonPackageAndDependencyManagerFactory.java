@@ -7,9 +7,9 @@ import org.technologybrewery.habushu.util.HabushuUtil;
 
 public class PythonPackageAndDependencyManagerFactory {
     public static AbstractPythonPackageAndDependencyManagerSetup createPythonPackageAndDependencyManagerSetup(
-        String pythonVersion, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log, String pythonPackageAndDependencyManager,
+        String pythonVersion, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log, HabushuUtil.PackageManager pythonPackageAndDependencyManager,
         Boolean usePyenv, File patchInstallScript) throws MojoExecutionException {
-        if (pythonPackageAndDependencyManager.equals(HabushuUtil.DEFAULT_PYTHON_PACKAGE_AND_DEPENDENCY_MANAGER)){
+        if (pythonPackageAndDependencyManager == HabushuUtil.PackageManager.POETRY){
             if ((usePyenv == null) || (patchInstallScript == null)) {
                 throw new MojoExecutionException("PyenvAndPoetrySetup requires usePyenv and patchInstallScript.");
             }

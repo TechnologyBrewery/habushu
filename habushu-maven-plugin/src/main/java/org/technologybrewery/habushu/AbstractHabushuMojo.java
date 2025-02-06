@@ -22,8 +22,11 @@ import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.sonatype.plexus.components.cipher.PlexusCipherException;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
+import org.technologybrewery.habushu.exec.PackageManagerCommandHelper;
+import org.technologybrewery.habushu.exec.PackageManagerCommandHelperFactory;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 import org.technologybrewery.habushu.exec.PyenvCommandHelper;
+import org.technologybrewery.habushu.util.HabushuUtil;
 import org.technologybrewery.habushu.util.MavenPasswordDecoder;
 
 /**
@@ -284,18 +287,25 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     }
 
     /**
-     * Find the poetry cache directory. 
+     * Find the packageManager cache directory.
      *
      * @return the poetry cache directory path as a FILE object.  
      */
     public File getCachedWheelDirectory(String artifactId) {
-        try {
-            PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
-            String poetryCacheDirectoryPath = poetryHelper.getPoetryCacheDirectoryPath();
-            return new File(String.format("%s/cache/repositories/wheels/%s", poetryCacheDirectoryPath, artifactId));
-        } catch (Exception e) {
-            throw new HabushuException("Could not get the Poetry Cache Wheel directory!", e);
+        if(HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile()) == HabushuUtil.PackageManager.POETRY)
+        {
+            try {
+                PackageManagerCommandHelper packageManagerCommandHelper = createPackageManagerCommandHelper();
+                String packageManagerCacheDirectoryPath = packageManagerCommandHelper.getPackageManagerCacheDirectoryPath();
+                return new File(String.format("%s/cache/repositories/wheels/%s", packageManagerCacheDirectoryPath, artifactId));
+            } catch (Exception e) {
+                throw new HabushuException("Could not get the Poetry Cache Wheel directory!", e);
+            }
+        }else{
+            //TODO: Add UV Impl.
+            return new File("");
         }
+
     }
 
 
@@ -347,7 +357,17 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     }
 
     /**
-     * Base directory in which Poetry projects will be located - should always be
+     * Creates a {@link PackageManagerCommandHelper} that may be used to invoke Python Package Manager.
+     * commands from the project's working directory.
+     *
+     * @return
+     */
+    protected PackageManagerCommandHelper createPackageManagerCommandHelper() {
+        return  PackageManagerCommandHelperFactory.createPackageManagerCommandHelperSetup(getPythonProjectBaseDir());
+    }
+
+    /**
+     * Base directory in which Python projects will be located - should always be
      * the basedir of the encapsulating Maven project.
      */
     protected File getPythonProjectBaseDir() {
@@ -355,12 +375,12 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     }
 
     /**
-     * Returns a {@link File} representing this project's Poetry pyproject.toml
+     * Returns a {@link File} representing this project's pyproject.toml
      * configuration.
      *
      * @return
      */
-    protected File getPoetryPyProjectTomlFile() {
+    protected File getPyProjectTomlFile() {
         return new File(getPythonProjectBaseDir(), "pyproject.toml");
     }
 
@@ -438,7 +458,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     protected List<String> findCustomToolPoetryGroups() {
         List<String> toolPoetryGroupSections = new ArrayList<>();
 
-        File pyProjectTomlFile = getPoetryPyProjectTomlFile();
+        File pyProjectTomlFile = getPyProjectTomlFile();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(pyProjectTomlFile))) {
             String line = reader.readLine();

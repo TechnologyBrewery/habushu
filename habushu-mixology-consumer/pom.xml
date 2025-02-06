@@ -32,7 +32,7 @@
                         </packageDefinition>
                         <packageDefinition>
                             <packageName>uvicorn</packageName>
-                            <operatorAndVersion>^0.18.0</operatorAndVersion>
+                            <operatorAndVersion>${version.uvicorn}</operatorAndVersion>
                         </packageDefinition>
                         <packageDefinition>
                             <packageName>habushu-mixology</packageName>

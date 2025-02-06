@@ -126,6 +126,11 @@
             <version>${version.maven}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.moandjiezana.toml</groupId>
+            <artifactId>toml4j</artifactId>
+            <version>0.7.2</version>
+        </dependency>
 
         <!-- Provided Dependencies: -->
         <dependency>
