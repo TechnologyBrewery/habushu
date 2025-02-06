@@ -10,6 +10,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
+import org.technologybrewery.habushu.util.HabushuUtil;
 
 /**
  * Leverages {@code poetry run} to execute a Python command or script within
@@ -32,12 +33,17 @@ public class RunCommandInVirtualEnvMojo extends AbstractHabushuMojo {
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
-	PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
-	List<String> poetryRunCommandArgs = new ArrayList<>(Arrays.asList(StringUtils.split(runCommandArgs)));
-	poetryRunCommandArgs.add(0, "run");
+    if(HabushuUtil.checkPythonPackageManager(getPoetryPyProjectTomlFile()) == HabushuUtil.PackageManager.POETRY) {
+        PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
+        List<String> poetryRunCommandArgs = new ArrayList<>(Arrays.asList(StringUtils.split(runCommandArgs)));
+        poetryRunCommandArgs.add(0, "run");
 
-	getLog().info("Executing command in virtual environment via 'poetry run'...");
-	poetryHelper.executeAndLogOutput(poetryRunCommandArgs);
+        getLog().info("Executing command in virtual environment via 'poetry run'...");
+        poetryHelper.executeAndLogOutput(poetryRunCommandArgs);
+    }
+    else{
+        //TODO: UV impl
+    }
     }
 
 }

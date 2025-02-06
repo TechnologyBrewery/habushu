@@ -118,11 +118,16 @@ public class CleanHabushuMojo extends CleanMojo {
 
     @Override
     public void execute() throws MojoExecutionException {
-        if ("habushu".equals(packaging)) {
-            clean();
-        } else {
-            getLog().info("Skipping execution - packaging type is not 'habushu'");
+        if(HabushuUtil.checkPythonPackageManager(new File(this.workingDirectory, "pyproject.toml")) == HabushuUtil.PackageManager.POETRY) {
+            if ("habushu".equals(packaging)) {
+                clean();
+            } else {
+                getLog().info("Skipping execution - packaging type is not 'habushu'");
+            }
+        }else{
+            //TODO: UV Impl
         }
+
     }
 
     private void clean() throws MojoExecutionException {

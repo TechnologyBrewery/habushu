@@ -10,6 +10,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.StringUtils;
 import org.technologybrewery.habushu.util.PoetryUtil;
 import org.technologybrewery.habushu.util.UvUtil;
+import org.technologybrewery.habushu.util.HabushuUtil;
 
 /**
  * Attaches to the {@link LifecyclePhase#VALIDATE} phase to ensure that the all
@@ -59,14 +60,17 @@ public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabus
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
+      if(HabushuUtil.checkPythonPackageManager(getPoetryPyProjectTomlFile()) == HabushuUtil.PackageManager.POETRY) {
+          PythonPackageAndDependencyManagerSetup configureTools = new PythonPackageAndDependencyManagerSetup(pythonVersion, pythonPackageAndDependencyManager,
+                  usePyenv, patchInstallScript, getPythonProjectBaseDir(), rewriteLocalPathDepsInArchives, getLog());
 
-        PythonPackageAndDependencyManagerSetup configureTools = new PythonPackageAndDependencyManagerSetup(pythonVersion, pythonPackageAndDependencyManager, 
-                usePyenv, patchInstallScript, getPythonProjectBaseDir(), rewriteLocalPathDepsInArchives, getLog());
-
-        configureTools.execute();
-
-        configurePrivatePyPiRepositoryCredentials(configureTools);
-        configurePrivateDevPyPiRepositoryCredentials(configureTools);
+          configureTools.execute();
+          configurePrivatePyPiRepositoryCredentials(configureTools);
+          configurePrivateDevPyPiRepositoryCredentials(configureTools);
+      }
+      else{
+          //TODO: uv impl
+      }
     }
 
     private void configurePrivateDevPyPiRepositoryCredentials(PythonPackageAndDependencyManagerSetup configureTools) throws MojoExecutionException {

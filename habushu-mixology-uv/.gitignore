@@ -1,0 +1,4 @@
+# Ignore everything in generated package with the exception of __init__.py - protobuf bindings are generated
+# into this package as a part of the automated build and should *not* be version-controlled
+src/habushu_mixology/generated/*
+!src/habushu_mixology/generated/__init__.py

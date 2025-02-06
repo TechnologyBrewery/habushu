@@ -6,6 +6,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
+import org.technologybrewery.habushu.util.HabushuUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -68,46 +69,50 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
-        PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
+        if(HabushuUtil.checkPythonPackageManager(getPoetryPyProjectTomlFile()) == HabushuUtil.PackageManager.POETRY) {
+            PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
 
-        String buildCommand;
-        String buildLogMessage;
-        if (this.rewriteLocalPathDepsInArchives) {
-            buildCommand = "build-rewrite-path-deps";
-            buildLogMessage = "Building source and wheel archives with poetry-monorepo-dependency-plugin...";
-        } else {
-            buildCommand = "build";
-            buildLogMessage = "Building source and wheel archives...";
-        }
-
-        getLog().info(buildLogMessage);
-        poetryHelper.executeAndLogOutput(Arrays.asList(buildCommand));
-
-        if (exportRequirementsFile) {
-            getLog().info("Exporting requirements.txt file...");
-
-            File directory = new File(exportRequirementsFolder);
-            if (!directory.exists()) {
-                directory.mkdir();
+            String buildCommand;
+            String buildLogMessage;
+            if (this.rewriteLocalPathDepsInArchives) {
+                buildCommand = "build-rewrite-path-deps";
+                buildLogMessage = "Building source and wheel archives with poetry-monorepo-dependency-plugin...";
+            } else {
+                buildCommand = "build";
+                buildLogMessage = "Building source and wheel archives...";
             }
 
-            List<String> command = new ArrayList<>();
-            command.add( exportRequirementsWithoutPathDependencies ? "export-without-path-deps" : "export");
-            command.add("--output");
-            String outputFile = exportRequirementsFolder + "/requirements.txt";
-            command.add(outputFile);
+            getLog().info(buildLogMessage);
+            poetryHelper.executeAndLogOutput(Arrays.asList(buildCommand));
 
-            if (!exportRequirementsWithHashes) {
-                command.add("--without-hashes");
+            if (exportRequirementsFile) {
+                getLog().info("Exporting requirements.txt file...");
+
+                File directory = new File(exportRequirementsFolder);
+                if (!directory.exists()) {
+                    directory.mkdir();
+                }
+
+                List<String> command = new ArrayList<>();
+                command.add( exportRequirementsWithoutPathDependencies ? "export-without-path-deps" : "export");
+                command.add("--output");
+                String outputFile = exportRequirementsFolder + "/requirements.txt";
+                command.add(outputFile);
+
+                if (!exportRequirementsWithHashes) {
+                    command.add("--without-hashes");
+                }
+
+                if (!exportRequirementsWithUrls) {
+                    command.add("--without-urls");
+                }
+
+                poetryHelper.executeAndLogOutput(command);
+
+                setUpPlaceholderFileAsMavenArtifact();
             }
-
-            if (!exportRequirementsWithUrls) {
-                command.add("--without-urls");
-            }
-
-            poetryHelper.executeAndLogOutput(command);
-
-            setUpPlaceholderFileAsMavenArtifact();
+        }else{
+            //TODO: UV Impl
         }
     }
 

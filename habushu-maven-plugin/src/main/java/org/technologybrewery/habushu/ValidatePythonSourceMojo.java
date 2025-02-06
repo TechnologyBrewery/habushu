@@ -5,6 +5,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.technologybrewery.habushu.util.HabushuUtil;
 
 /**
  * Leverages the lint package to validate both source and test Python
@@ -41,8 +42,12 @@ public class ValidatePythonSourceMojo extends AbstractValidateMojo {
 
     @Override
     public void doExecute() throws MojoExecutionException {
-        if (lintSource) {
-            runLinter(this.sourceDirectory, sourceLintDisabledChecker, sourceLintEnabledChecker, sourceFailOnLintErrors, null);
+        if(HabushuUtil.checkPythonPackageManager(getPoetryPyProjectTomlFile()) == HabushuUtil.PackageManager.POETRY) {
+            if (lintSource) {
+                runLinter(this.sourceDirectory, sourceLintDisabledChecker, sourceLintEnabledChecker, sourceFailOnLintErrors, null);
+            }
+        }else{
+            //TODO: UV Impl
         }
     }
 }

@@ -8,6 +8,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
+import org.technologybrewery.habushu.util.HabushuUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,68 +85,70 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
+      if(HabushuUtil.checkPythonPackageManager(getPoetryPyProjectTomlFile()) == HabushuUtil.PackageManager.POETRY) {
+          if (skipTests) {
+              getLog().warn("Tests are skipped (-DskipTests=true)");
+              return;
+          }
 
-        if (skipTests) {
-            getLog().warn("Tests are skipped (-DskipTests=true)");
-            return;
-        }
+          File behaveDirectory = new File(testDirectory, "features");
 
-        File behaveDirectory = new File(testDirectory, "features");
+          boolean hasTests;
+          try {
+              hasTests = behaveDirectory.exists() && Files.list(behaveDirectory.toPath()).findAny().isPresent();
+          } catch (IOException e) {
+              throw new MojoExecutionException("Could not load behave features directory", e);
+          }
 
-        boolean hasTests;
-        try {
-            hasTests = behaveDirectory.exists() && Files.list(behaveDirectory.toPath()).findAny().isPresent();
-        } catch (IOException e) {
-            throw new MojoExecutionException("Could not load behave features directory", e);
-        }
+          if (hasTests) {
+              PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
 
-        if (hasTests) {
-            PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
+              if (!poetryHelper.isDependencyInstalled(BEHAVE_PACKAGE)) {
+                  getLog().info(String.format("%s dependency not specified in pyproject.toml - installing now...",
+                          BEHAVE_PACKAGE));
+                  poetryHelper.installDevelopmentDependency(BEHAVE_PACKAGE);
+              }
 
-            if (!poetryHelper.isDependencyInstalled(BEHAVE_PACKAGE)) {
-                getLog().info(String.format("%s dependency not specified in pyproject.toml - installing now...",
-                        BEHAVE_PACKAGE));
-                poetryHelper.installDevelopmentDependency(BEHAVE_PACKAGE);
-            }
+              List<String> executeBehaveTestArgs = new ArrayList<>();
+              executeBehaveTestArgs
+                      .addAll(Arrays.asList("run", BEHAVE_PACKAGE, getCanonicalPathForFile(behaveDirectory)));
 
-            List<String> executeBehaveTestArgs = new ArrayList<>();
-            executeBehaveTestArgs
-                    .addAll(Arrays.asList("run", BEHAVE_PACKAGE, getCanonicalPathForFile(behaveDirectory)));
+              if (outputCucumberStyleTestReports) {
+                  poetryHelper.installDevelopmentDependency(BEHAVE_CUCUMBER_FORMATTER);
+                  executeBehaveTestArgs.add("--format=kappa_maki.kappa_maki_formatter:PrettyCucumberJSONFormatter");
+                  executeBehaveTestArgs.add("--outfile=target/cucumber-reports/cucumber.json");
+                  executeBehaveTestArgs.add("--format=progress2");
+              }
 
-            if (outputCucumberStyleTestReports) {
-                poetryHelper.installDevelopmentDependency(BEHAVE_CUCUMBER_FORMATTER);
-                executeBehaveTestArgs.add("--format=kappa_maki.kappa_maki_formatter:PrettyCucumberJSONFormatter");
-                executeBehaveTestArgs.add("--outfile=target/cucumber-reports/cucumber.json");
-                executeBehaveTestArgs.add("--format=progress2");
-            }
+              if (omitSkippedTests) {
+                  executeBehaveTestArgs.add("--no-skipped");
+              }
 
-            if (omitSkippedTests) {
-                executeBehaveTestArgs.add("--no-skipped");
-            }
+              if (disableOutputCapture) {
+                  executeBehaveTestArgs.add("--no-capture");
+                  executeBehaveTestArgs.add("--no-capture-stderr");
+                  executeBehaveTestArgs.add("--no-logcapture");
+              }
 
-            if (disableOutputCapture) {
-                executeBehaveTestArgs.add("--no-capture");
-                executeBehaveTestArgs.add("--no-capture-stderr");
-                executeBehaveTestArgs.add("--no-logcapture");
-            }
+              if (StringUtils.isNotEmpty(behaveOptions)) {
+                  executeBehaveTestArgs.addAll(Arrays.asList(StringUtils.split(behaveOptions)));
+              } else {
+                  if (behaveExcludeManualTag) {
+                      executeBehaveTestArgs.add("--tags=-manual");
+                  }
+              }
 
-            if (StringUtils.isNotEmpty(behaveOptions)) {
-                executeBehaveTestArgs.addAll(Arrays.asList(StringUtils.split(behaveOptions)));
-            } else {
-                if (behaveExcludeManualTag) {
-                    executeBehaveTestArgs.add("--tags=-manual");
-                }
-            }
-
-            getLog().info(String.format("Executing behave tests in %s...", getCanonicalPathForFile(behaveDirectory)));
-            getLog().info("-------------------------------------------------------");
-            getLog().info("T E S T S");
-            getLog().info("-------------------------------------------------------");
-            poetryHelper.executeAndLogOutput(executeBehaveTestArgs, behaveTestEnvironmentVariables);
-        } else {
-            getLog().warn(String.format("No tests found in %s", getCanonicalPathForFile(behaveDirectory)));
-        }
-
+              getLog().info(String.format("Executing behave tests in %s...", getCanonicalPathForFile(behaveDirectory)));
+              getLog().info("-------------------------------------------------------");
+              getLog().info("T E S T S");
+              getLog().info("-------------------------------------------------------");
+              poetryHelper.executeAndLogOutput(executeBehaveTestArgs, behaveTestEnvironmentVariables);
+          } else {
+              getLog().warn(String.format("No tests found in %s", getCanonicalPathForFile(behaveDirectory)));
+          }
+      } else{
+          //TODO: uv impl
+      }
     }
 
 }

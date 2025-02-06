@@ -121,6 +121,24 @@
             </modules>
         </profile>
         <profile>
+            <id>uv</id>
+            <modules>
+                <module>habushu-mixology-uv</module>
+                <module>habushu-mixology-consumer-uv</module>
+            </modules>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-install-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>bootstrap</id>
             <modules>
                 <module>habushu-maven-plugin</module>

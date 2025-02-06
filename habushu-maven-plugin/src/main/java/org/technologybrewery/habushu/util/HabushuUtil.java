@@ -13,6 +13,7 @@ import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,6 +25,12 @@ import java.util.Arrays;
  * relevant settings.xml configuration.
  */
 public final class HabushuUtil {
+
+	public enum PackageManager {
+		POETRY,
+		UV
+	}
+
 
     private static final Logger logger = LoggerFactory.getLogger(HabushuUtil.class);
 
@@ -150,7 +157,7 @@ public final class HabushuUtil {
     /**
      * Copies specified file into specified path.
      *
-     * @param filePath the path to the file to copy
+     * @param sourceFilePath the path to the file to copy
      * @param destinationFilePath the path to where the new copy should be created
      */
     public static void copyFile(String sourceFilePath, String destinationFilePath) {
@@ -202,4 +209,31 @@ public final class HabushuUtil {
 		return StringUtils.replace(virtualEnvFullPath, " (Activated)", StringUtils.EMPTY);
 
 	}
+
+	/**
+	 * Finds and returns Python Package Manager.
+	 *
+	 * @return PackageManager returns which package manager does Habushu uses.
+	 */
+	public static PackageManager checkPythonPackageManager(File pyProjectTomlFile) {
+		PackageManager currentPackageManager = PackageManager.UV;
+		try (BufferedReader reader = new BufferedReader(new FileReader(pyProjectTomlFile))) {
+			String line = reader.readLine();
+
+			while (line != null) {
+				line = line.strip();
+				//if pyproject.toml contains poetry specific section, the package manager is poetry.
+				//if not, it would direct to uv.
+				if (line.contains("[tool.poetry")) {
+					return PackageManager.POETRY;
+				}
+				line = reader.readLine();
+			}
+		} catch (IOException e) {
+			throw new HabushuException("Problem reading pyproject.toml", e);
+		}
+		return PackageManager.UV;
+	}
+
+
 }

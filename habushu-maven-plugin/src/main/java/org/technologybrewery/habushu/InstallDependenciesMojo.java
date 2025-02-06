@@ -135,39 +135,44 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
-        PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
+        if(HabushuUtil.checkPythonPackageManager(getPoetryPyProjectTomlFile()) == HabushuUtil.PackageManager.POETRY) {
+            PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
 
-        setUpInProjectVirtualEnvironment(poetryHelper);
+            setUpInProjectVirtualEnvironment(poetryHelper);
 
-        processManagedDependencyMismatches();
+            processManagedDependencyMismatches();
 
-        prepareRepositoryForInstallation(this.pypiRepoId, this.pypiRepoUrl);
-        if (this.useDevRepository) {
-            prepareRepositoryForInstallation(this.devRepositoryId, this.devRepositoryUrl);
+            prepareRepositoryForInstallation(this.pypiRepoId, this.pypiRepoUrl);
+            if (this.useDevRepository) {
+                prepareRepositoryForInstallation(this.devRepositoryId, this.devRepositoryUrl);
+            }
+
+            if (!this.skipPoetryLockUpdate) {
+                getLog().info("Locking dependencies specified in pyproject.toml...");
+                poetryHelper.executePoetryCommandAndLogAfterTimeout(Arrays.asList("lock"), 2, TimeUnit.MINUTES);
+            }
+
+            List<String> installCommand = new ArrayList<>();
+
+            installCommand.add("install");
+            for (String groupName : this.withGroups) {
+                installCommand.add("--with");
+                installCommand.add(groupName);
+            }
+            for (String groupName : this.withoutGroups) {
+                installCommand.add("--without");
+                installCommand.add(groupName);
+            }
+            if (this.forceSync) {
+                installCommand.add("--sync");
+            }
+
+            getLog().info("Installing dependencies...");
+            poetryHelper.executePoetryCommandAndLogAfterTimeout(installCommand, 2, TimeUnit.MINUTES);
+        } else{
+            //TODO: UV Impl
         }
 
-        if (!this.skipPoetryLockUpdate) {
-            getLog().info("Locking dependencies specified in pyproject.toml...");
-            poetryHelper.executePoetryCommandAndLogAfterTimeout(Arrays.asList("lock"), 2, TimeUnit.MINUTES);
-        }
-
-        List<String> installCommand = new ArrayList<>();
-
-        installCommand.add("install");
-        for (String groupName : this.withGroups) {
-            installCommand.add("--with");
-            installCommand.add(groupName);
-        }
-        for (String groupName : this.withoutGroups) {
-            installCommand.add("--without");
-            installCommand.add(groupName);
-        }
-        if (this.forceSync) {
-            installCommand.add("--sync");
-        }
-
-        getLog().info("Installing dependencies...");
-        poetryHelper.executePoetryCommandAndLogAfterTimeout(installCommand, 2, TimeUnit.MINUTES);
     }
 
     private void setUpInProjectVirtualEnvironment(PoetryCommandHelper poetryHelper) throws MojoExecutionException {

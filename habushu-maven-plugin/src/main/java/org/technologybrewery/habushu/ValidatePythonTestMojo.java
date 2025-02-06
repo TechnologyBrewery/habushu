@@ -5,6 +5,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.technologybrewery.habushu.util.HabushuUtil;
 
 import java.util.List;
 
@@ -39,9 +40,13 @@ public class ValidatePythonTestMojo extends AbstractValidateMojo {
 
     @Override
     public void doExecute() throws MojoExecutionException {
-        if (lintTest) {
-            List<String> extraArgs = List.of("--recursive=true");
-            runLinter(this.testDirectory, testLintDisabledChecker, testLintEnabledChecker, testFailOnLintErrors, extraArgs);
+        if(HabushuUtil.checkPythonPackageManager(getPoetryPyProjectTomlFile()) == HabushuUtil.PackageManager.POETRY) {
+            if (lintTest) {
+                List<String> extraArgs = List.of("--recursive=true");
+                runLinter(this.testDirectory, testLintDisabledChecker, testLintEnabledChecker, testFailOnLintErrors, extraArgs);
+            }
+        }else{
+            //TODO: UV Impl
         }
     }
 
