@@ -3,12 +3,12 @@ package org.technologybrewery.habushu.util;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.maven.plugin.logging.Log;
+import org.technologybrewery.habushu.AbstractPythonPackageAndDependencyManagerSetup;
 import org.technologybrewery.habushu.HabushuException;
-import org.technologybrewery.habushu.PyenvAndPoetrySetup;
-import org.technologybrewery.habushu.exec.PoetryCommandHelper;
+import org.technologybrewery.habushu.PythonPackageAndDependencyManagerFactory;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 
 /**
  * Contains utility functionality for Habushu, including bash script execution
@@ -26,6 +25,14 @@ import java.util.Arrays;
 public final class HabushuUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(HabushuUtil.class);
+
+    /**
+     * Specifies the semver compliant requirement for the default version of Python that
+     * must be installed and available for Habushu to use.
+     */
+    public static final String PYTHON_DEFAULT_VERSION_REQUIREMENT = "3.11.4";
+
+    public static final String DEFAULT_PYTHON_PACKAGE_AND_DEPENDENCY_MANAGER = "poetry";
 
     private HabushuUtil() {
     }
@@ -174,26 +181,6 @@ public final class HabushuUtil {
         return workingDirectory.getAbsolutePath() + "/.venv";
     }
 
-
-	public static String findCurrentVirtualEnvironmentFullPath(String pythonVersion, boolean usePyenv,
-		   File patchInstallScript, File workingDirectory, boolean rewriteLocalPathDepsInArchives, Log log)
-            throws MojoExecutionException {
-		String virtualEnvFullPath = null;
-		PyenvAndPoetrySetup configureTools = new PyenvAndPoetrySetup(pythonVersion, usePyenv,
-				patchInstallScript, workingDirectory, rewriteLocalPathDepsInArchives, log);
-		configureTools.execute();
-
-		try {
-			PoetryCommandHelper poetryHelper = new PoetryCommandHelper(workingDirectory);
-			virtualEnvFullPath = poetryHelper.execute(Arrays.asList("env", "list", "--full-path"));
-		} catch (RuntimeException e) {
-			log.debug("Could not retrieve Poetry-managed virtual environment path - it likely does not exist",
-					e);
-		}
-
-		return virtualEnvFullPath;
-	}
-
 	/**
 	 * Removes (Activated) from path in 1.3.x and higher versions.
 	 *
@@ -204,4 +191,19 @@ public final class HabushuUtil {
 		return StringUtils.replace(virtualEnvFullPath, " (Activated)", StringUtils.EMPTY);
 
 	}
+
+	public static AbstractPythonPackageAndDependencyManagerSetup getPythonPackageAndDependencyManager(String pythonPackageAndDependencyManager,
+	String pythonVersion, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log, Boolean usePyenv, File patchInstallScript) throws MojoExecutionException {
+    
+    // Set the poetry-based parameters to null
+    if (!pythonPackageAndDependencyManager.equals(DEFAULT_PYTHON_PACKAGE_AND_DEPENDENCY_MANAGER)){
+          usePyenv = null;
+          patchInstallScript = null;
+        }
+
+        AbstractPythonPackageAndDependencyManagerSetup configureTools = PythonPackageAndDependencyManagerFactory.createPythonPackageAndDependencyManagerSetup(
+            pythonVersion, baseDir, rewriteLocalPathDepsInArchives, log, pythonPackageAndDependencyManager, usePyenv, patchInstallScript);
+
+        return configureTools;
+    }
 }

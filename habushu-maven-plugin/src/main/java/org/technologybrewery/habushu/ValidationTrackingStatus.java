@@ -1,13 +1,15 @@
 package org.technologybrewery.habushu;
 
 /**
- * Used to track the status of checks for Poetry and Python.
+ * Used to track the status of checks for Python and its package and dependency management tools.
  */
 class ValidationTrackingStatus {
 
     private boolean alreadyValidatedPoetryInstallation;
     private String alreadyValidatedPoetryVersion;
-    private String priorActivePythonVersionActivated;
+    private boolean alreadyValidatedUvInstallation;
+    private String alreadyValidatedUvVersion;
+    private String ActivePythonVersion;
 
     public boolean isAlreadyValidatedPoetryInstallation() {
         return alreadyValidatedPoetryInstallation;
@@ -25,11 +27,27 @@ class ValidationTrackingStatus {
         this.alreadyValidatedPoetryVersion = alreadyValidatedPoetryVersion;
     }
 
-    public String getPriorActivePythonVersionActivated() {
-        return priorActivePythonVersionActivated;
+    public boolean isAlreadyValidatedUvInstallation() {
+        return alreadyValidatedUvInstallation;
     }
 
-    public void setPriorActivePythonVersionActivated(String priorActivePythonVersionActivated) {
-        this.priorActivePythonVersionActivated = priorActivePythonVersionActivated;
+    public void setAlreadyValidatedUvInstallation(boolean alreadyValidatedUvInstallation) {
+        this.alreadyValidatedUvInstallation = alreadyValidatedUvInstallation;
+    }
+
+    public String getAlreadyValidatedUvVersion() {
+        return alreadyValidatedUvVersion;
+    }
+
+    public void setAlreadyValidatedUvVersion(String alreadyValidatedUvVersion) {
+        this.alreadyValidatedUvVersion = alreadyValidatedUvVersion;
+    }
+
+    public String getActivePythonVersion() {
+        return ActivePythonVersion;
+    }
+
+    public void setActivePythonVersion(String ActivePythonVersion) {
+        this.ActivePythonVersion = ActivePythonVersion;
     }
 }

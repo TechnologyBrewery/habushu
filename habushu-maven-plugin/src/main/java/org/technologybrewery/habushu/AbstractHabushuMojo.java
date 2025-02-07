@@ -195,19 +195,20 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
 
     /**
      * Indicates whether Habushu should leverage the
-     * {@code poetry-monorepo-dependency-plugin} to rewrite any local path
-     * dependencies (to other Poetry projects) as versioned packaged dependencies in
+     * {@code poetry-monorepo-dependency-plugin} or the
+     * {@code uv-monorepo-dependency-plugin} (<- todo) to rewrite any local path
+     * dependencies (to other Poetry/uv projects) as versioned packaged dependencies in
      * generated wheel/sdist archives. If {@code true}, Habushu will replace
-     * invocations of Poetry's {@code build} and {@code publish} commands in the
+     * invocations of Poetry/uv's {@code build} and {@code publish} commands in the
      * {@link BuildDeploymentArtifactsMojo} and {@link PublishToPyPiRepoMojo} with
      * the extensions of those commands exposed by the
-     * {@code poetry monorepo-dependency-plugin}, which are
+     * {@code poetry-monorepo-dependency-plugin}/{@code uv-monorepo-dependency-plugin}, which are
      * {@code build-rewrite-path-deps} and {@code publish-rewrite-path-deps}
      * respectively.
      * <p>
      * Typically, this flag will only be {@code true} when deploying/releasing
      * Habushu modules within a CI environment that are part of a monorepo project
-     * structure which multiple Poetry projects depend on one another.
+     * structure in which multiple Poetry/uv projects depend on one another.
      */
     @Parameter(defaultValue = "false", property = "habushu.rewriteLocalPathDepsInArchives")
     protected boolean rewriteLocalPathDepsInArchives;
@@ -332,7 +333,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * @return
      */
     protected PyenvCommandHelper createPyenvCommandHelper() {
-        return new PyenvCommandHelper(getPoetryProjectBaseDir());
+        return new PyenvCommandHelper(getPythonProjectBaseDir());
     }
 
     /**
@@ -342,14 +343,14 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * @return
      */
     protected PoetryCommandHelper createPoetryCommandHelper() {
-        return new PoetryCommandHelper(getPoetryProjectBaseDir());
+        return new PoetryCommandHelper(getPythonProjectBaseDir());
     }
 
     /**
      * Base directory in which Poetry projects will be located - should always be
      * the basedir of the encapsulating Maven project.
      */
-    protected File getPoetryProjectBaseDir() {
+    protected File getPythonProjectBaseDir() {
         return this.project.getBasedir();
     }
 
@@ -360,7 +361,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * @return
      */
     protected File getPoetryPyProjectTomlFile() {
-        return new File(getPoetryProjectBaseDir(), "pyproject.toml");
+        return new File(getPythonProjectBaseDir(), "pyproject.toml");
     }
 
     /**
