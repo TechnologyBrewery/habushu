@@ -170,7 +170,7 @@ public class PyenvAndPoetrySetup {
 
         if (usePyenv) {
             log.info("Configuring Poetry to use the pyenv-activated Python binary...");
-            poetryHelper.executeAndLogOutput(Arrays.asList("config", "--local", "virtualenvs.prefer-active-python", "true"));
+            poetryHelper.executeAndLogOutput(poetryHelper.createUsePyenvCommand());
         }
     }
 

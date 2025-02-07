@@ -120,6 +120,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-artifact</artifactId>
+            <version>${version.maven}</version>
+        </dependency>
 
         <!-- Provided Dependencies: -->
         <dependency>

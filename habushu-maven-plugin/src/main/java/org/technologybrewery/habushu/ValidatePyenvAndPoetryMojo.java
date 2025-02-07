@@ -53,7 +53,7 @@ public class ValidatePyenvAndPoetryMojo extends AbstractHabushuMojo {
 
         configureTools.execute();
 
-        configurePriavtePyPiRepositoryCredentials(configureTools);
+        configurePrivatePyPiRepositoryCredentials(configureTools);
         configurePrivateDevPyPiRepositoryCredentials(configureTools);
 
         configureTools.installPoetryMonorepoDependencyPlugin();
@@ -72,7 +72,7 @@ public class ValidatePyenvAndPoetryMojo extends AbstractHabushuMojo {
         }
     }
 
-    private void configurePriavtePyPiRepositoryCredentials(PyenvAndPoetrySetup configureTools) throws MojoExecutionException {
+    private void configurePrivatePyPiRepositoryCredentials(PyenvAndPoetrySetup configureTools) throws MojoExecutionException {
         if (StringUtils.isNotEmpty(pypiRepoUrl) && !"https://pypi.org".equals(pypiRepoUrl)) {
             String pypiRepoIdUsername = findUsernameForServer(pypiRepoId);
             String pypiRepoIdPassword = findPasswordForServer(pypiRepoId);

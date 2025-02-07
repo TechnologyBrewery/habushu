@@ -29,7 +29,7 @@ public class InitializeHabushuMojo extends AbstractHabushuMojo {
             getLog().debug("Failure encountered while running 'poetry check'!", e);
             getLog().warn("poetry check failed (debug contains more details) - this is likely due to a "
                     + "mismatch between your pyproject.toml and poetry.lock file - attempting to correct...");
-            poetryHelper.execute(Arrays.asList("lock", "--no-update"));
+            poetryHelper.execute(poetryHelper.createLockCommand());
             getLog().warn("Corrected - pyproject.toml and poetry.lock now synced");
         }
 

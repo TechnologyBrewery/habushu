@@ -19,6 +19,9 @@ public class ContainerizeDepsDockerfileHelper {
     public static final String CHOWN = "CHOWN_PLACEHOLDER";
     public static final String BASE_IMAGE = "BASE_IMAGE";
     public static final String ANCHOR_DIRECTORY = "ANCHOR_DIRECTORY";
+    public static final String REPLACE_WITH_POETRY_VERSION = "REPLACE_WITH_POETRY_VERSION";
+    public static final String REPLACE_WITH_POETRY_PLUGIN_BUNDLE_VERSION = "REPLACE_WITH_POETRY_PLUGIN_BUNDLE_VERSION";
+    public static final String REPLACE_WITH_POETRY_MONOREPO_DEPENDENCY_PLUGIN_VERSION = "REPLACE_WITH_POETRY_MONOREPO_DEPENDENCY_PLUGIN_VERSION";
     public static final String FINAL_STAGE_TEMPLATE = "dockerfile_final_stage_template";
     public static final String BUILDER_STAGE_TEMPLATE = "dockerfile_builder_stage_template";
 
@@ -29,7 +32,7 @@ public class ContainerizeDepsDockerfileHelper {
      * @param moduleBaseDir the module base directory
      * @return container stage content
      */
-    public static String createContainerStageContentFrom(String template, String anchorDirectory, String moduleBaseDir, String owner, String baseImage) {
+    public static String createContainerStageContentFrom(String template, String anchorDirectory, String moduleBaseDir, String owner, String baseImage, String poetryVersion, String poetryMonorepoDependencyPluginVersion, String poetryPluginBundleVersion) {
         StringBuilder content = new StringBuilder();
         InputStream inputStream = ContainerizeDepsDockerfileHelper.class.getClassLoader().getResourceAsStream(template);
 
@@ -38,6 +41,15 @@ public class ContainerizeDepsDockerfileHelper {
 
             while (line != null) {
                 line = line.stripTrailing();
+                if(line.contains(REPLACE_WITH_POETRY_VERSION)){
+                    line = line.replaceAll(REPLACE_WITH_POETRY_VERSION, poetryVersion);
+                }
+                if(line.contains(REPLACE_WITH_POETRY_MONOREPO_DEPENDENCY_PLUGIN_VERSION)){
+                    line = line.replaceAll(REPLACE_WITH_POETRY_MONOREPO_DEPENDENCY_PLUGIN_VERSION, poetryMonorepoDependencyPluginVersion);
+                }
+                if(line.contains(REPLACE_WITH_POETRY_PLUGIN_BUNDLE_VERSION)){
+                    line = line.replaceAll(REPLACE_WITH_POETRY_PLUGIN_BUNDLE_VERSION, poetryPluginBundleVersion);
+                }
                 if (line.contains(ANCHOR_DIRECTORY)) {
                     line = line.replaceAll(ANCHOR_DIRECTORY, anchorDirectory);
                 }
@@ -74,9 +86,9 @@ public class ContainerizeDepsDockerfileHelper {
      * @param finalBaseImage the image to use for running the virtual environment
      * @return updated Dockerfile content
      */
-    public static String updateDockerfileWithContainerStageLogic(File dockerFile, String anchorDirectory, String moduleBaseDir, String owner, String builderBaseImage, String finalBaseImage) {
-        String builderStageContent = ContainerizeDepsDockerfileHelper.createContainerStageContentFrom(BUILDER_STAGE_TEMPLATE, anchorDirectory, moduleBaseDir, owner, builderBaseImage);
-        String finalStageContent = ContainerizeDepsDockerfileHelper.createContainerStageContentFrom(FINAL_STAGE_TEMPLATE, null, null, owner, finalBaseImage);
+    public static String updateDockerfileWithContainerStageLogic(File dockerFile, String anchorDirectory, String moduleBaseDir, String owner, String builderBaseImage, String finalBaseImage, String poetryVersion, String poetryMonorepoDependencyPluginVersion, String poetryPluginBundleVersion) {
+        String builderStageContent = ContainerizeDepsDockerfileHelper.createContainerStageContentFrom(BUILDER_STAGE_TEMPLATE, anchorDirectory, moduleBaseDir, owner, builderBaseImage, poetryVersion, poetryMonorepoDependencyPluginVersion, poetryPluginBundleVersion);
+        String finalStageContent = ContainerizeDepsDockerfileHelper.createContainerStageContentFrom(FINAL_STAGE_TEMPLATE, null, null, owner, finalBaseImage, null, null, null);
         StringBuilder content = new StringBuilder();
         boolean builderStageContentIncluded = false;
         boolean finalStageContentIncluded = false;
