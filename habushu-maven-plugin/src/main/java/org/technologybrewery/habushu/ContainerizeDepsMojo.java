@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * to the target directory along with the source files of
  * any transitive path-based dependencies.
  */
-@Mojo(name = "containerize-dependencies", defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
+@Mojo(name = "containerize-dependencies", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
 public class ContainerizeDepsMojo extends AbstractHabushuMojo {
 
     private static final Logger logger = LoggerFactory.getLogger(ContainerizeDepsMojo.class);

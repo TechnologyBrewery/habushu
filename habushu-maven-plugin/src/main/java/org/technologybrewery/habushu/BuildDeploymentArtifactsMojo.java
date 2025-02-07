@@ -24,7 +24,7 @@ import java.util.List;
  * {@link #exportRequirementsFile} flag</li>
  * </ul>
  */
-@Mojo(name = "build-deployment-artifacts", defaultPhase = LifecyclePhase.PACKAGE)
+@Mojo(name = "build-deployment-artifacts", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
 
     /**

@@ -26,7 +26,8 @@ import java.util.Map;
  * If {@link #behaveOptions} are provided, {@link #behaveExcludeManualTag} is
  * effectively overridden and ignored.
  */
-@Mojo(name = "behave-bdd-test", defaultPhase = LifecyclePhase.TEST, requiresDependencyResolution = ResolutionScope.TEST)
+@Mojo(name = "behave-bdd-test", defaultPhase = LifecyclePhase.TEST, requiresDependencyResolution = ResolutionScope.TEST,
+        threadSafe = true)
 public class BehaveBddTestMojo extends AbstractHabushuMojo {
 
     protected static final String BEHAVE_PACKAGE = "behave";

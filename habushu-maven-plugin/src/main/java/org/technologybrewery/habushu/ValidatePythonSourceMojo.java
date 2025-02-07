@@ -10,7 +10,8 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
  * Leverages the lint package to validate both source and test Python
  * directories using Poetry's run command.
  */
-@Mojo(name = "validate-python-source", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE)
+@Mojo(name = "validate-python-source", defaultPhase = LifecyclePhase.PROCESS_CLASSES,
+        requiresDependencyResolution = ResolutionScope.COMPILE, threadSafe = true)
 public class ValidatePythonSourceMojo extends AbstractValidateMojo {
 
     /**
