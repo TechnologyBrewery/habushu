@@ -27,7 +27,7 @@ import org.technologybrewery.habushu.util.PoetryUtil;
  * <li>uv (installed version must satisfy TODO: ADD CONSTANT HERE WHEN AVAILABLE)</li>
  * </ul>
  */
-@Mojo(name = "validate-python-package-and-dependency-manager", defaultPhase = LifecyclePhase.VALIDATE)
+@Mojo(name = "validate-python-package-and-dependency-manager", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabushuMojo {
 
     /**
