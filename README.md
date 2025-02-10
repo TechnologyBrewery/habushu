@@ -732,9 +732,6 @@ Specifies whether the version of the encapsulated Poetry package should be autom
 
 If this property is set to `false`, none of the above automated version management operations will be performed.
 
-*CAVEAT:* If there is a ^ and/or Poetry version < 1.5.0, the substitution will be `-SNAPSHOT` to `.dev` only for backwards
-compatibility
-
 Default: `true`
 
 #### sourceDirectory ####
@@ -749,36 +746,6 @@ Folder in which Python test files are located - should align with Poetry's proje
 
 Default: `${project.basedir}/tests`
 
-#### cacheWheels (deprecated) ####
-The `cache-wheels` goal has been `deprecated`, please see the `containerize-dependencies` goal instead.
-
-Enables or Disables the copying of wheels into Poetry cache.
-
-Default: `false`
-
-#### wheelDependencies (deprecated) ####
-The `retrieve-wheels` goal has been `deprecated`, please see the `containerize-dependencies` goal instead.
-
-Optional set of wheel dependencies to retrieve from poetry cache. This allows previously cached external
-wheel dependencies to be copied into a given target directory if it exists in poetry cache. This logic
-depends on wheels to have first been cached by `cacheWheels` habushu-maven-plugin configuration and executes
-during the VALIDATE maven phase. Warnings will be logged if the specified wheel isn't found.
-```xml
-<plugin>
-    <groupId>org.technologybrewery.habushu</groupId>
-    <artifactId>habushu-maven-plugin</artifactId>
-    ...
-    <configuration>
-        <wheelDependencies>
-            <wheelDependency>
-                <artifactId>foundation-core-python</artifactId>
-                <targetDirectory>${project.build.directory}</targetDirectory>
-            </wheelDependency>
-        </wheelDependencies>
-        ...
-    </configuration>
-</plugin>
-```
 #### managedDependencies ####
 
 Optional set of dependencies to manage across modules extending a parent pom. This allows packages to be managed to a
