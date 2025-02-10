@@ -35,6 +35,51 @@
             ]
           }
         ]
+      },
+      {
+        "name": "poetry-v2-poetry-to-project-migration",
+        "implementation": "org.technologybrewery.habushu.migration.poetryv2migrations.PoetryToProjectMigration",
+        "fileSets": [
+          {
+            "includes": [
+              "pyproject.toml"
+            ],
+            "excludes": [
+              "**/habushu-mixology/pyproject.toml",
+              "**/habushu-mixology-consumer/pyproject.toml"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "poetry-v2-poetry-to-project-requires-python-migration",
+        "implementation": "org.technologybrewery.habushu.migration.poetryv2migrations.PoetryToProjectRequiresPythonMigration",
+        "fileSets": [
+          {
+            "includes": [
+              "pyproject.toml"
+            ],
+            "excludes": [
+              "**/habushu-mixology/pyproject.toml",
+              "**/habushu-mixology-consumer/pyproject.toml"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "poetry-v2-poetry-to-project-dynamic-migration",
+        "implementation": "org.technologybrewery.habushu.migration.poetryv2migrations.PoetryToProjectDynamicMigration",
+        "fileSets": [
+          {
+            "includes": [
+              "pyproject.toml"
+            ],
+            "excludes": [
+              "**/habushu-mixology/pyproject.toml",
+              "**/habushu-mixology-consumer/pyproject.toml"
+            ]
+          }
+        ]
       }
     ]
   }

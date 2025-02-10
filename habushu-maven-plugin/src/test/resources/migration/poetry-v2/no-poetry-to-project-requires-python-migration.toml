@@ -1,0 +1,24 @@
+[project]
+name = "no-poetry-to-project-requires-python-migration"
+description = "Test skipping poetry-to-project-requires-python migration when Poetry version is less than 2.0.0"
+version = "2.9.0.dev"
+authors = [{name = "Test", email = "blah@foobar.com"}]
+maintainers = [{name = "Test", email = "blah@foobar.com"}]
+license = "MIT License"
+
+[tool.poetry]
+packages = [{include = "example_1", from = "src"}]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+krausening = "19"
+cryptography = "^42.0.0"
+uvicorn = {version = "^0.18.0", extras = ["standard"]}
+
+[tool.poetry.group.dev.dependencies]
+kappa-maki = ">=1.0.0"
+pylint = ">=3.1.0"
+
+[build-system]
+requires = ["poetry-core>=1.6.0"]
+build-backend = "poetry.core.masonry.api"

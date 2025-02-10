@@ -1,0 +1,25 @@
+[project]
+name = "with-requires-python-in-project"
+description = "Test skipping migration when requires-python entry already exists under project"
+version = "2.9.0.dev"
+authors = [{name = "Test", email = "blah@foobar.com"}]
+maintainers = [{name = "Test", email = "blah@foobar.com"}]
+license = "MIT License"
+dynamic = ["version", "dependencies"]
+requires-python = "^3.11"
+
+[tool.poetry]
+packages = [{include = "example_1", from = "src"}]
+
+[tool.poetry.dependencies]
+krausening = "19"
+cryptography = "^42.0.0"
+uvicorn = {version = "^0.18.0", extras = ["standard"]}
+
+[tool.poetry.group.dev.dependencies]
+kappa-maki = ">=1.0.0"
+pylint = ">=3.1.0"
+
+[build-system]
+requires = ["poetry-core>=1.6.0"]
+build-backend = "poetry.core.masonry.api"

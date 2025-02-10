@@ -1,7 +1,9 @@
 package org.technologybrewery.habushu.util;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
+import com.electronwill.nightconfig.core.concurrent.StampedConfig;
 import org.apache.commons.collections4.CollectionUtils;
+import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -19,13 +21,20 @@ public final class TomlUtils {
 
     public static final String EQUALS = "=";
     public static final String DOUBLE_QUOTE = "\"";
+    public static final String TOOL_POETRY = "tool.poetry";
     public static final String TOOL_POETRY_DEPENDENCIES = "tool.poetry.dependencies";
     public static final String TOOL_POETRY_DEV_DEPENDENCIES = "tool.poetry.group.dev.dependencies";
     public static final String TOOL_POETRY_GROUP_MONOREPO_DEPENDENCIES = "tool.poetry.group.monorepo.dependencies";
+    public static final String PROJECT = "project";
     public static final String VERSION = "version";
     public static final String PATH = "path";
     public static final String DEVELOP = "develop";
     public static final String EXTRAS = "extras";
+    public static final String REQUIRES_PYTHON = "requires-python";
+    public static final String DYNAMIC = "dynamic";
+    public static final String PYTHON = "python";
+    public static final String README = "readme";
+    public static final String DEPENDENCIES = "dependencies";
 
     public static final String BUILD_SYSTEM = "build-system";
     public static final String REQUIRES = "requires";

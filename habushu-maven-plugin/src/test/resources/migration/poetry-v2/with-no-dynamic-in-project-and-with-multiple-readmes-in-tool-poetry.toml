@@ -1,0 +1,25 @@
+[project]
+name = "with-no-dynamic-in-project-and-with-multiple-readmes-in-tool-poetry"
+description = "Test adding dynamic entry to project when Poetry version is at least 2.0.0 and multiple readmes in tool.poetry"
+version = "2.9.0.dev"
+authors = [{name = "Test", email = "blah@foobar.com"}]
+maintainers = [{name = "Test", email = "blah@foobar.com"}]
+license = "MIT License"
+requires-python = "^3.11"
+
+[tool.poetry]
+packages = [{include = "example_1", from = "src"}]
+readme = ["README.md", "src/example_1/README.md"]
+
+[tool.poetry.dependencies]
+krausening = "19"
+cryptography = "^42.0.0"
+uvicorn = {version = "^0.18.0", extras = ["standard"]}
+
+[tool.poetry.group.dev.dependencies]
+kappa-maki = ">=1.0.0"
+pylint = ">=3.1.0"
+
+[build-system]
+requires = ["poetry-core>=1.6.0"]
+build-backend = "poetry.core.masonry.api"
