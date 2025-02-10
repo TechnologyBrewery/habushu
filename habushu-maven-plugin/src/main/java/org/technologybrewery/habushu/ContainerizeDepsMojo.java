@@ -82,7 +82,7 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     /**
      * The base image to use for building the virtual env. This base image will be used to bundle the virtual
      * environment for the target project. As the venv must be built on the same platform as the final runtime to ensure
-     * compatibility, this image must share a platform with {@link dockerFinalBase}. The base image must have the target
+     * compatibility, this image must share a platform with {@link #dockerFinalBase}. The base image must have the target
      * Python version resolvable via the PATH.
      */
     @Parameter(defaultValue = "docker.io/python:3.11", property = "habushu.dockerBuilderBase")
@@ -91,7 +91,7 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     /**
      * The base image to use for final packaging of the virtual env. This base image will be used to run the final
      * container runtime.  As the venv must be built on the same platform as the final runtime to ensure compatibility,
-     * this image must share a platform with {@link dockerBuilderBase}. The base image must have the target Python
+     * this image must share a platform with {@link #dockerBuilderBase}. The base image must have the target Python
      * version resolvable via the PATH.
      */
     @Parameter(defaultValue = "docker.io/python:3.11-slim", property = "habushu.dockerFinalBase")
