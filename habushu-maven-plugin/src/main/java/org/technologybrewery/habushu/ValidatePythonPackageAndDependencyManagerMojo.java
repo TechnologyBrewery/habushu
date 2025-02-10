@@ -24,7 +24,7 @@ import org.technologybrewery.habushu.util.PoetryUtil;
  * </ul>
  * or 
  * <ul>
- * <li>uv (installed version must satisfy {@link UvUtil#UV_VERSION_REQUIREMENT})</li>
+ * <li>uv (installed version must satisfy TODO: ADD CONSTANT HERE WHEN AVAILABLE)</li>
  * </ul>
  */
 @Mojo(name = "validate-python-package-and-dependency-manager", defaultPhase = LifecyclePhase.VALIDATE)
