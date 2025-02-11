@@ -121,6 +121,12 @@
             </modules>
         </profile>
         <profile>
+            <id>uv</id>
+            <modules>
+                <module>habushu-mixology-uv</module>
+            </modules>
+        </profile>
+        <profile>
             <id>bootstrap</id>
             <modules>
                 <module>habushu-maven-plugin</module>
