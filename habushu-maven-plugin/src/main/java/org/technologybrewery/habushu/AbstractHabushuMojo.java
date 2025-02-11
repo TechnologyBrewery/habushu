@@ -365,6 +365,16 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     }
 
     /**
+     * Returns a {@link File} representing this project's pyproject.toml
+     * configuration.
+     *
+     * @return
+     */
+    protected File getPyProjectTomlFile() {
+        return new File(getPythonProjectBaseDir(), "pyproject.toml");
+    }
+
+    /**
      * Gets the PEP-440 compliant Python package version associated with the given
      * POM version.
      * <p>
