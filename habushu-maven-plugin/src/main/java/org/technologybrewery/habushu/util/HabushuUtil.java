@@ -36,6 +36,7 @@ public final class HabushuUtil {
      * Specifies the semver compliant requirement for the default version of Python that
      * must be installed and available for Habushu to use.
      */
+	// MARG TODO: Is there a reason this is set to 3.11.4? Why not the max(min poetry requirement, min uv requirement)?
     public static final String PYTHON_DEFAULT_VERSION_REQUIREMENT = "3.11.4";
 
     private HabushuUtil() {
