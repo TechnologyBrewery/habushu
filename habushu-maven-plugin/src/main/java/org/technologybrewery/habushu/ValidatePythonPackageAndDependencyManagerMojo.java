@@ -37,13 +37,6 @@ public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabus
     protected String pythonVersion;
 
     /**
-     * The desired Python package and dependency manger to use.
-     * todo: update later when poetry vs uv detection functionality is available.
-     */
-    @Parameter(defaultValue = HabushuUtil.DEFAULT_PYTHON_PACKAGE_AND_DEPENDENCY_MANAGER, property = "habushu.pythonPackageAndDependencyManager")
-    protected String pythonPackageAndDependencyManager;
-
-    /**
      * Should Habushu use pyenv to manage the utilized version of Python?
      */
     @Parameter(defaultValue = "true", property = "habushu.usePyenv")
@@ -59,7 +52,9 @@ public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabus
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
-        AbstractPythonPackageAndDependencyManagerSetup configureTools = HabushuUtil.getPythonPackageAndDependencyManager(pythonPackageAndDependencyManager,
+
+        HabushuUtil.PackageManager packageManager = HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile());
+        AbstractPythonPackageAndDependencyManagerSetup configureTools = HabushuUtil.getPythonPackageAndDependencyManager(packageManager,
         pythonVersion, getPythonProjectBaseDir(), rewriteLocalPathDepsInArchives, getLog(), usePyenv, patchInstallScript);
 
         configureTools.execute();

@@ -3,7 +3,6 @@ package org.technologybrewery.habushu;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -24,13 +23,6 @@ import java.util.List;
  */
 @Mojo(name = "clean-habushu", defaultPhase = LifecyclePhase.CLEAN, threadSafe = true)
 public class CleanHabushuMojo extends CleanMojo {
-
-    /**
-     * The desired Python package and dependency manger to use.
-     * todo: update later when poetry vs uv detection functionality is available.
-     */
-    @Parameter(defaultValue = HabushuUtil.DEFAULT_PYTHON_PACKAGE_AND_DEPENDENCY_MANAGER, property = "habushu.pythonPackageAndDependencyManager")
-    protected String pythonPackageAndDependencyManager;
 
     /**
      * Base directory in which Python projects will be located - should always be
@@ -129,8 +121,8 @@ public class CleanHabushuMojo extends CleanMojo {
     private void clean() throws MojoExecutionException {
         List<Fileset> filesetsToDelete = new ArrayList<>();
         boolean removeVenvManually = false;
-
-        AbstractPythonPackageAndDependencyManagerSetup configureTools = HabushuUtil.getPythonPackageAndDependencyManager(pythonPackageAndDependencyManager,
+        HabushuUtil.PackageManager packageManager = HabushuUtil.checkPythonPackageManager(new File(workingDirectory, "pyproject.toml"));
+        AbstractPythonPackageAndDependencyManagerSetup configureTools = HabushuUtil.getPythonPackageAndDependencyManager(packageManager,
         pythonVersion, workingDirectory, rewriteLocalPathDepsInArchives, getLog(), usePyenv, patchInstallScript); 
 
         String virtualEnvFullPath = configureTools.findCurrentVirtualEnvironmentFullPath();
