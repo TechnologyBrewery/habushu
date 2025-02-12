@@ -116,14 +116,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>habushu-mixology</module>
-                <module>habushu-mixology-consumer</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>uv</id>
-            <modules>
-                <module>habushu-mixology-uv</module>
+                <module>examples</module>
             </modules>
         </profile>
         <profile>

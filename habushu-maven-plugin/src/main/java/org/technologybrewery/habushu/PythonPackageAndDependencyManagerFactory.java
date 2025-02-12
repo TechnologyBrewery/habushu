@@ -18,7 +18,7 @@ public class PythonPackageAndDependencyManagerFactory {
             return new PyenvAndPoetrySetup(pythonVersion, baseDir, rewriteLocalPathDepsInArchives, log, usePyenv, patchInstallScript);
         } else {
             // TODO: Implement UV SETUP
-            throw new NotImplementedException("UvSetup not yet implemented");
+            throw new NotImplementedException("uv not yet implemented (targeted for 3.0.0 release)");
         }
     }
 }

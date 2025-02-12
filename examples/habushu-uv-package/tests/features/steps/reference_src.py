@@ -1,0 +1,31 @@
+from behave import when, then  # pylint: disable=no-name-in-module
+from habushu_poetry_package_uv.reusable_module.worker import SubWorker
+from habushu_poetry_package_uv.helloworld import generate_random_string
+from habushu_poetry_package_uv.generated import person_pb2
+import logging
+
+
+@when("I reference a src file in my test file")
+def step_impl(context):
+    logging.info("Referencing a src file...")
+    context.random = generate_random_string(5)
+    person = person_pb2.Person()  # pylint: disable=no-member
+    person.email = "habushu@gmail.com"
+    context.person = person
+
+
+@when("I reference a src file that has references to other src files")
+def step_impl(context):
+    subworker = SubWorker()
+    context.result = subworker.do_something()
+
+
+@then("the build can successfully resolve the imports")
+def step_impl(context):
+    assert len(context.random) == 5
+    assert context.person.email == "habushu@gmail.com"
+
+
+@then("the build can successfully resolve the nested imports")
+def step_impl(context):
+    assert len(context.result) > 0

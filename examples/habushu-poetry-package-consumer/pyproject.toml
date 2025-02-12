@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "habushu_poetry_package_consumer"
+version = "3.0.0.dev"
+description = "Example of how to use the habushu-maven-plugin to consume other Habushu modules"
+authors = ["Eric Konieczny <ekoniec1@gmail.com>"]
+license = "MIT License"
+
+[tool.poetry.dependencies]
+habushu-poetry-package = {path = "../habushu-poetry-package", develop = true}
+python = "^3.11"
+
+[tool.poetry.group.dev.dependencies]
+behave = ">=1.2.6"
+black = ">=24.3.0"
+kappa-maki = ">=1.0.0"
+pylint = ">=3.1.0"
+
+
+[build-system]
+requires = ["poetry-core>=1.6.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+# Added by habushu-maven-plugin at 2024-05-06T17:43:40.714919 to use https://test.pypi.org/simple/ as source PyPi repository for installing dependencies
+[[tool.poetry.source]]
+name = "dev-pypi"
+url = "https://test.pypi.org/simple/"
+priority = "supplemental"
