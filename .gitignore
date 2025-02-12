@@ -54,12 +54,16 @@ Thumbs.db
 .project
 .settings/
 
-# Pyenv
+# Pyenv, Poetry & uv
 .python-version
+.venv
+*.lock
+generated/
+!examples/habushu-poetry-package/src/habushu_poetry_package/generated/__init__.py
 
 # Local Poetry configuration
 !habushu-maven-plugin/src/test/resources/**/poetry.toml
 # https://python-poetry.org/docs/configuration/#virtualenvsin-project
-.venv
-poetry.lock
-uv.lock
+
+# Temporary Local uv configuration
+examples/habushu-uv-package/poetry.toml

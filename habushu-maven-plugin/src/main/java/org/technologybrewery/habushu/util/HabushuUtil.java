@@ -36,7 +36,7 @@ public final class HabushuUtil {
      * Specifies the semver compliant requirement for the default version of Python that
      * must be installed and available for Habushu to use.
      */
-    public static final String PYTHON_DEFAULT_VERSION_REQUIREMENT = "3.11.4";
+    public static final String PYTHON_DEFAULT_VERSION_REQUIREMENT = "3.12.9";
 
     private HabushuUtil() {
     }

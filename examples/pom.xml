@@ -22,6 +22,7 @@
             <modules>
                 <module>habushu-poetry-package</module>
                 <module>habushu-poetry-package-consumer</module>
+                <module>habushu-uv-package</module>
             </modules>
         </profile>
         <profile>
