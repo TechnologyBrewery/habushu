@@ -353,16 +353,7 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
         String packageName = def.getPackageName();
 
         if (overridePackageVersion && updatedOperatorAndVersion.contains(SNAPSHOT)) {
-            //NB: remove this once #27 is committed; in the meantime, this allows older versions to still work as they
-            //    did in Habushu 2.5.0 and earlier:
-            Semver version = getPoetryVersion();
-
-            if (version.isGreaterThanOrEqualTo("1.5.0") && !updatedOperatorAndVersion.contains("^")) {
-                updatedOperatorAndVersion = replaceSnapshotWithWildcard(updatedOperatorAndVersion);
-            } else {
-                updatedOperatorAndVersion = replaceSnapshotWithDev(updatedOperatorAndVersion);
-            }
-
+            updatedOperatorAndVersion = replaceSnapshotWithWildcard(updatedOperatorAndVersion);
         }
 
         boolean mismatch = !originalOperatorAndVersion.equals(updatedOperatorAndVersion);
@@ -376,13 +367,6 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
                         + "but the check has been inactivated", packageName));
             }
         }
-    }
-
-    protected Semver getPoetryVersion() {
-        PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
-        Pair<Boolean, String> poetryStatus = poetryHelper.getIsPoetryInstalledAndVersion();
-        String versionAsString = poetryStatus.getRight();
-        return new Semver(versionAsString);
     }
 
     private void logPackageMismatch(String packageName, String originalOperatorAndVersion, String updatedOperatorAndVersion) {
@@ -472,19 +456,6 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
 
     protected static String replaceSnapshotWithWildcard(String pomVersion) {
         return pomVersion.substring(0, pomVersion.indexOf(SNAPSHOT)) + ".*";
-    }
-
-    /**
-     * This method should only be used to help shim Poetry < 1.5.0 versioning practices until Habushu updates to force
-     * a minimum version of 1.5.0.
-     *
-     * @param pomVersion version to update
-     * @return updated version
-     * @deprecated shim use only, then use replaceSnapshotWithWildcard(String pomVersion) instead!
-     */
-    @Deprecated
-    protected static String replaceSnapshotWithDev(String pomVersion) {
-        return pomVersion.substring(0, pomVersion.indexOf(SNAPSHOT)) + ".dev";
     }
 
 }
