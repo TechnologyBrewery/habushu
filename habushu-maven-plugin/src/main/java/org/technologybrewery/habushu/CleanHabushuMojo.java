@@ -121,6 +121,8 @@ public class CleanHabushuMojo extends CleanMojo {
     private void clean() throws MojoExecutionException {
         List<Fileset> filesetsToDelete = new ArrayList<>();
         boolean removeVenvManually = false;
+
+        // TODO: This code is specific to Poetry. uv does not provide a command to remove a virtual environment like Poetry.
         HabushuUtil.PackageManager packageManager = HabushuUtil.checkPythonPackageManager(new File(workingDirectory, "pyproject.toml"));
         AbstractPythonPackageAndDependencyManagerSetup configureTools = HabushuUtil.getPythonPackageAndDependencyManager(packageManager,
         pythonVersion, workingDirectory, rewriteLocalPathDepsInArchives, getLog(), usePyenv, patchInstallScript); 
@@ -169,6 +171,7 @@ public class CleanHabushuMojo extends CleanMojo {
                 }
             }
         }
+        // TODO: End Poetry specific code
 
         try {
             Fileset distArchivesFileset = createFileset(distDirectory);

@@ -10,6 +10,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.StringUtils;
 import org.technologybrewery.habushu.util.HabushuUtil;
 import org.technologybrewery.habushu.util.PoetryUtil;
+import org.technologybrewery.habushu.util.UvUtil;
 
 
 /**
@@ -24,7 +25,7 @@ import org.technologybrewery.habushu.util.PoetryUtil;
  * </ul>
  * or 
  * <ul>
- * <li>uv (installed version must satisfy TODO: ADD CONSTANT HERE WHEN AVAILABLE)</li>
+ * <li>uv (installed version must satisfy {@link UvUtil#UV_VERSION_REQUIREMENT})</li>
  * </ul>
  */
 @Mojo(name = "validate-python-package-and-dependency-manager", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
