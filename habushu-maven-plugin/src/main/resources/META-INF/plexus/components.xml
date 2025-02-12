@@ -7,7 +7,7 @@
             </implementation>
             <configuration>
                 <!-- NOTE: When changing these, it will take two builds to see them in 
-                    action as the next build will have the habushu-mixology project bound to 
+                    action as the next build will have the habushu_poetry_package project bound to
                     the *current* lifecycle. -->
                 <lifecycles>
                     <lifecycle>
