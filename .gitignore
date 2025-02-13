@@ -62,3 +62,4 @@ Thumbs.db
 # https://python-poetry.org/docs/configuration/#virtualenvsin-project
 .venv
 poetry.lock
+uv.lock

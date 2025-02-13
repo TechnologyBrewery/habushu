@@ -45,7 +45,7 @@ public class PoetryCommandHelper {
      * Poetry is not installed, the returned {@link String} part of the {@link Pair}
      * will be {@code null}.
      *
-     * @return
+     * @return Pair of installed and version
      */
     public Pair<Boolean, String> getIsPoetryInstalledAndVersion() {
         try {
@@ -62,21 +62,11 @@ public class PoetryCommandHelper {
     }
 
     /**
-     * Returns a {@link String} indicating the relative path to the poetry 
-     * cache directory. This is equivalent to {@code poetry config cache-dir}.
-     *
-     * @return
-     */
-    public String getPoetryCacheDirectoryPath() throws MojoExecutionException {
-        return execute(Arrays.asList("config", "cache-dir"));
-    }
-
-    /**
      * Returns whether the specified dependency package is installed within this
      * Poetry project's virtual environment (and pyproject.toml).
      *
      * @param packageName
-     * @return
+     * @return whether Dependency is Installed
      */
     public boolean isDependencyInstalled(String packageName) {
         try {
@@ -94,7 +84,7 @@ public class PoetryCommandHelper {
      *
      * @param packageName
      */
-    public void installDevelopmentDependency(String packageName) throws MojoExecutionException {
+    public void installDevelopmentDependency(String packageName) {
         execute(Arrays.asList("add", packageName, "--group", "dev"));
     }
 
@@ -105,11 +95,10 @@ public class PoetryCommandHelper {
      * Poetry command, or it is desirable to not show the command's generated
      * stdout.
      *
-     * @param arguments
-     * @return
-     * @throws MojoExecutionException
+     * @param arguments list of arguments for poetry commands
+     * @return execution Result
      */
-    public String execute(List<String> arguments) throws MojoExecutionException {
+    public String execute(List<String> arguments) {
         if (logger.isInfoEnabled()) {
             logger.info("Executing Poetry command: {} {}", POETRY_COMMAND, StringUtils.join(arguments, " "));
         }
@@ -124,11 +113,10 @@ public class PoetryCommandHelper {
      * immediately show all of the stdout/stderr produced by a Poetry command for
      * diagnostic purposes.
      *
-     * @param arguments
-     * @return
-     * @throws MojoExecutionException
+     * @param arguments list of arguments for poetry commands
+     * @return execution value
      */
-    public int executeAndLogOutput(List<String> arguments) throws MojoExecutionException {
+    public int executeAndLogOutput(List<String> arguments) {
         if (logger.isInfoEnabled()) {
             logger.info("Executing Poetry command: {} {}", POETRY_COMMAND, StringUtils.join(arguments, " "));
         }
@@ -143,7 +131,7 @@ public class PoetryCommandHelper {
      * and it is desirable to immediately show all the stdout/stderr produced by a Poetry command for
      * diagnostic purposes.
      *
-     * @param arguments
+     * @param arguments list of arguments for poetry commands
      * @param environmentVariables
      */
     public void executeAndLogOutput(List<String> arguments, Map<String, String> environmentVariables) {
@@ -162,11 +150,9 @@ public class PoetryCommandHelper {
      * as passwords.
      *
      * @param argAndIsSensitivePairs
-     * @return
-     * @throws MojoExecutionException
+     * @return execution value
      */
-    public int executeWithSensitiveArgsAndLogOutput(List<Pair<String, Boolean>> argAndIsSensitivePairs)
-            throws MojoExecutionException {
+    public int executeWithSensitiveArgsAndLogOutput(List<Pair<String, Boolean>> argAndIsSensitivePairs) {
         if (logger.isInfoEnabled()) {
             List<String> argsWithSensitiveArgsMasked = argAndIsSensitivePairs.stream()
                     .map(pair -> pair.getRight() ? "XXXX" : pair.getLeft()).collect(Collectors.toList());
@@ -188,10 +174,10 @@ public class PoetryCommandHelper {
      * when the timeout expires. After the timeout expires, this method will
      * continue to wait until underlying Poetry command completes.
      *
-     * @param arguments
+     * @param arguments list of arguments for poetry commands
      * @param timeout
      * @param timeUnit
-     * @return
+     * @return execution value
      */
     public Integer executePoetryCommandAndLogAfterTimeout(List<String> arguments, int timeout, TimeUnit timeUnit) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -218,10 +204,9 @@ public class PoetryCommandHelper {
      * Installs a Poetry plugin with the given name.
      *
      * @param name
-     * @return
-     * @throws MojoExecutionException
+     * @return execution value
      */
-    public int installPoetryPlugin(String name) throws MojoExecutionException {
+    public int installPoetryPlugin(String name) {
         List<String> args = new ArrayList<String>();
         args.add("self");
         args.add("add");
@@ -246,7 +231,7 @@ public class PoetryCommandHelper {
     /**
      * Returns a {@link boolean} indicating whether the specified Poetry version is at least 2.0.0.
      *
-     * @return
+     * @return boolean isPoetryVersionAtLeast2
      */
     public boolean isPoetryVersionAtLeast2(){
         String poetryVersion = getIsPoetryInstalledAndVersion().getRight();
