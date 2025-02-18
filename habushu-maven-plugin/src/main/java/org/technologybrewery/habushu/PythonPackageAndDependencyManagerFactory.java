@@ -2,7 +2,6 @@ package org.technologybrewery.habushu;
 
 import java.io.File;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.technologybrewery.habushu.util.HabushuUtil;
@@ -17,8 +16,7 @@ public class PythonPackageAndDependencyManagerFactory {
             }
             return new PyenvAndPoetrySetup(pythonVersion, baseDir, rewriteLocalPathDepsInArchives, log, usePyenv, patchInstallScript);
         } else {
-            // TODO: Implement UV SETUP
-            throw new NotImplementedException("uv not yet implemented (targeted for 3.0.0 release)");
+            return new UvSetup(pythonVersion, baseDir, rewriteLocalPathDepsInArchives, log);
         }
     }
 }

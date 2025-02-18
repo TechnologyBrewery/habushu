@@ -3,6 +3,8 @@ package org.technologybrewery.habushu;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -13,6 +15,8 @@ import java.util.List;
  * developer's machine to support the same functionality across multiple Mojo implementations.
  */
 public abstract class AbstractPythonPackageAndDependencyManagerSetup {
+
+    public static final Logger logger = LoggerFactory.getLogger(AbstractPythonPackageAndDependencyManagerSetup.class);
 
     private static final ThreadLocal<ValidationTrackingStatus> validationStatusContainer = ThreadLocal.withInitial(ValidationTrackingStatus::new);
     public static final String VALIDATED_IN_PRIOR_BUILD_PHASE = " (validated in prior build phase)";
@@ -73,6 +77,8 @@ public abstract class AbstractPythonPackageAndDependencyManagerSetup {
         ValidationTrackingStatus validationTracker = validationStatusContainer.get();
         String ActivePythonVersion = validationTracker.getActivePythonVersion();
 
+        missingRequiredToolMsgs = validatePackageAndDependencyManagerInstallationAndVersion(validationTracker, missingRequiredToolMsgs);
+
         if (pythonVersion.equals(ActivePythonVersion)) {
             log.info("Using Python version: " + ActivePythonVersion + VALIDATED_IN_PRIOR_BUILD_PHASE);
 
@@ -85,13 +91,14 @@ public abstract class AbstractPythonPackageAndDependencyManagerSetup {
             validationTracker.setActivePythonVersion(currentPythonVersion);
         }
 
-        missingRequiredToolMsgs = validatePackageAndDependencyManagerInstallationAndVersion(validationTracker, missingRequiredToolMsgs);
-
         if (!missingRequiredToolMsgs.isEmpty()) {
             throw new MojoExecutionException(StringUtils.join(System.lineSeparator(), missingRequiredToolMsgs, System.lineSeparator()));
         }
 
         finalizePythonPackageAndDependencyManagerConfiguration();
+
+        // reset validationStatusContainer
+        validationStatusContainer.remove();
     }
 
     protected abstract String configurePythonUsingPackageAndDependencyManager(List<String> missingRequiredToolMsgs)throws MojoExecutionException;

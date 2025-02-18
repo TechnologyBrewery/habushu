@@ -160,9 +160,9 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
     }
 
     public List<String> validatePoetryInstallationAndVersion(ValidationTrackingStatus validationTracker, List<String> missingRequiredToolMsgs) throws MojoExecutionException {
-        String alreadyValidatedPoetryVersion = validationTracker.getAlreadyValidatedPoetryVersion();
+        String alreadyValidatedVersion = validationTracker.getalreadyValidatedVersion();
         PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
-        if (!validationTracker.isAlreadyValidatedPoetryInstallation()) {
+        if (!validationTracker.isalreadyValidatedInstallation()) {
             log.debug("Checking if Poetry is installed...");
             Pair<Boolean, String> poetryInstallStatusAndVersion = poetryHelper.getIsPoetryInstalledAndVersion();
 
@@ -177,16 +177,16 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
                             "Poetry version %s was installed - Habushu requires that installed version of Poetry satisfies %s.  Please update Poetry by executing 'poetry self update' or visit https://python-poetry.org/docs/#installation for more information",
                             poetryInstallStatusAndVersion.getRight(), PoetryUtil.POETRY_VERSION_REQUIREMENT));
                 } else {
-                    alreadyValidatedPoetryVersion = poetryInstallStatusAndVersion.getRight();
-                    validationTracker.setAlreadyValidatedPoetryVersion(alreadyValidatedPoetryVersion);
-                    validationTracker.setAlreadyValidatedPoetryInstallation(true);
+                    alreadyValidatedVersion = poetryInstallStatusAndVersion.getRight();
+                    validationTracker.setalreadyValidatedVersion(alreadyValidatedVersion);
+                    validationTracker.setalreadyValidatedInstallation(true);
                 }
             }
         } else {
-            alreadyValidatedPoetryVersion += VALIDATED_IN_PRIOR_BUILD_PHASE;
+            alreadyValidatedVersion += VALIDATED_IN_PRIOR_BUILD_PHASE;
         }
 
-        log.info("Found Poetry " + alreadyValidatedPoetryVersion);
+        log.info("Found Poetry " + alreadyValidatedVersion);
 
         return missingRequiredToolMsgs;
     }

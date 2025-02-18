@@ -7,7 +7,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.technologybrewery.habushu.util.HabushuUtil;
 
 /**
- * Ensures that the current project is a valid Poetry or UV project and initializes
+ * Ensures that the current project is a valid Poetry or uv project and initializes
  * Habushu versioning conventions, specifically aligning the version specified
  * in the {@code pom.xml} with the version in the project's
  * {@code pyproject.toml}.
@@ -23,8 +23,8 @@ public class InitializeHabushuMojo extends AbstractHabushuMojo {
            var initializeHabushuPoetry = new InitializeHabushuPoetry(getPythonProjectBaseDir(), getLog(), overridePackageVersion, expectedPythonPackageVersion );
             initializeHabushuPoetry.doExecute();
         } else {
-            var initializeHabushuUV =  new InitializeHabushuUV(getPythonProjectBaseDir(), getLog(), overridePackageVersion, expectedPythonPackageVersion);
-            initializeHabushuUV.doExecute();
+            var initializeHabushuUv =  new InitializeHabushuUv(getPythonProjectBaseDir(), getLog(), overridePackageVersion, expectedPythonPackageVersion);
+            initializeHabushuUv.doExecute();
         }
     }
 
