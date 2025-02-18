@@ -25,10 +25,10 @@ import java.io.InputStreamReader;
  */
 public final class HabushuUtil {
 
-	public enum PackageManager {
-		POETRY,
-		UV
-	}
+    public enum PackageManager {
+        POETRY,
+        UV
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(HabushuUtil.class);
 
@@ -47,7 +47,7 @@ public final class HabushuUtil {
      * @param bashScriptPath absolute path to the bash script
      */
     public static void runBashScript(String bashScriptPath) {
-		runBashScript(bashScriptPath, null, true);
+        runBashScript(bashScriptPath, null, true);
     }
 
     /**
@@ -59,50 +59,50 @@ public final class HabushuUtil {
      *                       INFO
      */
     public static void runBashScript(String bashScriptPath, String[] parameters, boolean debug) {
-		logger.debug("Running bash script located at {}.", bashScriptPath);
+        logger.debug("Running bash script located at {}.", bashScriptPath);
 
-		try {
-			String[] command;
-			if (parameters != null && parameters.length > 0) {
-				command = new String[parameters.length + 1];
+        try {
+            String[] command;
+            if (parameters != null && parameters.length > 0) {
+                command = new String[parameters.length + 1];
 
-				for (int i = 0; i < parameters.length; i++) {
-					command[i + 1] = parameters[i];
-				}
-			} else {
-				command = new String[1];
-			}
-			command[0] = bashScriptPath;
+                for (int i = 0; i < parameters.length; i++) {
+                    command[i + 1] = parameters[i];
+                }
+            } else {
+                command = new String[1];
+            }
+            command[0] = bashScriptPath;
 
-			Process process = Runtime.getRuntime().exec(command);
+            Process process = Runtime.getRuntime().exec(command);
 
-			StringBuilder output = new StringBuilder();
-			String line;
+            StringBuilder output = new StringBuilder();
+            String line;
 
-			BufferedReader stdInReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			while ((line = stdInReader.readLine()) != null) {
-				output.append(line + "\n");
-			}
+            BufferedReader stdInReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            while ((line = stdInReader.readLine()) != null) {
+                output.append(line + "\n");
+            }
 
-			BufferedReader stdErrReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-			while ((line = stdErrReader.readLine()) != null) {
-				output.append(line + "\n");
-			}
+            BufferedReader stdErrReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            while ((line = stdErrReader.readLine()) != null) {
+                output.append(line + "\n");
+            }
 
-			if (debug) {
-				logger.debug(output.toString());
-			} else {
-				logger.info(output.toString());
-			}
+            if (debug) {
+                logger.debug(output.toString());
+            } else {
+                logger.info(output.toString());
+            }
 
-			int exitVal = process.waitFor();
-			if (exitVal != 0) {
-				throw new HabushuException("Error encountered when running bash script located at " + bashScriptPath
-					+ "\n    Can run maven build with -X to see the output of the failed script.");
-			}
-		} catch (IOException | InterruptedException e) {
-			throw new HabushuException("Could not run bash script.", e);
-		}
+            int exitVal = process.waitFor();
+            if (exitVal != 0) {
+                throw new HabushuException("Error encountered when running bash script located at " + bashScriptPath
+                    + "\n    Can run maven build with -X to see the output of the failed script.");
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new HabushuException("Could not run bash script.", e);
+        }
     }
 
     /**
@@ -112,13 +112,13 @@ public final class HabushuUtil {
      * @param filePath the path to the file
      */
     public static void writeLinesToFile(String commands, String filePath) {
-		logger.debug("Writing lines to file located at {}.", filePath);
+        logger.debug("Writing lines to file located at {}.", filePath);
 
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-			writer.write(commands);
-		} catch (IOException e) {
-			throw new HabushuException("Could not write to file.", e);
-		}
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            writer.write(commands);
+        } catch (IOException e) {
+            throw new HabushuException("Could not write to file.", e);
+        }
     }
 
     /**
@@ -128,19 +128,19 @@ public final class HabushuUtil {
      * @param newFile the file location
      */
     public static void createFileAndGivePermissions(File newFile) {
-		logger.debug("Creating new file at {}.", newFile.getAbsolutePath());
+        logger.debug("Creating new file at {}.", newFile.getAbsolutePath());
 
-		newFile = new File(newFile.getAbsolutePath());
+        newFile = new File(newFile.getAbsolutePath());
 
-		if (!newFile.exists()) {
-			try {
-				newFile.createNewFile();
-			} catch (IOException e) {
-				throw new HabushuException("Could not create new file.", e);
-			}
-		}
+        if (!newFile.exists()) {
+            try {
+                newFile.createNewFile();
+            } catch (IOException e) {
+                throw new HabushuException("Could not create new file.", e);
+            }
+        }
 
-		giveFullFilePermissions(newFile.getAbsolutePath());
+        giveFullFilePermissions(newFile.getAbsolutePath());
     }
 
     /**
@@ -149,13 +149,13 @@ public final class HabushuUtil {
      * @param filePath the path to the file
      */
     public static void giveFullFilePermissions(String filePath) {
-		File file = new File(filePath);
+        File file = new File(filePath);
 
-		if (file.exists()) {
-			file.setExecutable(true, false);
-			file.setReadable(true, false);
-			file.setWritable(true, false);
-		}
+        if (file.exists()) {
+            file.setExecutable(true, false);
+            file.setReadable(true, false);
+            file.setWritable(true, false);
+        }
     }
 
     /**
@@ -185,22 +185,22 @@ public final class HabushuUtil {
         return workingDirectory.getAbsolutePath() + "/.venv";
     }
 
-	/**
-	 * Removes (Activated) from path in 1.3.x and higher versions.
-	 *
-	 * @param virtualEnvFullPath path to clean
-	 * @return cleaned path
-	 */
-	public static String getCleanVirtualEnvironmentPath(String virtualEnvFullPath) {
-		return StringUtils.replace(virtualEnvFullPath, " (Activated)", StringUtils.EMPTY);
+    /**
+     * Removes (Activated) from path in 1.3.x and higher versions.
+     *
+     * @param virtualEnvFullPath path to clean
+     * @return cleaned path
+     */
+    public static String getCleanVirtualEnvironmentPath(String virtualEnvFullPath) {
+        return StringUtils.replace(virtualEnvFullPath, " (Activated)", StringUtils.EMPTY);
 
-	}
+    }
 
-	public static AbstractPythonPackageAndDependencyManagerSetup getPythonPackageAndDependencyManager(PackageManager pythonPackageAndDependencyManager,
-	String pythonVersion, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log, Boolean usePyenv, File patchInstallScript) throws MojoExecutionException {
+    public static AbstractPythonPackageAndDependencyManagerSetup getPythonPackageAndDependencyManager(PackageManager pythonPackageAndDependencyManager,
+    String pythonVersion, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log, Boolean usePyenv, File patchInstallScript) throws MojoExecutionException {
     
     // Set the poetry-based parameters to null
-	if (pythonPackageAndDependencyManager == PackageManager.UV){
+    if (pythonPackageAndDependencyManager == PackageManager.UV){
           usePyenv = null;
           patchInstallScript = null;
         }
@@ -211,18 +211,38 @@ public final class HabushuUtil {
         return configureTools;
     }
 
-	/**
-	 * Finds and returns Python Package Manager.
-	 *
-	 * @return PackageManager returns which package manager Habushu uses based on build-backend.
-	 */
-	public static PackageManager checkPythonPackageManager(File pyProjectTomlFile) {
-		Toml toml = new Toml().read(pyProjectTomlFile);
-		String buildBackend = toml.getString("build-system.build-backend");
-		if (buildBackend != null && buildBackend.contains("poetry")) {
-			return PackageManager.POETRY;
-		} else {
-			return PackageManager.UV;
-		}
-	}
+    /**
+     * Finds and returns Python Package Manager.
+     *
+     * @return PackageManager returns which package manager Habushu uses based on build-backend.
+     */
+    public static PackageManager checkPythonPackageManager(File pyProjectTomlFile) {
+        Toml toml = new Toml().read(pyProjectTomlFile);
+        String buildBackend = toml.getString("build-system.build-backend");
+        if (buildBackend != null && buildBackend.contains("poetry")) {
+            return PackageManager.POETRY;
+        } else {
+            return PackageManager.UV;
+        }
+    }
+    
+    public static String getEnvironmentVariable(String environmentVariable){
+        return System.getenv(environmentVariable);
+    }
+
+    public static String getHomeDirectory() { 
+        return System.getProperty("user.home");
+    }
+
+    public static File getShellConfigFile() {
+        String shell = getEnvironmentVariable("SHELL");
+        String homeDir = getHomeDirectory();
+        File shellConfigFile = null;
+        if (shell.contains("zsh")) { 
+            shellConfigFile = new File(homeDir + "/.zshrc");
+        } else if  (shell.contains("bash")) { 
+            shellConfigFile = new File(homeDir + "/.bashrc");
+        }
+        return shellConfigFile;
+    }
 }

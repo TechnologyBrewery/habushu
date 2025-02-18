@@ -11,6 +11,7 @@ import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 import org.technologybrewery.habushu.exec.PyenvCommandHelper;
 import org.technologybrewery.habushu.exec.PythonVersionHelper;
 import org.technologybrewery.habushu.util.PoetryUtil;
+import org.technologybrewery.habushu.util.HabushuUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -52,52 +53,41 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
         this.patchInstallScript = patchInstallScript;
     }
 
-    public String configurePyenvOrStraightPython(boolean usePyenv, List<String> missingRequiredToolMsgs, File patchInstallScript) throws MojoExecutionException {
-        String currentPythonVersion = "";
-        if (usePyenv) {
-            currentPythonVersion = validateAndConfigurePyenv(missingRequiredToolMsgs, currentPythonVersion, patchInstallScript);
-        } else {
-            currentPythonVersion = validateAndConfigureStraightPython();
-        }
-        return currentPythonVersion;
-    } 
-
-    private String validateAndConfigurePyenv(List<String> missingRequiredToolMsgs, String currentPythonVersion, File patchInstallScript) throws MojoExecutionException {
+    private List<String> validatePyenvInstallation(List<String> missingRequiredToolMsgs) throws MojoExecutionException {
         PyenvCommandHelper pyenvHelper = createPyenvCommandHelper();
         log.debug("Checking if pyenv is installed...");
         if (!pyenvHelper.isPyenvInstalled()) {
             missingRequiredToolMsgs.add(
                     "'pyenv' is not currently installed! Please install pyenv and try again. Visit https://github.com/pyenv/pyenv for more information.");
         } else {
-            try {
-                currentPythonVersion = pyenvHelper.getCurrentPythonVersion();
-            } catch (Exception e) {
-                log.info("Failed to find current python version. Attempting to install it now.");
-            }
-            if (!pythonVersion.equals(currentPythonVersion)) {
-                pyenvHelper.updatePythonVersion(pythonVersion, patchInstallScript);
-                currentPythonVersion = pyenvHelper.getCurrentPythonVersion();
-            }
-
-            // Check for misconfigured pyenv that looks right, but is actually not "taking" due to missing PATH setup:
-            PythonVersionHelper pythonVersionHelper = new PythonVersionHelper(baseDir, pythonVersion);
-            String postPyenvActivatedPythonVersion = pythonVersionHelper.getCurrentPythonVersion();
-            if (!pythonVersion.equals(postPyenvActivatedPythonVersion)) {
-                missingRequiredToolMsgs.add(String.format("Expected 'pyenv' to set Python to %s but instead found %s!",
-                        pythonVersion, postPyenvActivatedPythonVersion));
-                missingRequiredToolMsgs.add("'pyenv' is installed, but not configured correctly.  " +
-                        "Ensure your PATH includes 'pyenv init -' expected content " +
-                        "OR do not configure habushu to use 'pyenv' to manage the Python version!");
-            }
-
             log.debug("pyenv already installed");
+        }
+        return missingRequiredToolMsgs;
+    }
+
+    private String validateAndConfigurePythonViaPyenv(File patchInstallScript) throws MojoExecutionException {
+        String currentPythonVersion = StringUtils.EMPTY;
+        PyenvCommandHelper pyenvHelper = createPyenvCommandHelper();
+        try {
+            currentPythonVersion = pyenvHelper.getCurrentPythonVersion();
+        } catch (Exception e) {
+            log.info("Failed to find current python version. Attempting to install it now.");
+        }
+        if (!pythonVersion.equals(currentPythonVersion)) {
+            pyenvHelper.updatePythonVersion(pythonVersion, patchInstallScript);
+            currentPythonVersion = pyenvHelper.getCurrentPythonVersion();
         }
         return currentPythonVersion;
     }
 
     @Override
     protected String configurePythonUsingPackageAndDependencyManager(List<String> missingRequiredToolMsgs) throws MojoExecutionException {
-        String currentPythonVersion = configurePyenvOrStraightPython(usePyenv, missingRequiredToolMsgs, patchInstallScript);
+        String currentPythonVersion;
+        if (usePyenv) {
+            currentPythonVersion = validateAndConfigurePythonViaPyenv(patchInstallScript);
+        } else {
+            currentPythonVersion = validateAndConfigureStraightPython();
+        }
         return currentPythonVersion;
     }
 
@@ -105,7 +95,32 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
     protected List<String> validatePackageAndDependencyManagerInstallationAndVersion(ValidationTrackingStatus validationTracker, List<String> missingRequiredToolMsgs) 
         throws MojoExecutionException {
             missingRequiredToolMsgs = validatePoetryInstallationAndVersion(validationTracker, missingRequiredToolMsgs);
+            if (usePyenv) {
+                missingRequiredToolMsgs = validatePyenvInstallation(missingRequiredToolMsgs);
+                missingRequiredToolMsgs = validatePyenvConfiguration(missingRequiredToolMsgs);
+            }
             return missingRequiredToolMsgs;
+    }
+
+    protected List<String> validatePyenvConfiguration(List<String> missingRequiredToolMsgs) 
+        throws MojoExecutionException {
+        File shellConfigFile = HabushuUtil.getShellConfigFile();
+        if (shellConfigFile == null) {
+            missingRequiredToolMsgs.add("Could not determine shell configuration file. Pyenv might not be installed correctly. " +
+            "Visit https://github.com/pyenv/pyenv?tab=readme-ov-file#b-set-up-your-shell-environment-for-pyenv to properly configure Pyenv for use with Habushu.");
+        }
+
+        if (!shellConfigFile.exists()) {
+            missingRequiredToolMsgs.add("Configuration file, " + shellConfigFile + " not found. Pyenv might not be installed correctly. " +
+            "Visit https://github.com/pyenv/pyenv?tab=readme-ov-file#b-set-up-your-shell-environment-for-pyenv to properly configure Pyenv for use with Habushu.");
+        }
+        String pathEnvironmentVariable = HabushuUtil.getEnvironmentVariable("PATH");
+        String shimsPath = HabushuUtil.getHomeDirectory() + "/.pyenv/shims" ; 
+        if (!pathEnvironmentVariable.contains(shimsPath)) { 
+            missingRequiredToolMsgs.add("'pyenv' is installed, but not configured correctly. " +
+            "Visit https://github.com/pyenv/pyenv?tab=readme-ov-file#b-set-up-your-shell-environment-for-pyenv to properly configure Pyenv for use with Habushu.");
+        }
+        return missingRequiredToolMsgs;
     }
 
     @Override
