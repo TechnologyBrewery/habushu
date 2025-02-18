@@ -13,6 +13,37 @@
 
     <name>habushu::Examples</name>
 
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.technologybrewery.habushu</groupId>
+                    <artifactId>habushu-maven-plugin</artifactId>
+                    <version>${project.version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <pythonVersion>${version.python.default}</pythonVersion>
+                        <!-- Skips any scenarios tagged with @integration-test - these will
+                            be executed via the "integration-test" Maven profile -->
+                        <behaveOptions>--tags ~integration_test</behaveOptions>
+                        <useDevRepository>true</useDevRepository>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>net.masterthought</groupId>
+                <artifactId>cucumber-reporting</artifactId>
+                <version>${version.cucumber.reporting}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <profiles>
         <profile>
             <id>default</id>
@@ -22,7 +53,7 @@
             <modules>
                 <module>habushu-poetry-package</module>
                 <module>habushu-poetry-package-consumer</module>
-                <module>habushu-uv-package</module>
+                <module>habushu-managed-dependencies</module>
             </modules>
         </profile>
         <profile>
