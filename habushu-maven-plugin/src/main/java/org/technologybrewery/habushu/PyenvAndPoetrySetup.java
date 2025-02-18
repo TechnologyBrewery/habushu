@@ -69,7 +69,11 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
             missingRequiredToolMsgs.add(
                     "'pyenv' is not currently installed! Please install pyenv and try again. Visit https://github.com/pyenv/pyenv for more information.");
         } else {
-            currentPythonVersion = pyenvHelper.getCurrentPythonVersion();
+            try {
+                currentPythonVersion = pyenvHelper.getCurrentPythonVersion();
+            } catch (Exception e) {
+                log.info("Failed to find current python version. Attempting to install it now.");
+            }
             if (!pythonVersion.equals(currentPythonVersion)) {
                 pyenvHelper.updatePythonVersion(pythonVersion, patchInstallScript);
                 currentPythonVersion = pyenvHelper.getCurrentPythonVersion();
