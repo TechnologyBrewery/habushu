@@ -18,8 +18,6 @@
         <dependency>
             <groupId>net.masterthought</groupId>
             <artifactId>cucumber-reporting</artifactId>
-            <version>${version.cucumber.reporting.plugin}</version>
-            <scope>test</scope>
         </dependency>
         <!-- NB: workaround to trigger build cache invalidation when a new SNAPSHOT is available-->
         <dependency>
@@ -32,58 +30,27 @@
 
     <build>
         <directory>dist</directory>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.technologybrewery.habushu</groupId>
-                    <artifactId>habushu-maven-plugin</artifactId>
-                    <version>${project.version}</version>
-                    <extensions>true</extensions>
-                    <configuration>
-                        <pythonVersion>${version.python.default}</pythonVersion>
-                        <!-- Skips any scenarios tagged with @integration-test - these will
-                            be executed via the "integration-test" Maven profile -->
-                        <behaveOptions>--tags ~integration_test</behaveOptions>
-                        <managedDependencies>
-                            <packageDefinition>
-                                <packageName>black</packageName>
-                                <operatorAndVersion>^23.3.0</operatorAndVersion>
-                                <!-- optional - active is true by default:-->
-                                <active>true</active>
-                            </packageDefinition>
-                            <packageDefinition>
-                                <packageName>uvicorn</packageName>
-                                <operatorAndVersion>^0.18.0</operatorAndVersion>
-                            </packageDefinition>
-                        </managedDependencies>
-                        <updateManagedDependenciesWhenFound>false</updateManagedDependenciesWhenFound>
-                        <failOnManagedDependenciesMismatches>false</failOnManagedDependenciesMismatches>
-                        <useDevRepository>true</useDevRepository>
-                    </configuration>
-                    <!-- Utilize the run-command-in-virtual-env goal to demonstrate how
-                        commands/scripts may be executed via "poetry run" and bound to the build
-                        lifecycle phases -->
-                    <executions>
-                        <execution>
-                            <configuration>
-                                <runCommandArgs>python -m grpc_tools.protoc -I=src
-                                    --python_out=src/habushu_poetry_package/generated src/person.proto
-                                </runCommandArgs>
-                            </configuration>
-                            <id>generate-protobuf-bindings</id>
-                            <phase>compile</phase>
-                            <goals>
-                                <goal>run-command-in-virtual-env</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.technologybrewery.habushu</groupId>
                 <artifactId>habushu-maven-plugin</artifactId>
+                    <!-- Utilize the run-command-in-virtual-env goal to demonstrate how
+                        commands/scripts may be executed via "poetry run" and bound to the build
+                        lifecycle phases -->
+                <executions>
+                    <execution>
+                        <configuration>
+                            <runCommandArgs>python -m grpc_tools.protoc -I=src
+                                --python_out=src/habushu_poetry_package/generated src/person.proto
+                            </runCommandArgs>
+                        </configuration>
+                        <id>generate-protobuf-bindings</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>run-command-in-virtual-env</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>net.masterthought</groupId>

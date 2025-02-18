@@ -1,29 +1,22 @@
 [tool.poetry]
-name = "habushu_poetry_package"
-version = "3.0.0.dev"
-description = "Example of how to use the habushu-maven-plugin"
-authors = ["Eric Konieczny <ekoniec1@gmail.com>"]
+name = "habushu_managed_dependencies"
+version = "2.18.0.dev"
+description = "Example of how to use the habushu managed dependencies"
+authors = ["Ryan Ashcraft <ryan.ashcraft@codifyiq.com>"]
 license = "MIT License"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-krausening = ">=20"
-cryptography = ">=44.0.1"
-uvicorn = {version = ">=0.18.0", extras = ["standard"]}
-
 
 [tool.poetry.group.dev.dependencies]
 behave = ">=1.2.6"
 pylint = ">=3.1.0"
-black = ">=24.3.0"
-python-dotenv = "^0.20.0"
-grpcio-tools = "^1.48.0"
+black = ">=24.0.0"
 kappa-maki = ">=1.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.6.0"]
 build-backend = "poetry.core.masonry.api"
-
 
 # Added by habushu-maven-plugin at 2024-05-06T17:43:13.504546 to use https://test.pypi.org/simple/ as source PyPi repository for installing dependencies
 [[tool.poetry.source]]

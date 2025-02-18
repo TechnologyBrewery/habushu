@@ -20,27 +20,6 @@
                 <groupId>org.technologybrewery.habushu</groupId>
                 <artifactId>habushu-maven-plugin</artifactId>
                 <version>${project.version}</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <pythonVersion>${version.python.default}</pythonVersion>
-                    <managedDependencies>
-                        <packageDefinition>
-                            <packageName>black</packageName>
-                            <operatorAndVersion>>=24.3.0</operatorAndVersion>
-                            <!-- optional - active is true by default:-->
-                            <active>true</active>
-                        </packageDefinition>
-                        <packageDefinition>
-                            <packageName>uvicorn</packageName>
-                            <operatorAndVersion>^0.18.0</operatorAndVersion>
-                        </packageDefinition>
-                        <packageDefinition>
-                            <packageName>habushu-poetry-package</packageName>
-                            <operatorAndVersion>${project.version}</operatorAndVersion>
-                        </packageDefinition>
-                    </managedDependencies>
-                    <useDevRepository>true</useDevRepository>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>net.masterthought</groupId>
@@ -91,8 +70,6 @@
         <dependency>
             <groupId>net.masterthought</groupId>
             <artifactId>cucumber-reporting</artifactId>
-            <version>${version.cucumber.reporting.plugin}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

@@ -54,7 +54,8 @@
     </scm>
 
     <properties>
-        <version.cucumber.reporting.plugin>5.8.1</version.cucumber.reporting.plugin>
+        <version.cucumber.reporting>5.8.4</version.cucumber.reporting>
+        <version.cucumber.reporting.plugin>5.8.5</version.cucumber.reporting.plugin>
     </properties>
 
     <dependencyManagement>
