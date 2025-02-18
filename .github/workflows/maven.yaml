@@ -37,6 +37,20 @@ jobs:
               if: steps.cached-poetry.outputs.cache-hit != 'true'
               uses: snok/install-poetry@v1
 
+            - name: Load cached uv installation
+              id: cached-uv
+              uses: actions/cache@v4
+              with:
+                path: ~/.local
+                key: uv-0  # increment to reset cache
+
+            - name: Install uv
+              if: steps.cached-uv.outputs.cache-hit != 'true'
+              uses: astral-sh/setup-uv@v5
+              with:
+                # Install a specific version of uv.
+                version: "0.6.1"
+
             - name: Set up JDK 17
               uses: actions/setup-java@v4
               with:

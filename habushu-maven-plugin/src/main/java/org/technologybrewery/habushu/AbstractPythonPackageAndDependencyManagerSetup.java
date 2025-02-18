@@ -79,6 +79,10 @@ public abstract class AbstractPythonPackageAndDependencyManagerSetup {
 
         missingRequiredToolMsgs = validatePackageAndDependencyManagerInstallationAndVersion(validationTracker, missingRequiredToolMsgs);
 
+        if (!missingRequiredToolMsgs.isEmpty()) {
+            throw new MojoExecutionException(StringUtils.join(System.lineSeparator(), missingRequiredToolMsgs, System.lineSeparator()));
+        }
+
         if (pythonVersion.equals(ActivePythonVersion)) {
             log.info("Using Python version: " + ActivePythonVersion + VALIDATED_IN_PRIOR_BUILD_PHASE);
 
@@ -89,10 +93,6 @@ public abstract class AbstractPythonPackageAndDependencyManagerSetup {
             validatePythonVersion(currentPythonVersion);
 
             validationTracker.setActivePythonVersion(currentPythonVersion);
-        }
-
-        if (!missingRequiredToolMsgs.isEmpty()) {
-            throw new MojoExecutionException(StringUtils.join(System.lineSeparator(), missingRequiredToolMsgs, System.lineSeparator()));
         }
 
         finalizePythonPackageAndDependencyManagerConfiguration();
