@@ -3,33 +3,42 @@ package org.technologybrewery.habushu;
 /**
  * Used to track the status of checks for Python and its package and dependency management tools.
  */
-class ValidationTrackingStatus {
+public class ValidationTrackingStatus {
 
     private boolean alreadyValidatedInstallation;
     private String alreadyValidatedVersion;
-    private String ActivePythonVersion;
+    private String activePythonVersion;
 
-    public boolean isalreadyValidatedInstallation() {
+    public ValidationTrackingStatus() {
+    }
+
+    public ValidationTrackingStatus(boolean alreadyValidatedInstallation, String alreadyValidatedVersion, String activePythonVersion) {
+        this.alreadyValidatedInstallation = alreadyValidatedInstallation;
+        this.alreadyValidatedVersion = alreadyValidatedVersion;
+        this.activePythonVersion = activePythonVersion;
+    }
+
+    public boolean isAlreadyValidatedInstallation() {
         return alreadyValidatedInstallation;
     }
 
-    public void setalreadyValidatedInstallation(boolean alreadyValidatedInstallation) {
+    public void setAlreadyValidatedInstallation(boolean alreadyValidatedInstallation) {
         this.alreadyValidatedInstallation = alreadyValidatedInstallation;
     }
 
-    public String getalreadyValidatedVersion() {
+    public String getAlreadyValidatedVersion() {
         return alreadyValidatedVersion;
     }
 
-    public void setalreadyValidatedVersion(String alreadyValidatedVersion) {
+    public void setAlreadyValidatedVersion(String alreadyValidatedVersion) {
         this.alreadyValidatedVersion = alreadyValidatedVersion;
     }
 
     public String getActivePythonVersion() {
-        return ActivePythonVersion;
+        return activePythonVersion;
     }
 
-    public void setActivePythonVersion(String ActivePythonVersion) {
-        this.ActivePythonVersion = ActivePythonVersion;
+    public void setActivePythonVersion(String activePythonVersion) {
+        this.activePythonVersion = activePythonVersion;
     }
 }
