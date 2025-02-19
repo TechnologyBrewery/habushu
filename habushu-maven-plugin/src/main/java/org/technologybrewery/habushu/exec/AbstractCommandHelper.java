@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,13 +39,12 @@ public abstract class AbstractCommandHelper {
      * command, or it is desirable to not show the command's generated
      * stdout.
      *
-     * @param arguments
-     * @return
-     * @throws MojoExecutionException
+     * @param arguments list of arguments for commands
+     * @return execution Result
      */
-    public String execute(List<String> arguments) throws MojoExecutionException {
+    public String execute(List<String> arguments) {
         if (logger.isInfoEnabled()) {
-            logger.info("Executing " + packageManagerCommand + " command: {} {}", packageManagerCommand, StringUtils.join(arguments, " "));
+            logExecutionInformation(arguments);
         }
         ProcessExecutor executor = createPackageManagerExecutor(arguments);
         return executor.executeAndGetResult(logger);
@@ -59,13 +57,12 @@ public abstract class AbstractCommandHelper {
      * immediately show all of the stdout/stderr produced by a command for
      * diagnostic purposes.
      *
-     * @param arguments
-     * @return
-     * @throws MojoExecutionException
+     * @param arguments list of arguments for commands
+     * @return execution value
      */
-    public int executeAndLogOutput(List<String> arguments) throws MojoExecutionException {
+    public int executeAndLogOutput(List<String> arguments) {
         if (logger.isInfoEnabled()) {
-            logger.info("Executing " + packageManagerCommand + " command: {} {}", packageManagerCommand, StringUtils.join(arguments, " "));
+            logExecutionInformation(arguments);
         }
         ProcessExecutor executor = createPackageManagerExecutor(arguments);
         return executor.executeAndRedirectOutput(logger);
@@ -78,12 +75,12 @@ public abstract class AbstractCommandHelper {
      * and it is desirable to immediately show all the stdout/stderr produced by a command for
      * diagnostic purposes.
      *
-     * @param arguments
-     * @param environmentVariables
+     * @param arguments list of arguments for commands
+     * @param environmentVariables list of environment variable for the command
      */
     public void executeAndLogOutput(List<String> arguments, Map<String, String> environmentVariables) {
         if (logger.isInfoEnabled()) {
-            logger.info("Executing " + packageManagerCommand + " command: {} {}", packageManagerCommand, StringUtils.join(arguments, " "));
+            logExecutionInformation(arguments);
         }
         ProcessExecutor executor = createPackageManagerExecutor(arguments, environmentVariables);
         executor.executeAndRedirectOutput(logger);
@@ -96,21 +93,23 @@ public abstract class AbstractCommandHelper {
      * line arguments contain sensitive values that are not desirable to log, such
      * as passwords.
      *
-     * @param argAndIsSensitivePairs
-     * @return
-     * @throws MojoExecutionException
+     * @param argAndIsSensitivePairs list of args and their sensitivity
+     * @return execution value
      */
-    public int executeWithSensitiveArgsAndLogOutput(List<Pair<String, Boolean>> argAndIsSensitivePairs)
-            throws MojoExecutionException {
+    public int executeWithSensitiveArgsAndLogOutput(List<Pair<String, Boolean>> argAndIsSensitivePairs) {
         if (logger.isInfoEnabled()) {
             List<String> argsWithSensitiveArgsMasked = argAndIsSensitivePairs.stream()
-                    .map(pair -> pair.getRight() ? "XXXX" : pair.getLeft()).collect(Collectors.toList());
-            logger.info("Executing " + packageManagerCommand + " command: {} {}", packageManagerCommand,
-                    StringUtils.join(argsWithSensitiveArgsMasked, " "));
+                    .map(pair -> Boolean.TRUE.equals(pair.getRight()) ? "XXXX" : pair.getLeft()).collect(Collectors.toList());
+            logExecutionInformation(argsWithSensitiveArgsMasked);
         }
         ProcessExecutor executor = createPackageManagerExecutor(
                 argAndIsSensitivePairs.stream().map(Pair::getLeft).collect(Collectors.toList()));
         return executor.executeAndRedirectOutput(logger);
+    }
+
+    private void logExecutionInformation(List<String> arguments) {
+        logger.info("Executing {} command: {} {}", packageManagerCommand, packageManagerCommand,
+                StringUtils.join(arguments, " "));
     }
 
     /**
@@ -123,10 +122,11 @@ public abstract class AbstractCommandHelper {
      * when the timeout expires. After the timeout expires, this method will
      * continue to wait until underlying command completes.
      *
-     * @param arguments
-     * @param timeout
-     * @param timeUnit
-     * @return
+     * @param arguments list of arguments for commands
+     * @param timeout time durations
+     * @param timeUnit granularity for the time durations
+     * @param messageToDisplay message to display after timeout has occurred
+     * @return executed results
      */
     public Integer executePackageManagerCommandAndLogAfterTimeout(List<String> arguments, int timeout, TimeUnit timeUnit, String messageToDisplay) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -134,16 +134,17 @@ public abstract class AbstractCommandHelper {
         try {
             return future.get(timeout, timeUnit);
         } catch (TimeoutException e) {
-            logger.warn(packageManagerCommand + " " + String.join(" ", arguments)
-                    + " has been running for quite some time, you may want to quit the mvn process (Ctrl+c) and run " + messageToDisplay + " and restart your build.");
+            logger.warn("{} {} has been running for quite some time, you may want to quit the mvn process (Ctrl+c) and " +
+                    "run \"{}\" and restart your build.", packageManagerCommand, String.join(" ", arguments),
+                    messageToDisplay);
             try {
                 return future.get();
             } catch (InterruptedException | ExecutionException e1) {
                 throw new RuntimeException("Error occurred while waiting for " + packageManagerCommand + " command to complete", e1);
             }
         } catch (Exception e) {
-            throw new RuntimeException(String.format("Error occurred while performing " + packageManagerCommand + " command: " + packageManagerCommand + " %s",
-                    StringUtils.join(arguments, " ")), e);
+            throw new RuntimeException(String.format("Error occurred while performing %s command: %s %s",
+                    packageManagerCommand, packageManagerCommand, StringUtils.join(arguments, " ")), e);
         } finally {
             executor.shutdown();
         }

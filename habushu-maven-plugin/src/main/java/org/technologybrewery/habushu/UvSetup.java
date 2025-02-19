@@ -28,13 +28,18 @@ public class UvSetup extends AbstractPythonPackageAndDependencyManagerSetup {
     }
 
     /**
-     * Checks if the .python-version file exists. If it exists, it returns the python version listed therein. 
-     * If it doesn't exist, then it checks if a .venv exists. If it exists, it returns the python version being 
+     * Checks if the .python-version file exists. If it exists, it returns the python version listed therein.
+     * If it doesn't exist, then it checks if a .venv exists. If it exists, it returns the python version being
      * used in the environemnt. If the .venv doesn't exist, then a .python-version file is created with habushu's default
      * pythonVersion.
+     *
+     * @param missingRequiredToolMsgs
+     * @return the current Python version
+     * @throws MojoExecutionException
      */
     @Override
-    protected String configurePythonUsingPackageAndDependencyManager(List<String> missingRequiredToolMsgs) throws MojoExecutionException {
+    protected String configurePythonUsingPackageAndDependencyManager()
+            throws MojoExecutionException {
         UvCommandHelper uvHelper = createUvCommandHelper();
         String currentPythonVersion = uvHelper.getCurrentPythonVersion();
             if (currentPythonVersion.isEmpty()) {
@@ -46,49 +51,48 @@ public class UvSetup extends AbstractPythonPackageAndDependencyManagerSetup {
     }
 
     @Override
-    protected List<String> validatePackageAndDependencyManagerInstallationAndVersion(ValidationTrackingStatus validationTracker, List<String> missingRequiredToolMsgs) 
-        throws MojoExecutionException {
-            String alreadyValidatedVersion = validationTracker.getalreadyValidatedVersion();
-            if (!validationTracker.isalreadyValidatedInstallation()) {
-                log.debug("Checking if uv is installed...");
-                UvCommandHelper uvHelper = createUvCommandHelper();
-                Pair<Boolean, String> uvInstallStatusAndVersion = uvHelper.getIsUvInstalledAndVersion();
-    
-                if (!uvInstallStatusAndVersion.getLeft()) {
-                    missingRequiredToolMsgs.add(
-                            "'uv' is not currently installed! Visit https://docs.astral.sh/uv/getting-started/installation/ for more information and installation options");
+    protected List<String> validatePackageAndDependencyManagerInstallationAndVersion(
+        ValidationTrackingStatus validationTracker, List<String> missingRequiredToolMsgs) {
+        String alreadyValidatedVersion = validationTracker.getAlreadyValidatedVersion();
+        if (!validationTracker.isAlreadyValidatedInstallation()) {
+            log.debug("Checking if uv is installed...");
+            UvCommandHelper uvHelper = createUvCommandHelper();
+            Pair<Boolean, String> uvInstallStatusAndVersion = uvHelper.getIsUvInstalledAndVersion();
+
+            if (Boolean.FALSE.equals(uvInstallStatusAndVersion.getLeft())) {
+                missingRequiredToolMsgs.add(
+                        "'uv' is not currently installed! Visit https://docs.astral.sh/uv/getting-started/installation/ for more information and installation options");
+                return missingRequiredToolMsgs;
+            } else {
+                Semver uvVersionSemver = new Semver(uvInstallStatusAndVersion.getRight(), SemverType.NPM);
+                if (!uvVersionSemver.satisfies(UvUtil.UV_VERSION_REQUIREMENT)) {
+                    missingRequiredToolMsgs.add(String.format(
+                            "uv version %s was installed - Habushu requires that installed version of uv satisfies %s.  Please update uv by executing 'uv self update' or visit https://docs.astral.sh/uv/getting-started/installation/ for more information",
+                            uvInstallStatusAndVersion.getRight(), UvUtil.UV_VERSION_REQUIREMENT));
                     return missingRequiredToolMsgs;
                 } else {
-                    Semver uvVersionSemver = new Semver(uvInstallStatusAndVersion.getRight(), SemverType.NPM);
-                    if (!uvVersionSemver.satisfies(UvUtil.UV_VERSION_REQUIREMENT)) {
-                        missingRequiredToolMsgs.add(String.format(
-                                "uv version %s was installed - Habushu requires that installed version of uv satisfies %s.  Please update uv by executing 'uv self update' or visit https://docs.astral.sh/uv/getting-started/installation/ for more information",
-                                uvInstallStatusAndVersion.getRight(), UvUtil.UV_VERSION_REQUIREMENT));
-                        return missingRequiredToolMsgs;
-                    } else {
-                        alreadyValidatedVersion = uvInstallStatusAndVersion.getRight();
-                        validationTracker.setalreadyValidatedVersion(alreadyValidatedVersion);
-                        validationTracker.setalreadyValidatedInstallation(true);
-                        log.info("Found uv " + alreadyValidatedVersion);
-                    }
+                    alreadyValidatedVersion = uvInstallStatusAndVersion.getRight();
+                    validationTracker.setAlreadyValidatedVersion(alreadyValidatedVersion);
+                    validationTracker.setAlreadyValidatedInstallation(true);
+                    log.info("Found uv " + alreadyValidatedVersion);
                 }
-            } else {
-                alreadyValidatedVersion += VALIDATED_IN_PRIOR_BUILD_PHASE;
-                log.info("Found uv " + alreadyValidatedVersion);
             }
-            return missingRequiredToolMsgs;
+        } else {
+            alreadyValidatedVersion += VALIDATED_IN_PRIOR_BUILD_PHASE;
+            log.info("Found uv " + alreadyValidatedVersion);
+        }
+        return missingRequiredToolMsgs;
     }
     
     @Override
-    protected void finalizePythonPackageAndDependencyManagerConfiguration() throws MojoExecutionException {
+    protected void finalizePythonPackageAndDependencyManagerConfiguration() {
         // No additional configuration is necessary for uv at this time.
-    };
+    }
 
     @Override
-    protected String pythonSourceMessage() throws MojoExecutionException {
-        String sourceMessage = "(managed by uv)";
-        return sourceMessage;
-    };
+    protected String pythonSourceMessage() {
+        return "(managed by uv)";
+    }
 
     @Override
     public void registerRepositoryToSupportAuthenticatedDependencyResolution(String repoId, String username, String password) throws MojoExecutionException, NotImplementedException {
@@ -110,6 +114,6 @@ public class UvSetup extends AbstractPythonPackageAndDependencyManagerSetup {
     public String findCurrentVirtualEnvironmentFullPath() throws MojoExecutionException {
         // TODO: move this method out of the abstract method as this method is specfic to Poetry
         return StringUtils.EMPTY;
-    };
+    }
 
 }

@@ -38,7 +38,7 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
      * install the specified version of Python using "pyenv install --patch" with a
      * patch that attempts to resolve the expected compilation error.
      */
-    private File patchInstallScript;
+    private final File patchInstallScript;
 
     /**
      * New instance - these values are typically passed in from Maven-enabled parameters in the calling Mojo.
@@ -47,13 +47,13 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
      * @param usePyenv              whether we are using pyenv to instance and activate python versions
      * @param patchInstallScript    patch install script path
      */
-    public PyenvAndPoetrySetup(String pythonVersion, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log, boolean usePyenv, File patchInstallScript) throws MojoExecutionException {
+    public PyenvAndPoetrySetup(String pythonVersion, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log, boolean usePyenv, File patchInstallScript) {
         super(pythonVersion, baseDir, rewriteLocalPathDepsInArchives, log); 
         this.usePyenv = usePyenv;
         this.patchInstallScript = patchInstallScript;
     }
 
-    private List<String> validatePyenvInstallation(List<String> missingRequiredToolMsgs) throws MojoExecutionException {
+    private List<String> validatePyenvInstallation(List<String> missingRequiredToolMsgs) {
         PyenvCommandHelper pyenvHelper = createPyenvCommandHelper();
         log.debug("Checking if pyenv is installed...");
         if (!pyenvHelper.isPyenvInstalled()) {
@@ -81,7 +81,7 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
     }
 
     @Override
-    protected String configurePythonUsingPackageAndDependencyManager(List<String> missingRequiredToolMsgs) throws MojoExecutionException {
+    protected String configurePythonUsingPackageAndDependencyManager() throws MojoExecutionException {
         String currentPythonVersion;
         if (usePyenv) {
             currentPythonVersion = validateAndConfigurePythonViaPyenv(patchInstallScript);
@@ -92,8 +92,8 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
     }
 
     @Override
-    protected List<String> validatePackageAndDependencyManagerInstallationAndVersion(ValidationTrackingStatus validationTracker, List<String> missingRequiredToolMsgs) 
-        throws MojoExecutionException {
+    protected List<String> validatePackageAndDependencyManagerInstallationAndVersion(
+            ValidationTrackingStatus validationTracker, List<String> missingRequiredToolMsgs) {
             missingRequiredToolMsgs = validatePoetryInstallationAndVersion(validationTracker, missingRequiredToolMsgs);
             if (usePyenv) {
                 missingRequiredToolMsgs = validatePyenvInstallation(missingRequiredToolMsgs);
@@ -102,21 +102,20 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
             return missingRequiredToolMsgs;
     }
 
-    protected List<String> validatePyenvConfiguration(List<String> missingRequiredToolMsgs) 
-        throws MojoExecutionException {
+    protected List<String> validatePyenvConfiguration(List<String> missingRequiredToolMsgs) {
         File shellConfigFile = HabushuUtil.getShellConfigFile();
         if (shellConfigFile == null) {
             missingRequiredToolMsgs.add("Could not determine shell configuration file. Pyenv might not be installed correctly. " +
             "Visit https://github.com/pyenv/pyenv?tab=readme-ov-file#b-set-up-your-shell-environment-for-pyenv to properly configure Pyenv for use with Habushu.");
         }
 
-        if (!shellConfigFile.exists()) {
+        if (shellConfigFile != null && !shellConfigFile.exists()) {
             missingRequiredToolMsgs.add("Configuration file, " + shellConfigFile + " not found. Pyenv might not be installed correctly. " +
             "Visit https://github.com/pyenv/pyenv?tab=readme-ov-file#b-set-up-your-shell-environment-for-pyenv to properly configure Pyenv for use with Habushu.");
         }
         String pathEnvironmentVariable = HabushuUtil.getEnvironmentVariable("PATH");
-        String shimsPath = HabushuUtil.getHomeDirectory() + "/.pyenv/shims" ; 
-        if (!pathEnvironmentVariable.contains(shimsPath)) { 
+        String shimsPath = HabushuUtil.getHomeDirectory() + "/.pyenv/shims" ;
+        if (!pathEnvironmentVariable.contains(shimsPath)) {
             missingRequiredToolMsgs.add("'pyenv' is installed, but not configured correctly. " +
             "Visit https://github.com/pyenv/pyenv?tab=readme-ov-file#b-set-up-your-shell-environment-for-pyenv to properly configure Pyenv for use with Habushu.");
         }
@@ -124,20 +123,19 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
     }
 
     @Override
-    protected void finalizePythonPackageAndDependencyManagerConfiguration() throws MojoExecutionException {
+    protected void finalizePythonPackageAndDependencyManagerConfiguration() {
         checkForPoetryToml();
         configurePoetryToUsePyenv();
         installPoetryMonorepoDependencyPlugin();
     }
 
     @Override
-    protected String pythonSourceMessage() throws MojoExecutionException {
-        String sourceMessage = usePyenv ? "(managed by pyenv)" : "(managed by the operating system)";
-        return sourceMessage;
-    };
+    protected String pythonSourceMessage() {
+        return usePyenv ? "(managed by pyenv)" : "(managed by the operating system)";
+    }
 
     @Override
-    public void registerRepositoryToSupportAuthenticatedDependencyResolution(String repoId, String username, String password) throws MojoExecutionException {
+    public void registerRepositoryToSupportAuthenticatedDependencyResolution(String repoId, String username, String password) {
         PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
 
         if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
@@ -178,14 +176,14 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
         return currentPythonVersion;
     }
 
-    public List<String> validatePoetryInstallationAndVersion(ValidationTrackingStatus validationTracker, List<String> missingRequiredToolMsgs) throws MojoExecutionException {
-        String alreadyValidatedVersion = validationTracker.getalreadyValidatedVersion();
+    public List<String> validatePoetryInstallationAndVersion(ValidationTrackingStatus validationTracker, List<String> missingRequiredToolMsgs) {
+        String alreadyValidatedVersion = validationTracker.getAlreadyValidatedVersion();
         PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
-        if (!validationTracker.isalreadyValidatedInstallation()) {
+        if (!validationTracker.isAlreadyValidatedInstallation()) {
             log.debug("Checking if Poetry is installed...");
             Pair<Boolean, String> poetryInstallStatusAndVersion = poetryHelper.getIsPoetryInstalledAndVersion();
 
-            if (!poetryInstallStatusAndVersion.getLeft()) {
+            if (Boolean.FALSE.equals(poetryInstallStatusAndVersion.getLeft())) {
                 missingRequiredToolMsgs.add(
                         "'poetry' is not currently installed! Execute 'curl -sSL https://install.python-poetry.org | python -' to install or visit https://python-poetry.org/ for more information and installation options");
             } else {
@@ -197,8 +195,8 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
                             poetryInstallStatusAndVersion.getRight(), PoetryUtil.POETRY_VERSION_REQUIREMENT));
                 } else {
                     alreadyValidatedVersion = poetryInstallStatusAndVersion.getRight();
-                    validationTracker.setalreadyValidatedVersion(alreadyValidatedVersion);
-                    validationTracker.setalreadyValidatedInstallation(true);
+                    validationTracker.setAlreadyValidatedVersion(alreadyValidatedVersion);
+                    validationTracker.setAlreadyValidatedInstallation(true);
                 }
             }
         } else {
@@ -210,7 +208,7 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
         return missingRequiredToolMsgs;
     }
 
-    private void checkForPoetryToml() throws MojoExecutionException {
+    private void checkForPoetryToml() {
         // check for existing poetry.toml, warn that this file should be tracked in version control if one does not exist
         String poetryTomlPath = baseDir.getAbsolutePath() + "/poetry.toml";
         File poetryToml = new File(poetryTomlPath);
@@ -219,7 +217,7 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
         }
     }
 
-    private void configurePoetryToUsePyenv() throws MojoExecutionException {
+    private void configurePoetryToUsePyenv() {
         PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
         if (usePyenv) {
             log.info("Configuring Poetry to use the pyenv-activated Python binary...");
@@ -227,7 +225,7 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
         }
     }
   
-    void installPoetryMonorepoDependencyPlugin() throws MojoExecutionException {
+    private void installPoetryMonorepoDependencyPlugin() {
         PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
         log.info("Checking for updates to poetry-monorepo-dependency-plugin...");
         poetryHelper.installPoetryPlugin("poetry-monorepo-dependency-plugin@latest");
@@ -244,7 +242,7 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
     }
 
     @Override
-    public String findCurrentVirtualEnvironmentFullPath() throws MojoExecutionException {
+    public String findCurrentVirtualEnvironmentFullPath() {
         String virtualEnvFullPath = null;
         try {
             PoetryCommandHelper poetryHelper = new PoetryCommandHelper(baseDir);
