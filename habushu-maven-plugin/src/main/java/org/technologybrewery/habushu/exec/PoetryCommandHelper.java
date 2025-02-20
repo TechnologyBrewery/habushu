@@ -31,6 +31,8 @@ public class PoetryCommandHelper {
     private static final Logger logger = LoggerFactory.getLogger(PoetryCommandHelper.class);
 
     private static final String extractVersionRegex = "[^0-9\\.]";
+    public static final String VERSION_DELIMITER = "@";
+    private static final int EXIT_SUCCESS = 0;
 
     protected File workingDirectory;
 
@@ -217,16 +219,50 @@ public class PoetryCommandHelper {
     /**
      * Installs a Poetry plugin with the given name.
      *
+     * Poetry plugins install into Poetry's `pyproject.toml` file directly.  As such, it can lead to threading issues
+     * without proper care.  We protect against this scenario via double-checked locking execution of the
+     * `poetry self add <plugin>` call and avoidance of the add altogether if the plugin already exists.
+     *
      * @param name
      * @return
      * @throws MojoExecutionException
      */
     public int installPoetryPlugin(String name) throws MojoExecutionException {
-        List<String> args = new ArrayList<String>();
+        int result = EXIT_SUCCESS;
+        if (pluginNeedsInstalling(name)) {
+            result = performInstallPoetryPlugin(name);
+        }
+
+        return result;
+    }
+
+    private synchronized int performInstallPoetryPlugin(String name) throws MojoExecutionException {
+        int result = EXIT_SUCCESS;
+        if (pluginNeedsInstalling(name)) {
+            List<String> args = new ArrayList<>();
+            args.add("self");
+            args.add("add");
+            args.add(name);
+            result = this.executeAndLogOutput(args);
+
+        }
+
+        return result;
+    }
+
+    private boolean pluginNeedsInstalling(String name) throws MojoExecutionException {
+        List<String> args = new ArrayList<>();
         args.add("self");
-        args.add("add");
-        args.add(name);
-        return this.executeAndLogOutput(args);
+        args.add("show");
+        args.add("plugins");
+        String showPluginsResult =  this.execute(args);
+
+        String pluginNameWithoutVersion = name;
+        if (name.contains(VERSION_DELIMITER)) {
+            pluginNameWithoutVersion = pluginNameWithoutVersion.substring(0, name.indexOf(VERSION_DELIMITER));
+        }
+
+        return !showPluginsResult.contains(pluginNameWithoutVersion);
     }
 
     protected ProcessExecutor createPoetryExecutor(List<String> arguments) {
