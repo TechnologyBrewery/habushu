@@ -1,13 +1,16 @@
 [tool.poetry]
+
+[project]
 name = "habushu_mixology_consumer"
-version = "2.18.0.dev"
+version = "2.18.0"
 description = "Example of how to use the habushu-maven-plugin to consume other Habushu modules"
-authors = ["Eric Konieczny <ekoniec1@gmail.com>"]
+authors = [{name = "Eric Konieczny", email = "ekoniec1@gmail.com"}]
 license = "MIT License"
+requires-python = "^3.11"
+dynamic = ["version", "dependencies"]
 
 [tool.poetry.dependencies]
 habushu-mixology = {path = "../habushu-mixology", develop = true}
-python = "^3.11"
 
 [tool.poetry.group.dev.dependencies]
 behave = ">=1.2.6"

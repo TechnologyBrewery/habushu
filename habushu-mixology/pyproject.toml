@@ -1,12 +1,15 @@
 [tool.poetry]
+
+[project]
 name = "habushu_mixology"
-version = "2.18.0.dev"
+version = "2.18.0"
 description = "Example of how to use the habushu-maven-plugin"
-authors = ["Eric Konieczny <ekoniec1@gmail.com>"]
+authors = [{name = "Eric Konieczny", email = "ekoniec1@gmail.com"}]
 license = "MIT License"
+requires-python = "^3.11"
+dynamic = ["version", "dependencies"]
 
 [tool.poetry.dependencies]
-python = "^3.11"
 krausening = "19"
 cryptography = "^42.0.0"
 uvicorn = {version = "^0.18.0", extras = ["standard"]}
