@@ -1014,3 +1014,15 @@ If you are working on Habushu, please be aware of some nuances in working with a
 * `mvn clean install -Pbootstrap`: Builds the `habushu-maven-plugin` such that the custom `habushu` lifecycle may be utilized within subsequent builds.
 * **NOTE:** If updates are made to the `habushu` lifecycle (i.e. updates to the `habushu` lifecycle mapping configuration made in `habushu-maven-plugin/src/main/resources/META-INF/plexus/components.xml`), developers **MUST**  changes require two builds to test - one to build the lifecycle, then a second to use that updated lifecycle.  Code changes to `Mojo` classes within the existing `habushu` lifecycle work via normal builds without the need for a second pass.
 * `mvn clean install -Pdefault`: (ACTIVE BY DEFAULT - `-Pdefault` does not need to be specified) builds all modules.  Developers may use this profile to build and apply changes to existing `habushu-maven-plugin` `Mojo` classes
+
+## Poetry v2.0.0+ Changes ##
+When on Poetry v2.0.0 and later, Baton migrations will automatically run on all `pyproject.toml` files in your Habushu project.
+This update introduces three migrations that ensure configurations are more in line with [PEP 621](https://peps.python.org/pep-0621/). 
+- `PoetryToProjectMigration`: Adds `[project]` section into TOML file and moves relevant fields from `[tool.poetry]` to `[project]`
+- `PoetryToProjectRequiresPythonMigration`: Relocates the Python dependency from `[tool.poetry.dependencies]` to the `requires-python` entry under `[project]`
+- `PoetryToProjectDynamicMigration`: Introduces a `dynamic` field under `[project]` that automatically includes `version` and `dependency`, if not already present. If a single `readme` (as a string) is included in `[tool.poetry]`, then migrates it from `[tool.poetry]` to `[project]`. If multiple `readme` values are defined (as a table) in `[tool.poetry]`, `readme` is added to the `dynamic` field list.
+
+**Note:** Baton migrations are forward compatible only. If you upgrade to Poetry v2.0+ and later decide to downgrade, you will need to manually revert the changes in your TOML files.
+
+
+
