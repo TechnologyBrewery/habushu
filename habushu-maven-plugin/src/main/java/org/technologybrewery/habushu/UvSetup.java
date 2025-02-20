@@ -3,8 +3,6 @@ package org.technologybrewery.habushu;
 import com.vdurmont.semver4j.Semver;
 import com.vdurmont.semver4j.Semver.SemverType;
 
-import org.apache.commons.lang3.NotImplementedException;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
@@ -83,21 +81,10 @@ public class UvSetup extends AbstractPythonPackageAndDependencyManagerSetup {
         }
         return missingRequiredToolMsgs;
     }
-    
-    @Override
-    protected void finalizePythonPackageAndDependencyManagerConfiguration() {
-        // No additional configuration is necessary for uv at this time.
-    }
 
     @Override
     protected String pythonSourceMessage() {
         return "(managed by uv)";
-    }
-
-    @Override
-    public void registerRepositoryToSupportAuthenticatedDependencyResolution(String repoId, String username, String password) throws MojoExecutionException, NotImplementedException {
-        // TODO: move this method out of the abstract methods as this is specific to Poetry.
-        // uv does not support a config command to store username and password credentials. Users must enter this information via the publish command.
     }
 
     /**
@@ -109,11 +96,4 @@ public class UvSetup extends AbstractPythonPackageAndDependencyManagerSetup {
     protected UvCommandHelper createUvCommandHelper() {
         return new UvCommandHelper(baseDir);
     }
-
-    @Override
-    public String findCurrentVirtualEnvironmentFullPath() throws MojoExecutionException {
-        // TODO: move this method out of the abstract method as this method is specfic to Poetry
-        return StringUtils.EMPTY;
-    }
-
 }

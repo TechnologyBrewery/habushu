@@ -107,7 +107,7 @@ public abstract class AbstractPythonPackageAndDependencyManagerSetup {
     protected abstract List<String> validatePackageAndDependencyManagerInstallationAndVersion(ValidationTrackingStatus validationTracker, List<String> missingRequiredToolMsgs) 
         throws MojoExecutionException;
 
-    protected abstract void finalizePythonPackageAndDependencyManagerConfiguration() throws MojoExecutionException;
+    protected void finalizePythonPackageAndDependencyManagerConfiguration() throws MojoExecutionException {};
 
     private void validatePythonVersion(String currentPythonVersion) throws MojoExecutionException {
         if (StringUtils.isNotBlank(currentPythonVersion)) {
@@ -124,8 +124,10 @@ public abstract class AbstractPythonPackageAndDependencyManagerSetup {
 
     protected abstract String pythonSourceMessage() throws MojoExecutionException;
 
-    public abstract void registerRepositoryToSupportAuthenticatedDependencyResolution(String repoId, String username, String password) throws MojoExecutionException;
+    protected void registerRepositoryToSupportAuthenticatedDependencyResolution(String repoId, String username, String password) throws MojoExecutionException {};
 
-    public abstract String findCurrentVirtualEnvironmentFullPath() throws MojoExecutionException;
+    protected String findCurrentVirtualEnvironmentFullPath() throws MojoExecutionException {
+        return StringUtils.EMPTY;
+    };
 
 }
