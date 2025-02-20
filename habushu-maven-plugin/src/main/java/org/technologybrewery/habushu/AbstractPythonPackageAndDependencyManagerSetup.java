@@ -63,7 +63,8 @@ public abstract class AbstractPythonPackageAndDependencyManagerSetup {
      * @param rewriteLocalPathDepsInArchives see member variable for details
      * @param log                            the logger to use for output
      */
-    public AbstractPythonPackageAndDependencyManagerSetup(String pythonVersion, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log) {
+    protected AbstractPythonPackageAndDependencyManagerSetup(String pythonVersion, File baseDir,
+                                                     boolean rewriteLocalPathDepsInArchives, Log log) {
         this.pythonVersion = pythonVersion;
         this.baseDir = baseDir;
         this.rewriteLocalPathDepsInArchives = rewriteLocalPathDepsInArchives;
@@ -75,7 +76,7 @@ public abstract class AbstractPythonPackageAndDependencyManagerSetup {
         String currentPythonVersion;
 
         ValidationTrackingStatus validationTracker = validationStatusContainer.get();
-        String ActivePythonVersion = validationTracker.getActivePythonVersion();
+        String activePythonVersion = validationTracker.getActivePythonVersion();
 
         missingRequiredToolMsgs = validatePackageAndDependencyManagerInstallationAndVersion(validationTracker, missingRequiredToolMsgs);
 
@@ -83,11 +84,11 @@ public abstract class AbstractPythonPackageAndDependencyManagerSetup {
             throw new MojoExecutionException(StringUtils.join(System.lineSeparator(), missingRequiredToolMsgs, System.lineSeparator()));
         }
 
-        if (pythonVersion.equals(ActivePythonVersion)) {
-            log.info("Using Python version: " + ActivePythonVersion + VALIDATED_IN_PRIOR_BUILD_PHASE);
+        if (pythonVersion.equals(activePythonVersion)) {
+            log.info("Using Python version: " + activePythonVersion + VALIDATED_IN_PRIOR_BUILD_PHASE);
 
         } else {
-            currentPythonVersion = configurePythonUsingPackageAndDependencyManager(missingRequiredToolMsgs);
+            currentPythonVersion = configurePythonUsingPackageAndDependencyManager();
 
             // If a version of python is installed, verify that it matches the desired version
             validatePythonVersion(currentPythonVersion);
@@ -101,7 +102,7 @@ public abstract class AbstractPythonPackageAndDependencyManagerSetup {
         validationStatusContainer.remove();
     }
 
-    protected abstract String configurePythonUsingPackageAndDependencyManager(List<String> missingRequiredToolMsgs)throws MojoExecutionException;
+    protected abstract String configurePythonUsingPackageAndDependencyManager()throws MojoExecutionException;
 
     protected abstract List<String> validatePackageAndDependencyManagerInstallationAndVersion(ValidationTrackingStatus validationTracker, List<String> missingRequiredToolMsgs) 
         throws MojoExecutionException;

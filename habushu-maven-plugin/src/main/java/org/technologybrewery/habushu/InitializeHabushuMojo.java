@@ -20,10 +20,10 @@ public class InitializeHabushuMojo extends AbstractHabushuMojo {
         String pomVersion = project.getVersion();
         String expectedPythonPackageVersion = getPythonPackageVersion(pomVersion, false, null);
         if (HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile()) == HabushuUtil.PackageManager.POETRY){
-           var initializeHabushuPoetry = new InitializeHabushuPoetry(getPythonProjectBaseDir(), getLog(), overridePackageVersion, expectedPythonPackageVersion );
+            InitializeHabushuPoetry initializeHabushuPoetry = new InitializeHabushuPoetry(getPythonProjectBaseDir(), getLog(), overridePackageVersion, expectedPythonPackageVersion );
             initializeHabushuPoetry.doExecute();
         } else {
-            var initializeHabushuUv =  new InitializeHabushuUv(getPythonProjectBaseDir(), getLog(), overridePackageVersion, expectedPythonPackageVersion);
+            InitializeHabushuUv initializeHabushuUv =  new InitializeHabushuUv(getPythonProjectBaseDir(), getLog(), overridePackageVersion, expectedPythonPackageVersion);
             initializeHabushuUv.doExecute();
         }
     }

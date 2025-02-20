@@ -196,19 +196,16 @@ public final class HabushuUtil {
 
     }
 
-    public static AbstractPythonPackageAndDependencyManagerSetup getPythonPackageAndDependencyManager(PackageManager pythonPackageAndDependencyManager,
-    String pythonVersion, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log, Boolean usePyenv, File patchInstallScript) throws MojoExecutionException {
-    
-    // Set the poetry-based parameters to null
-    if (pythonPackageAndDependencyManager == PackageManager.UV){
-          usePyenv = null;
-          patchInstallScript = null;
+    public static AbstractPythonPackageAndDependencyManagerSetup getPythonPackageAndDependencyManager(
+            PackageManager pythonPackageAndDependencyManager, String pythonVersion, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log, Boolean usePyenv, File patchInstallScript) throws MojoExecutionException {
+        // Set the poetry-based parameters to null
+        if (pythonPackageAndDependencyManager == PackageManager.UV) {
+            usePyenv = null;
+            patchInstallScript = null;
         }
 
-        AbstractPythonPackageAndDependencyManagerSetup configureTools = PythonPackageAndDependencyManagerFactory.createPythonPackageAndDependencyManagerSetup(
-            pythonVersion, baseDir, rewriteLocalPathDepsInArchives, log, pythonPackageAndDependencyManager, usePyenv, patchInstallScript);
-
-        return configureTools;
+        return PythonPackageAndDependencyManagerFactory.createPythonPackageAndDependencyManagerSetup(
+                pythonVersion, baseDir, rewriteLocalPathDepsInArchives, log, pythonPackageAndDependencyManager, usePyenv, patchInstallScript);
     }
 
     /**

@@ -40,7 +40,8 @@ public abstract class AbstractInitializeHabushu {
      * @param overridePackageVersion         whether we override package version
      * @param expectedPythonPackageVersion   expected PackageVersion from pom file
      */
-    public AbstractInitializeHabushu(File baseDir,  Log log, boolean overridePackageVersion, String expectedPythonPackageVersion) {
+    protected AbstractInitializeHabushu(File baseDir,  Log log, boolean overridePackageVersion,
+                                String expectedPythonPackageVersion) {
         this.baseDir = baseDir;
         this.log = log;
         this.overridePackageVersion = overridePackageVersion;

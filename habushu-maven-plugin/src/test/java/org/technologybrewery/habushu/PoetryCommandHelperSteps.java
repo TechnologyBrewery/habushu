@@ -25,7 +25,7 @@ public class PoetryCommandHelperSteps {
 
     @When("the version is checked against \"2.0.0\"")
     public void the_version_is_checked_against_2_0_0() {
-        isPoetryVersionAtLeast2 = poetryHelper.isPoetryVersionAtLeast2();
+        isPoetryVersionAtLeast2 = poetryHelper.isPoetryVersionAtLeastMinimumVersion();
     }
 
     @Then("the result should be {}")
