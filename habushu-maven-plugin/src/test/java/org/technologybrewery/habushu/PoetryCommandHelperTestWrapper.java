@@ -22,7 +22,7 @@ public class PoetryCommandHelperTestWrapper extends PoetryCommandHelper {
     }
 
     @Override
-    public boolean isPoetryVersionAtLeast2(){
+    public boolean isPoetryVersionAtLeastMinimumVersion(){
         DefaultArtifactVersion currentVersion = new DefaultArtifactVersion(mockPoetryVersion);
         DefaultArtifactVersion minimumVersion = new DefaultArtifactVersion(BREAKING_POETRY_VERSION);
         return currentVersion.compareTo(minimumVersion) >= 0;

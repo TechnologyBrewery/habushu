@@ -21,15 +21,11 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
     private static final String BREAKING_POETRY_VERSION = "2.0.0";
     private static final Logger logger = LoggerFactory.getLogger(PoetryCommandHelper.class);
 
-<<<<<<< HEAD
     private static final String extractVersionRegex = "[^0-9\\.]";
     public static final String VERSION_DELIMITER = "@";
     private static final int EXIT_SUCCESS = 0;
 
-    protected File workingDirectory;
-=======
     private static final String EXTRACT_VERSION_REGEX = "[^0-9\\.]";
->>>>>>> 71d5a60 ([#237] Update poetry command helper to leverage abstract)
 
 
     public PoetryCommandHelper(File workingDirectory) {
@@ -107,15 +103,14 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
     /**
      * Installs a Poetry plugin with the given name.
      *
-<<<<<<< HEAD
      * Poetry plugins install into Poetry's `pyproject.toml` file directly.  As such, it can lead to threading issues
      * without proper care.  We protect against this scenario via double-checked locking execution of the
      * `poetry self add <plugin>` call and avoidance of the add altogether if the plugin already exists.
-     * 
+     *
      * @param name
      * @return execution value
      */
-    public int installPoetryPlugin(String name) throws MojoExecutionException {
+    public int installPoetryPlugin(String name) {
         int result = EXIT_SUCCESS;
         if (pluginNeedsInstalling(name)) {
             result = performInstallPoetryPlugin(name);
@@ -124,7 +119,7 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
         return result;
     }
 
-    private synchronized int performInstallPoetryPlugin(String name) throws MojoExecutionException {
+    private synchronized int performInstallPoetryPlugin(String name) {
         int result = EXIT_SUCCESS;
         if (pluginNeedsInstalling(name)) {
             List<String> args = new ArrayList<>();
@@ -138,13 +133,7 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
         return result;
     }
 
-    private boolean pluginNeedsInstalling(String name) throws MojoExecutionException {
-=======
-     * @param name the name of the Poetry plugin to install
-     * @return execution value
-     */
-    public int installPoetryPlugin(String name) {
->>>>>>> 71d5a60 ([#237] Update poetry command helper to leverage abstract)
+    private boolean pluginNeedsInstalling(String name) {
         List<String> args = new ArrayList<>();
         args.add("self");
         args.add("show");

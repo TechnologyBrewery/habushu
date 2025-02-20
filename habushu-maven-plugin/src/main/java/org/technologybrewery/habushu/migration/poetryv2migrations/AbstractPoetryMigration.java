@@ -30,7 +30,7 @@ public abstract class AbstractPoetryMigration extends AbstractMigration {
 
     protected boolean checkPoetryVersionAtLeast2(){
         PoetryCommandHelper poetryHelper = new PoetryCommandHelper(workingDirectory);
-        return poetryHelper.isPoetryVersionAtLeast2();
+        return poetryHelper.isPoetryVersionAtLeastMinimumVersion();
     }
 
     public void setWorkingDirectory(File workingDirectory){

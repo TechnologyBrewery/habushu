@@ -23,14 +23,14 @@ public class PoetryToProjectDynamicMigrationSteps extends AbstractPoetryMigratio
     @Given("Poetry version at least \"2.0.0\"")
     public void poetry_version_at_least_2_0_0(){
         poetryHelper = new PoetryCommandHelperTestWrapper(new File("."), "2.0.0");
-        mockIsPoetryVersionAtLeast2 = poetryHelper.isPoetryVersionAtLeast2();
+        mockIsPoetryVersionAtLeast2 = poetryHelper.isPoetryVersionAtLeastMinimumVersion();
         assertTrue(mockIsPoetryVersionAtLeast2, "The Poetry version found was less than 2.0.0");
     }
 
     @Given("Poetry version less than \"2.0.0\"")
     public void poetry_version_less_than_2_0_0(){
         poetryHelper = new PoetryCommandHelperTestWrapper(new File("."), "1.6.1");
-        mockIsPoetryVersionAtLeast2 = poetryHelper.isPoetryVersionAtLeast2();
+        mockIsPoetryVersionAtLeast2 = poetryHelper.isPoetryVersionAtLeastMinimumVersion();
         assertFalse(mockIsPoetryVersionAtLeast2, "The Poetry version found greater than 2.0.0");
     }
 
