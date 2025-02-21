@@ -31,16 +31,17 @@ public class InitializeHabushuUv extends AbstractInitializeHabushu{
             log.warn("Corrected - pyproject.toml and uv.lock now synced");
         }
         List<String> getPythonProjectVersion = Arrays.asList("--from=toml-cli", "toml", "get", "--toml-path=pyproject.toml", "project.version");
-        List<String> createUvToolRunCommand = uvHelper.createToolRunCommand(getPythonProjectVersion);
-        String currentPythonPackageVersion = uvHelper.execute(createUvToolRunCommand);
+        List<String> getPythonProjectVersionCommamd = uvHelper.createToolRunCommand(getPythonProjectVersion);
+        String currentPythonPackageVersion = uvHelper.execute(getPythonProjectVersionCommamd);
         if (!StringUtils.equals(currentPythonPackageVersion, expectedPythonPackageVersion)) {
             if (overridePackageVersion) {
                 log.info(String.format("Setting uv package version to %s", expectedPythonPackageVersion));
                 log.info(
                         "If you do *not* want the uv package version to be automatically synced with the POM version, set <overridePackageVersion>false</overridePackageVersion> in the plugin's <configuration>");
                 
-                List<String> setPythonProjectVersion = Arrays.asList("--from=toml-cli", "toml", "set", "--toml-path=pyproject.toml", "project.version");
-                uvHelper.executeAndLogOutput(setPythonProjectVersion);
+                List<String> setPythonProjectVersion = Arrays.asList("--from=toml-cli", "toml", "set", "--toml-path=pyproject.toml", "project.version", expectedPythonPackageVersion);
+                List<String> setPythonProjectVersionCommamd = uvHelper.createToolRunCommand(setPythonProjectVersion);
+                uvHelper.executeAndLogOutput(setPythonProjectVersionCommamd);
             } else {
                 log.debug(String.format(
                         "uv package version set to %s in pyproject.toml does not align with expected POM-derived version of %s",
