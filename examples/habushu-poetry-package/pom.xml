@@ -34,6 +34,22 @@
             <plugin>
                 <groupId>org.technologybrewery.habushu</groupId>
                 <artifactId>habushu-maven-plugin</artifactId>
+                <configuration>
+                <managedDependencies>
+                    <packageDefinition>
+                        <packageName>black</packageName>
+                        <operatorAndVersion>>=24.3.0</operatorAndVersion>
+                        <!-- optional - active is true by default:-->
+                        <active>true</active>
+                    </packageDefinition>
+                    <packageDefinition>
+                        <packageName>uvicorn</packageName>
+                        <operatorAndVersion>>=0.19.0</operatorAndVersion>
+                        <!-- optional - active is true by default:-->
+                        <active>true</active>
+                    </packageDefinition>
+                </managedDependencies>
+                </configuration>
                     <!-- Utilize the run-command-in-virtual-env goal to demonstrate how
                         commands/scripts may be executed via "poetry run" and bound to the build
                         lifecycle phases -->

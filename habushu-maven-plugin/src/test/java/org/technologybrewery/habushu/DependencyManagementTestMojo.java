@@ -10,13 +10,9 @@ import java.util.List;
  */
 public class DependencyManagementTestMojo extends InstallDependenciesMojo {
 
-    private File pyProjectTomlFile;
-
     private Semver poetryVersion;
 
-    public DependencyManagementTestMojo(File pyProjectTomlFile) {
-        this.pyProjectTomlFile = pyProjectTomlFile;
-
+    public DependencyManagementTestMojo() {
         //mimic defaults in Mojo:
         this.updateManagedDependenciesWhenFound = true;
         this.overridePackageVersion = true;
@@ -34,15 +30,33 @@ public class DependencyManagementTestMojo extends InstallDependenciesMojo {
         this.failOnManagedDependenciesMismatches = shouldFail;
     }
 
-    protected File getPoetryPyProjectTomlFile() {
-        return pyProjectTomlFile;
-    }
-
     protected void setPoetryVersion(String version) {
         this.poetryVersion = new Semver(version);
     }
 
     protected Semver getPoetryVersion() {
         return poetryVersion != null ? poetryVersion : new Semver("1.5.0");
+    }
+
+    protected void processManagedDependencyMismatchesPoetry(){
+        String[] str = {};
+        InstallDependenciesConfigurations installDependenciesConfigurations = new InstallDependenciesConfigurations(true, "simple",
+                false, str, str, false, managedDependencies, updateManagedDependenciesWhenFound, failOnManagedDependenciesMismatches,
+                useInProjectVirtualEnvironment, pypiRepoId, pypiRepoUrl, useDevRepository, devRepositoryId, devRepositoryUrl, overridePackageVersion);
+        InstallDependenciesPoetry installDependenciesPoetry = new InstallDependenciesPoetry(new File("target/"), getLog(), installDependenciesConfigurations);
+        installDependenciesPoetry.processManagedDependencyMismatches();
+
+
+    }
+
+    protected void processManagedDependencyMismatchesUv(){
+        String[] str = {};
+        InstallDependenciesConfigurations installDependenciesConfigurations = new InstallDependenciesConfigurations(true, "simple",
+                false, str, str, false, managedDependencies, updateManagedDependenciesWhenFound, failOnManagedDependenciesMismatches,
+                false, pypiRepoId, pypiRepoUrl, useDevRepository, devRepositoryId, devRepositoryUrl, overridePackageVersion);
+        InstallDependenciesUv installDependenciesUv = new InstallDependenciesUv(new File("target/"), getLog(), installDependenciesConfigurations);
+        installDependenciesUv.processManagedDependencyMismatches();
+
+
     }
 }

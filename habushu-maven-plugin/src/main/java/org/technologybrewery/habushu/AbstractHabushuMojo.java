@@ -1,14 +1,10 @@
 package org.technologybrewery.habushu;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -422,34 +418,5 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     protected static boolean isPomVersionSnapshot(String pomVersion) {
         return pomVersion.endsWith(SNAPSHOT);
-    }
-
-    /**
-     * Finds and returns all custom tool poetry groups.
-     *
-     * @return list of custom tool poetry groups.
-     */
-    protected List<String> findCustomToolPoetryGroups() {
-        List<String> toolPoetryGroupSections = new ArrayList<>();
-
-        File pyProjectTomlFile = getPoetryPyProjectTomlFile();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(pyProjectTomlFile))) {
-            String line = reader.readLine();
-
-            while (line != null) {
-                line = line.strip();
-
-                if (line.startsWith("[tool.poetry.group")) {
-                    toolPoetryGroupSections.add(line.replace("[", StringUtils.EMPTY).replace("]", StringUtils.EMPTY));
-                }
-
-                line = reader.readLine();
-            }
-        } catch (IOException e) {
-            throw new HabushuException("Problem reading pyproject.toml to search for custom dependency groups!", e);
-        }
-
-        return toolPoetryGroupSections;
     }
 }

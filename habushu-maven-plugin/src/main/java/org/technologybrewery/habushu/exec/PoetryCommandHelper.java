@@ -30,6 +30,7 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
 
     public PoetryCommandHelper(File workingDirectory) {
         super(workingDirectory, POETRY_COMMAND);
+        this.workingDirectory = workingDirectory;
     }
 
     /**
