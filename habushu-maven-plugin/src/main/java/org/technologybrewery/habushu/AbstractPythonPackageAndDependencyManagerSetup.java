@@ -5,6 +5,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.technologybrewery.habushu.util.DefaultPythonStrategy;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,6 +26,18 @@ public abstract class AbstractPythonPackageAndDependencyManagerSetup {
      * The desired version of Python to use.
      */
     protected String pythonVersion;
+
+    /**
+     * If the python version configuration was set
+     */
+    protected boolean isPythonVersionConfigurationSet;
+
+    /**
+     * Determines the default Python version strategy.
+     * PYTHONVERSION to use the existing projects python version.
+     * POM to use the pythonVersion configuration default value.
+     */
+    protected String defaultPythonStrategy;
 
     /**
      * Base directory from which to write Python package and dependency management files.
@@ -63,9 +76,12 @@ public abstract class AbstractPythonPackageAndDependencyManagerSetup {
      * @param rewriteLocalPathDepsInArchives see member variable for details
      * @param log                            the logger to use for output
      */
-    protected AbstractPythonPackageAndDependencyManagerSetup(String pythonVersion, File baseDir,
-                                                     boolean rewriteLocalPathDepsInArchives, Log log) {
+    protected AbstractPythonPackageAndDependencyManagerSetup(String pythonVersion, boolean isPythonVersionConfigurationSet,
+                                                             String defaultPythonStrategy, File baseDir,
+                                                             boolean rewriteLocalPathDepsInArchives, Log log) {
         this.pythonVersion = pythonVersion;
+        this.isPythonVersionConfigurationSet = isPythonVersionConfigurationSet;
+        this.defaultPythonStrategy = defaultPythonStrategy;
         this.baseDir = baseDir;
         this.rewriteLocalPathDepsInArchives = rewriteLocalPathDepsInArchives;
         this.log = log;
@@ -107,7 +123,9 @@ public abstract class AbstractPythonPackageAndDependencyManagerSetup {
     protected abstract List<String> validatePackageAndDependencyManagerInstallationAndVersion(ValidationTrackingStatus validationTracker, List<String> missingRequiredToolMsgs) 
         throws MojoExecutionException;
 
-    protected void finalizePythonPackageAndDependencyManagerConfiguration() throws MojoExecutionException {};
+    protected void finalizePythonPackageAndDependencyManagerConfiguration() {
+
+    }
 
     private void validatePythonVersion(String currentPythonVersion) throws MojoExecutionException {
         if (StringUtils.isNotBlank(currentPythonVersion)) {
@@ -124,10 +142,19 @@ public abstract class AbstractPythonPackageAndDependencyManagerSetup {
 
     protected abstract String pythonSourceMessage() throws MojoExecutionException;
 
-    protected void registerRepositoryToSupportAuthenticatedDependencyResolution(String repoId, String username, String password) throws MojoExecutionException {};
+    protected void registerRepositoryToSupportAuthenticatedDependencyResolution(String repoId, String username, String password) {
 
-    protected String findCurrentVirtualEnvironmentFullPath() throws MojoExecutionException {
+    }
+
+    protected String findCurrentVirtualEnvironmentFullPath() {
         return StringUtils.EMPTY;
-    };
+    }
+
+    protected boolean useCurrentPythonVersion(String currentPythonVersion) {
+        // If the python version configuration is not set and the desired default python version is the existing
+        // projects version, set the desired python version to the current projects version
+        return !isPythonVersionConfigurationSet && (defaultPythonStrategy.equals(DefaultPythonStrategy.PYTHONVERSION.name()) &&
+                StringUtils.isNotEmpty(currentPythonVersion));
+    }
 
 }

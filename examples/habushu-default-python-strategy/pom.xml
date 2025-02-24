@@ -1,0 +1,57 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.technologybrewery.habushu</groupId>
+        <artifactId>examples</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+    </parent>
+
+    <name>habushu::Examples::Default Python Strategy</name>
+    <description>Example of how to use the habushu config defaultPythonStrategy determine python versions</description>
+
+    <artifactId>habushu-default-python-strategy</artifactId>
+    <packaging>habushu</packaging>
+
+    <properties>
+        <!-- Override the python version defined in the parent project. Not necessary if the project doesn't extend
+        the org.technologybrewery.parent -->
+        <version.python.default/>
+    </properties>
+
+    <dependencies>
+        <!-- NB: workaround to trigger build cache invalidation when a new SNAPSHOT is available-->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>habushu-maven-plugin</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <directory>dist</directory>
+        <plugins>
+            <plugin>
+                <groupId>org.technologybrewery.habushu</groupId>
+                <artifactId>habushu-maven-plugin</artifactId>
+                <configuration>
+                    <!-- This will prevent the Habushu default python version from overriding the existing projects
+                    version -->
+                    <defaultPythonStrategy>PYTHONVERSION</defaultPythonStrategy>
+                    <!-- This will tell Habushu to overriding the existing projects with the default Python version -->
+                    <!--<defaultPythonStrategy>POM</defaultPythonStrategy>-->
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>net.masterthought</groupId>
+                <artifactId>maven-cucumber-reporting</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

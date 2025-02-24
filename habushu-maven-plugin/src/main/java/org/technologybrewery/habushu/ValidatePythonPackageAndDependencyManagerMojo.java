@@ -9,6 +9,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.StringUtils;
 import org.technologybrewery.habushu.util.HabushuUtil;
+import org.technologybrewery.habushu.util.PackageManager;
 import org.technologybrewery.habushu.util.PoetryUtil;
 import org.technologybrewery.habushu.util.UvUtil;
 
@@ -34,8 +35,14 @@ public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabus
     /**
      * The desired version of Python to use.
      */
-    @Parameter(defaultValue = HabushuUtil.PYTHON_DEFAULT_VERSION_REQUIREMENT, property = "habushu.pythonVersion")
+    @Parameter(property = "habushu.pythonVersion")
     protected String pythonVersion;
+
+    /**
+     * The default python version strategy.
+     */
+    @Parameter(defaultValue = "PYTHONVERSION", property = "habushu.defaultPythonStrategy")
+    protected String defaultPythonStrategy;
 
     /**
      * Should Habushu use pyenv to manage the utilized version of Python?
@@ -53,10 +60,19 @@ public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabus
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
+        PackageManager packageManager = HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile());
+        boolean isPythonVersionConfigurationSet = true;
 
-        HabushuUtil.PackageManager packageManager = HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile());
-        AbstractPythonPackageAndDependencyManagerSetup configureTools = HabushuUtil.getPythonPackageAndDependencyManager(packageManager,
-        pythonVersion, getPythonProjectBaseDir(), rewriteLocalPathDepsInArchives, getLog(), usePyenv, patchInstallScript);
+        // If pythonVersion was not given then update isPythonVersionConfigurationSet and set it to the default
+        if (StringUtils.isEmpty(pythonVersion)) {
+            isPythonVersionConfigurationSet = false;
+            pythonVersion = HabushuUtil.PYTHON_DEFAULT_VERSION_REQUIREMENT;
+        }
+
+        AbstractPythonPackageAndDependencyManagerSetup configureTools =
+                HabushuUtil.getPythonPackageAndDependencyManager(packageManager, pythonVersion, isPythonVersionConfigurationSet,
+                        defaultPythonStrategy, getPythonProjectBaseDir(), rewriteLocalPathDepsInArchives, getLog(),
+                        usePyenv, patchInstallScript);
 
         configureTools.execute();
 
@@ -64,7 +80,7 @@ public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabus
         configurePrivateDevPyPiRepositoryCredentials(configureTools);
     }
 
-    private void configurePrivateDevPyPiRepositoryCredentials(AbstractPythonPackageAndDependencyManagerSetup configureTools) throws MojoExecutionException {
+    private void configurePrivateDevPyPiRepositoryCredentials(AbstractPythonPackageAndDependencyManagerSetup configureTools) {
         if (useDevRepository) {
             if (!TEST_PYPI_REPOSITORY_URL.equals(devRepositoryUrl)){
                 String pypiDevRepoIdUsername = findUsernameForServer(devRepositoryId);
@@ -77,7 +93,7 @@ public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabus
         }
     }
 
-    private void configurePrivatePyPiRepositoryCredentials(AbstractPythonPackageAndDependencyManagerSetup configureTools) throws MojoExecutionException {
+    private void configurePrivatePyPiRepositoryCredentials(AbstractPythonPackageAndDependencyManagerSetup configureTools) {
         if (StringUtils.isNotEmpty(pypiRepoUrl) && !"https://pypi.org".equals(pypiRepoUrl)) {
             String pypiRepoIdUsername = findUsernameForServer(pypiRepoId);
             String pypiRepoIdPassword = findPasswordForServer(pypiRepoId);

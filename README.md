@@ -314,7 +314,8 @@ mvn clean install -Dhabushu.pythonVersion=3.10.4
 
 #### pythonVersion ####
 
-The desired version of Python to use.
+The desired version of Python to use. If `pythonVersion` is not set then Habushu will use the `defaultPythonStrategy`
+configuration to determine where to get the default Python version.
 
 Default: `3.12.9`
 
@@ -323,6 +324,14 @@ Default: `3.12.9`
 This configuration applies only to Poetry projects. If true, Habushu will delegate to `pyenv` for managing and (if needed) installing the specified version of Python. If false, Habushu will look for the desired version of Python on the `PATH`. If Python is not found or if the version does not match the configured `pythonVersion`, the build will fail.
 
 Default: `true`
+
+#### defaultPythonStrategy ####
+
+When `pythonVersion` is not explicitly specified, this strategy helps decide where to get the default version. If set to 
+`PYTHONVERSION`, then Habushu will use the existing project's Python version. If set to `POM`, then Habushu will use 
+the default value for `pythonVerion`
+
+Default: `PYTHONVERSION`
 
 #### behaveOptions ####
 
@@ -883,6 +892,8 @@ configuration options.
 - [Adding Habushu to an Existing Poetry Project](./examples/add-habushu-to-new-or-existing-poetry-project/README.md) - Adding Habushu to an existing Poetry project
 - [Managed Dependencies](./examples/habushu-managed-dependencies/README.md) - supports common definition of dependency 
   versions across Maven modules
+- [Default Python Strategy](./examples/habushu-default-python-strategy/README.md) - Handles the strategy for setting 
+  the default python version if no version is explicitly set in `pythonVersion`
 
 ### Maven Reactor Integration ###
 Optionally, Habushu supports partial builds via the Maven Reactor. This allows functionality such as `-rf` (resume from)

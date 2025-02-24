@@ -67,6 +67,7 @@
                 <module>habushu-poetry-package</module>
                 <module>habushu-poetry-package-consumer</module>
                 <module>habushu-managed-dependencies</module>
+                <module>habushu-default-python-strategy</module>
             </modules>
         </profile>
         <profile>
