@@ -32,7 +32,16 @@
                     <groupId>org.technologybrewery.habushu</groupId>
                     <artifactId>habushu-maven-plugin</artifactId>
                     <version>${project.version}</version>
-
+                    <configuration>
+                        <managedDependencies>
+                            <packageDefinition>
+                                <packageName>krausening</packageName>
+                                <operatorAndVersion>>=20</operatorAndVersion>
+                                <!-- optional - active is true by default:-->
+                                <active>true</active>
+                            </packageDefinition>
+                        </managedDependencies>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
