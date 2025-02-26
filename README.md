@@ -890,6 +890,7 @@ In addition to the general configuration options above, please see the `examples
 Habushu features. Each example will have a working module along with a `README.md` file that explains the specific 
 configuration options.
 - [Adding Habushu to an Existing Poetry Project](./examples/add-habushu-to-new-or-existing-poetry-project/README.md) - Adding Habushu to an existing Poetry project
+- [Adding Habushu to an Existing uv Project](./examples/add-habushu-to-new-or-existing-uv-project/README.md) - Adding Habushu to an existing uv project
 - [Managed Dependencies](./examples/habushu-managed-dependencies/README.md) - supports common definition of dependency 
   versions across Maven modules
 - [Default Python Strategy](./examples/habushu-default-python-strategy/README.md) - Handles the strategy for setting 

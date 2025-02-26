@@ -1,4 +1,6 @@
-# habushu-poetry-simple-package
+[[Return to Main Documentation]](../../README.md)
+
+# add-habushu-to-new-or-existing-poetry-project
 This example demonstrates how to add Habushu to a new or existing Poetry project.
 
 ## Setting up the Project
