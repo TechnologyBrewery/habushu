@@ -47,8 +47,10 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
      * @param usePyenv              whether we are using pyenv to instance and activate python versions
      * @param patchInstallScript    patch install script path
      */
-    public PyenvAndPoetrySetup(String pythonVersion, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log, boolean usePyenv, File patchInstallScript) {
-        super(pythonVersion, baseDir, rewriteLocalPathDepsInArchives, log); 
+    public PyenvAndPoetrySetup(String pythonVersion, boolean isPythonVersionConfigurationSet, String defaultPythonStrategy,
+                               File baseDir, boolean rewriteLocalPathDepsInArchives, Log log, boolean usePyenv,
+                               File patchInstallScript) {
+        super(pythonVersion, isPythonVersionConfigurationSet, defaultPythonStrategy, baseDir, rewriteLocalPathDepsInArchives, log);
         this.usePyenv = usePyenv;
         this.patchInstallScript = patchInstallScript;
     }
@@ -71,7 +73,10 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
         try {
             currentPythonVersion = pyenvHelper.getCurrentPythonVersion();
         } catch (Exception e) {
-            log.info("Failed to find current python version. Attempting to install it now.");
+            log.info("Failed to find current python version.");
+        }
+        if (useCurrentPythonVersion(currentPythonVersion)) {
+            pythonVersion = currentPythonVersion;
         }
         if (!pythonVersion.equals(currentPythonVersion)) {
             pyenvHelper.updatePythonVersion(pythonVersion, patchInstallScript);
@@ -154,6 +159,19 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
         }
     }
 
+    @Override
+    public String findCurrentVirtualEnvironmentFullPath() {
+        String virtualEnvFullPath = null;
+        try {
+            PoetryCommandHelper poetryHelper = new PoetryCommandHelper(baseDir);
+            virtualEnvFullPath = poetryHelper.execute(Arrays.asList("env", "list", "--full-path"));
+        } catch (RuntimeException e) {
+            log.debug("Could not retrieve Poetry-managed virtual environment path - it likely does not exist", e);
+        }
+
+        return virtualEnvFullPath;
+    }
+
     /**
      * Creates a {@link PyenvCommandHelper} that may be used to invoke Pyenv
      * commands from the project's working directory.
@@ -172,6 +190,9 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
         } catch (MojoExecutionException mojoExecutionException) {
             throw new MojoExecutionException(
                     "Expected Python version " + pythonVersion + ", but it was not installed");
+        }
+        if (useCurrentPythonVersion(currentPythonVersion)) {
+            pythonVersion = currentPythonVersion;
         }
         return currentPythonVersion;
     }
@@ -237,22 +258,8 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
      *
      * @return command helper
      */
-    protected PoetryCommandHelper createPoetryCommandHelper() {
+    private PoetryCommandHelper createPoetryCommandHelper() {
         return new PoetryCommandHelper(baseDir);
     }
-
-    @Override
-    public String findCurrentVirtualEnvironmentFullPath() {
-        String virtualEnvFullPath = null;
-        try {
-            PoetryCommandHelper poetryHelper = new PoetryCommandHelper(baseDir);
-            virtualEnvFullPath = poetryHelper.execute(Arrays.asList("env", "list", "--full-path"));
-        } catch (RuntimeException e) {
-            log.debug("Could not retrieve Poetry-managed virtual environment path - it likely does not exist", e);
-        }
-        
-        return virtualEnvFullPath;
-    }
-
 
 }

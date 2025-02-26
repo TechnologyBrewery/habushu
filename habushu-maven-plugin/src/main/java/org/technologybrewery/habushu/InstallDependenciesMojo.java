@@ -6,6 +6,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.technologybrewery.habushu.util.HabushuUtil;
+import org.technologybrewery.habushu.util.PackageManager;
 
 import java.util.List;
 
@@ -100,7 +101,7 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
                 withoutGroups, forceSync, managedDependencies, updateManagedDependenciesWhenFound, failOnManagedDependenciesMismatches, useInProjectVirtualEnvironment, pypiRepoId, pypiRepoUrl,
                 useDevRepository, devRepositoryId, devRepositoryUrl, overridePackageVersion);
 
-        if (HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile()) == HabushuUtil.PackageManager.POETRY){
+        if (HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile()) == PackageManager.POETRY) {
             InstallDependenciesPoetry installDependenciesPoetry = new InstallDependenciesPoetry(getPythonProjectBaseDir(), getLog(), installDependenciesConfigurations);
             installDependenciesPoetry.doExecute();
         } else {
@@ -108,7 +109,4 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
             installDependenciesUv.doExecute();
         }
     }
-
-
-
 }

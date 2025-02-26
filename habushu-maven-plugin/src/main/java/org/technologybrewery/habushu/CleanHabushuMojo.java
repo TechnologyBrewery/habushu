@@ -10,6 +10,7 @@ import org.apache.maven.plugins.clean.CleanMojo;
 import org.apache.maven.plugins.clean.Fileset;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 import org.technologybrewery.habushu.util.HabushuUtil;
+import org.technologybrewery.habushu.util.PackageManager;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -60,8 +61,14 @@ public class CleanHabushuMojo extends CleanMojo {
     /**
      * The desired version of Python to use.
      */
-    @Parameter(defaultValue = HabushuUtil.PYTHON_DEFAULT_VERSION_REQUIREMENT, property = "habushu.pythonVersion")
+    @Parameter(property = "habushu.pythonVersion")
     protected String pythonVersion;
+
+    /**
+     * The default python version strategy.
+     */
+    @Parameter(defaultValue = "PYTHONVERSION", property = "habushu.defaultPythonStrategy")
+    protected String defaultPythonStrategy;
 
     /**
      * Should Habushu use pyenv with Poetry to manage the utilized version of Python?
@@ -123,9 +130,15 @@ public class CleanHabushuMojo extends CleanMojo {
         boolean removeVenvManually = false;
 
         // TODO: This code is specific to Poetry. uv does not provide a command to remove a virtual environment like Poetry.
-        HabushuUtil.PackageManager packageManager = HabushuUtil.checkPythonPackageManager(new File(workingDirectory, "pyproject.toml"));
+        PackageManager packageManager = HabushuUtil.checkPythonPackageManager(new File(workingDirectory, "pyproject.toml"));
+        boolean isPythonVersionConfigurationSet = true;
+        if (StringUtils.isEmpty(pythonVersion)) {
+            isPythonVersionConfigurationSet = false;
+            pythonVersion = HabushuUtil.PYTHON_DEFAULT_VERSION_REQUIREMENT;
+        }
         AbstractPythonPackageAndDependencyManagerSetup configureTools = HabushuUtil.getPythonPackageAndDependencyManager(packageManager,
-        pythonVersion, workingDirectory, rewriteLocalPathDepsInArchives, getLog(), usePyenv, patchInstallScript); 
+        pythonVersion, isPythonVersionConfigurationSet, defaultPythonStrategy, workingDirectory, rewriteLocalPathDepsInArchives,
+                getLog(), usePyenv, patchInstallScript);
 
         String virtualEnvFullPath = configureTools.findCurrentVirtualEnvironmentFullPath();
 

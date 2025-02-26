@@ -5,6 +5,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.technologybrewery.habushu.util.HabushuUtil;
+import org.technologybrewery.habushu.util.PackageManager;
 
 /**
  * Ensures that the current project is a valid Poetry or uv project and initializes
@@ -19,7 +20,7 @@ public class InitializeHabushuMojo extends AbstractHabushuMojo {
     public void doExecute() throws MojoExecutionException, MojoFailureException {
         String pomVersion = project.getVersion();
         String expectedPythonPackageVersion = getPythonPackageVersion(pomVersion, false, null);
-        if (HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile()) == HabushuUtil.PackageManager.POETRY){
+        if (HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile()) == PackageManager.POETRY){
             InitializeHabushuPoetry initializeHabushuPoetry = new InitializeHabushuPoetry(getPythonProjectBaseDir(), getLog(), overridePackageVersion, expectedPythonPackageVersion );
             initializeHabushuPoetry.doExecute();
         } else {

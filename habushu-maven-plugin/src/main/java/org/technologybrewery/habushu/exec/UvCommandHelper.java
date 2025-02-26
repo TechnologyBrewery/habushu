@@ -27,15 +27,13 @@ public class UvCommandHelper extends AbstractCommandHelper {
     private static final String UV_COMMAND = "uv";
     private static final Logger logger = LoggerFactory.getLogger(UvCommandHelper.class);
 
-    private static final String extractUvVersionRegex = "^(?:uv\\s)\\b((\\d+.?)(\\d+.?){1,2})\\b";
+    private static final String EXTRACT_UV_VERSION_REGEX = "^(?:uv\\s)\\b((\\d+.?)(\\d+.?){1,2})\\b";
 
-    private static final Pattern uvVersionPattern = Pattern.compile(extractUvVersionRegex);
+    private static final Pattern UV_VERSION_PATTERN = Pattern.compile(EXTRACT_UV_VERSION_REGEX);
 
-    private static final String extractPythonVersionRegex = "^(?:[Pp]ython\\s)\\b((\\d+.?)(\\d+.?){1,2})\\b";
+    private static final String EXTRACT_PYTHON_VERSION_REGEX = "^(?:[Pp]ython\\s)\\b((\\d+.?)(\\d+.?){1,2})\\b";
 
-    private static final Pattern pythonVersionPattern = Pattern.compile(extractPythonVersionRegex);
-
-    protected File workingDirectory;
+    private static final Pattern pythonVersionPattern = Pattern.compile(EXTRACT_PYTHON_VERSION_REGEX);
 
     protected String pythonVersionFile; 
 
@@ -58,19 +56,19 @@ public class UvCommandHelper extends AbstractCommandHelper {
      */
     public Pair<Boolean, String> getIsUvInstalledAndVersion() {
         try {
-            ProcessExecutor executor = createPackageManagerExecutor(Arrays.asList("--version"));
+            ProcessExecutor executor = createPackageManagerExecutor(List.of("--version"));
             String versionResult = executor.executeAndGetResult(logger);
 
             // Extracts version number from output, given the following format "uv 0.5.20 (1c17662b3 2025-01-15)"
-            String version = getMatchedPattern(uvVersionPattern, versionResult);
+            String version = getMatchedPattern(UV_VERSION_PATTERN, versionResult);
             if (!version.isEmpty()){
-                return new ImmutablePair<Boolean, String>(true, version); 
+                return new ImmutablePair<>(true, version);
             } else {
                 throw new HabushuException("uv version pattern not found.");
             }
             
         } catch (Throwable e) {
-            return new ImmutablePair<Boolean, String>(false, null);
+            return new ImmutablePair<>(false, null);
         }
     }
 
@@ -83,16 +81,14 @@ public class UvCommandHelper extends AbstractCommandHelper {
      */
     public String getCurrentPythonVersion() throws MojoExecutionException {
         String currentPythonVersion = pythonVersionFileContents();
-        if (!currentPythonVersion.isEmpty()) {
-            return currentPythonVersion;
-        } else {
+        if (currentPythonVersion.isEmpty()) {
             currentPythonVersion = pythonVersionFromVirtualEnvironment();
-            if (!currentPythonVersion.isEmpty()){
+            if (!currentPythonVersion.isEmpty()) {
                 logger.info("A .python-version does not currently exist for this package. Creating it now with the Python version being used in the current virutal environment (in .venv).");
                 updatePythonVersion(currentPythonVersion);
             }
-            return currentPythonVersion;
         }
+        return currentPythonVersion;
     }
 
     /**
@@ -100,7 +96,7 @@ public class UvCommandHelper extends AbstractCommandHelper {
      *
      * @return
      */
-    public void updatePythonVersion(String targetVersion) throws MojoExecutionException {
+    public void updatePythonVersion(String targetVersion) {
         List<String> pythonPinCommand = createPythonPinCommand(targetVersion);
         execute(pythonPinCommand);
     }
@@ -189,7 +185,7 @@ public class UvCommandHelper extends AbstractCommandHelper {
 
     private String pythonVersionFileContents() throws MojoExecutionException {
         String pythonVersion = StringUtils.EMPTY;
-        if (checkFileExistance(pythonVersionFile)) {
+        if (Boolean.TRUE.equals(checkFileExistance(pythonVersionFile))) {
             try {
                 Path pythonVersionFilePath = Paths.get(pythonVersionFile);
                 pythonVersion = Files.readString(pythonVersionFilePath, StandardCharsets.UTF_8).strip();

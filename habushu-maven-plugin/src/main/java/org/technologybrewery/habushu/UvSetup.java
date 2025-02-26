@@ -3,6 +3,7 @@ package org.technologybrewery.habushu;
 import com.vdurmont.semver4j.Semver;
 import com.vdurmont.semver4j.Semver.SemverType;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
@@ -21,17 +22,17 @@ import java.util.List;
  */
 public class UvSetup extends AbstractPythonPackageAndDependencyManagerSetup {
    
-    public UvSetup(String pythonVersion, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log) throws MojoExecutionException {
-        super(pythonVersion, baseDir, rewriteLocalPathDepsInArchives, log); 
+    public UvSetup(String pythonVersion, boolean isPythonVersionConfigurationSet, String defaultPythonStrategy, File baseDir,
+                   boolean rewriteLocalPathDepsInArchives, Log log) {
+        super(pythonVersion, isPythonVersionConfigurationSet, defaultPythonStrategy, baseDir, rewriteLocalPathDepsInArchives, log);
     }
 
     /**
-     * Checks if the .python-version file exists. If it exists, it returns the python version listed therein.
-     * If it doesn't exist, then it checks if a .venv exists. If it exists, it returns the python version being
-     * used in the environemnt. If the .venv doesn't exist, then a .python-version file is created with habushu's default
-     * pythonVersion.
+     * Gets the current python version from either the .python-version file or the .venv. It compares this with the
+     * desired python version and if it is different it will pin project to that version. Desired python version is
+     * determined by the habushu config pythonVersion. If that is not set then it will default to the current
+     * projects python version or the default habushu version depending on the config defaultPythonStrategy
      *
-     * @param missingRequiredToolMsgs
      * @return the current Python version
      * @throws MojoExecutionException
      */
@@ -40,11 +41,17 @@ public class UvSetup extends AbstractPythonPackageAndDependencyManagerSetup {
             throws MojoExecutionException {
         UvCommandHelper uvHelper = createUvCommandHelper();
         String currentPythonVersion = uvHelper.getCurrentPythonVersion();
-            if (currentPythonVersion.isEmpty()) {
-                logger.info("The Python version is not currently set for the project. Setting the version...");
-                uvHelper.updatePythonVersion(pythonVersion);
-                currentPythonVersion = uvHelper.getCurrentPythonVersion();
-            }
+
+        if (useCurrentPythonVersion(currentPythonVersion)) {
+            pythonVersion = currentPythonVersion;
+        }
+
+        // If the current python version does not match the desired version, update it to the desired version
+        if (!StringUtils.equals(currentPythonVersion, pythonVersion)) {
+            logger.info("The Python version is not currently set to the desired version. Setting the version...");
+            uvHelper.updatePythonVersion(pythonVersion);
+            currentPythonVersion = uvHelper.getCurrentPythonVersion();
+        }
         return currentPythonVersion;
     }
 

@@ -25,11 +25,6 @@ import java.io.InputStreamReader;
  */
 public final class HabushuUtil {
 
-    public enum PackageManager {
-        POETRY,
-        UV
-    }
-
     private static final Logger logger = LoggerFactory.getLogger(HabushuUtil.class);
 
     /**
@@ -197,7 +192,9 @@ public final class HabushuUtil {
     }
 
     public static AbstractPythonPackageAndDependencyManagerSetup getPythonPackageAndDependencyManager(
-            PackageManager pythonPackageAndDependencyManager, String pythonVersion, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log, Boolean usePyenv, File patchInstallScript) throws MojoExecutionException {
+            PackageManager pythonPackageAndDependencyManager, String pythonVersion, boolean isPythonVersionConfigurationSet,
+            String defaultPythonStrategy, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log,
+            Boolean usePyenv, File patchInstallScript) throws MojoExecutionException {
         // Set the poetry-based parameters to null
         if (pythonPackageAndDependencyManager == PackageManager.UV) {
             usePyenv = null;
@@ -205,7 +202,8 @@ public final class HabushuUtil {
         }
 
         return PythonPackageAndDependencyManagerFactory.createPythonPackageAndDependencyManagerSetup(
-                pythonVersion, baseDir, rewriteLocalPathDepsInArchives, log, pythonPackageAndDependencyManager, usePyenv, patchInstallScript);
+                pythonVersion, isPythonVersionConfigurationSet, defaultPythonStrategy, baseDir, rewriteLocalPathDepsInArchives, log,
+                pythonPackageAndDependencyManager, usePyenv, patchInstallScript);
     }
 
     /**
