@@ -25,20 +25,22 @@ In order to use Habushu, the following prerequisites must be installed:
 * [Poetry 1.5+](https://python-poetry.org/)
 * [Pyenv](https://github.com/pyenv/pyenv)
 
+If you would like to use Habushu with uv-based projects, you must install:
+* [uv 0.5+](https://docs.astral.sh/uv/)
+
 Additionally, Habushu may install and manage:
 
-* [poetry-monorepo-dependency-plugin](https://pypi.org/project/poetry-monorepo-dependency-plugin/)
+* [poetry-monorepo-dependency-plugin](https://pypi.org/project/poetry-monorepo-dependency-plugin/) for Poetry-based projects
 
 ## Usage ##
 
-Habushu automates a consistent and predictable build lifecycle by delegating *nearly all* commands related to dependency management, virtual environment activation, and package publishing to [Poetry](https://python-poetry.org/).  As a result, Habushu projects are Poetry projects and are expected to align with the conventions, structure, and configurations utilized by Poetry projects with the `src/` packaging layout.
+Habushu automates a consistent and predictable build lifecycle by delegating *nearly all* commands related to dependency management, virtual environment activation, and package publishing to [Poetry](https://python-poetry.org/) or [uv](https://docs.astral.sh/uv/).  As a result, Habushu projects can be either Poetry or uv projects and are expected to align with the conventions, structure, and configurations utilized by these tools. 
 
-A Poetry project using the `src/` packaging layout only needs an appropriately configured `pom.xml` within the root level of the project to instrumented through Habushu and participate in a Maven build lifecycle.  The following depicts the required folder structure within an example Habushu module named `spam-ham-eggs`, including the placement of the required `pom.xml` and `pyproject.toml` configurations and utilization of [behave](https://behave.readthedocs.io/en/stable/index.html) for automated testing:
+A Poetry or uv project using the `src/` packaging layout only needs an appropriately configured `pom.xml` within the root level of the project to be instrumented through Habushu and participate in a Maven build lifecycle.  The following depicts the required folder structure within an example Habushu module named `spam-ham-eggs`, including the placement of the required `pom.xml` and `pyproject.toml` configurations and utilization of [behave](https://behave.readthedocs.io/en/stable/index.html) for automated testing:
 
 ```
 	spam-ham-eggs
 	├── pyproject.toml
-	├── poetry.toml
 	├── pom.xml
 	├── src
 	│   └── spam_ham_eggs
@@ -50,37 +52,11 @@ A Poetry project using the `src/` packaging layout only needs an appropriately c
 	            └── spam_ham_eggs_step.py
 ```
 
-**NOTE:** The above includes an optional `poetry.toml` which includes additional configuration settings for Poetry. This file is not required but should be included in version control to ensure consistent builds.
+Best practices for creating a new project (possibly based on an existing Python package or older Habushu module) and adding needed Habushu plugin declaration to the module's `pom.xml` are described below. For working examples, see the [Examples](#examples-) section.
 
-Best practices for creating a new Poetry project (possibly based on an existing Python package or older Habushu module) and adding needed Habushu plugin declaration to the module's `pom.xml` are described below.
+### Integrating Your Poetry/uv Project with Habushu and Maven ###
 
-### Creating a New Poetry Project ###
-If starting from scratch, use the `poetry new --src` command to create a new Poetry project:
-
-```sh
-$ poetry new spam-ham-eggs --src
-Created package spam_ham_eggs in spam-ham-eggs
-$ ls spam-ham-eggs 
-README.rst     pyproject.toml src            tests
-```
-
-If migrating an existing Python package, consider using `poetry init` and use the interactive guide to create the desired `pyproject.toml` configuration with the appropriate dependencies.
-
-If migrating an earlier release of Habushu, follow the same process, but note the following required changes:
-
-* Dependencies specified in `requirements.txt` must be specified in `pyproject.toml` - either use `poetry add` or add them interactively via `poetry init`
-* Python source and test files must be migrated into the folder structure described above, which aligns with the standard `src/` packaging layout.  Assuming that the package name is `spam_ham_eggs`, `src/main/python/*` from the existing Habushu project must be moved into `src/spam_ham_eggs` and `src/test/python/*` from the existing Habushu project must be moved into `tests`
-* Previously, Habushu 1.x modules depended on each other via Maven `<dependency>` declarations.  This approach is deprecated as Habushu 2.x+ expects that other Habushu modules are published to PyPI repositories and consumed as Python packages using Poetry's built-in dependency management capabilties.  For Habushu module dependencies within the same Maven multi-module build hierarchy, consider using editable development installs:
-
-    ```toml
-    # pyproject.toml
-    [tool.poetry.dependencies]
-    my-package = {path = "../spam-eggs-ham-dependency", develop = true}
-    ```
-
-### Integrating Your Poetry Project with Habushu and Maven ###
-
-Once you have a valid Poetry project, add the following configurations to your `pom.xml` to enable your Poetry project to be managed as a part of Habushu's custom Maven build lifecycle.
+Once you have a valid project, add the following configurations to your `pom.xml` to enable your project to be managed as a part of Habushu's custom Maven build lifecycle.
 
 Set the `<packaging>` type of your module's `pom.xml` to `habushu`:
 ```xml
@@ -131,13 +107,15 @@ def step_impl(context):
 
 ### Running Specified Tagged Tests ###
 
-"tagged-tests" is an example profile within habushu-poetry-package-consumer used to specify a tag(s) to test.  The variable "tags" is used to specify which tags to test. To run multiple tests, comma separate them. To exclude a test, add "\~" in front of the tag.
+"tagged-tests" is an example profile within [habushu-poetry-package-consumer](./examples/habushu-poetry-package-consumer/) used to specify a tag(s) to test.  The variable "tags" is used to specify which tags to test. To run multiple tests, comma separate them. To exclude a test, add "\~" in front of the tag.
 
-Ex: mvn clean test -Ptagged-tests -Dtags="one_tag"
+```
+mvn clean test -Ptagged-tests -Dtags="one_tag"
+```
 
 ### Running Custom Python Scripts During Build Phases ###
 
-In addition to creating a custom Maven lifecycle that automates the execution of a predictable Poetry-based workflow, Habushu exposes a `run-command-in-virtual-env` plugin goal that provides developers with the ability to [execute any Python command or script](https://python-poetry.org/docs/cli/#run) within the Poetry project's virtual environment through `poetry run` during the desired build phase.
+In addition to creating a custom Maven lifecycle that automates the execution of a predictable Poetry/uv-based workflow, Habushu exposes a `run-command-in-virtual-env` plugin goal that provides developers with the ability to execute any Python command or script within the project's virtual environment through `poetry run`/`uv run` during the desired build phase.
 
 For example, developers may use this feature to bind a Habushu module's `compile` phase to the appropriate Python command that generates gRPC/protobuf bindings as an automated part of the build following dependency installation:
 
@@ -336,13 +314,13 @@ mvn clean install -Dhabushu.pythonVersion=3.10.4
 
 #### pythonVersion ####
 
-The desired version of Python to use. Habushu delegates to `pyenv` for managing versions of Python depending on the configuration `usePyenv`.
+The desired version of Python to use.
 
-Default: `3.11.4`
+Default: `3.12.9`
 
 #### usePyenv ####
 
-If true, Habushu will delegate to `pyenv` for managing and (if needed) installing the specified version of Python. If false, Habushu will look for the desired version of Python on the `PATH`. If Python is not found or if the version does not match the configured `pythonVersion`, the build will fail.
+This configuration applies only to Poetry projects. If true, Habushu will delegate to `pyenv` for managing and (if needed) installing the specified version of Python. If false, Habushu will look for the desired version of Python on the `PATH`. If Python is not found or if the version does not match the configured `pythonVersion`, the build will fail.
 
 Default: `true`
 
@@ -857,23 +835,23 @@ Default: None
 
 ## The Habushu Build Lifecycle ##
 
-Habushu applies a [custom Maven lifecycle that binds Poetry-based DevSecOps workflow commands](https://fermenter.atlassian.net/wiki/spaces/HAB/pages/2056749057/Dependency+Management+and+Build+Automation+through+Poetry+and+Maven) to the following phases:
+Habushu applies a [custom Maven lifecycle that binds Poetry-based/uv-based DevSecOps workflow commands](https://fermenter.atlassian.net/wiki/spaces/HAB/pages/2056749057/Dependency+Management+and+Build+Automation+through+Poetry+and+Maven) to the following phases:
 
 ##### validate #####
 
-Ensures that necessary required tools are installed, specifically Pyenv, Poetry, and any needed Poetry plugins. Additionally, if **usePyenv** is enabled, Pyenv will install/configure the specified version of Python to be used in all downstream Python/Poetry operations.
+Ensures that necessary required tools are installed. Additionally, if **usePyenv** is enabled for Poetry projects, Pyenv will install/configure the specified version of Python to be used in all downstream Python/Poetry operations. The **usePyenv** configuration does not apply to uv projects.
 
 ##### initialize #####
 
-Configures the build state needed by Habushu, ensures that the current project is a Poetry project and initializes and aligns POM and pyproject.toml versions. If configured via **overridePackageVersion**, automatically syncs the Poetry project version with the appropriate version that is derived from the Habushu module's POM.
+Configures the build state needed by Habushu, ensures that the current project is a Poetry or uv project and initializes and aligns POM and pyproject.toml versions. If configured via **overridePackageVersion**, automatically syncs the project version with the appropriate version that is derived from the Habushu module's POM.
 
 ##### compile #####
 
-Installs dependencies defined in the project's `pyproject.toml` configuration, specifically by running `poetry lock` followed by `poetry install`. If a private PyPi repository is defined via **pypiRepoUrl**, it will be automatically added to the module's `pyproject.toml` configuration as a supplemental source of dependencies, if it is not already configured in the `pyproject.toml`
+Installs dependencies defined in the project's `pyproject.toml` configuration, specifically by locking the dependencies and installing them into the virtual environment. If a private PyPi repository is defined via **pypiRepoUrl**, it will be automatically added to the module's `pyproject.toml` configuration as a supplemental source of dependencies, if it is not already configured in the `pyproject.toml`
 
 ##### process-classes #####
 
-Leverages the [black formatter](https://github.com/psf/black) package to format both source and test Python directories via `poetry run`.
+Leverages the [black formatter](https://github.com/psf/black) package to format both source and test Python directories via the package manager's `run` command. 
 
 ##### test #####
 
@@ -881,7 +859,7 @@ Uses [behave](https://github.com/behave/behave) to execute BDD scenarios that ar
 
 ##### package #####
 
-Builds the `sdist` and `wheel` archives of this project using `poetry build`. It also generates a `requirements.txt` file which is useful when installing the package in a Docker container where you may want to install the dependencies in a specific Docker layer to optimize caching. If the `containerize-dependencies` execution is enabled, supporting monorepo dependency source files will be staged.
+Builds the `sdist` and `wheel` archives of this project using the package manager's `build` functionality. It also generates a `requirements.txt` file which is useful when installing the package in a Docker container where you may want to install the dependencies in a specific Docker layer to optimize caching. If the `containerize-dependencies` execution is enabled, supporting monorepo dependency source files will be staged.
 
 ##### install #####
 Publishes the `pom.xml` for the module into your local Maven Repository (`~/.m2/repository`).
@@ -902,6 +880,7 @@ Deletes the folder in which archives generated by the **package** phase are plac
 In addition to the general configuration options above, please see the `examples` folder for detailed information on 
 Habushu features. Each example will have a working module along with a `README.md` file that explains the specific 
 configuration options.
+- [Adding Habushu to an Existing Poetry Project](./examples/add-habushu-to-new-or-existing-poetry-project/README.md) - Adding Habushu to an existing Poetry project
 - [Managed Dependencies](./examples/habushu-managed-dependencies/README.md) - supports common definition of dependency 
   versions across Maven modules
 
