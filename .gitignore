@@ -66,3 +66,5 @@ generated/
 !habushu-maven-plugin/src/test/resources/**/poetry.toml
 # https://python-poetry.org/docs/configuration/#virtualenvsin-project
 
+# TODO: Temporary fix until uv is fully integrated
+examples/habushu-uv-package/poetry.toml

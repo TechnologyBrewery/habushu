@@ -19,7 +19,11 @@
                 <plugin>
                     <groupId>org.technologybrewery.habushu</groupId>
                     <artifactId>habushu-maven-plugin</artifactId>
+                    <!-- Since we're working in the habushu repo, we must set the project version dynamically -->
+                    <!-- Outside of this repo, the version should be hardcoded here or in the parent pom -->
                     <version>${project.version}</version>
+                    <!-- This configuration allows Habushu to extend/customize the Maven build lifecyle,
+                    which is required for the plugin to function -->
                     <extensions>true</extensions>
                     <configuration>
                         <pythonVersion>${version.python.default}</pythonVersion>
@@ -41,6 +45,14 @@
                 <version>${version.cucumber.reporting}</version>
                 <scope>test</scope>
             </dependency>
+            <!-- NB: workaround to trigger build cache invalidation when a new SNAPSHOT is available-->
+            <!-- This dependency is required specifically to build the examples in this repo -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>habushu-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -51,6 +63,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
+                <module>add-habushu-to-new-or-existing-poetry-project</module>
                 <module>habushu-poetry-package</module>
                 <module>habushu-poetry-package-consumer</module>
                 <module>habushu-managed-dependencies</module>

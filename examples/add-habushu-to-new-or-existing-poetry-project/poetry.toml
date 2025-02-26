@@ -1,0 +1,4 @@
+# This file is optional, but if you choose to use this file in a project, it should be included in version control to ensure consistent builds.
+[virtualenvs]
+prefer-active-python = true
+in-project = true
