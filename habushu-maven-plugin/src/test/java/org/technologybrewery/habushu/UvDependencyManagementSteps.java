@@ -5,7 +5,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.junit.jupiter.api.Assertions;
 
 import java.io.BufferedReader;
@@ -15,21 +14,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UvDependencyManagementSteps {
+public class UvDependencyManagementSteps{
 
     private DependencyManagementTestMojo mojo;
     private File originalPyProjectToml = new File("target/orig.pyproject.toml");
     private File finalPyProjectToml = new File("target/pyproject.toml");
     private HabushuException encounteredException;
+    private String baseFilePath = "src/test/resources/base-uv-test-pyproject.toml";
 
     @Before("@dependencyManagementUv")
     public void cleanUp() throws IOException {
         originalPyProjectToml.delete();
         finalPyProjectToml.delete();
         encounteredException = null;
-
-        createPyProjectTomlFiles();
+        CommonDependencyManagementSteps.createPyProjectTomlFiles(baseFilePath, originalPyProjectToml, finalPyProjectToml);
     }
+
 
     @Given("a Habushu configuration with no UV dependency management entries")
     public void a_habushu_configuration_with_no_dependency_management_entries() throws Exception {
@@ -43,33 +43,20 @@ public class UvDependencyManagementSteps {
         mojo = new DependencyManagementTestMojo();
 
         List<PackageDefinition> managedDependencies = new ArrayList<>();
-        PackageDefinition blackUpdateDefinition = getBlackUpdate();
-        managedDependencies.add(blackUpdateDefinition);
+        PackageDefinition grpcioToolsUpdateDefinition = CommonDependencyManagementSteps.getPackageDefinition("grpcio-tools", "^1.70.0");
+        managedDependencies.add(grpcioToolsUpdateDefinition);
 
         mojo.setManagedDependencies(managedDependencies);
     }
 
     @Given("a Habushu configuration with a UV managed dependency of {string} and {string}")
     public void a_habushu_configuration_with_a_managed_dependency_of_and(String packageName, String operatorAndVersion) {
-        createMojoWithManagedDependency(packageName, operatorAndVersion, true);
+        mojo = CommonDependencyManagementSteps.createMojoWithManagedDependency(packageName, operatorAndVersion, true);
     }
 
     @Given("a Habushu configuration with an inactive managed dependency of {string} and {string}")
     public void a_habushu_configuration_with_an_inactive_managed_dependency_of_and(String packageName, String operatorAndVersion) {
-        createMojoWithManagedDependency(packageName, operatorAndVersion, false);
-    }
-
-    protected void createMojoWithManagedDependency(String packageName, String operatorAndVersion, boolean isActive) {
-        mojo = new DependencyManagementTestMojo();
-
-        List<PackageDefinition> managedDependencies = new ArrayList<>();
-        PackageDefinition packageDefinition = new PackageDefinition();
-        packageDefinition.setPackageName(packageName);
-        packageDefinition.setOperatorAndVersion(StringEscapeUtils.unescapeJava(operatorAndVersion));
-        packageDefinition.setActive(isActive);
-        managedDependencies.add(packageDefinition);
-
-        mojo.setManagedDependencies(managedDependencies);
+        mojo = CommonDependencyManagementSteps.createMojoWithManagedDependency(packageName, operatorAndVersion, false);
     }
 
 
@@ -119,7 +106,6 @@ public class UvDependencyManagementSteps {
             String line = reader.readLine();
 
             while (line != null) {
-                System.out.println(line);
                 if (line.contains(packageName) && line.contains(updatedOperatorAndVersion)) {
                     foundMatch = true;
                 }
@@ -127,22 +113,8 @@ public class UvDependencyManagementSteps {
                 line = reader.readLine();
             }
         }
+        Assertions.assertTrue(foundMatch, "Expected to find the following update: " + packageName + " with " + updatedOperatorAndVersion);
 
-        Assertions.assertTrue(foundMatch, "Expected to find the update");
-
-    }
-
-    private void createPyProjectTomlFiles() throws IOException {
-        File baseFile = new File("src/test/resources/base-uv-test-pyproject.toml");
-        FileUtils.copyFile(baseFile, originalPyProjectToml);
-        FileUtils.copyFile(baseFile, finalPyProjectToml);
-    }
-
-    private PackageDefinition getBlackUpdate() {
-        PackageDefinition packageDefinition = new PackageDefinition();
-        packageDefinition.setPackageName("black");
-        packageDefinition.setOperatorAndVersion("^23.3.0");
-        return packageDefinition;
     }
 
 }

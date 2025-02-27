@@ -29,7 +29,7 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
      * {@link AbstractHabushuMojo#pypiRepoUrl}.
      */
     @Parameter(defaultValue = "true", property = "habushu.addPypiRepoAsPackageSources")
-    private boolean addPypiRepoAsPackageSources;
+    protected boolean addPypiRepoAsPackageSources;
 
     /**
      * Configures the path for the simple index on a private pypi repository.
@@ -37,31 +37,31 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
      * simple index. devpi, for instance, uses "+simple".
      */
     @Parameter(property = "habushu.pypiSimpleSuffix", defaultValue = "simple")
-    private String pypiSimpleSuffix;
+    protected String pypiSimpleSuffix;
 
     /**
      * Configures whether the lock file will be updated before install.
      */
     @Parameter(defaultValue = "false", property = "habushu.skipPoetryLockUpdate")
-    private boolean skipPoetryLockUpdate;
+    protected boolean skipPoetryLockUpdate;
 
     /**
      * Specifies groups to include in the installation.
      */
     @Parameter(property = "habushu.withGroups")
-    private String[] withGroups;
+    protected String[] withGroups;
 
     /**
      * Specifies groups to exclude from the installation.
      */
     @Parameter(property = "habushu.withoutGroups")
-    private String[] withoutGroups;
+    protected String[] withoutGroups;
 
     /**
      * Configuration option to include the --sync option on poetry install
      */
     @Parameter(defaultValue = "false", property = "habushu.forceSync")
-    private boolean forceSync;
+    protected boolean forceSync;
 
     /**
      * The set of managed dependencies to monitor for conformance.  These can result in:
@@ -95,18 +95,100 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
     @Parameter(defaultValue = "true", property = "habushu.useInProjectVirtualEnvironment")
     protected boolean useInProjectVirtualEnvironment;
 
+    /**
+     * Get whether whether a private PyPi repository, is automatically added as a package source
+     * @return addPypiRepoAsPackageSources
+     */
+    public boolean addPypiRepoAsPackageSources() {
+        return addPypiRepoAsPackageSources;
+    }
+
+    /**
+     * Get configuration for the path for the simple index on a private pypi repository.
+     * @return pypiSimpleSuffix
+     */
+    public String getPypiSimpleSuffix() {
+        return pypiSimpleSuffix;
+    }
+
+    /**
+     * Get configuration for the path for the simple index on a private pypi repository.
+     * @return pypiSimpleSuffix
+     */
+    public boolean skipPoetryLockUpdate() {
+        return skipPoetryLockUpdate;
+    }
+
+    /**
+     * Specifies groups to include in the installation.
+     * @return withGroups
+     */
+    public String[] getWithGroups() {
+        return withGroups;
+    }
+
+    /**
+     * Specifies groups to exclude in the installation.
+     * @return withoutGroups
+     */
+    public String[] getWithoutGroups() {
+        return withoutGroups;
+    }
+
+    /**
+     * Whether to include the --sync option on poetry install
+     * @return forceSync
+     */
+    public boolean forceSync() {
+        return forceSync;
+    }
+
+    /**
+     * The set of managed dependencies to monitor for conformance
+     * @return managedDependencies
+     */
+    public List<PackageDefinition> getManagedDependencies() {
+        return managedDependencies;
+    }
+
+    /**
+     * whether to update managed dependencies when found.
+     * @return updateManagedDependenciesWhenFound
+     */
+    public boolean updateManagedDependenciesWhenFound() {
+        return updateManagedDependenciesWhenFound;
+    }
+
+    /**
+     * Whether to fail if managed dependencies mismatch.
+     * @return failOnManagedDependenciesMismatches
+     */
+    public boolean failOnManagedDependenciesMismatches() {
+        return failOnManagedDependenciesMismatches;
+    }
+
+    /**
+     * Whether to configure Poetry's {@code virtualenvs.in-project} value for this project.
+     * @return useInProjectVirtualEnvironment
+     */
+    public boolean useInProjectVirtualEnvironment() {
+        return useInProjectVirtualEnvironment;
+    }
+
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
-        InstallDependenciesConfigurations installDependenciesConfigurations = new InstallDependenciesConfigurations(addPypiRepoAsPackageSources, pypiSimpleSuffix, skipPoetryLockUpdate, withGroups,
-                withoutGroups, forceSync, managedDependencies, updateManagedDependenciesWhenFound, failOnManagedDependenciesMismatches, useInProjectVirtualEnvironment, pypiRepoId, pypiRepoUrl,
-                useDevRepository, devRepositoryId, devRepositoryUrl, overridePackageVersion);
 
-        if (HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile()) == PackageManager.POETRY) {
-            InstallDependenciesPoetry installDependenciesPoetry = new InstallDependenciesPoetry(getPythonProjectBaseDir(), getLog(), installDependenciesConfigurations);
+        if (HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile()) == PackageManager.POETRY){
+            //Passing "this" in the param is intentional so that we can carry over all @param variables to this class using the instance
+            //of InstallDependenciesMOJO instead of passing giant list of parameters above.
+            InstallDependenciesPoetry installDependenciesPoetry = new InstallDependenciesPoetry(getPythonProjectBaseDir(), getLog(), this);
             installDependenciesPoetry.doExecute();
         } else {
-            InstallDependenciesUv installDependenciesUv = new InstallDependenciesUv(getPythonProjectBaseDir(), getLog(), installDependenciesConfigurations);
+            InstallDependenciesUv installDependenciesUv = new InstallDependenciesUv(getPythonProjectBaseDir(), getLog(), this);
             installDependenciesUv.doExecute();
         }
     }
+
+
+
 }

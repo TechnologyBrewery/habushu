@@ -335,6 +335,54 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     }
 
     /**
+     * Fetches pypi Repository Id
+     * @return pypi repository id.
+     */
+    public String getPypiRepoId() {
+        return pypiRepoId;
+    }
+
+    /**
+     * Fetches pypi Repository url
+     * @return pypi repository url.
+     */
+    public String getPypiRepoUrl() {
+        return pypiRepoUrl;
+    }
+
+    /**
+     *  Check whether to use dev Repository
+     * @return boolean useDevRepository
+     */
+    public boolean useDevRepository() {
+        return useDevRepository;
+    }
+
+    /**
+     * Fetches dev Repository Id
+     * @return dev repository id.
+     */
+    public String getDevRepositoryId() {
+        return devRepositoryId;
+    }
+
+    /**
+     * Fetches dev Repository url
+     * @return dev repository url.
+     */
+    public String getDevRepositoryUrl() {
+        return devRepositoryUrl;
+    }
+
+    /**
+     *  Check whether to override package version
+     * @return boolean overridePackageVersion
+     */
+    public boolean overridePackageVersion() {
+        return overridePackageVersion;
+    }
+
+    /**
      * Returns a {@link File} representing this project's Poetry pyproject.toml
      * configuration.
      *
