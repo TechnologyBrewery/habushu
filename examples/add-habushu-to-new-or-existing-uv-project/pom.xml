@@ -1,0 +1,42 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.technologybrewery.habushu</groupId>
+        <artifactId>examples</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+    </parent>
+
+    <name>habushu::Examples::Add Habushu to a new or existing uv project</name>
+    <description>This example demonstrates how to add Habushu to a new or existing uv project</description>
+
+    <artifactId>add-habushu-to-new-or-existing-uv-project</artifactId>
+
+    <!-- set the Maven module packaging to habushu-->
+    <!-- This allows us to build this uv project via the `mvn install` or `mvnd install` commands -->
+    <packaging>habushu</packaging>
+
+    <dependencies>
+        <!-- NB: workaround to trigger build cache invalidation when a new SNAPSHOT is available-->
+        <!-- This dependency is required specifically to build the examples in this repo -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>habushu-maven-plugin</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- See the Maven Build Directory Customization section of the habushu/README.md for details -->
+        <directory>dist</directory>
+        <plugins>
+            <plugin>
+                <groupId>org.technologybrewery.habushu</groupId>
+                <artifactId>habushu-maven-plugin</artifactId>
+                <!-- See habushu/examples/pom.xml for additional plugin configuration details -->
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

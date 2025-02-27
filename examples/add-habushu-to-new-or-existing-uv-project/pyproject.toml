@@ -1,0 +1,26 @@
+[project]
+name = "add-habushu-to-new-or-existing-uv-project"
+version = "3.0.0.dev"
+description = "This example demonstrates how to add Habushu to a new or existing uv project."
+readme = "README.md"
+authors = [
+    { name = "Margaret Black", email = "black_margaret@bah.com" }
+]
+requires-python = ">=3.11"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+# Added by habushu-maven-plugin at 2025-02-27T08:54:53.613011 to use https://pypi.org/simple/ as source PyPi repository for installing dependencies
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple/"
+
+
+# Added by habushu-maven-plugin at 2025-02-27T08:54:53.621788 to use https://test.pypi.org/simple/ as source PyPi repository for installing dependencies
+[[tool.uv.index]]
+name = "dev-pypi"
+url = "https://test.pypi.org/simple/"
