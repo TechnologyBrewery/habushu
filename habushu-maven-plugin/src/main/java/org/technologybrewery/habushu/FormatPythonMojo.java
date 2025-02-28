@@ -83,15 +83,10 @@ public class FormatPythonMojo extends AbstractHabushuMojo {
     }
 
     protected void downloadFormatterIfNotPresent(AbstractCommandHelper helper) throws HabushuException {
-        try {
-            if (!helper.isDependencyInstalled(FORMATTER_PACKAGE)) {
-                getLog().info(
-                        String.format("%s dependency not specified in pyproject.toml - installing now...", FORMATTER_PACKAGE));
-                helper.installDevelopmentDependency(FORMATTER_PACKAGE);
-            }
-        } catch (MojoExecutionException e) {
-            getLog().error(String.format("Error installing formatter package: %s", FORMATTER_PACKAGE));
-            throw new HabushuException(e);
+        if (!helper.isDependencyInstalled(FORMATTER_PACKAGE)) {
+            getLog().info(
+                    String.format("%s dependency not specified in pyproject.toml - installing now...", FORMATTER_PACKAGE));
+            helper.installDevelopmentDependency(FORMATTER_PACKAGE);
         }
     }
 

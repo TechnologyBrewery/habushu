@@ -210,6 +210,42 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     @Parameter(defaultValue = "false", property = "habushu.rewriteLocalPathDepsInArchives")
     protected boolean rewriteLocalPathDepsInArchives;
 
+    public Settings getSettings() {
+        return settings;
+    }
+
+    public boolean isDecryptPassword() {
+        return decryptPassword;
+    }
+
+    public String getPackaging() {
+        return packaging;
+    }
+
+    public File getSourceDirectory() {
+        return sourceDirectory;
+    }
+
+    public File getTestDirectory() {
+        return testDirectory;
+    }
+
+    public boolean isUseDevRepository() {
+        return useDevRepository;
+    }
+
+    public boolean isOverridePackageVersion() {
+        return overridePackageVersion;
+    }
+
+    public MavenProject getProject() {
+        return project;
+    }
+
+    public boolean isRewriteLocalPathDepsInArchives() {
+        return rewriteLocalPathDepsInArchives;
+    }
+
     /**
      * Find the username for a given server in Maven's user settings.
      *
@@ -328,7 +364,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     }
 
     /**
-     * Creates a {@link PoetryCommandHelper} that may be used to invoke uv
+     * Creates a {@link UvCommandHelper} that may be used to invoke uv
      * commands from the project's working directory.
      *
      * @return

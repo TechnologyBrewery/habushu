@@ -729,7 +729,8 @@ Default: `${project.basedir}/src`
 
 #### testDirectory ####
 
-Folder in which Python test files are located - should align with Poetry's project structure conventions. Developers will typically **not** modify this property but is made available for customization to support unanticipated scenarios.
+Folder in which Python test files are located - should align with standard project structure conventions. 
+Developers will typically **not** modify this property but is made available for customization to support unanticipated scenarios.
 
 Default: `${project.basedir}/tests`
 

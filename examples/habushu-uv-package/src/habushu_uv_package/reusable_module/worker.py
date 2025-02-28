@@ -1,5 +1,5 @@
 # a simple module
-from habushu_poetry_package_uv.util.useful import i_do_something_useful
+from habushu_uv_package.util.useful import i_do_something_useful
 
 
 class SubWorker:

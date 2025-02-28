@@ -102,11 +102,7 @@ public class UvCommandHelper extends AbstractCommandHelper {
     }
 
     /**
-     * Returns whether the specified dependency package is installed within this
-     * uv project's virtual environment (and pyproject.toml).
-     *
-     * @param packageName
-     * @return
+     * {@inheritDoc}
      */
     @Override
     public boolean isDependencyInstalled(String packageName) {
@@ -116,17 +112,13 @@ public class UvCommandHelper extends AbstractCommandHelper {
             return false;
         }
         return true;
-
     }
 
     /**
-     * Installs the specified package as a development dependency to this uv
-     * project's virtual environment and pyproject.toml specification.
-     *
-     * @param packageName
+     * {@inheritDoc}
      */
     @Override
-    public void installDevelopmentDependency(String packageName) throws MojoExecutionException {
+    public void installDevelopmentDependency(String packageName) {
         execute(Arrays.asList("add", packageName, "--group", "dev"));
     }
 
