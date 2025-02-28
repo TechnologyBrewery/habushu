@@ -21,6 +21,7 @@ public class PoetryDependencyManagementSteps {
     private File originalPyProjectToml = new File("target/orig.pyproject.toml");
     private File finalPyProjectToml = new File("target/pyproject.toml");
     private HabushuException encounteredException;
+    private String baseFilePath = "src/test/resources/base-test-pyproject.toml";
 
     @Before("@dependencyManagementPoetry")
     public void cleanUp() throws IOException {
@@ -28,7 +29,7 @@ public class PoetryDependencyManagementSteps {
         finalPyProjectToml.delete();
         encounteredException = null;
 
-        createPyProjectTomlFiles();
+        CommonDependencyManagementSteps.createPyProjectTomlFiles(baseFilePath, originalPyProjectToml, finalPyProjectToml);
     }
 
     @Given("a Habushu configuration with no poetry dependency management entries")
@@ -43,7 +44,7 @@ public class PoetryDependencyManagementSteps {
         mojo = new DependencyManagementTestMojo();
 
         List<PackageDefinition> managedDependencies = new ArrayList<>();
-        PackageDefinition blackUpdateDefinition = getBlackUpdate();
+        PackageDefinition blackUpdateDefinition = CommonDependencyManagementSteps.getPackageDefinition("black","^23.3.0");
         managedDependencies.add(blackUpdateDefinition);
 
         mojo.setManagedDependencies(managedDependencies);
@@ -51,25 +52,12 @@ public class PoetryDependencyManagementSteps {
 
     @Given("a Habushu configuration with a poetry managed dependency of {string} and {string}")
     public void a_habushu_configuration_with_a_poetry_managed_dependency_of_and(String packageName, String operatorAndVersion) {
-        createMojoWithManagedDependency(packageName, operatorAndVersion, true);
+        mojo = CommonDependencyManagementSteps.createMojoWithManagedDependency(packageName, operatorAndVersion, true);
     }
 
     @Given("a Habushu configuration with a poetry inactive managed dependency of {string} and {string}")
     public void a_habushu_configuration_with_an_inactive_managed_dependency_of_and(String packageName, String operatorAndVersion) {
-        createMojoWithManagedDependency(packageName, operatorAndVersion, false);
-    }
-
-    protected void createMojoWithManagedDependency(String packageName, String operatorAndVersion, boolean isActive) {
-        mojo = new DependencyManagementTestMojo();
-
-        List<PackageDefinition> managedDependencies = new ArrayList<>();
-        PackageDefinition packageDefinition = new PackageDefinition();
-        packageDefinition.setPackageName(packageName);
-        packageDefinition.setOperatorAndVersion(StringEscapeUtils.unescapeJava(operatorAndVersion));
-        packageDefinition.setActive(isActive);
-        managedDependencies.add(packageDefinition);
-
-        mojo.setManagedDependencies(managedDependencies);
+        mojo = CommonDependencyManagementSteps.createMojoWithManagedDependency(packageName, operatorAndVersion, false);
     }
 
 
@@ -131,19 +119,6 @@ public class PoetryDependencyManagementSteps {
 
         Assertions.assertTrue(foundMatch, "Expected to find the following update: " + expectedTomlUpdate);
 
-    }
-
-    private void createPyProjectTomlFiles() throws IOException {
-        File baseFile = new File("src/test/resources/base-test-pyproject.toml");
-        FileUtils.copyFile(baseFile, originalPyProjectToml);
-        FileUtils.copyFile(baseFile, finalPyProjectToml);
-    }
-
-    private PackageDefinition getBlackUpdate() {
-        PackageDefinition packageDefinition = new PackageDefinition();
-        packageDefinition.setPackageName("black");
-        packageDefinition.setOperatorAndVersion("^23.3.0");
-        return packageDefinition;
     }
 
 }

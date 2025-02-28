@@ -39,22 +39,12 @@ public class DependencyManagementTestMojo extends InstallDependenciesMojo {
     }
 
     protected void processManagedDependencyMismatchesPoetry(){
-        String[] str = {};
-        InstallDependenciesConfigurations installDependenciesConfigurations = new InstallDependenciesConfigurations(true, "simple",
-                false, str, str, false, managedDependencies, updateManagedDependenciesWhenFound, failOnManagedDependenciesMismatches,
-                useInProjectVirtualEnvironment, pypiRepoId, pypiRepoUrl, useDevRepository, devRepositoryId, devRepositoryUrl, overridePackageVersion);
-        InstallDependenciesPoetry installDependenciesPoetry = new InstallDependenciesPoetry(new File("target/"), getLog(), installDependenciesConfigurations);
+        InstallDependenciesPoetry installDependenciesPoetry = new InstallDependenciesPoetry(new File("target/"), getLog(), this);
         installDependenciesPoetry.processManagedDependencyMismatches();
-
-
     }
 
     protected void processManagedDependencyMismatchesUv(){
-        String[] str = {};
-        InstallDependenciesConfigurations installDependenciesConfigurations = new InstallDependenciesConfigurations(true, "simple",
-                false, str, str, false, managedDependencies, updateManagedDependenciesWhenFound, failOnManagedDependenciesMismatches,
-                false, pypiRepoId, pypiRepoUrl, useDevRepository, devRepositoryId, devRepositoryUrl, overridePackageVersion);
-        InstallDependenciesUv installDependenciesUv = new InstallDependenciesUv(new File("target/"), getLog(), installDependenciesConfigurations);
+        InstallDependenciesUv installDependenciesUv = new InstallDependenciesUv(new File("target/"), getLog(), this);
         installDependenciesUv.processManagedDependencyMismatches();
 
 
