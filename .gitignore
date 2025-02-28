@@ -68,3 +68,6 @@ generated/
 
 # TODO: Temporary fix until uv is fully integrated
 examples/habushu-uv-package/poetry.toml
+
+# ruff
+.ruff_cache/

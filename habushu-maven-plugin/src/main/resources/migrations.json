@@ -45,8 +45,7 @@
               "pyproject.toml"
             ],
             "excludes": [
-              "**/habushu-mixology/pyproject.toml",
-              "**/habushu-mixology-consumer/pyproject.toml"
+              "**/examples/**/pyproject.toml"
             ]
           }
         ]
@@ -60,8 +59,7 @@
               "pyproject.toml"
             ],
             "excludes": [
-              "**/habushu-mixology/pyproject.toml",
-              "**/habushu-mixology-consumer/pyproject.toml"
+              "**/examples/**/pyproject.toml"
             ]
           }
         ]
@@ -75,8 +73,7 @@
               "pyproject.toml"
             ],
             "excludes": [
-              "**/habushu-mixology/pyproject.toml",
-              "**/habushu-mixology-consumer/pyproject.toml"
+              "**/examples/**/pyproject.toml"
             ]
           }
         ]

@@ -14,6 +14,7 @@ behave = ">=1.2.6"
 black = ">=24.3.0"
 kappa-maki = ">=1.0.0"
 pylint = ">=3.1.0"
+ruff = "^0.9.7"
 
 
 [build-system]
@@ -26,3 +27,8 @@ build-backend = "poetry.core.masonry.api"
 name = "dev-pypi"
 url = "https://test.pypi.org/simple/"
 priority = "supplemental"
+
+[tool.ruff.format]
+indent-style="space"
+line-ending="lf"
+quote-style="preserve"

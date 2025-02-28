@@ -42,6 +42,7 @@ public final class TomlUtils {
     public static final String REQUIRES = "requires";
     public static final String POETRY_CORE ="poetry-core";
     public static final String DOT = ".";
+    public static final String PYPROJECT_TOML = "pyproject.toml";
 
 
     protected TomlUtils() {
