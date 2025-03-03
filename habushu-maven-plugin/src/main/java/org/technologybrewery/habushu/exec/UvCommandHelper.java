@@ -108,6 +108,7 @@ public class UvCommandHelper extends AbstractCommandHelper {
      * @param packageName
      * @return
      */
+    @Override
     public boolean isDependencyInstalled(String packageName) {
         try {
             execute(Arrays.asList("pip", "show", packageName));
@@ -124,6 +125,7 @@ public class UvCommandHelper extends AbstractCommandHelper {
      *
      * @param packageName
      */
+    @Override
     public void installDevelopmentDependency(String packageName) throws MojoExecutionException {
         execute(Arrays.asList("add", packageName, "--group", "dev"));
     }

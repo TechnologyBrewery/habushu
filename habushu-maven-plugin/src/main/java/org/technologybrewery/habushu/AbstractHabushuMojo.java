@@ -20,6 +20,7 @@ import org.sonatype.plexus.components.cipher.PlexusCipherException;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 import org.technologybrewery.habushu.exec.PyenvCommandHelper;
+import org.technologybrewery.habushu.exec.UvCommandHelper;
 import org.technologybrewery.habushu.util.MavenPasswordDecoder;
 
 /**
@@ -324,6 +325,16 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     protected PoetryCommandHelper createPoetryCommandHelper() {
         return new PoetryCommandHelper(getPythonProjectBaseDir());
+    }
+
+    /**
+     * Creates a {@link PoetryCommandHelper} that may be used to invoke uv
+     * commands from the project's working directory.
+     *
+     * @return
+     */
+    protected UvCommandHelper createUvCommandHelper() {
+        return new UvCommandHelper(getPythonProjectBaseDir());
     }
 
     /**

@@ -62,6 +62,7 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
      * @param packageName the dependency to check
      * @return whether Dependency is Installed
      */
+    @Override
     public boolean isDependencyInstalled(String packageName) {
         try {
             execute(Arrays.asList("show", packageName));

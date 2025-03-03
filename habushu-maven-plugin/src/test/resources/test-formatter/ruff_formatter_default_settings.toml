@@ -1,0 +1,5 @@
+
+[tool.ruff.format]
+indent-style="space"
+line-ending="lf"
+quote-style="preserve"
