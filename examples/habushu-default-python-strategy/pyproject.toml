@@ -1,12 +1,15 @@
 [tool.poetry]
+
+[project]
 name = "habushu_default_python_strategy"
 version = "3.0.0.dev"
 description = "Example of how to use the habushu default python strategy configuration"
-authors = ["Ryan Ashcraft <ryan.ashcraft@codifyiq.com>"]
+authors = [{name = "Ryan Ashcraft", email = "ryan.ashcraft@codifyiq.com"}]
 license = "MIT License"
+requires-python = ">=3.11"
+dynamic = ["version", "dependencies"]
 
 [tool.poetry.dependencies]
-python = "^3.11"
 
 [tool.poetry.group.dev.dependencies]
 behave = ">=1.2.6"
