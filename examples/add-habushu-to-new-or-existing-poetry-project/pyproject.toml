@@ -1,13 +1,16 @@
 [tool.poetry]
+packages = [{include = "add_habushu_to_new_or_existing_poetry_project", from = "src"}]
+
+[project]
 name = "add-habushu-to-new-or-existing-poetry-project"
 version = "3.0.0.dev"
 description = "This example demonstrates how to add Habushu to a new or existing Poetry project."
-authors = ["Margaret Black <black_margaret@bah.com>"]
+authors = [{name = "Margaret Black", email = "black_margaret@bah.com"}]
+requires-python = ">=3.12"
+dynamic = ["version", "dependencies"]
 readme = "README.md"
-packages = [{include = "add_habushu_to_new_or_existing_poetry_project", from = "src"}]
 
 [tool.poetry.dependencies]
-python = "^3.12"
 
 
 [tool.poetry.group.dev.dependencies]
