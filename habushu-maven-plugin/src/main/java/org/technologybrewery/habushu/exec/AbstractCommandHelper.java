@@ -152,6 +152,23 @@ public abstract class AbstractCommandHelper {
         }
     }
 
+    /**
+     * Returns whether the specified dependency package is installed within this
+     * project's virtual environment (and pyproject.toml).
+     *
+     * @param packageName the package name to check
+     * @return whether the package is installed
+     */
+    public abstract boolean isDependencyInstalled(String packageName);
+
+    /**
+     * Installs the specified package as a development dependency to this
+     * project's virtual environment and pyproject.toml specification.
+     *
+     * @param packageName the dependency to install
+     */
+    public abstract void installDevelopmentDependency(String packageName);
+
     protected ProcessExecutor createPackageManagerExecutor(List<String> arguments) {
         List<String> fullCommandArgs = new ArrayList<>();
         fullCommandArgs.add(packageManagerCommand);
@@ -165,9 +182,4 @@ public abstract class AbstractCommandHelper {
         fullCommandArgs.addAll(arguments);
         return new ProcessExecutor(workingDirectory, fullCommandArgs, Platform.guess(), environmentVariables);
     }
-
-    public abstract boolean isDependencyInstalled(String formatter);
-
-    public abstract void installDevelopmentDependency(String formatter) throws MojoExecutionException;
-
 }

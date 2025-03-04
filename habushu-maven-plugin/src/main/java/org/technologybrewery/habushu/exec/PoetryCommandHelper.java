@@ -56,11 +56,7 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
     }
 
     /**
-     * Returns whether the specified dependency package is installed within this
-     * Poetry project's virtual environment (and pyproject.toml).
-     *
-     * @param packageName the dependency to check
-     * @return whether Dependency is Installed
+     * {@inheritDoc}
      */
     @Override
     public boolean isDependencyInstalled(String packageName) {
@@ -73,11 +69,9 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
     }
 
     /**
-     * Installs the specified package as a development dependency to this Poetry
-     * project's virtual environment and pyproject.toml specification.
-     *
-     * @param packageName the dependency to install
+     * {@inheritDoc}
      */
+    @Override
     public void installDevelopmentDependency(String packageName) {
         execute(Arrays.asList("add", packageName, "--group", "dev"));
     }

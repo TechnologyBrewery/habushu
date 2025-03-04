@@ -1,21 +1,15 @@
 package org.technologybrewery.habushu;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.Map;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.technologybrewery.habushu.exec.PoetryCommandHelper;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import org.technologybrewery.habushu.util.HabushuUtil;
+import org.technologybrewery.habushu.util.PackageManager;
 
 /**
  * Leverages the behave package to execute BDD scenarios that are defined in the
@@ -30,20 +24,17 @@ import java.util.Map;
         threadSafe = true)
 public class BehaveBddTestMojo extends AbstractHabushuMojo {
 
-    protected static final String BEHAVE_PACKAGE = "behave";
-    protected static final String BEHAVE_CUCUMBER_FORMATTER = "kappa-maki";
-
     /**
      * Options that should be passed to the behave command. <b>NOTE:</b> If this
      * value is provided, then {@link #behaveExcludeManualTag} is ignored.
      */
-    @Parameter(property = "habushu.behaveOptions", required = false)
+    @Parameter(property = "habushu.behaveOptions")
     protected String behaveOptions;
 
     /**
      * By default, format Behave test results in a JSON compatible with Cucumber Reports plugin
      */
-    @Parameter(property = "habushu.outputCucumberStyleTestReports", required = false, defaultValue = "true")
+    @Parameter(property = "habushu.outputCucumberStyleTestReports", defaultValue = "true")
     protected boolean outputCucumberStyleTestReports;
 
     /**
@@ -51,7 +42,7 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
      * other test steps themselves pass. To match Cucumber's default logic, this setting will prevent capturing skipped
      * tests if there are no failures.
      */
-    @Parameter(property = "habushu.omitSkippedTests", required = false, defaultValue = "true")
+    @Parameter(property = "habushu.omitSkippedTests", defaultValue = "true")
     protected boolean omitSkippedTests;
 
     /**
@@ -82,71 +73,44 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
     @Parameter(property = "habushu.behaveTestEnvironmentVariables")
     protected Map<String, String> behaveTestEnvironmentVariables = null;
 
+    public String getBehaveOptions() {
+        return behaveOptions;
+    }
+
+    public boolean isOutputCucumberStyleTestReports() {
+        return outputCucumberStyleTestReports;
+    }
+
+    public boolean isOmitSkippedTests() {
+        return omitSkippedTests;
+    }
+
+    public boolean isBehaveExcludeManualTag() {
+        return behaveExcludeManualTag;
+    }
+
+    public boolean isSkipTests() {
+        return skipTests;
+    }
+
+    public boolean isDisableOutputCapture() {
+        return disableOutputCapture;
+    }
+
+    public Map<String, String> getBehaveTestEnvironmentVariables() {
+        return behaveTestEnvironmentVariables;
+    }
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
-
-        if (skipTests) {
-            getLog().warn("Tests are skipped (-DskipTests=true)");
-            return;
-        }
-
-        File behaveDirectory = new File(testDirectory, "features");
-
-        boolean hasTests;
-        try {
-            hasTests = behaveDirectory.exists() && Files.list(behaveDirectory.toPath()).findAny().isPresent();
-        } catch (IOException e) {
-            throw new MojoExecutionException("Could not load behave features directory", e);
-        }
-
-        if (hasTests) {
-            PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
-
-            if (!poetryHelper.isDependencyInstalled(BEHAVE_PACKAGE)) {
-                getLog().info(String.format("%s dependency not specified in pyproject.toml - installing now...",
-                        BEHAVE_PACKAGE));
-                poetryHelper.installDevelopmentDependency(BEHAVE_PACKAGE);
-            }
-
-            List<String> executeBehaveTestArgs = new ArrayList<>();
-            executeBehaveTestArgs
-                    .addAll(Arrays.asList("run", BEHAVE_PACKAGE, getCanonicalPathForFile(behaveDirectory)));
-
-            if (outputCucumberStyleTestReports) {
-                poetryHelper.installDevelopmentDependency(BEHAVE_CUCUMBER_FORMATTER);
-                executeBehaveTestArgs.add("--format=kappa_maki.kappa_maki_formatter:PrettyCucumberJSONFormatter");
-                executeBehaveTestArgs.add("--outfile=target/cucumber-reports/cucumber.json");
-                executeBehaveTestArgs.add("--format=progress2");
-            }
-
-            if (omitSkippedTests) {
-                executeBehaveTestArgs.add("--no-skipped");
-            }
-
-            if (disableOutputCapture) {
-                executeBehaveTestArgs.add("--no-capture");
-                executeBehaveTestArgs.add("--no-capture-stderr");
-                executeBehaveTestArgs.add("--no-logcapture");
-            }
-
-            if (StringUtils.isNotEmpty(behaveOptions)) {
-                executeBehaveTestArgs.addAll(Arrays.asList(StringUtils.split(behaveOptions)));
-            } else {
-                if (behaveExcludeManualTag) {
-                    executeBehaveTestArgs.add("--tags=-manual");
-                }
-            }
-
-            getLog().info(String.format("Executing behave tests in %s...", getCanonicalPathForFile(behaveDirectory)));
-            getLog().info("-------------------------------------------------------");
-            getLog().info("T E S T S");
-            getLog().info("-------------------------------------------------------");
-            poetryHelper.executeAndLogOutput(executeBehaveTestArgs, behaveTestEnvironmentVariables);
+        if (HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile()) == PackageManager.POETRY) {
+            BehaveBddTestPoetry behaveBddTestPoetry = new BehaveBddTestPoetry(getLog(), this,
+                    createPoetryCommandHelper());
+            behaveBddTestPoetry.doExecute();
         } else {
-            getLog().warn(String.format("No tests found in %s", getCanonicalPathForFile(behaveDirectory)));
+            BehaveBddTestUv behaveBddTestUv = new BehaveBddTestUv(getLog(), this,
+                    createUvCommandHelper());
+            behaveBddTestUv.doExecute();
         }
-
     }
-
 }
