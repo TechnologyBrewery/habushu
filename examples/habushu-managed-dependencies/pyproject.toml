@@ -32,3 +32,6 @@ priority = "supplemental"
 indent-style="space"
 line-ending="lf"
 quote-style="preserve"
+
+[tool.ruff.lint]
+ignore = ["E4","E7","F"]

@@ -18,10 +18,13 @@ import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.sonatype.plexus.components.cipher.PlexusCipherException;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
+import org.technologybrewery.habushu.exec.AbstractCommandHelper;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 import org.technologybrewery.habushu.exec.PyenvCommandHelper;
 import org.technologybrewery.habushu.exec.UvCommandHelper;
+import org.technologybrewery.habushu.util.HabushuUtil;
 import org.technologybrewery.habushu.util.MavenPasswordDecoder;
+import org.technologybrewery.habushu.util.PackageManager;
 
 /**
  * Contains logic common across the various Habushu mojos.
@@ -54,6 +57,13 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "${project.packaging}", readonly = true, required = true)
     protected String packaging;
+
+    /**
+     * Base directory in which Python projects will be located - should always be
+     * the basedir of the encapsulating Maven project.
+     */
+    @Parameter(defaultValue = "${project.basedir}", readonly = true, required = true)
+    protected File workingDirectory;
 
     /**
      * Folder in which Python source files are located - should align with Poetry's
@@ -371,6 +381,24 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     protected UvCommandHelper createUvCommandHelper() {
         return new UvCommandHelper(getPythonProjectBaseDir());
+    }
+
+    /**
+     Creates a {@link PoetryCommandHelper} or {@link UvCommandHelper} that may be used to invoke Poetry or uv
+     * commands from the project's working directory.
+     *
+     * @return helper
+     */
+    protected AbstractCommandHelper getCommandHelper() {
+        AbstractCommandHelper helper;
+
+        PackageManager packageManagerType = HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile());
+        if (PackageManager.POETRY.equals(packageManagerType)) {
+            helper = new PoetryCommandHelper(getPythonProjectBaseDir());
+        } else {
+            helper = new UvCommandHelper(getPythonProjectBaseDir());
+        }
+        return helper;
     }
 
     /**

@@ -13,10 +13,8 @@ dynamic = ["version", "dependencies"]
 
 [tool.poetry.group.dev.dependencies]
 behave = ">=1.2.6"
-pylint = ">=3.1.0"
-black = ">=24.0.0"
 kappa-maki = ">=1.0.0"
-ruff = "^0.9.8"
+ruff = "^0.9.9"
 
 [build-system]
 requires = ["poetry-core>=1.6.0"]
@@ -32,3 +30,6 @@ priority = "supplemental"
 indent-style="space"
 line-ending="lf"
 quote-style="preserve"
+
+[tool.ruff.lint]
+ignore = ["E4","E7","F"]

@@ -22,6 +22,7 @@ dev = [
     "python-dotenv<1.0.0,>=0.20.0",
     "grpcio-tools>=1.48.0",
     "kappa-maki>=1.0.0",
+    "ruff>=0.9.9",
 ]
 
 [build-system]
@@ -34,8 +35,15 @@ build-backend = "hatchling.build"
 name = "pypi"
 url = "https://pypi.org/simple/"
 
-
 # Added by habushu-maven-plugin at 2025-02-25T14:51:50.811821 to use https://test.pypi.org/simple/ as source PyPi repository for installing dependencies
 [[tool.uv.index]]
 name = "dev-pypi"
 url = "https://test.pypi.org/simple/"
+
+[tool.ruff.lint]
+ignore = ["E4","E7","F"]
+
+[tool.ruff.format]
+indent-style="space"
+line-ending="lf"
+quote-style="preserve"

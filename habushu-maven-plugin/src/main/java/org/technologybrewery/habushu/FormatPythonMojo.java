@@ -82,7 +82,7 @@ public class FormatPythonMojo extends AbstractHabushuMojo {
         helper.executeAndLogOutput(executeFormatterArgs);
     }
 
-    protected void downloadFormatterIfNotPresent(AbstractCommandHelper helper) throws HabushuException {
+    protected void downloadFormatterIfNotPresent(AbstractCommandHelper helper) {
         if (!helper.isDependencyInstalled(FORMATTER_PACKAGE)) {
             getLog().info(
                     String.format("%s dependency not specified in pyproject.toml - installing now...", FORMATTER_PACKAGE));
@@ -115,18 +115,5 @@ public class FormatPythonMojo extends AbstractHabushuMojo {
                 .anyMatch(line -> line.contains(PYPROJECT_TOML_FORMATTER_HEADER));
         configsStream.close();
         return configsFound;
-    }
-
-    protected AbstractCommandHelper getCommandHelper() {
-        AbstractCommandHelper helper;
-
-        PackageManager packageManagerType = HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile());
-        if (PackageManager.POETRY.equals(packageManagerType)){
-            helper = createPoetryCommandHelper();
-        } else {
-            helper = createUvCommandHelper();
-        }
-
-        return helper;
     }
 }

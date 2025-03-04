@@ -136,11 +136,11 @@ public class CleanHabushuMojo extends CleanMojo {
             isPythonVersionConfigurationSet = false;
             pythonVersion = HabushuUtil.PYTHON_DEFAULT_VERSION_REQUIREMENT;
         }
-        AbstractPythonPackageAndDependencyManagerSetup configureTools = HabushuUtil.getPythonPackageAndDependencyManager(packageManager,
+        AbstractPythonPackageAndDependencyManagerSetup pythonPackageAndDependencyManagerSetup = HabushuUtil.getPythonPackageAndDependencyManagerSetup(packageManager,
         pythonVersion, isPythonVersionConfigurationSet, defaultPythonStrategy, workingDirectory, rewriteLocalPathDepsInArchives,
                 getLog(), usePyenv, patchInstallScript);
 
-        String virtualEnvFullPath = configureTools.findCurrentVirtualEnvironmentFullPath();
+        String virtualEnvFullPath = pythonPackageAndDependencyManagerSetup.findCurrentVirtualEnvironmentFullPath();
 
         virtualEnvFullPath = HabushuUtil.getCleanVirtualEnvironmentPath(virtualEnvFullPath);
 

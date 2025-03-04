@@ -69,23 +69,23 @@ public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabus
             pythonVersion = HabushuUtil.PYTHON_DEFAULT_VERSION_REQUIREMENT;
         }
 
-        AbstractPythonPackageAndDependencyManagerSetup configureTools =
-                HabushuUtil.getPythonPackageAndDependencyManager(packageManager, pythonVersion, isPythonVersionConfigurationSet,
+        AbstractPythonPackageAndDependencyManagerSetup pythonPackageAndDependencyManagerSetup =
+                HabushuUtil.getPythonPackageAndDependencyManagerSetup(packageManager, pythonVersion, isPythonVersionConfigurationSet,
                         defaultPythonStrategy, getPythonProjectBaseDir(), rewriteLocalPathDepsInArchives, getLog(),
                         usePyenv, patchInstallScript);
 
-        configureTools.execute();
+        pythonPackageAndDependencyManagerSetup.execute();
 
-        configurePrivatePyPiRepositoryCredentials(configureTools);
-        configurePrivateDevPyPiRepositoryCredentials(configureTools);
+        configurePrivatePyPiRepositoryCredentials(pythonPackageAndDependencyManagerSetup);
+        configurePrivateDevPyPiRepositoryCredentials(pythonPackageAndDependencyManagerSetup);
     }
 
-    private void configurePrivateDevPyPiRepositoryCredentials(AbstractPythonPackageAndDependencyManagerSetup configureTools) {
+    private void configurePrivateDevPyPiRepositoryCredentials(AbstractPythonPackageAndDependencyManagerSetup pythonPackageAndDependencyManagerSetup) {
         if (useDevRepository) {
             if (!TEST_PYPI_REPOSITORY_URL.equals(devRepositoryUrl)){
                 String pypiDevRepoIdUsername = findUsernameForServer(devRepositoryId);
                 String pypiDevRepoIdPassword = findPasswordForServer(devRepositoryId);
-                configureTools.registerRepositoryToSupportAuthenticatedDependencyResolution(devRepositoryId,
+                pythonPackageAndDependencyManagerSetup.registerRepositoryToSupportAuthenticatedDependencyResolution(devRepositoryId,
                         pypiDevRepoIdUsername, pypiDevRepoIdPassword);
             } else {
                 logSkipRationale(devRepositoryUrl);
@@ -93,11 +93,11 @@ public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabus
         }
     }
 
-    private void configurePrivatePyPiRepositoryCredentials(AbstractPythonPackageAndDependencyManagerSetup configureTools) {
+    private void configurePrivatePyPiRepositoryCredentials(AbstractPythonPackageAndDependencyManagerSetup pythonPackageAndDependencyManagerSetup) {
         if (StringUtils.isNotEmpty(pypiRepoUrl) && !"https://pypi.org".equals(pypiRepoUrl)) {
             String pypiRepoIdUsername = findUsernameForServer(pypiRepoId);
             String pypiRepoIdPassword = findPasswordForServer(pypiRepoId);
-            configureTools.registerRepositoryToSupportAuthenticatedDependencyResolution(pypiRepoId, pypiRepoIdUsername,
+            pythonPackageAndDependencyManagerSetup.registerRepositoryToSupportAuthenticatedDependencyResolution(pypiRepoId, pypiRepoIdUsername,
                     pypiRepoIdPassword);
         } else {
             logSkipRationale(pypiRepoUrl);

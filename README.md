@@ -756,7 +756,6 @@ Controls where the clean plugin will delete dist artifacts.
 
 Default: `${project.basedir}/dist`
 
-
 #### targetDirectory ####
 
 Controls where the clean plugin will delete target artifacts.
@@ -781,47 +780,9 @@ Controls whether skipped tests should be completely omitted from test reports ra
 
 Default: `true`
 
-#### lintSource #### 
+#### lint #### 
 
-Controls if linting is enabled for the source module.
-
-Default: `true`
-
-#### sourceLintDisabledChecker ####
-
-Controls the disabled checkers for linting in the source module. By default, checks for Convention (C), Refactor (R), and Warning (W) are disabled.
-
-Default: `C,R,W`
-
-#### sourceLintEnabledChecker ####
-
-Controls the enabled checkers for linting in the source module.
-
-#### sourceFailOnLintErrors ####
-
-Controls whether the build will continue if lint identifies code that violate checkers in the source module.
-
-Default: `true`
-
-#### lintTest ####
-
-Controls if linting is enabled for the test module.
-
-Default: `true`
-
-#### testLintDisabledChecker ####
-
-Controls the disabled checkers for linting in the test module. By default, checks for Convention (C), Refactor (R), Warning (W), and function-redefined error (E0102) are disabled.
-
-Default: `C,R,W,E0102`
-
-#### testLintEnabledChecker ####
-
-Controls the enabled checkers for linting in the test module.
-
-#### testFailOnLintErrors ####
-
-Controls whether the build will continue if lint identifies code that violate checkers in the test module.
+Controls if linting is enabled for the module. Leverages the [ruff linter](https://docs.astral.sh/ruff/linter/) package via the package manager's `run` command.
 
 Default: `true`
 
@@ -861,7 +822,7 @@ Installs dependencies defined in the project's `pyproject.toml` configuration, s
 
 ##### process-classes #####
 
-Leverages the [black formatter](https://github.com/psf/black) package to format both source and test Python directories via the package manager's `run` command. 
+Leverages the [ruff formatter](https://docs.astral.sh/ruff/formatter/) package to format both source and test Python directories via the package manager's `run` command. 
 
 ##### test #####
 
