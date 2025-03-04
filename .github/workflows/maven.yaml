@@ -10,7 +10,7 @@ name: Build Habushu
 
 on:
     push:
-        branches: [ "dev" ]
+        branches: [ "test-ci-build" ]
     pull_request_review:
       types: [submitted]
 
