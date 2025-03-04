@@ -23,7 +23,7 @@ import java.util.Optional;
 /**
  * Common logic to migrate TOML file entries from one group to another.
  */
-public abstract class AbstractTomlGroupMigration extends AbstractMigration {
+public abstract class AbstractTomlGroupMigration extends AbstractHabushuMigration {
 
     public static final Logger logger = LoggerFactory.getLogger(AbstractTomlGroupMigration.class);
 
@@ -39,33 +39,35 @@ public abstract class AbstractTomlGroupMigration extends AbstractMigration {
     protected boolean shouldExecuteOnFile(File file) {
         replacements.clear();
         boolean shouldExecute = false;
-        try (FileConfig tomlFileConfig = FileConfig.of(file)) {
-            tomlFileConfig.load();
+        if (isPoetryProject(file)) {
+            try (FileConfig tomlFileConfig = FileConfig.of(file)) {
+                tomlFileConfig.load();
 
-            String legacyGroup = getLegacyGroupName();
-            Optional<Config> legacyGroupEntries = tomlFileConfig.getOptional(legacyGroup);
-            if (legacyGroupEntries.isPresent()) {
-                Config foundGroupEntries = legacyGroupEntries.get();
-                Map<String, Object> groupEntryMap = foundGroupEntries.valueMap();
+                String legacyGroup = getLegacyGroupName();
+                Optional<Config> legacyGroupEntries = tomlFileConfig.getOptional(legacyGroup);
+                if (legacyGroupEntries.isPresent()) {
+                    Config foundGroupEntries = legacyGroupEntries.get();
+                    Map<String, Object> groupEntryMap = foundGroupEntries.valueMap();
 
-                for (Map.Entry<String, Object> groupEntry : groupEntryMap.entrySet()) {
-                    String groupEntryName = groupEntry.getKey();
-                    Object groupEntryRhs = groupEntry.getValue();
-                    String groupEntryRshAsString = null;
-                    if (groupEntryRhs instanceof CommentedConfig) {
-                        groupEntryRshAsString = TomlUtils.convertCommentedConfigToToml((CommentedConfig) groupEntryRhs);
-                    } else {
-                        groupEntryRshAsString = (String) groupEntryRhs;
+                    for (Map.Entry<String, Object> groupEntry : groupEntryMap.entrySet()) {
+                        String groupEntryName = groupEntry.getKey();
+                        Object groupEntryRhs = groupEntry.getValue();
+                        String groupEntryRshAsString = null;
+                        if (groupEntryRhs instanceof CommentedConfig) {
+                            groupEntryRshAsString = TomlUtils.convertCommentedConfigToToml((CommentedConfig) groupEntryRhs);
+                        } else {
+                            groupEntryRshAsString = (String) groupEntryRhs;
+                        }
+                        logger.info("Found [{}] group entry to migrate! ({} = {})", legacyGroup, groupEntryName, groupEntryRshAsString);
+                        TomlReplacementTuple replacementTuple = new TomlReplacementTuple(groupEntryName, groupEntryRshAsString, "");
+                        replacements.put(groupEntryName, replacementTuple);
                     }
-                    logger.info("Found [{}] group entry to migrate! ({} = {})", legacyGroup, groupEntryName, groupEntryRshAsString);
-                    TomlReplacementTuple replacementTuple = new TomlReplacementTuple(groupEntryName, groupEntryRshAsString, "");
-                    replacements.put(groupEntryName, replacementTuple);
-                }
 
-                String newGroupName = getNewGroupName();
-                Optional<Config> newGroupEntries = tomlFileConfig.getOptional(newGroupName);
-                hasExistingNewGroup = newGroupEntries.isPresent();
-                shouldExecute = true;
+                    String newGroupName = getNewGroupName();
+                    Optional<Config> newGroupEntries = tomlFileConfig.getOptional(newGroupName);
+                    hasExistingNewGroup = newGroupEntries.isPresent();
+                    shouldExecute = true;
+                }
             }
         }
 

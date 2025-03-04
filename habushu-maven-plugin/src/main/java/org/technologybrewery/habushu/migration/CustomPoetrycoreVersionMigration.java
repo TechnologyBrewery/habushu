@@ -1,6 +1,5 @@
 package org.technologybrewery.habushu.migration;
 
-import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.file.FileConfig;
 import com.vdurmont.semver4j.Semver;
@@ -8,7 +7,6 @@ import com.vdurmont.semver4j.Semver.SemverType;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.technologybrewery.baton.AbstractMigration;
 import org.technologybrewery.baton.BatonException;
 import org.technologybrewery.habushu.HabushuException;
 import org.technologybrewery.habushu.util.TomlReplacementTuple;
@@ -22,7 +20,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -33,7 +30,7 @@ import java.util.regex.Pattern;
  * PoetryUtil. As noted in the project's README.md, this prevents these dependencies from causing issues
  * when Poetry projects are exported in development releases.
  */
-public class CustomPoetrycoreVersionMigration extends AbstractMigration {
+public class CustomPoetrycoreVersionMigration extends AbstractHabushuMigration {
 
     public static final Logger logger = LoggerFactory.getLogger(CustomPoetrycoreVersionMigration.class);
     protected Map<String, TomlReplacementTuple> replacements = new HashMap<>();
@@ -42,21 +39,24 @@ public class CustomPoetrycoreVersionMigration extends AbstractMigration {
 
     @Override
     protected boolean shouldExecuteOnFile(File file) {
-        try (FileConfig tomlFileConfig = FileConfig.of(file)) {
-            tomlFileConfig.load();
-            Optional<Config> toolBuildSystem = tomlFileConfig.getOptional(TomlUtils.BUILD_SYSTEM);
-            if (toolBuildSystem.isPresent()) {
-                Config buildSystem = toolBuildSystem.get();
-                Map<String, Object> dependencyMap = buildSystem.valueMap();
-                for (Map.Entry<String, Object> dependency : dependencyMap.entrySet()) {
-                    // check if we need to upgrade the poetry-core version.
-                   if(isPoetrycoreUpgradeRequired(dependency)) {
-                       return true;
-                   }
+        boolean shouldExecute = false;
+        if (isPoetryProject(file)) {
+            try (FileConfig tomlFileConfig = FileConfig.of(file)) {
+                tomlFileConfig.load();
+                Optional<Config> toolBuildSystem = tomlFileConfig.getOptional(TomlUtils.BUILD_SYSTEM);
+                if (toolBuildSystem.isPresent()) {
+                    Config buildSystem = toolBuildSystem.get();
+                    Map<String, Object> dependencyMap = buildSystem.valueMap();
+                    for (Map.Entry<String, Object> dependency : dependencyMap.entrySet()) {
+                        // check if we need to upgrade the poetry-core version.
+                        if(isPoetrycoreUpgradeRequired(dependency)) {
+                            shouldExecute = true;
+                        }
+                    }
                 }
             }
         }
-        return false;
+        return shouldExecute;
     }
 
     @Override
@@ -162,5 +162,4 @@ public class CustomPoetrycoreVersionMigration extends AbstractMigration {
     private String getUpdatedOperatorAndVersion(){
         return "poetry-core>="+POETRY_CORE_REQUIRED_VERSION;
     }
-
 }

@@ -43,9 +43,6 @@
           {
             "includes": [
               "pyproject.toml"
-            ],
-            "excludes": [
-              "**/examples/**/pyproject.toml"
             ]
           }
         ]
@@ -57,9 +54,6 @@
           {
             "includes": [
               "pyproject.toml"
-            ],
-            "excludes": [
-              "**/examples/**/pyproject.toml"
             ]
           }
         ]
@@ -71,9 +65,6 @@
           {
             "includes": [
               "pyproject.toml"
-            ],
-            "excludes": [
-              "**/examples/**/pyproject.toml"
             ]
           }
         ]

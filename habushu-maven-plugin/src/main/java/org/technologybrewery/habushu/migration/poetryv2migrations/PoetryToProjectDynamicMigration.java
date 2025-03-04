@@ -37,59 +37,57 @@ public class PoetryToProjectDynamicMigration extends AbstractPoetryMigration{
     protected boolean shouldExecuteOnFile(File file) {
         boolean shouldExecute = false;
 
-        if (!isPoetryVersionAtLeast2) {
-            return false;
-        }
+        if (isPoetryProject(file) && isPoetryVersionAtLeast2) {
+            try (FileConfig tomlFileConfig = FileConfig.of(file)) {
+                tomlFileConfig.load();
 
-        try (FileConfig tomlFileConfig = FileConfig.of(file)) {
-            tomlFileConfig.load();
-
-            // check if [tool.poetry] has a readme field
-            Optional<Config> toolPoetryOpt = tomlFileConfig.getOptional(TomlUtils.TOOL_POETRY);
-            if(toolPoetryOpt.isPresent()){
-                Config toolPoetryGroup = toolPoetryOpt.get();
-                if (toolPoetryGroup.contains(TomlUtils.README)){
-                    Object readMeEntry = toolPoetryGroup.get(TomlUtils.README);
-                    // if [tool.poetry.readme] contains a table, then append "readme" to the expected list of dynamic entries
-                    if (readMeEntry instanceof List<?>){
-                        dynamicEntriesExpected.add(TomlUtils.README);
-                    } else {
-                        // if [tool.poetry.readme] contains a string, then migrate "readme" entry to [project]
-                        addReadMeEntryToProject = true;
-                        readMeAsString = (String) readMeEntry;
+                // check if [tool.poetry] has a readme field
+                Optional<Config> toolPoetryOpt = tomlFileConfig.getOptional(TomlUtils.TOOL_POETRY);
+                if(toolPoetryOpt.isPresent()){
+                    Config toolPoetryGroup = toolPoetryOpt.get();
+                    if (toolPoetryGroup.contains(TomlUtils.README)){
+                        Object readMeEntry = toolPoetryGroup.get(TomlUtils.README);
+                        // if [tool.poetry.readme] contains a table, then append "readme" to the expected list of dynamic entries
+                        if (readMeEntry instanceof List<?>){
+                            dynamicEntriesExpected.add(TomlUtils.README);
+                        } else {
+                            // if [tool.poetry.readme] contains a string, then migrate "readme" entry to [project]
+                            addReadMeEntryToProject = true;
+                            readMeAsString = (String) readMeEntry;
+                        }
                     }
                 }
-            }
 
-            Optional<Config> projectGroupOpt = tomlFileConfig.getOptional(TomlUtils.PROJECT);
-            if (projectGroupOpt.isPresent()) {
-                Config projectGroupEntry = projectGroupOpt.get();
-                if (!projectGroupEntry.contains(TomlUtils.DYNAMIC)) {
-                    shouldExecute = true;
-                    addDynamicEntryToProject = true;
-                    logger.info("Adding to [{}] group entry! ({})", TomlUtils.PROJECT, TomlUtils.DYNAMIC);
-                } else {
-                    // if [project] has dynamic field, but it's missing one of the expected fields from the list
-                    Object dynamicEntry = projectGroupEntry.get(TomlUtils.DYNAMIC);
-                    // convert existing dynamic field to a List<String> so we can compare against expected values
-                    if (dynamicEntry instanceof List<?>) {
-                        for (Object entry : (List<?>) dynamicEntry) {
-                            if (entry instanceof String) {
-                                dynamicEntriesActual.add((String) entry);
+                Optional<Config> projectGroupOpt = tomlFileConfig.getOptional(TomlUtils.PROJECT);
+                if (projectGroupOpt.isPresent()) {
+                    Config projectGroupEntry = projectGroupOpt.get();
+                    if (!projectGroupEntry.contains(TomlUtils.DYNAMIC)) {
+                        shouldExecute = true;
+                        addDynamicEntryToProject = true;
+                        logger.info("Adding to [{}] group entry! ({})", TomlUtils.PROJECT, TomlUtils.DYNAMIC);
+                    } else {
+                        // if [project] has dynamic field, but it's missing one of the expected fields from the list
+                        Object dynamicEntry = projectGroupEntry.get(TomlUtils.DYNAMIC);
+                        // convert existing dynamic field to a List<String> so we can compare against expected values
+                        if (dynamicEntry instanceof List<?>) {
+                            for (Object entry : (List<?>) dynamicEntry) {
+                                if (entry instanceof String) {
+                                    dynamicEntriesActual.add((String) entry);
+                                }
                             }
                         }
-                    }
-                    // loop through expected entries and add missing ones
-                    for (String expectedEntry : dynamicEntriesExpected) {
-                        if (!dynamicEntriesActual.contains(expectedEntry)) {
-                            dynamicEntriesToAdd.add(expectedEntry);
+                        // loop through expected entries and add missing ones
+                        for (String expectedEntry : dynamicEntriesExpected) {
+                            if (!dynamicEntriesActual.contains(expectedEntry)) {
+                                dynamicEntriesToAdd.add(expectedEntry);
+                            }
                         }
-                    }
 
-                    if (!dynamicEntriesToAdd.isEmpty()) {
-                        shouldExecute = true;
-                        appendEntriesToDynamic = true;
-                        logger.info("Adding additional fields to [{}] group entry! ({})", TomlUtils.DYNAMIC, dynamicEntriesToAdd);
+                        if (!dynamicEntriesToAdd.isEmpty()) {
+                            shouldExecute = true;
+                            appendEntriesToDynamic = true;
+                            logger.info("Adding additional fields to [{}] group entry! ({})", TomlUtils.DYNAMIC, dynamicEntriesToAdd);
+                        }
                     }
                 }
             }

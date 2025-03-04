@@ -25,28 +25,26 @@ public class PoetryToProjectRequiresPythonMigration extends AbstractPoetryMigrat
     protected boolean shouldExecuteOnFile(File file) {
         boolean shouldExecute = false;
 
-        if (!isPoetryVersionAtLeast2){
-            return false;
-        }
+        if (isPoetryProject(file) && isPoetryVersionAtLeast2) {
+            try (FileConfig tomlFileConfig = FileConfig.of(file)){
+                tomlFileConfig.load();
+                Optional<Config> projectGroup = tomlFileConfig.getOptional(TomlUtils.PROJECT);
 
-        try (FileConfig tomlFileConfig = FileConfig.of(file)){
-            tomlFileConfig.load();
-            Optional<Config> projectGroup = tomlFileConfig.getOptional(TomlUtils.PROJECT);
+                if (projectGroup.isPresent()){
+                    Config projectGroupEntry = projectGroup.get();
 
-            if (projectGroup.isPresent()){
-                Config projectGroupEntry = projectGroup.get();
+                    if (!projectGroupEntry.contains(TomlUtils.REQUIRES_PYTHON)) {
+                        shouldExecute = true;
+                        logger.info("Adding to [{}] group entry! ({})", TomlUtils.PROJECT, TomlUtils.REQUIRES_PYTHON);
+                    }
 
-                if (!projectGroupEntry.contains(TomlUtils.REQUIRES_PYTHON)) {
-                    shouldExecute = true;
-                    logger.info("Adding to [{}] group entry! ({})", TomlUtils.PROJECT, TomlUtils.REQUIRES_PYTHON);
-                }
-
-                // grab original python dependency version from [tool.poetry.dependencies]
-                Optional<Config> poetryDependenciesGroup = tomlFileConfig.getOptional(TomlUtils.TOOL_POETRY_DEPENDENCIES);
-                if (poetryDependenciesGroup.isPresent()) {
-                    Config poetryDependenciesGroupEntry = poetryDependenciesGroup.get();
-                    if (poetryDependenciesGroupEntry.contains(TomlUtils.PYTHON)) {
-                        pythonDependencyVersion = poetryDependenciesGroupEntry.get(TomlUtils.PYTHON);
+                    // grab original python dependency version from [tool.poetry.dependencies]
+                    Optional<Config> poetryDependenciesGroup = tomlFileConfig.getOptional(TomlUtils.TOOL_POETRY_DEPENDENCIES);
+                    if (poetryDependenciesGroup.isPresent()) {
+                        Config poetryDependenciesGroupEntry = poetryDependenciesGroup.get();
+                        if (poetryDependenciesGroupEntry.contains(TomlUtils.PYTHON)) {
+                            pythonDependencyVersion = poetryDependenciesGroupEntry.get(TomlUtils.PYTHON);
+                        }
                     }
                 }
             }
