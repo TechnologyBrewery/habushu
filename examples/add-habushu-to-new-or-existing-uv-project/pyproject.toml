@@ -7,7 +7,9 @@ authors = [
     { name = "Margaret Black", email = "black_margaret@bah.com" }
 ]
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "ruff>=0.9.9",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -24,3 +26,17 @@ url = "https://pypi.org/simple/"
 [[tool.uv.index]]
 name = "dev-pypi"
 url = "https://test.pypi.org/simple/"
+
+[tool.ruff.format]
+indent-style="space"
+line-ending="lf"
+quote-style="preserve"
+
+[tool.ruff.lint]
+ignore = ["E4","E7","F"]
+
+[dependency-groups]
+dev = [
+    "behave>=1.2.6",
+    "kappa-maki>=1.0.2",
+]

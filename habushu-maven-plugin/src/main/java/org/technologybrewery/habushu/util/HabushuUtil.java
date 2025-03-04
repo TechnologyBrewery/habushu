@@ -191,7 +191,21 @@ public final class HabushuUtil {
 
     }
 
-    public static AbstractPythonPackageAndDependencyManagerSetup getPythonPackageAndDependencyManager(
+    /**
+     * Determines which package manager should be used in a module, either Poetry or uv
+     * @param pythonPackageAndDependencyManager
+     * @param pythonVersion
+     * @param isPythonVersionConfigurationSet
+     * @param defaultPythonStrategy
+     * @param baseDir
+     * @param rewriteLocalPathDepsInArchives
+     * @param log
+     * @param usePyenv
+     * @param patchInstallScript
+     * @return
+     * @throws MojoExecutionException
+     */
+    public static AbstractPythonPackageAndDependencyManagerSetup getPythonPackageAndDependencyManagerSetup(
             PackageManager pythonPackageAndDependencyManager, String pythonVersion, boolean isPythonVersionConfigurationSet,
             String defaultPythonStrategy, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log,
             Boolean usePyenv, File patchInstallScript) throws MojoExecutionException {
@@ -220,15 +234,28 @@ public final class HabushuUtil {
             return PackageManager.UV;
         }
     }
-    
+
+    /**
+     * Finds and returns the value for the provided environmentVariable
+     * @param environmentVariable an environment variable
+     * @return the value of the environment variable
+     */
     public static String getEnvironmentVariable(String environmentVariable){
         return System.getenv(environmentVariable);
     }
 
+    /**
+     * Finds and returns the path the user's home directory
+     * @return the user's home directory file path
+     */
     public static String getHomeDirectory() { 
         return System.getProperty("user.home");
     }
 
+    /**
+     * Determine if the user is using a zsh or bash config file on his/her machine
+     * @return the path to the appropriate config file
+     */
     public static File getShellConfigFile() {
         String shell = getEnvironmentVariable("SHELL");
         String homeDir = getHomeDirectory();

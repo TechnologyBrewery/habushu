@@ -21,9 +21,8 @@
                             <compile>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:install-dependencies</compile>
                             <process-classes>
                                 org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:format-python,
-                                org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:validate-python-source
+                                org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:validate-python
                             </process-classes>
-                            <process-test-classes>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:validate-python-test</process-test-classes>
                             <test>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:behave-bdd-test</test>
                             <package>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:build-deployment-artifacts</package>
                             <install>

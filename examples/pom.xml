@@ -73,8 +73,8 @@
         <profile>
             <id>uv</id>
             <modules>
-                <module>habushu-uv-package</module>
                 <module>add-habushu-to-new-or-existing-uv-project</module>
+                <module>habushu-uv-package</module>
             </modules>
         </profile>
     </profiles>
