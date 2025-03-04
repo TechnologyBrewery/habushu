@@ -6,6 +6,7 @@ import org.technologybrewery.habushu.exec.UvCommandHelper;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 
 public class FormatPythonMojoTestWrapper extends FormatPythonMojo {
 
@@ -33,8 +34,16 @@ public class FormatPythonMojoTestWrapper extends FormatPythonMojo {
 
     @Override
     protected void downloadFormatterIfNotPresent(AbstractCommandHelper helper) {
+
+        // These are pre-requesite steps to showing installed dependencies
+        if (helper instanceof PoetryCommandHelper) {
+            helper.execute(Arrays.asList("sync", "--no-root"));
+        } else { // UvCommandHelper
+            helper.execute(List.of("sync"));
+        }
+
         if (!helper.isDependencyInstalled(FORMATTER_PACKAGE)) {
-            getLog().info( String.format("%s dependency not specified in pyproject.toml - installing now...", FORMATTER_PACKAGE));
+            super.downloadFormatterIfNotPresent(helper);
             packageInstallAttempted = true;
         } else {
             getLog().info(String.format("Successfully found %s dependency", FORMATTER_PACKAGE));
@@ -44,5 +53,10 @@ public class FormatPythonMojoTestWrapper extends FormatPythonMojo {
     @Override
     protected File getPyProjectTomlFile() {
         return new File("target/test-classes/test-formatter/workdir/pyproject.toml");
+    }
+
+    @Override
+    protected File getPythonProjectBaseDir() {
+        return new File("target/test-classes/test-formatter/workdir");
     }
 }

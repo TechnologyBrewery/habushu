@@ -6,22 +6,9 @@ authors = [
 ]
 license = {text = "MIT License"}
 requires-python = "<4.0,>=3.9"
-dependencies = [
-    "krausening==16",
-    "cryptography<40.0.0,>=39.0.1",
-]
 name = "habushu_uv_package"
 version = "2.4.0.dev"
 description = "Example of how to use the habushu-maven-plugin"
-
-[dependency-groups]
-dev = [
-    "behave<2.0.0,>=1.2.6",
-    "grpcio-tools<2.0.0,>=1.48.0",
-    "python-dotenv<1.0.0,>=0.20.0",
-    "uvicorn[standard]<1.0.0,>=0.16.0",
-    "behave-cucumber-formatter>=1.0.1",
-]
 
 [tool.ruff]
 line-length = 120

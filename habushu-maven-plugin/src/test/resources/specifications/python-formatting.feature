@@ -1,4 +1,4 @@
-@manual @formatter
+@formatter
 Feature: Python Formatting
 
   Scenario Outline: Habushu formats Python files if formatting is incorrect

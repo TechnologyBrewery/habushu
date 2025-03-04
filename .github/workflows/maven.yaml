@@ -37,15 +37,7 @@ jobs:
               if: steps.cached-poetry.outputs.cache-hit != 'true'
               uses: snok/install-poetry@v1
 
-            - name: Load cached uv installation
-              id: cached-uv
-              uses: actions/cache@v4
-              with:
-                path: ~/.local
-                key: uv-0  # increment to reset cache
-
             - name: Install uv
-              if: steps.cached-uv.outputs.cache-hit != 'true'
               uses: astral-sh/setup-uv@v5
               with:
                 # Install a specific version of uv.
@@ -59,7 +51,10 @@ jobs:
                   cache: maven
 
             - name: Build habushu-maven-plugin
-              run: mvn -B install -Pbootstrap --file pom.xml 
+              run: mvn -B install -Pbootstrap --file pom.xml
 
-            - name: Test habushu-maven-plugin
+            - name: Test habushu-maven-plugin (Poetry)
               run: mvn -B install --file pom.xml -Dhabushu.usePyenv=false
+
+            - name: Test habushu-maven-plugin (uv)
+              run: mvn -B install -Puv --file pom.xml -Dhabushu.usePyenv=false

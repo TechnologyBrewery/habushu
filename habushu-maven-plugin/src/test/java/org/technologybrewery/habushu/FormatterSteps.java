@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class FormatterSteps {
@@ -85,6 +86,7 @@ public class FormatterSteps {
 
     @Then("the validation should automatically format the file")
     public void theValidationShouldAutomaticallyFormatTheFile() throws IOException {
+        assertFalse("Expected pyproject.toml to already include the formatter", mojo.wasPackageInstallAttempted());
         String expected = Files.readString(expectedFormattedFile.toPath());
         String real = Files.readString(targetPyFile.toPath());
         assertEquals("Expected file contents for formatter does not match", expected, real);
@@ -113,7 +115,7 @@ public class FormatterSteps {
     }
 
     private void initializeTestDirectory(File baseToml) throws IOException {
-        mojo.setSourceDirectory(targetPyFile.getParentFile());
+        mojo.setSourceDirectory(target);
         mojo.setTestDirectory(new File("this/directory/does/not/exist"));
         FileUtils.copyFile(baseToml, targetTomlFile);
     }
