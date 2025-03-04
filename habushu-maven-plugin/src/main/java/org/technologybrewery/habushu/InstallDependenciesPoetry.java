@@ -5,7 +5,6 @@ import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.file.FileConfig;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
@@ -50,7 +49,7 @@ public class InstallDependenciesPoetry extends AbstractInstallDependencies {
 
 
     @Override
-    public void doExecute() throws MojoExecutionException, MojoFailureException {
+    public void doExecute() throws MojoFailureException {
         PoetryCommandHelper poetryHelper = new PoetryCommandHelper(baseDir);
 
         setUpInProjectVirtualEnvironment(poetryHelper);
@@ -88,7 +87,7 @@ public class InstallDependenciesPoetry extends AbstractInstallDependencies {
         poetryHelper.executePackageManagerCommandAndLogAfterTimeout(installCommand, 2, TimeUnit.MINUTES, POETRY_CLEAN_CACHE_COMMAND);
     }
 
-    private void setUpInProjectVirtualEnvironment(PoetryCommandHelper poetryHelper) throws MojoExecutionException {
+    private void setUpInProjectVirtualEnvironment(PoetryCommandHelper poetryHelper) {
         List<String> arguments = new ArrayList<>();
         arguments.add("config");
         arguments.add("virtualenvs.in-project");
@@ -104,7 +103,7 @@ public class InstallDependenciesPoetry extends AbstractInstallDependencies {
         }
     }
 
-    private void configureVirtualEnvironmentsInProject(boolean enable) throws MojoExecutionException {
+    private void configureVirtualEnvironmentsInProject(boolean enable) {
         PoetryCommandHelper poetryHelper = new PoetryCommandHelper(baseDir);
         List<String> arguments = new ArrayList<>();
         arguments.add("config");

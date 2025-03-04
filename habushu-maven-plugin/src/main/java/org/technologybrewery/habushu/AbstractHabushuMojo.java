@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -367,7 +368,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * Creates a {@link PoetryCommandHelper} that may be used to invoke Poetry
      * commands from the project's working directory.
      *
-     * @return
+     * @return PoetryCommandHelper
      */
     protected PoetryCommandHelper createPoetryCommandHelper() {
         return new PoetryCommandHelper(getPythonProjectBaseDir());
@@ -377,7 +378,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * Creates a {@link UvCommandHelper} that may be used to invoke uv
      * commands from the project's working directory.
      *
-     * @return
+     * @return UvCommandHelper
      */
     protected UvCommandHelper createUvCommandHelper() {
         return new UvCommandHelper(getPythonProjectBaseDir());
@@ -408,6 +409,21 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     protected File getPythonProjectBaseDir() {
         return this.project.getBasedir();
     }
+
+    /**
+     * Artifact Id for Package Manager projects
+     */
+    protected String getProjectArtifactId() {
+        return this.project.getArtifactId();
+    }
+
+    /**
+     * Artifact for Package Manager projects
+     */
+    protected Artifact getProjectArtifact() {
+        return this.project.getArtifact();
+    }
+
 
     /**
      * Fetches pypi Repository Id
@@ -458,13 +474,11 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     }
 
     /**
-     * Returns a {@link File} representing this project's Poetry pyproject.toml
-     * configuration.
-     *
-     * @return
+     *  Check whether to rewriteLocalPathDepsInArchives
+     * @return boolean rewriteLocalPathDepsInArchives
      */
-    protected File getPoetryPyProjectTomlFile() {
-        return new File(getPythonProjectBaseDir(), "pyproject.toml");
+    public boolean rewriteLocalPathDepsInArchives() {
+        return rewriteLocalPathDepsInArchives;
     }
 
     /**

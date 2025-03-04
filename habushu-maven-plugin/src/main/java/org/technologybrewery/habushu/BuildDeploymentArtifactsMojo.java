@@ -5,17 +5,13 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.technologybrewery.habushu.exec.PoetryCommandHelper;
+import org.technologybrewery.habushu.util.HabushuUtil;
+import org.technologybrewery.habushu.util.PackageManager;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
- * Delegates to Poetry during the {@link LifecyclePhase#PACKAGE} build phase to
+ * Delegates to Package Manager during the {@link LifecyclePhase#PACKAGE} build phase to
  * build all deployment related artifacts for this project, including:
  * <ul>
  * <li>sdist and wheel archives</li>
@@ -68,64 +64,41 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
-        PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
-
-        String buildCommand;
-        String buildLogMessage;
-        if (this.rewriteLocalPathDepsInArchives) {
-            buildCommand = "build-rewrite-path-deps";
-            buildLogMessage = "Building source and wheel archives with poetry-monorepo-dependency-plugin...";
+        if (HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile()) == PackageManager.POETRY){
+            BuildDeploymentArtifactsPoetry buildDeploymentArtifactsPoetry = new BuildDeploymentArtifactsPoetry(getPythonProjectBaseDir(), getLog(), this);
+            buildDeploymentArtifactsPoetry.doExecute();
         } else {
-            buildCommand = "build";
-            buildLogMessage = "Building source and wheel archives...";
+            BuildDeploymentArtifactsUv buildDeploymentArtifactsUv = new BuildDeploymentArtifactsUv(getPythonProjectBaseDir(), getLog(), this);
+            buildDeploymentArtifactsUv.doExecute();
         }
 
-        getLog().info(buildLogMessage);
-        poetryHelper.executeAndLogOutput(Arrays.asList(buildCommand));
-
-        if (exportRequirementsFile) {
-            getLog().info("Exporting requirements.txt file...");
-
-            File directory = new File(exportRequirementsFolder);
-            if (!directory.exists()) {
-                directory.mkdir();
-            }
-
-            List<String> command = new ArrayList<>();
-            command.add( exportRequirementsWithoutPathDependencies ? "export-without-path-deps" : "export");
-            command.add("--output");
-            String outputFile = exportRequirementsFolder + "/requirements.txt";
-            command.add(outputFile);
-
-            if (!exportRequirementsWithHashes) {
-                command.add("--without-hashes");
-            }
-
-            if (!exportRequirementsWithUrls) {
-                command.add("--without-urls");
-            }
-
-            poetryHelper.executeAndLogOutput(command);
-
-            setUpPlaceholderFileAsMavenArtifact();
-        }
     }
 
-    protected void setUpPlaceholderFileAsMavenArtifact() {
-        mavenArtifactFile.getParentFile().mkdirs();
-        try (PrintWriter writer = new PrintWriter(mavenArtifactFile)) {
-            writer.println("This is NOT the file you are looking for!");
-            writer.println();
-            writer.println("To take advantage of the Maven Reactor, we want to publish pom files for this artifact.");
-            writer.println("But Maven isn't the right solution for managing Python dependencies.");
-            writer.println();
-            writer.println(String.format("Please check your appropriate Python repository for the %s files instead!",
-                    project.getArtifactId()));
+    public boolean exportRequirementsFile() {
+        return exportRequirementsFile;
+    }
 
-        } catch (FileNotFoundException e) {
-            throw new HabushuException("Could not create placeholder artifact file!", e);
-        }
+    public boolean isCacheWheels() {
+        return cacheWheels;
+    }
 
-        project.getArtifact().setFile(mavenArtifactFile);
-    }  
+    public boolean exportRequirementsWithUrls() {
+        return exportRequirementsWithUrls;
+    }
+
+    public boolean exportRequirementsWithHashes() {
+        return exportRequirementsWithHashes;
+    }
+
+    public boolean exportRequirementsWithoutPathDependencies() {
+        return exportRequirementsWithoutPathDependencies;
+    }
+
+    public String getExportRequirementsFolder() {
+        return exportRequirementsFolder;
+    }
+
+    public File getMavenArtifactFile() {
+        return mavenArtifactFile;
+    }
 }
