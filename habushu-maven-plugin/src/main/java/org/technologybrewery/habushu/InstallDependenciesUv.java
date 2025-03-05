@@ -3,7 +3,6 @@ package org.technologybrewery.habushu;
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.file.FileConfig;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.StringUtils;
@@ -60,7 +59,7 @@ public class InstallDependenciesUv extends AbstractInstallDependencies {
 
 
     @Override
-    public void doExecute() throws MojoExecutionException, MojoFailureException {
+    public void doExecute() throws MojoFailureException {
         UvCommandHelper uvCommandHelper = new UvCommandHelper(baseDir);
 
         processManagedDependencyMismatches();

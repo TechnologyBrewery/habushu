@@ -5,7 +5,6 @@ import com.electronwill.nightconfig.core.file.FileConfig;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 
@@ -60,7 +59,7 @@ public abstract class AbstractInstallDependencies {
     }
 
 
-    public abstract void doExecute() throws MojoExecutionException, MojoFailureException, IOException;
+    public abstract void doExecute() throws MojoFailureException, IOException;
 
     /**
      * Returns a {@link File} representing this project's pyproject.toml
@@ -80,13 +79,13 @@ public abstract class AbstractInstallDependencies {
                 + "Currently %s, but should be %s!", packageName, originalOperatorAndVersion, updatedOperatorAndVersion));
     }
 
-    protected void prepareRepositoryForInstallation(String repoId, String repoUrl, String packageIndexPath) throws MojoExecutionException {
+    protected void prepareRepositoryForInstallation(String repoId, String repoUrl, String packageIndexPath) {
         if (StringUtils.isNotEmpty(repoUrl) && installDependenciesMojo.addPypiRepoAsPackageSources) {
             String pypiRepoSimpleIndexUrl;
             try {
                 pypiRepoSimpleIndexUrl = getPyPiRepoSimpleIndexUrl(repoUrl);
             } catch (URISyntaxException e) {
-                throw new MojoExecutionException(
+                throw new HabushuException(
                         String.format("Could not parse configured repoUrl %s", repoUrl), e);
             }
 
@@ -129,7 +128,7 @@ public abstract class AbstractInstallDependencies {
                     Files.write(getPyProjectTomlFile().toPath(), newPypiRepoSourceConfig,
                             StandardOpenOption.APPEND);
                 } catch (IOException e) {
-                    throw new MojoExecutionException(String.format(
+                    throw new HabushuException(String.format(
                             "Could not write new [[%s]] element to pyproject.toml", packageIndexPath), e);
                 }
             }
