@@ -37,47 +37,45 @@ public class PoetryToProjectMigration extends AbstractPoetryMigration {
         boolean shouldExecute = false;
         Config.setInsertionOrderPreserved(true);
 
-        if (!isPoetryVersionAtLeast2) {
-            return false;
-        }
+        if (isPoetryProject(file) && isPoetryVersionAtLeast2) {
+            try (FileConfig tomlFileConfig = FileConfig.of(file)) {
+                tomlFileConfig.load();
+                Optional<Config> poetryGroupOpt = tomlFileConfig.getOptional(TomlUtils.TOOL_POETRY);
 
-        try (FileConfig tomlFileConfig = FileConfig.of(file)) {
-            tomlFileConfig.load();
-            Optional<Config> poetryGroupOpt = tomlFileConfig.getOptional(TomlUtils.TOOL_POETRY);
+                if (poetryGroupOpt.isPresent()){
+                    Config poetryGroup = poetryGroupOpt.get();
+                    for (Config.Entry groupEntry : poetryGroup.entrySet()) {
 
-            if (poetryGroupOpt.isPresent()){
-                Config poetryGroup = poetryGroupOpt.get();
-                for (Config.Entry groupEntry : poetryGroup.entrySet()) {
+                        // check if any of the entries under [tool.poetry] match one of "name", "description", or "version"
+                        String groupEntryName = groupEntry.getKey();
+                        Object groupEntryRhs = groupEntry.getValue();
+                        String groupEntryRhsAsString = null;
 
-                    // check if any of the entries under [tool.poetry] match one of "name", "description", or "version"
-                    String groupEntryName = groupEntry.getKey();
-                    Object groupEntryRhs = groupEntry.getValue();
-                    String groupEntryRhsAsString = null;
+                        if (entriesToMigrate.stream().anyMatch(e -> e.equalsIgnoreCase(groupEntryName))) {
+                            if (groupEntryRhs instanceof List<?>){
+                                List<String> listValues = poetryGroup.get(groupEntryName);
+                                List<String> listOfStrings = new ArrayList<>(listValues);
+                                groupEntryRhsAsString = convertListOfStringsToString(listOfStrings);
+                            } else {
+                                groupEntryRhsAsString = (String) groupEntryRhs;
+                            }
 
-                    if (entriesToMigrate.stream().anyMatch(e -> e.equalsIgnoreCase(groupEntryName))) {
-                        if (groupEntryRhs instanceof List<?>){
-                            List<String> listValues = poetryGroup.get(groupEntryName);
-                            List<String> listOfStrings = new ArrayList<>(listValues);
-                            groupEntryRhsAsString = convertListOfStringsToString(listOfStrings);
-                        } else {
-                            groupEntryRhsAsString = (String) groupEntryRhs;
+                            logger.info("Found [{}] group entry to migrate! ({} = {})", TomlUtils.TOOL_POETRY, groupEntryName, groupEntryRhsAsString);
+                            TomlReplacementTuple replacementTuple = new TomlReplacementTuple(groupEntryName, groupEntryRhsAsString, "");
+                            replacements.put(groupEntryName, replacementTuple);
+                            shouldExecute = true;
                         }
-
-                        logger.info("Found [{}] group entry to migrate! ({} = {})", TomlUtils.TOOL_POETRY, groupEntryName, groupEntryRhsAsString);
-                        TomlReplacementTuple replacementTuple = new TomlReplacementTuple(groupEntryName, groupEntryRhsAsString, "");
-                        replacements.put(groupEntryName, replacementTuple);
-                        shouldExecute = true;
                     }
                 }
-            }
-            // process the [project] section and record existing keys
-            Optional<Config> projectGroupEntries = tomlFileConfig.getOptional(TomlUtils.PROJECT);
-            if (projectGroupEntries.isPresent()){
-                hasProjectGroup = true;
-                Config projectConfig = projectGroupEntries.get();
-                // iterate over the entries and add each key to the set
-                for (Config.Entry entry : projectConfig.entrySet()) {
-                    existingProjectKeys.add(entry.getKey());
+                // process the [project] section and record existing keys
+                Optional<Config> projectGroupEntries = tomlFileConfig.getOptional(TomlUtils.PROJECT);
+                if (projectGroupEntries.isPresent()){
+                    hasProjectGroup = true;
+                    Config projectConfig = projectGroupEntries.get();
+                    // iterate over the entries and add each key to the set
+                    for (Config.Entry entry : projectConfig.entrySet()) {
+                        existingProjectKeys.add(entry.getKey());
+                    }
                 }
             }
         }

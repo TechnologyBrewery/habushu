@@ -3,8 +3,8 @@ package org.technologybrewery.habushu.migration.poetryv2migrations;
 import org.apache.maven.project.MavenProject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.technologybrewery.baton.AbstractMigration;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
+import org.technologybrewery.habushu.migration.AbstractHabushuMigration;
 import org.technologybrewery.habushu.util.TomlReplacementTuple;
 import org.technologybrewery.habushu.util.TomlUtils;
 
@@ -13,11 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+
 /**
  * Provides common logic to migrate TOML file entries for Poetry versions 2.0.0 or later.
  * Updates configurations to better comply with PEP 621 standards (https://peps.python.org/pep-0621/).
  */
-public abstract class AbstractPoetryMigration extends AbstractMigration {
+public abstract class AbstractPoetryMigration extends AbstractHabushuMigration {
     private static final Logger logger = LoggerFactory.getLogger(AbstractPoetryMigration.class);
     protected File workingDirectory;
     protected boolean isPoetryVersionAtLeast2 = checkPoetryVersionAtLeast2();
@@ -115,5 +116,4 @@ public abstract class AbstractPoetryMigration extends AbstractMigration {
                 .map(item -> TomlUtils.DOUBLE_QUOTE + item + TomlUtils.DOUBLE_QUOTE)
                 .collect(Collectors.joining(", "));
     }
-
 }
