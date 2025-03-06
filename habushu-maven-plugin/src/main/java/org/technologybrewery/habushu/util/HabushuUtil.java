@@ -33,6 +33,8 @@ public final class HabushuUtil {
      */
     public static final String PYTHON_DEFAULT_VERSION_REQUIREMENT = "3.12.9";
 
+    public static final String HABUSHU = "habushu";
+
     private HabushuUtil() {
     }
 
@@ -208,7 +210,7 @@ public final class HabushuUtil {
     public static AbstractPythonPackageAndDependencyManagerSetup getPythonPackageAndDependencyManagerSetup(
             PackageManager pythonPackageAndDependencyManager, String pythonVersion, boolean isPythonVersionConfigurationSet,
             String defaultPythonStrategy, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log,
-            Boolean usePyenv, File patchInstallScript) throws MojoExecutionException {
+            Boolean usePyenv, File patchInstallScript) {
         // Set the poetry-based parameters to null
         if (pythonPackageAndDependencyManager == PackageManager.UV) {
             usePyenv = null;

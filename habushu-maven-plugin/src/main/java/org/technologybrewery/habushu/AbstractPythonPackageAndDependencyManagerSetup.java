@@ -146,10 +146,6 @@ public abstract class AbstractPythonPackageAndDependencyManagerSetup {
 
     }
 
-    protected String findCurrentVirtualEnvironmentFullPath() {
-        return StringUtils.EMPTY;
-    }
-
     protected boolean useCurrentPythonVersion(String currentPythonVersion) {
         // If the python version configuration is not set and the desired default python version is the existing
         // projects version, set the desired python version to the current projects version

@@ -1,21 +1,15 @@
 package org.technologybrewery.habushu;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.clean.CleanMojo;
-import org.apache.maven.plugins.clean.Fileset;
-import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 import org.technologybrewery.habushu.util.HabushuUtil;
 import org.technologybrewery.habushu.util.PackageManager;
+import org.technologybrewery.habushu.util.TomlUtils;
 
 import java.io.File;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Overrides the default {@link CleanMojo} behavior to additionally delete the
@@ -59,32 +53,6 @@ public class CleanHabushuMojo extends CleanMojo {
     protected boolean deleteVirtualEnv;
 
     /**
-     * The desired version of Python to use.
-     */
-    @Parameter(property = "habushu.pythonVersion")
-    protected String pythonVersion;
-
-    /**
-     * The default python version strategy.
-     */
-    @Parameter(defaultValue = "PYTHONVERSION", property = "habushu.defaultPythonStrategy")
-    protected String defaultPythonStrategy;
-
-    /**
-     * Should Habushu use pyenv with Poetry to manage the utilized version of Python?
-     */
-    @Parameter(defaultValue = "true", property = "habushu.usePyenv")
-    protected boolean usePyenv;
-
-    /**
-     * File specifying the location of a generated shell script that will attempt to
-     * install the specified version of Python using "pyenv install --patch" with a
-     * patch that attempts to resolve the expected compilation error.
-     */
-    @Parameter(defaultValue = "${project.build.directory}/pyenv-patch-install-python-version.sh", readonly = true)
-    private File patchInstallScript;
-
-    /**
      * Indicates whether Habushu should leverage the
      * {@code poetry-monorepo-dependency-plugin} or the
      * {@code uv-monorepo-dependency-plugin} (<- todo) to rewrite any local path
@@ -118,129 +86,53 @@ public class CleanHabushuMojo extends CleanMojo {
 
     @Override
     public void execute() throws MojoExecutionException {
-        if ("habushu".equals(packaging)) {
-            clean();
+        if (HabushuUtil.HABUSHU.equals(packaging)) {
+            if (HabushuUtil.checkPythonPackageManager(new File(workingDirectory, TomlUtils.PYPROJECT_TOML)) == PackageManager.POETRY){
+                CleanHabushuPoetry cleanHabushuPoetry = new CleanHabushuPoetry(workingDirectory, getLog(), this);
+                cleanHabushuPoetry.doExecute();
+            } else {
+                CleanHabushuUv cleanHabushuUv = new CleanHabushuUv(workingDirectory, getLog(), this);
+                cleanHabushuUv.doExecute();
+            }
+
         } else {
             getLog().info("Skipping execution - packaging type is not 'habushu'");
         }
     }
 
-    private void clean() throws MojoExecutionException {
-        List<Fileset> filesetsToDelete = new ArrayList<>();
-        boolean removeVenvManually = false;
+    public File getWorkingDirectory() {
+        return workingDirectory;
+    }
 
-        // TODO: This code is specific to Poetry. uv does not provide a command to remove a virtual environment like Poetry.
-        PackageManager packageManager = HabushuUtil.checkPythonPackageManager(new File(workingDirectory, "pyproject.toml"));
-        boolean isPythonVersionConfigurationSet = true;
-        if (StringUtils.isEmpty(pythonVersion)) {
-            isPythonVersionConfigurationSet = false;
-            pythonVersion = HabushuUtil.PYTHON_DEFAULT_VERSION_REQUIREMENT;
-        }
-        AbstractPythonPackageAndDependencyManagerSetup pythonPackageAndDependencyManagerSetup = HabushuUtil.getPythonPackageAndDependencyManagerSetup(packageManager,
-        pythonVersion, isPythonVersionConfigurationSet, defaultPythonStrategy, workingDirectory, rewriteLocalPathDepsInArchives,
-                getLog(), usePyenv, patchInstallScript);
+    public File getDistDirectory() {
+        return distDirectory;
+    }
 
-        String virtualEnvFullPath = pythonPackageAndDependencyManagerSetup.findCurrentVirtualEnvironmentFullPath();
+    public File getTargetDirectory() {
+        return targetDirectory;
+    }
 
-        virtualEnvFullPath = HabushuUtil.getCleanVirtualEnvironmentPath(virtualEnvFullPath);
+    public String getPackaging() {
+        return packaging;
+    }
 
-        String inVirtualEnvironmentPath = HabushuUtil.getInProjectVirtualEnvironmentPath(this.workingDirectory);
-        File venv = new File(inVirtualEnvironmentPath);
+    public boolean deleteVirtualEnv() {
+        return deleteVirtualEnv;
+    }
 
-        if (this.useInProjectVirtualEnvironment) {
-            getLog().debug("`in-project` virtual environment configured for this project");
-            if (StringUtils.isNotBlank(virtualEnvFullPath) && !inVirtualEnvironmentPath.equals(virtualEnvFullPath)) {
-                getLog().warn("'in-project' virtual environment is configured, but an external virtual environment was found!");
-                getLog().warn("Deleting external virtual environment: " + virtualEnvFullPath);
-                deleteVirtualEnv = true;
-            }
-        } else {
-            if (venv.exists()) {
-                getLog().warn("'in-project' virtual environment is NOT configured, but an 'in-project' virtual environment was found!");
-                getLog().warn("Deleting 'in-project' virtual environment: " + virtualEnvFullPath);
-                deleteVirtualEnv = true;
-            }
-        }
+    public boolean rewriteLocalPathDepsInArchives() {
+        return rewriteLocalPathDepsInArchives;
+    }
 
-        if (deleteVirtualEnv) {
-            if (StringUtils.isBlank(virtualEnvFullPath)) {
-                getLog().warn("No Poetry virtual environment was detected for deletion.");
-            } else {
+    public boolean useInProjectVirtualEnvironment() {
+        return useInProjectVirtualEnvironment;
+    }
 
-                String virtualEnvName = new File(virtualEnvFullPath).getName();
-                if (StringUtils.isNotBlank(virtualEnvName)) {
-                    PoetryCommandHelper poetryHelper = new PoetryCommandHelper(this.workingDirectory);
-                    List<String> arguments = new ArrayList<>();
-                    arguments.add("env");
-                    arguments.add("remove");
-                    if (!".venv".equals(virtualEnvName)) {
-                        arguments.add(virtualEnvName);
-                    } else {
-                        // While Poetry 1.8.3 and lower will unregister the .venv virtual environment, it doesn't
-                        // remove it, creating confusion:
-                        removeVenvManually = true;
-                    }
-                    poetryHelper.execute(arguments);
-                }
-            }
-        }
-        // TODO: End Poetry specific code
-
-        try {
-            Fileset distArchivesFileset = createFileset(distDirectory);
-            filesetsToDelete.add(distArchivesFileset);
-
-            Fileset targetArchivesFileset = createFileset(targetDirectory);
-            filesetsToDelete.add(targetArchivesFileset);
-
-            if (removeVenvManually) {
-                filesetsToDelete.add(createFileset(venv));
-            }
-
-        } catch (IllegalAccessException e) {
-            throw new MojoExecutionException("Could not write to private field in Fileset class.", e);
-        }
-
-        getLog().info(String.format("Deleting distribution archives at %s", distDirectory));
-        getLog().info(String.format("Deleting target archives at %s", targetDirectory));
-
-        setPrivateParentField("filesets", filesetsToDelete.toArray(new Fileset[0]));
+    /**
+     * This is to call CleanMoJo execute() so that cleans files in the fileset that is set in the CleanHabushuPoetry and/or CleanHabushuUV
+     * @throws MojoExecutionException
+     */
+    public void cleanExecute() throws MojoExecutionException {
         super.execute();
-    }
-
-
-
-    /**
-     * Creates a new {@link Fileset} that may be used to identify a set of files
-     * that are targeted for deletion by the {@link CleanMojo}.
-     *
-     * @param directory directory that is desired for deletion.
-     * @return
-     * @throws IllegalAccessException
-     */
-    private Fileset createFileset(File directory) throws IllegalAccessException {
-        Fileset fileset = new Fileset();
-        FieldUtils.writeField(fileset, "directory", directory, true);
-        return fileset;
-    }
-
-    /**
-     * Sets a given field in the parent {@link CleanMojo} with a provided value.
-     * This method is needed as {@link CleanMojo} is structured in a way that does
-     * not easily facilitate extension.
-     *
-     * @param fieldName the name of the field in {@link CleanMojo}
-     * @param value     the field's intended value
-     */
-    private void setPrivateParentField(String fieldName, Object value) {
-        Field fieldInParentClass;
-        try {
-            fieldInParentClass = this.getClass().getSuperclass().getDeclaredField(fieldName);
-            fieldInParentClass.setAccessible(true);
-            fieldInParentClass.set(this, value);
-        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-            throw new HabushuException("Could not write to field in CleanMojo class.", e);
-        }
-
     }
 }

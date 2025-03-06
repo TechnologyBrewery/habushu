@@ -178,6 +178,15 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
         return arguments;
     }
 
+    public List<String> createEnvListFullPathCommand() {
+        List<String> arguments = new ArrayList<>();
+        arguments.add("env");
+        arguments.add("list");
+        arguments.add("--full-path");
+
+        return arguments;
+
+    }
 
     public List<String> createInstallCommand(boolean forceSync) {
         List<String> arguments = new ArrayList<>();

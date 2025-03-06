@@ -159,19 +159,6 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
         }
     }
 
-    @Override
-    public String findCurrentVirtualEnvironmentFullPath() {
-        String virtualEnvFullPath = null;
-        try {
-            PoetryCommandHelper poetryHelper = new PoetryCommandHelper(baseDir);
-            virtualEnvFullPath = poetryHelper.execute(Arrays.asList("env", "list", "--full-path"));
-        } catch (RuntimeException e) {
-            log.debug("Could not retrieve Poetry-managed virtual environment path - it likely does not exist", e);
-        }
-
-        return virtualEnvFullPath;
-    }
-
     /**
      * Creates a {@link PyenvCommandHelper} that may be used to invoke Pyenv
      * commands from the project's working directory.

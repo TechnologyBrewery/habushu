@@ -592,7 +592,8 @@ Default: `true`
 
 #### deleteVirtualEnv ####
 
-Enables the explicit deletion of the virtual environment that is created/managed by Poetry.
+Enables the explicit deletion of the virtual environment that is created/managed by Poetry/UV.
+NOTE: Poetry uses its built in command to delete virtual environment while UV doesn't support command to do so, it will be manually deleted.
 
 Example usage: `mvn clean -Dhabushu.deleteVirtualEnv`
 
