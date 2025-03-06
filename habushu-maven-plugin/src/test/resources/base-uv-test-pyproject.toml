@@ -17,7 +17,7 @@ description = "Example of how to use the habushu-maven-plugin"
 
 [dependency-groups]
 dev = [
-    "black<19.0.0,>=18.0.0",
+    "ruff<1.0.0,>=0.9.9",
     "behave<2.0.0,>=1.2.6",
     "grpcio-tools<2.0.0,>=1.48.0",
     "python-dotenv<1.0.0,>=0.20.0",

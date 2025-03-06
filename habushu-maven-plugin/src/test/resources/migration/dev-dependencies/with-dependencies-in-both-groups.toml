@@ -10,10 +10,10 @@ python = "^3.11"
 
 [tool.poetry.group.dev.dependencies]
 kappa-maki = ">=1.0.0"
-pylint = ">=3.1.0"
+uvicorn = ">=0.19.0"
 
 [tool.poetry.dev-dependencies]
-black = ">=24.3.0"
+ruff = ">=0.9.9"
 behave = ">=1.2.6"
 
 [build-system]

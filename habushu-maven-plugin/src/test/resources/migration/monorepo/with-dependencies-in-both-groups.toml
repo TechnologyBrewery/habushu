@@ -15,7 +15,7 @@ some-local-monorepo-dependencies-3 = {path = "../some-local-monorepo-dependencie
 some-local-monorepo-dependencies-4 = {path = "../some-local-monorepo-dependencies-4", develop = true}
 
 [tool.poetry.group.dev.dependencies]
-black = "^18.0.0"
+ruff = ">=0.9.9"
 
 [build-system]
 requires = ["poetry-core>=1.6.0"]

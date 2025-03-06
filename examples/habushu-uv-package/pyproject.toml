@@ -17,8 +17,7 @@ readme = "README.md"
 [dependency-groups]
 dev = [
     "behave>=1.2.6",
-    "pylint>=3.1.0",
-    "black>=24.3.0",
+    "ruff>=0.9.9",
     "python-dotenv<1.0.0,>=0.20.0",
     "grpcio-tools>=1.48.0",
     "kappa-maki>=1.0.0",

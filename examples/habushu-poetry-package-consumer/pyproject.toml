@@ -15,7 +15,7 @@ habushu-poetry-package = {path = "../habushu-poetry-package", develop = true}
 [tool.poetry.group.dev.dependencies]
 behave = ">=1.2.6"
 kappa-maki = ">=1.0.0"
-ruff = "^0.9.9"
+ruff = ">=0.9.9"
 
 
 [build-system]

@@ -12,7 +12,7 @@ cryptography = "^39.0.1"
 package-a = "1.0.0"
 
 [tool.poetry.group.dev.dependencies]
-black = "^18.0.0"
+ruff = ">=0.9.9"
 behave = "^1.2.6"
 grpcio-tools = "^1.48.0"
 python-dotenv = "^0.20.0"

@@ -38,8 +38,8 @@ Feature: Test Poetry dependency management capabilities to help align package ve
       | package | operatorAndVersion                                               |
       | uvicorn | ^0.18.0                                                          |
       | uvicorn | {version = \u0022^0.18.0\u0022, extras = [\u0022standard\u0022]} |
-      | black   | ^23.3.0                                                          |
-      | black   | >=17.0.0                                                         |
+      | ruff    | ^0.9.8                                                           |
+      | ruff    | >=0.9.7                                                           |
       | behave  | ^1.2.7                                                           |
 
   Scenario Outline: [tool.poetry.group.<group>] dependency is changed when managed and not matching current value
@@ -55,14 +55,14 @@ Feature: Test Poetry dependency management capabilities to help align package ve
       | packageBarTest | ^0.9.0             |
 
   Scenario Outline: Inactive managed dependencies are skipped
-    Given a Habushu configuration with a poetry managed dependency of "<package>" and "<operatorAndVersion>"
+    Given a Habushu configuration with a poetry inactive managed dependency of "<package>" and "<operatorAndVersion>"
     When Habushu executes with poetry
-    Then the poetry pyproject.toml file has updates
+    Then the poetry pyproject.toml file has no updates
 
     Examples:
       | package    | operatorAndVersion |
       | krausening | 15                 |
-      | black      | ^23.3.0            |
+      | ruff       | >=0.9.9            |
       | packageFoo | ^1.1.0             |
 
   Scenario Outline: SNAPSHOT poetry managed dependencies get corrected to dev dependencies by default (overridePackageVersion is true)
