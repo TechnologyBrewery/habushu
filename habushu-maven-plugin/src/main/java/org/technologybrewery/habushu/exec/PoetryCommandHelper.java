@@ -61,11 +61,11 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
     @Override
     public boolean isDependencyInstalled(String packageName) {
         try {
-            execute(Arrays.asList("show", packageName));
+            String result = execute(Arrays.asList("show", packageName)).trim();
+            return !result.isEmpty();
         } catch (Throwable e) {
             return false;
         }
-        return true;
     }
 
     /**
