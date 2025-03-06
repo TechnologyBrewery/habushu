@@ -804,6 +804,12 @@ The Dockerfile to update with containerization logic during the `containerize-de
 
 Default: None
 
+#### useFormatter ####
+
+Whether to use the default formatter (`ruff`) included with Habushu in the `process-classes` lifecycle step.
+
+Default: `true`
+
 ## The Habushu Build Lifecycle ##
 
 Habushu applies a [custom Maven lifecycle that binds Poetry-based/uv-based DevSecOps workflow commands](https://fermenter.atlassian.net/wiki/spaces/HAB/pages/2056749057/Dependency+Management+and+Build+Automation+through+Poetry+and+Maven) to the following phases:

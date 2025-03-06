@@ -16,8 +16,8 @@ Looks at dependencies in `[tool.poetry.dependencies]`, `[tool.poetry.group.dev.d
     <configuration>
         <managedDependencies>
             <packageDefinition>
-                <packageName>black</packageName>
-                <operatorAndVersion>^23.3.0</operatorAndVersion>
+                <packageName>ruff</packageName>
+                <operatorAndVersion>>=0.9.9</operatorAndVersion>
                 <!-- 
                   Active defaults to true, but can be used to overriden in child pom.xml files to remove or add 
                   managed dependencies at each level: 

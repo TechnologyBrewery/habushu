@@ -44,8 +44,8 @@ public class PoetryDependencyManagementSteps {
         mojo = new DependencyManagementTestMojo();
 
         List<PackageDefinition> managedDependencies = new ArrayList<>();
-        PackageDefinition blackUpdateDefinition = CommonDependencyManagementSteps.getPackageDefinition("black","^23.3.0");
-        managedDependencies.add(blackUpdateDefinition);
+        PackageDefinition ruffUpdateDefinition = CommonDependencyManagementSteps.getPackageDefinition("ruff",">=0.9.8");
+        managedDependencies.add(ruffUpdateDefinition);
 
         mojo.setManagedDependencies(managedDependencies);
     }

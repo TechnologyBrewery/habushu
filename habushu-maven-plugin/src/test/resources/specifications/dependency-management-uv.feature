@@ -38,8 +38,8 @@ Feature: Test dependency management capabilities to help align package versions 
       | package | operatorAndVersion                                               |
       | uvicorn | ^0.18.0                                                          |
       | uvicorn | {version = \u0022^0.18.0\u0022, extras = [\u0022standard\u0022]} |
-      | black   | ^23.3.0                                                          |
-      | black   | >=17.0.0                                                         |
+      | ruff    | ^0.9.9                                                           |
+      | ruff    | >=0.9.7                                                          |
       | behave  | ^1.2.7                                                           |
 
   Scenario Outline: dependency is changed when managed and not matching current value
@@ -62,7 +62,7 @@ Feature: Test dependency management capabilities to help align package versions 
     Examples:
       | package    | operatorAndVersion |
       | krausening | 15                 |
-      | black      | ^23.3.0            |
+      | ruff       | >=0.9.9            |
       | packageFoo | ^1.1.0             |
 
   Scenario Outline: SNAPSHOT managed dependencies get corrected to dev dependencies by default (overridePackageVersion is true)
