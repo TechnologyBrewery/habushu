@@ -34,38 +34,21 @@
                 <groupId>org.technologybrewery.habushu</groupId>
                 <artifactId>habushu-maven-plugin</artifactId>
                 <configuration>
-                <managedDependencies>
-                    <packageDefinition>
-                        <packageName>ruff</packageName>
-                        <operatorAndVersion>>=0.9.9</operatorAndVersion>
-                        <!-- optional - active is true by default:-->
-                        <active>true</active>
-                    </packageDefinition>
-                    <packageDefinition>
-                        <packageName>uvicorn</packageName>
-                        <operatorAndVersion>>=0.19.0</operatorAndVersion>
-                        <!-- optional - active is true by default:-->
-                        <active>true</active>
-                    </packageDefinition>
-                </managedDependencies>
+                    <managedDependencies>
+                        <packageDefinition>
+                            <packageName>ruff</packageName>
+                            <operatorAndVersion>>=0.9.9</operatorAndVersion>
+                            <!-- optional - active is true by default:-->
+                            <active>true</active>
+                        </packageDefinition>
+                        <packageDefinition>
+                            <packageName>uvicorn</packageName>
+                            <operatorAndVersion>>=0.19.0</operatorAndVersion>
+                            <!-- optional - active is true by default:-->
+                            <active>true</active>
+                        </packageDefinition>
+                    </managedDependencies>
                 </configuration>
-                    <!-- Utilize the run-command-in-virtual-env goal to demonstrate how
-                        commands/scripts may be executed via "poetry run" and bound to the build
-                        lifecycle phases -->
-                <executions>
-                    <execution>
-                        <configuration>
-                            <runCommandArgs>python -m grpc_tools.protoc -I=src
-                                --python_out=src/habushu_poetry_package/generated src/person.proto
-                            </runCommandArgs>
-                        </configuration>
-                        <id>generate-protobuf-bindings</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>run-command-in-virtual-env</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>net.masterthought</groupId>

@@ -10,14 +10,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.technologybrewery.habushu.exec.AbstractCommandHelper;
-import org.technologybrewery.habushu.util.HabushuUtil;
-import org.technologybrewery.habushu.util.PackageManager;
+import org.technologybrewery.habushu.exec.CommandHelper;
 import org.technologybrewery.habushu.util.TomlUtils;
 
 /**
@@ -70,7 +67,7 @@ public class FormatPythonMojo extends AbstractHabushuMojo {
                     sourceDirectory, testDirectory));
         }
 
-        AbstractCommandHelper helper = getCommandHelper();
+        CommandHelper helper = getCommandHelper();
         downloadFormatterIfNotPresent(helper);
 
         List<String> executeFormatterArgs = new ArrayList<>();
@@ -82,7 +79,7 @@ public class FormatPythonMojo extends AbstractHabushuMojo {
         helper.executeAndLogOutput(executeFormatterArgs);
     }
 
-    protected void downloadFormatterIfNotPresent(AbstractCommandHelper helper) {
+    protected void downloadFormatterIfNotPresent(CommandHelper helper) {
         if (!helper.isDependencyInstalled(FORMATTER_PACKAGE)) {
             getLog().info(
                     String.format("%s dependency not specified in pyproject.toml - installing now...", FORMATTER_PACKAGE));
