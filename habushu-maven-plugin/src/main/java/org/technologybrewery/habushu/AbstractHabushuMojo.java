@@ -19,7 +19,7 @@ import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.sonatype.plexus.components.cipher.PlexusCipherException;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
-import org.technologybrewery.habushu.exec.AbstractCommandHelper;
+import org.technologybrewery.habushu.exec.CommandHelper;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 import org.technologybrewery.habushu.exec.PyenvCommandHelper;
 import org.technologybrewery.habushu.exec.UvCommandHelper;
@@ -390,8 +390,8 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      *
      * @return helper
      */
-    protected AbstractCommandHelper getCommandHelper() {
-        AbstractCommandHelper helper;
+    protected CommandHelper getCommandHelper() {
+        CommandHelper helper;
 
         PackageManager packageManagerType = HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile());
         if (PackageManager.POETRY.equals(packageManagerType)) {

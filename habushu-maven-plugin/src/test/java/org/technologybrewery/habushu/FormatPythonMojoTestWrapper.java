@@ -1,12 +1,12 @@
 package org.technologybrewery.habushu;
 
-import org.technologybrewery.habushu.exec.AbstractCommandHelper;
-import org.technologybrewery.habushu.exec.PoetryCommandHelper;
-import org.technologybrewery.habushu.exec.UvCommandHelper;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+
+import org.technologybrewery.habushu.exec.CommandHelper;
+import org.technologybrewery.habushu.exec.PoetryCommandHelper;
+import org.technologybrewery.habushu.exec.UvCommandHelper;
 
 public class FormatPythonMojoTestWrapper extends FormatPythonMojo {
 
@@ -33,7 +33,7 @@ public class FormatPythonMojoTestWrapper extends FormatPythonMojo {
     }
 
     @Override
-    protected void downloadFormatterIfNotPresent(AbstractCommandHelper helper) {
+    protected void downloadFormatterIfNotPresent(CommandHelper helper) {
 
         // These are pre-requesite steps to showing installed dependencies
         if (helper instanceof PoetryCommandHelper) {

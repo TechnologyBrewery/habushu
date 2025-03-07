@@ -13,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.technologybrewery.habushu.exec.AbstractCommandHelper;
+import org.technologybrewery.habushu.exec.CommandHelper;
 
 public abstract class AbstractBehaveBddTest {
 
@@ -22,9 +22,9 @@ public abstract class AbstractBehaveBddTest {
     protected static final String KAPPA_FORMAT = "kappa_maki.kappa_maki_formatter:PrettyCucumberJSONFormatter";
     protected Log log;
     protected BehaveBddTestMojo behaveBddTestMojo;
-    protected AbstractCommandHelper commandHelper;
+    protected CommandHelper commandHelper;
 
-    protected AbstractBehaveBddTest(Log log, BehaveBddTestMojo behaveBddTestMojo, AbstractCommandHelper commandHelper) {
+    protected AbstractBehaveBddTest(Log log, BehaveBddTestMojo behaveBddTestMojo, CommandHelper commandHelper) {
         this.log = log;
         this.behaveBddTestMojo = behaveBddTestMojo;
         this.commandHelper = commandHelper;

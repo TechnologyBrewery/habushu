@@ -113,36 +113,6 @@ def step_impl(context):
 mvn clean test -Ptagged-tests -Dtags="one_tag"
 ```
 
-### Running Custom Python Scripts During Build Phases ###
-
-In addition to creating a custom Maven lifecycle that automates the execution of a predictable Poetry/uv-based workflow, Habushu exposes a `run-command-in-virtual-env` plugin goal that provides developers with the ability to execute any Python command or script within the project's virtual environment through `poetry run`/`uv run` during the desired build phase.
-
-For example, developers may use this feature to bind a Habushu module's `compile` phase to the appropriate Python command that generates gRPC/protobuf bindings as an automated part of the build following dependency installation:
-
-```xml
-<plugin>
-    <groupId>org.technologybrewery.habushu</groupId>
-    <artifactId>habushu-maven-plugin</artifactId>
-    <extensions>true</extensions>
-    <configuration>
-        ...
-    </configuration>
-    <executions>
-        <execution>
-            <configuration>
-                <runCommandArgs>python -m grpc_tools.protoc -I=src
-                    --python_out=src/habushu_poetry_package/generated src/person.proto</runCommandArgs>
-            </configuration>
-            <id>generate-protobuf-bindings</id>
-            <phase>compile</phase>
-            <goals>
-                <goal>run-command-in-virtual-env</goal>
-            </goals>
-        </execution>
-    </executions>
-</plugin>
-```
-
 ### Leveraging the containerize-dependencies Goal to Prepare a Containerized Virtual Environment ###
 The `containerize-dependencies` goal will collect a single `habushu` dependency specified in the project's `pom.xml`,
 including all transitive habushu-packaged dependencies. After collecting the set of necessary dependencies, Habushu will
@@ -603,37 +573,6 @@ If using a Poetry version older than `2.0.0`, a value of `true` will result in P
 
 Default: `false`
 
-#### runCommandArgs ####
-
-**Only applicable when executing the `run-command-in-virtual-env` plugin goal**
-
-Whitespace-delimited command arguments that will be provided to `poetry run` to execute. For example, the following property configuration will execute `poetry run python -V` within the project's virtual environment during the `validate` phase of the build:
-
-```xml
-	<plugin>
-    <groupId>org.technologybrewery.habushu</groupId>
-    <artifactId>habushu-maven-plugin</artifactId>
-    <extensions>true</extensions>
-    <configuration>
-        ...
-    </configuration>
-    <executions>
-        <execution>
-            <configuration>
-                <runCommandArgs>python -V</runCommandArgs>
-            </configuration>
-            <id>get-python-version</id>
-            <phase>validate</phase>
-            <goals>
-                <goal>run-command-in-virtual-env</goal>
-            </goals>
-        </execution>
-    </executions>
-</plugin>
-```
-
-Default: None
-
 #### skipPoetryLockUpdate ####
 
 Typically enabled when running CI, this configuration enables skipping the update of Poetry's lock file via `poetry lock`. If `poetry.lock` does not exist, the subsequent execution of `poetry install` will create it regardless of this configuration. If `poetry.lock` has a mismatch with its `pyproject.toml` definition, the build will fail.
@@ -859,8 +798,10 @@ Habushu features. Each example will have a working module along with a `README.m
 configuration options.
 - [Adding Habushu to an Existing Poetry Project](./examples/add-habushu-to-new-or-existing-poetry-project/README.md) - Adding Habushu to an existing Poetry project
 - [Adding Habushu to an Existing uv Project](./examples/add-habushu-to-new-or-existing-uv-project/README.md) - Adding Habushu to an existing uv project
-- [Managed Dependencies](./examples/habushu-managed-dependencies/README.md) - supports common definition of dependency 
+- [Managed Dependencies](./examples/habushu-managed-dependencies/README.md) - Supports common definition of dependency 
   versions across Maven modules
+- [Running Python Scripts](./examples/habushu-running-python-scripts/README.md) - Supports running custom python scripts 
+  during build phases with the `runCommandArgs` configuration
 - [Default Python Strategy](./examples/habushu-default-python-strategy/README.md) - Handles the strategy for setting 
   the default python version if no version is explicitly set in `pythonVersion`
 
