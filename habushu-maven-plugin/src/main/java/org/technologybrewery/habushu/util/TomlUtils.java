@@ -42,7 +42,13 @@ public final class TomlUtils {
     public static final String REQUIRES = "requires";
     public static final String POETRY_CORE ="poetry-core";
     public static final String DOT = ".";
+    public static final String DOT_REGEX = "\\.";
     public static final String PYPROJECT_TOML = "pyproject.toml";
+    public static final String CARROT = "^";
+    public static final String CARROT_REGEX = "\\^";
+    public static final String GREATER_THAN_OR_EQUAL_TO = ">=";
+    public static final String COMMA = ",";
+    public static final String LESS_THAN = "<";
 
 
     protected TomlUtils() {
@@ -158,6 +164,29 @@ public final class TomlUtils {
             lastDigitIndex =  matcher.end();
         }
         return lastDigitIndex;
+    }
+
+    public static String refactorCarrotIntoGreaterThanLessThan(String semver) {
+        String[] carrotSplit = semver.split(CARROT_REGEX);
+        String semverNoComparator = carrotSplit[1];
+
+        Integer nextMajorSemver;
+
+        if (semverNoComparator.contains(DOT)) { // e.g. ^3.11 turns into >=3.11,<4
+            String[] semverSplit = semverNoComparator.split(DOT_REGEX);
+            nextMajorSemver = Integer.parseInt(semverSplit[0]) + 1;
+        } else { // e.g. ^3 turns into >=3,<4
+            nextMajorSemver = Integer.parseInt(semverNoComparator) + 1;
+        }
+
+        StringBuilder newSemver = new StringBuilder()
+                .append(GREATER_THAN_OR_EQUAL_TO)
+                .append(semverNoComparator)
+                .append(COMMA)
+                .append(LESS_THAN)
+                .append(nextMajorSemver);
+
+        return newSemver.toString();
     }
 
 }
