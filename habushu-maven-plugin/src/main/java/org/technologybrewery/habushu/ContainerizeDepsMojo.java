@@ -14,6 +14,7 @@ import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.technologybrewery.habushu.util.ContainerizeDepsDockerfileHelper;
+import org.technologybrewery.habushu.util.HabushuUtil;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -114,8 +115,6 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      */
     @Parameter(defaultValue = "1.2.0", property = "habushu.dockerPoetryMonorepoDependencyPluginVersion")
     protected String dockerPoetryMonorepoDependencyPluginVersion;
-
-    protected final String HABUSHU = "habushu";
 
     /**
      * Overriding to allow execution in non-habushu projects.
@@ -220,7 +219,7 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     protected ProjectCollectionResult getHabushuProjects() {
         ProjectCollectionResult collectionResult;
         Set<Dependency> directHabushuDeps = session.getCurrentProject().getDependencies().stream()
-                .filter(d -> HABUSHU.equals(d.getType()))
+                .filter(d -> HabushuUtil.HABUSHU.equals(d.getType()))
                 .collect(Collectors.toSet());
         if (directHabushuDeps.size() > 1) {
             throw new HabushuException("More than one `habushu` packaged dependency was found."
@@ -241,7 +240,7 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      */
     protected ProjectCollectionResult collectHabushuDependenciesAsProjects(MavenProject currentProject, ProjectCollectionResult collectionResult) {
         Set<String> habushuDeps = currentProject.getDependencies().stream()
-                .filter(d -> HABUSHU.equals(d.getType()))
+                .filter(d -> HabushuUtil.HABUSHU.equals(d.getType()))
                 .map(ContainerizeDepsMojo::toGav)
                 .collect(Collectors.toSet());
         for (MavenProject project : getSession().getProjects()) {
