@@ -109,6 +109,7 @@ public class ContainerizeDepsMojoTestWrapper extends AbstractMojoTestCase {
         }
 
         session.setProjects(mavenProjects);
+        session.setAllProjects(mavenProjects);
         session.setCurrentProject(project);
 
         return session;
