@@ -20,6 +20,7 @@ import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.technologybrewery.habushu.HabushuException;
 
 /**
  * Facilitates the execution of Poetry commands.
@@ -36,6 +37,8 @@ public class PoetryCommandHelper {
 
     protected File workingDirectory;
 
+    protected volatile String showPluginsResult;
+    protected static final Object pluginSystemLock = new Object();
 
     public PoetryCommandHelper(File workingDirectory) {
         this.workingDirectory = workingDirectory;
@@ -236,26 +239,26 @@ public class PoetryCommandHelper {
         return result;
     }
 
-    private synchronized int performInstallPoetryPlugin(String name) throws MojoExecutionException {
+    private int performInstallPoetryPlugin(String name) throws MojoExecutionException {
         int result = EXIT_SUCCESS;
-        if (pluginNeedsInstalling(name)) {
-            List<String> args = new ArrayList<>();
-            args.add("self");
-            args.add("add");
-            args.add(name);
-            result = this.executeAndLogOutput(args);
-
+        List<String> args = new ArrayList<>();
+        args.add("self");
+        args.add("add");
+        args.add(name);
+        synchronized (pluginSystemLock) {
+            if (pluginNeedsInstalling(name)) {
+                result = this.executeAndLogOutput(args);
+            }
         }
+
+        // un-cache known set of plugins:
+        showPluginsResult = null;
 
         return result;
     }
 
     private boolean pluginNeedsInstalling(String name) throws MojoExecutionException {
-        List<String> args = new ArrayList<>();
-        args.add("self");
-        args.add("show");
-        args.add("plugins");
-        String showPluginsResult =  this.execute(args);
+        executeShowPlugins();
 
         String pluginNameWithoutVersion = name;
         if (name.contains(VERSION_DELIMITER)) {
@@ -263,6 +266,30 @@ public class PoetryCommandHelper {
         }
 
         return !showPluginsResult.contains(pluginNameWithoutVersion);
+    }
+
+    private void executeShowPlugins() throws MojoExecutionException {
+        if (StringUtils.isBlank(showPluginsResult)) {
+            List<String> args = new ArrayList<>();
+            args.add("self");
+            args.add("show");
+            args.add("plugins");
+            try {
+                    if (StringUtils.isBlank(showPluginsResult)) {
+                        showPluginsResult = this.execute(args);
+                    }
+            } catch (HabushuException e) {
+                logger.info("Plugin status could not be determined. This is normally a race condition on another"
+                        + " thread touching poetry's underlying pyproject.toml, trying one more time...");
+                // let's be more careful round two and assume that
+                synchronized (pluginSystemLock) {
+                    if (StringUtils.isBlank(showPluginsResult)) {
+                        showPluginsResult = this.execute(args);
+                    }
+                }
+
+            }
+        }
     }
 
     protected ProcessExecutor createPoetryExecutor(List<String> arguments) {
