@@ -21,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -107,17 +106,7 @@ public class InstallDependenciesUv extends AbstractInstallDependencies {
             throw new HabushuException(
                     String.format("Could not parse configured repoUrl %s", PUBLIC_PYPI_REPO_URL), e);
         }
-
-        Config matchingPypiRepoIndexConfig;
-        try (FileConfig pyProjectConfig = FileConfig.of(getPyProjectTomlFile())) {
-            pyProjectConfig.load();
-
-            Optional<List<Config>> packageIndex = pyProjectConfig.getOptional(PYPROJECT_PACKAGE_INDEX_PATH);
-            matchingPypiRepoIndexConfig = packageIndex.orElse(Collections.emptyList()).stream()
-                    .filter(packageIdx -> pypiRepoSimpleIndexUrl.equals(packageIdx.get("url"))).findFirst()
-                    .orElse(Config.inMemory());
-        }
-
+        Config matchingPypiRepoIndexConfig = getMatchingPypiRepoIndexConfig(PYPROJECT_PACKAGE_INDEX_PATH, pypiRepoSimpleIndexUrl);
 
         if (!matchingPypiRepoIndexConfig.isEmpty()) {
             if (log.isDebugEnabled()) {
@@ -134,7 +123,8 @@ public class InstallDependenciesUv extends AbstractInstallDependencies {
                             LocalDateTime.now(), pypiRepoSimpleIndexUrl),
                     String.format("[[%s]]", PYPROJECT_PACKAGE_INDEX_PATH),
                     String.format("name = \"%s\"",PUBLIC_PYPI_REPO_ID),
-                    String.format("url = \"%s\"", PUBLIC_PYPI_REPO_URL));
+                    String.format("url = \"%s\"", PUBLIC_PYPI_REPO_URL),
+                    String.format("publish-url = \"%s\"", getPublishUrl(PUBLIC_PYPI_REPO_URL, false)));
 
             log.info("Adding default public PyPi repository entry in pyproject.toml");
 

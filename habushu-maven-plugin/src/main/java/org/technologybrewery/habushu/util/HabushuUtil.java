@@ -269,4 +269,14 @@ public final class HabushuUtil {
         }
         return shellConfigFile;
     }
+
+
+    /**
+     * Finds current Python Package Manager and return whether it is UV.
+     *
+     * @return true if current Package Manager is UV.
+     */
+    public static boolean isCurrentPackageManagerUv(File pyProjectTomlFile) {
+        return checkPythonPackageManager(pyProjectTomlFile)  == PackageManager.UV;
+    }
 }

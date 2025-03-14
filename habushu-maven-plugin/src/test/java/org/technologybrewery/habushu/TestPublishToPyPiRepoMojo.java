@@ -1,5 +1,7 @@
 package org.technologybrewery.habushu;
 
+import java.io.File;
+
 /**
  * Contains method to make testing easier and set deploy Mojo values that would be done by Maven in normal use.
  */
@@ -17,6 +19,15 @@ public class TestPublishToPyPiRepoMojo extends PublishToPyPiRepoMojo {
         this.skipDeploy = false;
         this.pypiUploadSuffix = "";
         this.devRepositoryUrlUploadSuffix = "legacy/";
+    }
+
+    public String getRepositoryUrl(boolean publishToDev) {
+        PublishToPyPiRepoPoetry publishToPyPiRepoPoetry = new PublishToPyPiRepoPoetry(new File("target/"), getLog(), this);
+        return publishToPyPiRepoPoetry.getRepositoryUrl(publishToDev);
+    }
+
+    public String addTrailingSlash(String inputUrl) {
+        return AbstractPublishToPyPiRepo.addTrailingSlash(inputUrl);
     }
 
 }

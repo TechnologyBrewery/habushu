@@ -95,6 +95,26 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
     @Parameter(defaultValue = "true", property = "habushu.useInProjectVirtualEnvironment")
     protected boolean useInProjectVirtualEnvironment;
 
+
+    /**
+     * Allows tailoring of the path used for pushing to a PyPI repository for deployment.  Some repositories, like
+     * Nexus or Artifactory, do not require an url path on top of the base repository url.  Others, do (often using
+     * "legacy/").  This variable allows customization in a manner that does not impact the installation API for the
+     * same repository.  Defaults to empty as the most common scenario when overriding the repository URL is to leverage
+     * one of the repositories mentioned above.
+     * Note: The property must be set equal to "" in order for Maven to not set the default value to null
+     */
+    @Parameter(property = "habushu.pypiUploadSuffix", defaultValue = "")
+    protected String pypiUploadSuffix = "";
+
+    /**
+     * {{@link #pypiUploadSuffix repositoryUploadSuffix} contains critical information.  The main difference is that
+     * this dev repository url path defaults to "legacy/" as the most common scenario when overriding the dev
+     * repository URL is to leverage test.pypi.org, which needs this configuration.
+     */
+    @Parameter(property = "habushu.devRepositoryUrlUploadSuffix", defaultValue = "legacy/")
+    protected String devRepositoryUrlUploadSuffix;
+
     /**
      * Get whether whether a private PyPi repository, is automatically added as a package source
      * @return addPypiRepoAsPackageSources
@@ -175,10 +195,27 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
         return useInProjectVirtualEnvironment;
     }
 
+    /**
+     * Get Pypi upload suffix for publishing url
+     * @return pypiUploadSuffix
+     */
+    public String getPypiUploadSuffix() {
+        return pypiUploadSuffix;
+    }
+
+    /**
+     * Get Dev Repository upload suffix for publishing url
+     * @return devRepositoryUrlUploadSuffix
+     */
+    public String getDevRepositoryUrlUploadSuffix() {
+        return devRepositoryUrlUploadSuffix;
+    }
+
+
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
 
-        if (HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile()) == PackageManager.POETRY){
+        if (HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile()) == PackageManager.POETRY) {
             //Passing "this" in the param is intentional so that we can carry over all @param variables to this class using the instance
             //of InstallDependenciesMOJO instead of passing giant list of parameters above.
             InstallDependenciesPoetry installDependenciesPoetry = new InstallDependenciesPoetry(getPythonProjectBaseDir(), getLog(), this);
@@ -188,7 +225,4 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
             installDependenciesUv.doExecute();
         }
     }
-
-
-
 }
