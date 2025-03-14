@@ -1,24 +1,19 @@
 package org.technologybrewery.habushu.exec;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.technologybrewery.habushu.HabushuException;
+
 /**
  * Facilitates the execution of uv commands.
  */
@@ -79,16 +74,8 @@ public class UvCommandHelper extends AbstractCommandHelper {
      *
      * @return
      */
-    public String getCurrentPythonVersion() throws MojoExecutionException {
-        String currentPythonVersion = pythonVersionFileContents();
-        if (currentPythonVersion.isEmpty()) {
-            currentPythonVersion = pythonVersionFromVirtualEnvironment();
-            if (!currentPythonVersion.isEmpty()) {
-                logger.info("A .python-version does not currently exist for this package. Creating it now with the Python version being used in the current virutal environment (in .venv).");
-                updatePythonVersion(currentPythonVersion);
-            }
-        }
-        return currentPythonVersion;
+    public String getCurrentPythonVersion() {
+        return executePythonPinCommand();
     }
 
     /**
@@ -97,8 +84,7 @@ public class UvCommandHelper extends AbstractCommandHelper {
      * @return
      */
     public void updatePythonVersion(String targetVersion) {
-        List<String> pythonPinCommand = createPythonPinCommand(targetVersion);
-        execute(pythonPinCommand);
+        executePythonPinCommand(targetVersion);
     }
 
     /**
@@ -145,13 +131,6 @@ public class UvCommandHelper extends AbstractCommandHelper {
         return arguments;
     }
 
-    public List<String> createRunCommand(List<String> additional_arguments) {
-        List<String> arguments = new ArrayList<>();
-        arguments.add("run");
-        arguments.addAll(additional_arguments);
-        return arguments;
-    }
-
     public List<String> createToolRunCommand(List<String> additional_arguments) {
         List<String> arguments = new ArrayList<>();
         arguments.add("tool");
@@ -160,12 +139,25 @@ public class UvCommandHelper extends AbstractCommandHelper {
         return arguments;
     }
 
-    public List<String> createPythonPinCommand(String targetVersion) {
+    public String executePythonPinCommand() {
+        String pythonVersion = StringUtils.EMPTY;
         List<String> arguments = new ArrayList<>();
         arguments.add("python");
         arguments.add("pin");
-        arguments.addAll(Arrays.asList(targetVersion));
-        return arguments;
+        try {
+            pythonVersion = execute(arguments);
+            return pythonVersion;
+        } catch (Throwable e) {
+            return pythonVersion;
+        }
+    }
+
+    public String executePythonPinCommand(String targetVersion) {
+        List<String> arguments = new ArrayList<>();
+        arguments.add("python");
+        arguments.add("pin");
+        arguments.add(targetVersion);
+        return execute(arguments);
     }
 
     private String getMatchedPattern(Pattern pattern, String stringToSearch) {
@@ -175,40 +167,6 @@ public class UvCommandHelper extends AbstractCommandHelper {
             stringMatchingPattern = matchedPattern.group(1);
         }
         return stringMatchingPattern;
-    }
-
-    private String pythonVersionFileContents() throws MojoExecutionException {
-        String pythonVersion = StringUtils.EMPTY;
-        if (Boolean.TRUE.equals(checkFileExistance(pythonVersionFile))) {
-            try {
-                Path pythonVersionFilePath = Paths.get(pythonVersionFile);
-                pythonVersion = Files.readString(pythonVersionFilePath, StandardCharsets.UTF_8).strip();
-            } catch (IOException e) {
-                throw new MojoExecutionException(String.format("Could not read file contents for %s.",
-                pythonVersionFile), e);
-            }
-        }
-        return pythonVersion;
-    }
-
-    private Boolean checkFileExistance(String stringFilePath) {
-        File filePath = new File(stringFilePath);
-        return filePath.isFile();
-    }
-
-    private String pythonVersionFromVirtualEnvironment() throws MojoExecutionException {
-        String pythonVersion = StringUtils.EMPTY;
-        if (checkDirectoryExistance(virtualEnvironmentDirectory)) {
-            List<String> getPythonVersionFromRunCommand = createRunCommand(Arrays.asList("python", "--version"));
-            String rawCommandResult = execute(getPythonVersionFromRunCommand);
-            pythonVersion = getMatchedPattern(pythonVersionPattern, rawCommandResult);
-        }
-        return pythonVersion;
-    }
-
-    private Boolean checkDirectoryExistance(String stringDirectoryPath) {
-        File directoryPath = new File(stringDirectoryPath);
-        return (directoryPath.exists() && directoryPath.isDirectory());
     }
 
 }

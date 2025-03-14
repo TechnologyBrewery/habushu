@@ -37,8 +37,7 @@ public class UvSetup extends AbstractPythonPackageAndDependencyManagerSetup {
      * @throws MojoExecutionException
      */
     @Override
-    protected String configurePythonUsingPackageAndDependencyManager()
-            throws MojoExecutionException {
+    protected String configurePythonUsingPackageAndDependencyManager() {
         UvCommandHelper uvHelper = createUvCommandHelper();
         String currentPythonVersion = uvHelper.getCurrentPythonVersion();
 
