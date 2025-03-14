@@ -242,6 +242,9 @@
             <plugin>
                 <groupId>net.masterthought</groupId>
                 <artifactId>maven-cucumber-reporting</artifactId>
+                <configuration>
+                    <skip>${skipTests}</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>

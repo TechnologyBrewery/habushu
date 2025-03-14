@@ -86,7 +86,7 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      * compatibility, this image must share a platform with {@link #dockerFinalBase}. The base image must have the target
      * Python version resolvable via the PATH.
      */
-    @Parameter(defaultValue = "docker.io/python:3.11", property = "habushu.dockerBuilderBase")
+    @Parameter(defaultValue = "docker.io/python:3.12", property = "habushu.dockerBuilderBase")
     protected String dockerBuilderBase;
 
     /**
@@ -95,7 +95,7 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      * this image must share a platform with {@link #dockerBuilderBase}. The base image must have the target Python
      * version resolvable via the PATH.
      */
-    @Parameter(defaultValue = "docker.io/python:3.11-slim", property = "habushu.dockerFinalBase")
+    @Parameter(defaultValue = "docker.io/python:3.12-slim", property = "habushu.dockerFinalBase")
     protected String dockerFinalBase;
 
     /**
@@ -166,7 +166,12 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
             stageSourcesForProject(sourceRoot, destRoot, sourceFileSet, relativeProjectPath);
         }
         if( primaryProjectPath == null ) {
-            throw new HabushuException("Primary project was not included in the set of projects. Ensure the Habushu project is in the build and the POM dependencies are configured correctly.");
+            String habushuDependency = getProjectHabushuDependencies(getProject()).toString().split(":")[1];
+            StringBuilder message = new StringBuilder()
+                    .append("Habushu project to containerize was not included in the provided projects (-pl).")
+                    .append(" Ensure the Habushu project is in the build and the POM dependencies are configured correctly.")
+                    .append(String.format("%n Add :%s to project build scope to resolve", habushuDependency));
+            throw new HabushuException(message.toString());
         }
         return primaryProjectPath;
     }
@@ -239,11 +244,8 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      * @param collectionResult the result object to add the projects to
      */
     protected ProjectCollectionResult collectHabushuDependenciesAsProjects(MavenProject currentProject, ProjectCollectionResult collectionResult) {
-        Set<String> habushuDeps = currentProject.getDependencies().stream()
-                .filter(d -> HabushuUtil.HABUSHU.equals(d.getType()))
-                .map(ContainerizeDepsMojo::toGav)
-                .collect(Collectors.toSet());
-        for (MavenProject project : getSession().getProjects()) {
+        Set<String> habushuDeps = getProjectHabushuDependencies(currentProject);
+        for (MavenProject project : getSession().getAllProjects()) {
             if (habushuDeps.contains(toGav(project))) {
                 logger.info("Found project {} as habushu-type dependency.", project);
                 collectionResult.addProject(project);
@@ -321,5 +323,12 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         public MavenProject getPrimaryProject() {
             return primaryProject;
         }
+    }
+
+    private static Set<String> getProjectHabushuDependencies(MavenProject currentProject) {
+        return currentProject.getDependencies().stream()
+                .filter(d -> HabushuUtil.HABUSHU.equals(d.getType()))
+                .map(ContainerizeDepsMojo::toGav)
+                .collect(Collectors.toSet());
     }
 }
