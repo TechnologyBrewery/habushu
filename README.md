@@ -805,6 +805,7 @@ configuration options.
   during build phases with the `runCommandArgs` configuration
 - [Default Python Strategy](./examples/habushu-default-python-strategy/README.md) - Handles the strategy for setting 
   the default python version if no version is explicitly set in `pythonVersion`
+- [Disable exportRequirementsWithoutPathDependencies](./examples/habushu-export-requirements-with-path-dependencies/README.md) - Disable the `exportRequirementsWithoutPathDependencies` default configuration
 
 ### Maven Reactor Integration ###
 Optionally, Habushu supports partial builds via the Maven Reactor. This allows functionality such as `-rf` (resume from)

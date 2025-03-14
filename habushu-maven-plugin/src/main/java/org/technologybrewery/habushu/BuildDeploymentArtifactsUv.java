@@ -51,8 +51,16 @@ public class BuildDeploymentArtifactsUv extends AbstractBuildDeploymentArtifacts
             }
 
             List<String> command = new ArrayList<>();
-            //TODO: exportRequirementsWithoutPathDependencies shall available done once uv-monorepo-dependency-plugin is implemented.
             command.add("export");
+            // By default, uv includes the current project as an editable dependency in the exported requirements file with all of its dependencies.
+            // Disabling this feature as we don't need this capability in a containerization setting
+            command.add("--no-emit-project");
+            // By default, uv includes the development dependency group in the exported requirements file.
+            // Disabling this feature as we don't need this capability in a containerization setting
+            command.add("--no-dev");
+            if (buildDeploymentArtifactsMojo.exportRequirementsWithoutPathDependencies()) {
+                command.add("--no-sources");
+            }
             command.add("--output-file");
             String outputFile = buildDeploymentArtifactsMojo.getExportRequirementsFolder() + "/requirements.txt";
             command.add(outputFile);
