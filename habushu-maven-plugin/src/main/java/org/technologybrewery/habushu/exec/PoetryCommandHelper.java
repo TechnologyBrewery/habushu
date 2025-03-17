@@ -6,11 +6,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.technologybrewery.habushu.HabushuException;
 
 /**
  * Facilitates the execution of Poetry commands.
@@ -21,11 +23,13 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
     private static final String BREAKING_POETRY_VERSION = "2.0.0";
     private static final Logger logger = LoggerFactory.getLogger(PoetryCommandHelper.class);
 
-    private static final String extractVersionRegex = "[^0-9\\.]";
     public static final String VERSION_DELIMITER = "@";
     private static final int EXIT_SUCCESS = 0;
 
     private static final String EXTRACT_VERSION_REGEX = "[^0-9\\.]";
+
+    protected volatile String showPluginsResult;
+    protected static final Object pluginSystemLock = new Object();
 
 
     public PoetryCommandHelper(File workingDirectory) {
@@ -97,13 +101,12 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
     }
 
     /**
-     * Installs a Poetry plugin with the given name.
+     * Installs a Poetry plugin with the given name. Poetry plugins install into Poetry's `pyproject.toml` file
+     * directly.  As such, it can lead to threading issues without proper care.  We protect against this scenario via
+     * double-checked locking execution of the `poetry self add <plugin>` call and avoidance of the add altogether if
+     * the plugin already exists.
      *
-     * Poetry plugins install into Poetry's `pyproject.toml` file directly.  As such, it can lead to threading issues
-     * without proper care.  We protect against this scenario via double-checked locking execution of the
-     * `poetry self add <plugin>` call and avoidance of the add altogether if the plugin already exists.
-     *
-     * @param name
+     * @param name name of the plugin to install
      * @return execution value
      */
     public int installPoetryPlugin(String name) {
@@ -115,26 +118,27 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
         return result;
     }
 
-    private synchronized int performInstallPoetryPlugin(String name) {
+    private int performInstallPoetryPlugin(String name) {
         int result = EXIT_SUCCESS;
-        if (pluginNeedsInstalling(name)) {
-            List<String> args = new ArrayList<>();
-            args.add("self");
-            args.add("add");
-            args.add(name);
-            result = this.executeAndLogOutput(args);
 
+        List<String> args = new ArrayList<>();
+        args.add("self");
+        args.add("add");
+        args.add(name);
+        synchronized (pluginSystemLock) {
+            if (pluginNeedsInstalling(name)) {
+                result = this.executeAndLogOutput(args);
+
+                // un-cache known set of plugins:
+                showPluginsResult = null;
+            }
         }
 
         return result;
     }
 
     private boolean pluginNeedsInstalling(String name) {
-        List<String> args = new ArrayList<>();
-        args.add("self");
-        args.add("show");
-        args.add("plugins");
-        String showPluginsResult =  this.execute(args);
+        executeShowPlugins();
 
         String pluginNameWithoutVersion = name;
         if (name.contains(VERSION_DELIMITER)) {
@@ -142,6 +146,31 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
         }
 
         return !showPluginsResult.contains(pluginNameWithoutVersion);
+    }
+
+    private void executeShowPlugins() {
+        if (StringUtils.isBlank(showPluginsResult)) {
+            List<String> args = new ArrayList<>();
+            args.add("self");
+            args.add("show");
+            args.add("plugins");
+            try {
+                if (StringUtils.isBlank(showPluginsResult)) {
+                    showPluginsResult = this.execute(args);
+                }
+            } catch (HabushuException e) {
+                logger.info("Plugin status could not be determined. This is normally a race condition on another"
+                        + " thread touching poetry's underlying pyproject.toml, trying one more time...");
+                // let's be more careful round two and assume that there was a plugin being installed, so we need to
+                // respect that the lock could be engaged and synchronize on it to ensure ordered execution:
+                synchronized (pluginSystemLock) {
+                    if (StringUtils.isBlank(showPluginsResult)) {
+                        showPluginsResult = this.execute(args);
+                    }
+                }
+
+            }
+        }
     }
 
     /**
