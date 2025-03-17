@@ -11,7 +11,7 @@ public class PythonPackageAndDependencyManagerFactory {
         throw new IllegalStateException("Utility class");
     }
 
-    public static AbstractPythonPackageAndDependencyManagerSetup createPythonPackageAndDependencyManagerSetup(
+    public static PythonPackageAndDependencyManagerSetup createPythonPackageAndDependencyManagerSetup(
         String pythonVersion, boolean isPythonVersionConfigurationSet, String defaultPythonStrategy, File baseDir,
         boolean rewriteLocalPathDepsInArchives, Log log, PackageManager pythonPackageAndDependencyManager,
         Boolean usePyenv, File patchInstallScript) {

@@ -28,16 +28,10 @@ public class UvSetup extends AbstractPythonPackageAndDependencyManagerSetup {
     }
 
     /**
-     * Gets the current python version from either the .python-version file or the .venv. It compares this with the
-     * desired python version and if it is different it will pin project to that version. Desired python version is
-     * determined by the habushu config pythonVersion. If that is not set then it will default to the current
-     * projects python version or the default habushu version depending on the config defaultPythonStrategy
-     *
-     * @return the current Python version
-     * @throws MojoExecutionException
+     * {@inheritDoc}
      */
     @Override
-    protected String configurePythonUsingPackageAndDependencyManager() {
+    public String configurePythonUsingPackageAndDependencyManager() {
         UvCommandHelper uvHelper = createUvCommandHelper();
         String currentPythonVersion = uvHelper.getCurrentPythonVersion();
 
@@ -54,8 +48,11 @@ public class UvSetup extends AbstractPythonPackageAndDependencyManagerSetup {
         return currentPythonVersion;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected List<String> validatePackageAndDependencyManagerInstallationAndVersion(
+    public List<String> validatePackageAndDependencyManagerInstallationAndVersion(
         ValidationTrackingStatus validationTracker, List<String> missingRequiredToolMsgs) {
         String alreadyValidatedVersion = validationTracker.getAlreadyValidatedVersion();
         if (!validationTracker.isAlreadyValidatedInstallation()) {
@@ -88,9 +85,28 @@ public class UvSetup extends AbstractPythonPackageAndDependencyManagerSetup {
         return missingRequiredToolMsgs;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected String pythonSourceMessage() {
+    public void finalizePythonPackageAndDependencyManagerConfiguration() {
+        // Currently no monorepo dependency plugin to install
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String pythonSourceMessage() {
         return "(managed by uv)";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerRepositoryToSupportAuthenticatedDependencyResolution(String repoId, String username, String password) {
+        // TODO update to include UV configuration with repos
     }
 
     /**
