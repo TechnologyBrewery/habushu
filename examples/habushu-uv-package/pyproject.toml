@@ -6,7 +6,7 @@ license = {text = "MIT License"}
 requires-python = ">=3.11"
 dependencies = [
     "krausening>=20",
-    "cryptography<43.0.0,>=42.0.0",
+    "cryptography>=44.0.1",
     "uvicorn[standard]>=0.19.0",
 ]
 name = "habushu_uv_package"

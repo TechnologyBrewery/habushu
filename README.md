@@ -19,8 +19,7 @@ More information about how Habushu can be used and benefit your project can be f
 
 In order to use Habushu, the following prerequisites must be installed:
 
-* Maven 3.6+
-* Maven 3.9+ for use with Maven Build Cache
+* Maven 3.9+ or mvnd 1.0.2+
 * Java 11+
 * [Poetry 1.5+](https://python-poetry.org/)
 * [Pyenv](https://github.com/pyenv/pyenv)
@@ -772,6 +771,9 @@ If you encounter the following error, please see the "Building Habushu" section 
 
 ## Building Habushu ##
 
+You can use `mvnd` or `mvn` to build Habushu. We recommend `mvnd`, which provides a substantial performance boost when
+running the examples.
+
 If you are working on Habushu, please be aware of some nuances in working with a plugin that defines a custom Maven 
 build lifecycle and packaging. `habushu-poetry-package` and `habushu-poetry-package-consumer` are utilized to 
 immediately test the `habushu-maven-plugin` and associated `habushu` lifecycle.  If the `habushu-maven-plugin` has not 
@@ -783,9 +785,9 @@ That said, if developers do not update the `habushu` lifecycle and simply make u
 the `habushu-maven-plugin`, a single build may be used to build `habushu-maven-plugin` and apply the updates to 
 `habushu-poetry-package`. To assist, there are two profiles available in the build:
 
-* `mvn clean install -Pbootstrap`: Builds the `habushu-maven-plugin` such that the custom `habushu` lifecycle may be utilized within subsequent builds.
+* `mvnd clean install -Pbootstrap`: Builds the `habushu-maven-plugin` such that the custom `habushu` lifecycle may be utilized within subsequent builds.
 * **NOTE:** If updates are made to the `habushu` lifecycle (i.e. updates to the `habushu` lifecycle mapping configuration made in `habushu-maven-plugin/src/main/resources/META-INF/plexus/components.xml`), developers **MUST**  changes require two builds to test - one to build the lifecycle, then a second to use that updated lifecycle.  Code changes to `Mojo` classes within the existing `habushu` lifecycle work via normal builds without the need for a second pass.
-* `mvn clean install -Pdefault`: (ACTIVE BY DEFAULT - `-Pdefault` does not need to be specified) builds all modules.  Developers may use this profile to build and apply changes to existing `habushu-maven-plugin` `Mojo` classes
+* `mvnd clean install -Pdefault`: (ACTIVE BY DEFAULT - `-Pdefault` does not need to be specified) builds all modules.  Developers may use this profile to build and apply changes to existing `habushu-maven-plugin` `Mojo` classes
 
 ## Poetry v2.0.0+ Changes ##
 When on Poetry v2.0.0 and later, Baton migrations will automatically run on all `pyproject.toml` files in your Habushu project.
