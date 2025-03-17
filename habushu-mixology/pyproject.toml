@@ -2,7 +2,7 @@
 
 [project]
 name = "habushu_mixology"
-version = "2.18.1.dev"
+version = "2.18.1"
 description = "Example of how to use the habushu-maven-plugin"
 authors = [{name = "Eric Konieczny", email = "ekoniec1@gmail.com"}]
 license = "MIT License"
