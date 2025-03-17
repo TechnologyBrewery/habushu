@@ -148,7 +148,7 @@ public abstract class AbstractPythonPackageAndDependencyManagerSetup {
 
     protected boolean useCurrentPythonVersion(String currentPythonVersion) {
         // If the python version configuration is not set and the desired default python version is the existing
-        // projects version, set the desired python version to the current projects version
+        // project's version, set the desired python version to the current project's version
         return !isPythonVersionConfigurationSet && (defaultPythonStrategy.equals(DefaultPythonStrategy.PYTHONVERSION.name()) &&
                 StringUtils.isNotEmpty(currentPythonVersion));
     }
