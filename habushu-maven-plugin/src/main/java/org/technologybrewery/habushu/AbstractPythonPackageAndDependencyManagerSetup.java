@@ -11,11 +11,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Abstract class that ensures pre-requisite tools that Habushu leverages are installed and available on the
- * developer's machine to support the same functionality across multiple Mojo implementations.
- */
-public abstract class AbstractPythonPackageAndDependencyManagerSetup {
+public abstract class AbstractPythonPackageAndDependencyManagerSetup implements PythonPackageAndDependencyManagerSetup {
 
     public static final Logger logger = LoggerFactory.getLogger(AbstractPythonPackageAndDependencyManagerSetup.class);
 
@@ -118,15 +114,6 @@ public abstract class AbstractPythonPackageAndDependencyManagerSetup {
         validationStatusContainer.remove();
     }
 
-    protected abstract String configurePythonUsingPackageAndDependencyManager()throws MojoExecutionException;
-
-    protected abstract List<String> validatePackageAndDependencyManagerInstallationAndVersion(ValidationTrackingStatus validationTracker, List<String> missingRequiredToolMsgs) 
-        throws MojoExecutionException;
-
-    protected void finalizePythonPackageAndDependencyManagerConfiguration() {
-
-    }
-
     private void validatePythonVersion(String currentPythonVersion) throws MojoExecutionException {
         if (StringUtils.isNotBlank(currentPythonVersion)) {
             if (!currentPythonVersion.equals(pythonVersion)) {
@@ -140,13 +127,10 @@ public abstract class AbstractPythonPackageAndDependencyManagerSetup {
         }
     }
 
-    protected abstract String pythonSourceMessage() throws MojoExecutionException;
-
-    protected void registerRepositoryToSupportAuthenticatedDependencyResolution(String repoId, String username, String password) {
-
-    }
-
-    protected boolean useCurrentPythonVersion(String currentPythonVersion) {
+    /**
+     * {@inheritDoc}
+     */
+    public boolean useCurrentPythonVersion(String currentPythonVersion) {
         // If the python version configuration is not set and the desired default python version is the existing
         // project's version, set the desired python version to the current project's version
         return !isPythonVersionConfigurationSet && (defaultPythonStrategy.equals(DefaultPythonStrategy.PYTHONVERSION.name()) &&

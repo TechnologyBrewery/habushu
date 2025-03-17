@@ -7,9 +7,9 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.maven.plugin.logging.Log;
-import org.technologybrewery.habushu.AbstractPythonPackageAndDependencyManagerSetup;
 import org.technologybrewery.habushu.HabushuException;
 import org.technologybrewery.habushu.PythonPackageAndDependencyManagerFactory;
+import org.technologybrewery.habushu.PythonPackageAndDependencyManagerSetup;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -207,7 +207,7 @@ public final class HabushuUtil {
      * @return
      * @throws MojoExecutionException
      */
-    public static AbstractPythonPackageAndDependencyManagerSetup getPythonPackageAndDependencyManagerSetup(
+    public static PythonPackageAndDependencyManagerSetup getPythonPackageAndDependencyManagerSetup(
             PackageManager pythonPackageAndDependencyManager, String pythonVersion, boolean isPythonVersionConfigurationSet,
             String defaultPythonStrategy, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log,
             Boolean usePyenv, File patchInstallScript) {
