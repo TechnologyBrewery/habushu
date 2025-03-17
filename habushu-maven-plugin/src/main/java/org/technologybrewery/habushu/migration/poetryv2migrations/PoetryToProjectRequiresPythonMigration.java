@@ -20,6 +20,7 @@ import java.util.Optional;
 public class PoetryToProjectRequiresPythonMigration extends AbstractPoetryMigration{
     private static final Logger logger = LoggerFactory.getLogger(PoetryToProjectRequiresPythonMigration.class);
     private String pythonDependencyVersion;
+    private boolean updateFaultyFormat = false;
 
     @Override
     protected boolean shouldExecuteOnFile(File file) {
@@ -36,6 +37,17 @@ public class PoetryToProjectRequiresPythonMigration extends AbstractPoetryMigrat
                     if (!projectGroupEntry.contains(TomlUtils.REQUIRES_PYTHON)) {
                         shouldExecute = true;
                         logger.info("Adding to [{}] group entry! ({})", TomlUtils.PROJECT, TomlUtils.REQUIRES_PYTHON);
+                    } else {
+                        String requiresPythonSemver = projectGroupEntry.get(TomlUtils.REQUIRES_PYTHON);
+                        if (requiresPythonSemver.contains(TomlUtils.CARROT)) {
+                            updateFaultyFormat = true;
+                            shouldExecute = true;
+                            pythonDependencyVersion = TomlUtils.refactorCarrotIntoGreaterThanLessThan(requiresPythonSemver);
+                            logger.info("Reformatting ({}) in group entry [{}] to use >=,< notation!",
+                                    TomlUtils.REQUIRES_PYTHON,
+                                    TomlUtils.PROJECT
+                            );
+                        }
                     }
 
                     // grab original python dependency version from [tool.poetry.dependencies]
@@ -44,6 +56,9 @@ public class PoetryToProjectRequiresPythonMigration extends AbstractPoetryMigrat
                         Config poetryDependenciesGroupEntry = poetryDependenciesGroup.get();
                         if (poetryDependenciesGroupEntry.contains(TomlUtils.PYTHON)) {
                             pythonDependencyVersion = poetryDependenciesGroupEntry.get(TomlUtils.PYTHON);
+                            if (pythonDependencyVersion.contains(TomlUtils.CARROT)) {
+                                pythonDependencyVersion = TomlUtils.refactorCarrotIntoGreaterThanLessThan(pythonDependencyVersion);
+                            }
                         }
                     }
                 }
@@ -59,6 +74,7 @@ public class PoetryToProjectRequiresPythonMigration extends AbstractPoetryMigrat
         boolean inPoetryDependenciesSection = false;
         boolean injectedRequiresPython = false;
         boolean injectAfterNextEmptyLine = false;
+        boolean correctedRequiresPython = false;
         String requiresPythonLine = TomlUtils.REQUIRES_PYTHON + " " + TomlUtils.EQUALS + " " + TomlUtils.DOUBLE_QUOTE + pythonDependencyVersion + TomlUtils.DOUBLE_QUOTE;
         StringBuilder fileContent = new StringBuilder();
 
@@ -93,8 +109,16 @@ public class PoetryToProjectRequiresPythonMigration extends AbstractPoetryMigrat
                         if (key.equalsIgnoreCase(TomlUtils.PYTHON)) {
                             addLine = false;
                         }
-                    } else if (inProjectSection && !injectedRequiresPython){
-                        injectAfterNextEmptyLine = true;
+                    } else if (inProjectSection) {
+                        if (updateFaultyFormat && trimmedLine.contains(TomlUtils.REQUIRES_PYTHON) && !correctedRequiresPython) {
+                            // Update the faulty formatted "requires-python" line to use greater-than or less-than notation
+                            addLine = false;
+                            fileContent.append(requiresPythonLine).append("\n");
+                            correctedRequiresPython = true;
+                        } else if (!updateFaultyFormat && !injectedRequiresPython) {
+                            // Otherwise inject the missing "requires-python" line
+                            injectAfterNextEmptyLine = true;
+                        }
                     }
                 }
                 if (isEmptyLine && injectAfterNextEmptyLine ) {

@@ -13,8 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PoetryToProjectRequiresPythonMigrationSteps extends AbstractPoetryMigrationSteps {
-    private PoetryCommandHelperTestWrapper poetryHelper;
-    private boolean mockIsPoetryVersionAtLeast2;
+    protected PoetryCommandHelperTestWrapper poetryHelper;
+    protected boolean mockIsPoetryVersionAtLeast2;
+
 
     @Given("Poetry version is at least \"2.0.0\"")
     public void poetry_version_is_at_least_2_0_0(){
@@ -32,7 +33,25 @@ public class PoetryToProjectRequiresPythonMigrationSteps extends AbstractPoetryM
 
     @Given("an existing pyproject.toml file with no requires-python entry in the project group")
     public void an_existing_pyproject_toml_file_with_no_requires_python_entry_in_the_project_group() {
-        pyProjectToml = new File(testTomlFileDirectory, "with-no-requires-python-in-project.toml");
+        pyProjectToml = new File(testTomlFileDirectory, "with-no-python-requirement-tag-in-project.toml");
+        assertKeyExists(TomlUtils.PROJECT, TomlUtils.REQUIRES_PYTHON, false);
+    }
+
+    @Given("an existing pyproject.toml file with a requires-python entry in the project group")
+    public void an_existing_pyproject_toml_file_with_a_requires_python_entry_in_project_group() {
+        pyProjectToml = new File(testTomlFileDirectory, "with-python-requirement-tag-in-project.toml");
+        assertKeyExists(TomlUtils.PROJECT, TomlUtils.REQUIRES_PYTHON, true);
+    }
+
+    @Given("an existing pyproject.toml file with a badly formatted requires-python entry in the project group")
+    public void an_existing_pyproject_toml_file_with_a_badly_formatted_requires_python_entry_in_project_group() {
+        pyProjectToml = new File(testTomlFileDirectory, "with-python-requirement-tag-in-project-badly-formatted.toml");
+        assertKeyExists(TomlUtils.PROJECT, TomlUtils.REQUIRES_PYTHON, true);
+    }
+
+    @Given("an existing pyproject.toml file with no requires-python")
+    public void an_existing_pyproject_toml_file_without_a_requires_python_entry_in_project_group() {
+        pyProjectToml = new File(testTomlFileDirectory, "no-poetry-to-project-python-requirement-tag-migration.toml");
         assertKeyExists(TomlUtils.PROJECT, TomlUtils.REQUIRES_PYTHON, false);
     }
 
@@ -59,21 +78,8 @@ public class PoetryToProjectRequiresPythonMigrationSteps extends AbstractPoetryM
         assertKeyExists(TomlUtils.TOOL_POETRY_DEPENDENCIES, TomlUtils.PYTHON, false);
     }
 
-    @Given("an existing pyproject.toml file with a requires-python entry in the project group")
-    public void an_existing_pyproject_toml_file_with_a_requires_python_entry_in_project_group() {
-        pyProjectToml = new File(testTomlFileDirectory, "with-requires-python-in-project.toml");
-        assertKeyExists(TomlUtils.PROJECT, TomlUtils.REQUIRES_PYTHON, true);
-    }
-
-    @Given("an existing pyproject.toml file with no requires-python")
-    public void an_existing_pyproject_toml_file_without_a_requires_python_entry_in_project_group() {
-        pyProjectToml = new File(testTomlFileDirectory, "no-poetry-to-project-requires-python-migration.toml");
-        assertKeyExists(TomlUtils.PROJECT, TomlUtils.REQUIRES_PYTHON, false);
-    }
-
     @Then("the poetry to project requires python migration did not execute")
     public void the_poetry_to_project_requires_python_migration_did_not_execute() {
         assertFalse(shouldExecute, "Migration execution should have been skipped!");
     }
-
 }

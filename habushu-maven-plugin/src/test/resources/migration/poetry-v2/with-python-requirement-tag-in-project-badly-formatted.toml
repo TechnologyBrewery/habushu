@@ -1,14 +1,15 @@
 [project]
-name = "no-poetry-to-project-requires-python-migration"
-description = "Test skipping poetry-to-project-requires-python migration when Poetry version is less than 2.0.0"
+name = "with-python-requirement-tag-in-project-badly-formatted"
+description = "Test skipping migration when requires python entry already exists under project"
 version = "2.9.0.dev"
 authors = [{name = "Test", email = "blah@foobar.com"}]
 maintainers = [{name = "Test", email = "blah@foobar.com"}]
 license = "MIT License"
+dynamic = ["version", "dependencies"]
+requires-python = "^3.11"
 
 [tool.poetry]
 packages = [{include = "example_1", from = "src"}]
-readme = "README.md"
 
 [tool.poetry.dependencies]
 krausening = "19"
@@ -17,7 +18,6 @@ uvicorn = {version = "^0.18.0", extras = ["standard"]}
 
 [tool.poetry.group.dev.dependencies]
 kappa-maki = ">=1.0.0"
-
 
 [build-system]
 requires = ["poetry-core>=1.6.0"]
