@@ -17,9 +17,7 @@ import org.technologybrewery.habushu.util.ContainerizeDepsDockerfileHelper;
 import org.technologybrewery.habushu.util.HabushuUtil;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -37,6 +35,12 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
 
     @Component
     protected MavenSession session;
+
+    /**
+     * The classpath directory in which the containerize dependency module looks for a Poetry dockerfile Velocity template
+     */
+    @Parameter(property = "habushu.dockerfileTemplatePoetry")
+    protected String dockerfileTemplatePoetry = "templates/dockerfile.vm";
 
     /**
      * The directory in which the collected Python project files will be staged for containerization.
@@ -280,16 +284,19 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
 
     protected void performDockerfileUpdateForVirtualEnvironment(Path targetProjectPath) {
         Path outputDir = dockerContext.toPath().relativize(getStagingPath());
-        String updatedDockerfile =
-            ContainerizeDepsDockerfileHelper.updateDockerfileWithContainerStageLogic(this.dockerfile,
-                    outputDir.toString(), targetProjectPath.toString(), dockerUser, dockerBuilderBase, dockerFinalBase, dockerPoetryVersion, dockerPoetryMonorepoDependencyPluginVersion, dockerPoetryPluginBundleVersion);
-
-        try (Writer writer = new FileWriter(this.dockerfile)) {
-            writer.write(updatedDockerfile);
-
-        } catch (IOException e) {
-            throw new HabushuException("Unable to update Dockerfile.", e);
-        }
+        ContainerizeDepsDockerfileHelper helper = new ContainerizeDepsDockerfileHelper();
+        helper.setVelocityContext(
+                outputDir.toString(),
+                targetProjectPath.toString(),
+                dockerUser,
+                dockerBuilderBase,
+                dockerFinalBase,
+                dockerPoetryVersion,
+                dockerPoetryMonorepoDependencyPluginVersion,
+                dockerPoetryPluginBundleVersion
+        );
+        helper.generateDockerfileContent(dockerfileTemplatePoetry);
+        helper.writeDockerfile(Path.of(dockerfile.getPath()));
     }
 
     /**

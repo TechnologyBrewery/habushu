@@ -10,7 +10,8 @@ Dockerfile by default. The `dockerfile` configuration must be set to the target 
 update altogether, set the `updateDockerfile` configuration to `false`. Because the virtual environment that is created
 is dependent on the platform for which it is built, Habushu defaults to using `python:3.12` to build the virtual
 environment and  `python:3.12-slim` as the final image that packages/runs the virtual environment. This can be
-customized with the `dockerBuilderBase`, `dockerFinalBase`, `dockerUser`, `dockerPoetryVersion`, `dockerPoetryPluginBundleVersion`, and `dockerPoetryMonorepoDependencyPluginVersion` configurations, but care must be taken to
+customized with the `dockerBuilderBase`, `dockerFinalBase`, `dockerUser`, `dockerPoetryVersion`, `dockerPoetryPluginBundleVersion`,
+`dockerPoetryMonorepoDependencyPluginVersion`, and `dockerfileTemplatePoetry` configurations, but care must be taken to
 ensure the builder image platform is sufficiently similar to the final image platform so that the virtual environment is
 compatible.
 
