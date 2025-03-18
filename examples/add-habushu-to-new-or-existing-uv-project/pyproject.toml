@@ -15,18 +15,6 @@ dependencies = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-
-# Added by habushu-maven-plugin at 2025-02-27T08:54:53.613011 to use https://pypi.org/simple/ as source PyPi repository for installing dependencies
-[[tool.uv.index]]
-name = "pypi"
-url = "https://pypi.org/simple/"
-
-
-# Added by habushu-maven-plugin at 2025-02-27T08:54:53.621788 to use https://test.pypi.org/simple/ as source PyPi repository for installing dependencies
-[[tool.uv.index]]
-name = "dev-pypi"
-url = "https://test.pypi.org/simple/"
-
 [tool.ruff.format]
 indent-style="space"
 line-ending="lf"
@@ -40,3 +28,18 @@ dev = [
     "behave>=1.2.6",
     "kappa-maki>=1.0.2",
 ]
+
+
+# Added by habushu-maven-plugin at 2025-03-18T10:40:05.176687 to use https://pypi.org/simple/ as source PyPi repository for installing dependencies
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple/"
+publish-url = "https://pypi.org/simple/"
+
+
+# Added by habushu-maven-plugin at 2025-03-18T10:40:05.178201 to use https://test.pypi.org/simple/ as source PyPi repository for installing dependencies
+[[tool.uv.index]]
+name = "dev-pypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+priority = "supplemental"

@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-
+import org.technologybrewery.habushu.util.HabushuUtil;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -88,16 +88,7 @@ public abstract class AbstractInstallDependencies {
                 throw new HabushuException(
                         String.format("Could not parse configured repoUrl %s", repoUrl), e);
             }
-
-            Config matchingPypiRepoSourceConfig;
-            try (FileConfig pyProjectConfig = FileConfig.of(getPyProjectTomlFile())) {
-                pyProjectConfig.load();
-
-                Optional<List<Config>> packageSources = pyProjectConfig.getOptional(packageIndexPath);
-                matchingPypiRepoSourceConfig = packageSources.orElse(Collections.emptyList()).stream()
-                        .filter(packageSource -> pypiRepoSimpleIndexUrl.equals(packageSource.get("url"))).findFirst()
-                        .orElse(Config.inMemory());
-            }
+            Config matchingPypiRepoSourceConfig = getMatchingPypiRepoIndexConfig(packageIndexPath, pypiRepoSimpleIndexUrl);
 
             if (!matchingPypiRepoSourceConfig.isEmpty()) {
                 if (log.isDebugEnabled()) {
@@ -110,7 +101,7 @@ public abstract class AbstractInstallDependencies {
                 // difficult to append an array element of tables to an existing TOML
                 // configuration, so manually write out the desired new repository TOML
                 // configuration with human-readable formatting
-                List<String> newPypiRepoSourceConfig = Arrays.asList(System.lineSeparator(), String.format(
+                ArrayList<String> newPypiRepoSourceConfig = new ArrayList<>(Arrays.asList(System.lineSeparator(), String.format(
                                 "# Added by habushu-maven-plugin at %s to use %s as source PyPi repository for installing dependencies",
                                 LocalDateTime.now(), pypiRepoSimpleIndexUrl),
                         String.format("[[%s]]", packageIndexPath),
@@ -118,7 +109,13 @@ public abstract class AbstractInstallDependencies {
                                 StringUtils.isNotEmpty(repoId) && !PUBLIC_PYPI_REPO_ID.equals(repoId)
                                         ? repoId
                                         : "private-pypi-repo"),
-                        String.format("url = \"%s\"", pypiRepoSimpleIndexUrl), "priority = \"supplemental\"");
+                        String.format("url = \"%s\"", pypiRepoSimpleIndexUrl)));
+                if (HabushuUtil.isCurrentPackageManagerUv(getPyProjectTomlFile()) ) {
+                    newPypiRepoSourceConfig.add(String.format("publish-url = \"%s\"", getPublishUrl(repoUrl, !PUBLIC_PYPI_REPO_ID.equals(repoId))));
+                }
+                newPypiRepoSourceConfig.add("priority = \"supplemental\"");
+
+
                 log.info(String.format("Private PyPi repository entry for %s not found in pyproject.toml",
                         repoUrl));
                 log.info(String.format(
@@ -174,5 +171,38 @@ public abstract class AbstractInstallDependencies {
         return pomVersion.substring(0, pomVersion.indexOf(SNAPSHOT)) + ".*";
     }
 
+    protected String getPublishUrl(String repoUrl, boolean isDevRepository) {
+        String repositoryUrl = addTrailingSlash(repoUrl);
+        if (isDevRepository) {
+            repositoryUrl += addTrailingSlash(installDependenciesMojo.getDevRepositoryUrlUploadSuffix());
+        } else if(!StringUtils.isEmpty(installDependenciesMojo.getPypiUploadSuffix())) {
+            repositoryUrl += addTrailingSlash(installDependenciesMojo.getPypiUploadSuffix());
+        }
 
+        return repositoryUrl;
+    }
+
+
+    protected static String addTrailingSlash(String inputUrl) {
+        if (StringUtils.isNotBlank(inputUrl) && !StringUtils.endsWith(inputUrl, "/")) {
+            // PEP-0694 likes a trailing slash:
+            inputUrl += "/";
+        }
+
+        return inputUrl;
+    }
+
+    protected Config getMatchingPypiRepoIndexConfig(String packageIndexPath, String pypiRepoSimpleIndexUrl) {
+        Config matchingPypiRepoIndexConfig;
+        try (FileConfig pyProjectConfig = FileConfig.of(getPyProjectTomlFile())) {
+            pyProjectConfig.load();
+
+            Optional<List<Config>> packageIndex = pyProjectConfig.getOptional(packageIndexPath);
+            matchingPypiRepoIndexConfig = packageIndex.orElse(Collections.emptyList()).stream()
+                    .filter(packageIdx -> pypiRepoSimpleIndexUrl.equals(packageIdx.get("url"))).findFirst()
+                    .orElse(Config.inMemory());
+        }
+
+        return matchingPypiRepoIndexConfig;
+    }
 }

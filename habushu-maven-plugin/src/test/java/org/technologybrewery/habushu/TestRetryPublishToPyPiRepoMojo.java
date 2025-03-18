@@ -1,19 +1,17 @@
 package org.technologybrewery.habushu;
 
-import com.google.common.base.Predicates;
+import io.github.itning.retry.RetryException;
 import io.github.itning.retry.Retryer;
-import io.github.itning.retry.RetryerBuilder;
-import io.github.itning.retry.strategy.stop.StopStrategies;
-import io.github.itning.retry.strategy.stop.StopStrategy;
-import io.github.itning.retry.strategy.wait.WaitStrategies;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.maven.plugins.annotations.Parameter;
+import org.technologybrewery.habushu.exec.CommandHelper;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
+import org.technologybrewery.habushu.exec.UvCommandHelper;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 
 public class TestRetryPublishToPyPiRepoMojo extends PublishToPyPiRepoMojo {
 
@@ -35,8 +33,8 @@ public class TestRetryPublishToPyPiRepoMojo extends PublishToPyPiRepoMojo {
 
     }
 
-    @Override
-    protected Callable<Boolean> getPyPiPushCallable(PoetryCommandHelper poetryHelper, List<Pair<String, Boolean>> publishToOfficialPypiRepoArgs) {
+
+    protected Callable<Boolean> getPyPiPushCallable(CommandHelper commandHelper, List<Pair<String, Boolean>> publishToOfficialPypiRepoArgs) {
         return new Callable<Boolean>() {
             int counter = 0;
 
@@ -57,5 +55,34 @@ public class TestRetryPublishToPyPiRepoMojo extends PublishToPyPiRepoMojo {
                 return true;
             }
         };
+    }
+
+    public void invokePublishUsingPoetry(PoetryCommandHelper poetryHelper, List<Pair<String, Boolean>> publishToRepoWithCredsArgs){
+        PublishToPyPiRepoPoetry publishToPyPiRepoPoetry = new PublishToPyPiRepoPoetry(new File("target/"), getLog(), this);
+        Callable<Boolean> callable = getPyPiPushCallable(poetryHelper, publishToRepoWithCredsArgs);
+        Retryer<Boolean> retryer = publishToPyPiRepoPoetry.getRetryer();
+        callRetryer(retryer, callable);
+    }
+
+    public void invokePublishUsingUv(UvCommandHelper uvCommandHelper, List<Pair<String, Boolean>> publishToRepoWithCredsArgs){
+        PublishToPyPiRepoUv publishToPyPiRepoUv = new PublishToPyPiRepoUv(new File("target/"), getLog(), this);
+        Callable<Boolean> callable = getPyPiPushCallable(uvCommandHelper, publishToRepoWithCredsArgs);
+        Retryer<Boolean> retryer = publishToPyPiRepoUv.getRetryer();
+        callRetryer(retryer, callable);
+    }
+
+    public void callRetryer(Retryer<Boolean> retryer, Callable<Boolean> callable){
+        try {
+            Boolean result = retryer.call(callable);
+
+            if (Boolean.FALSE.equals(result)) {
+                throw new HabushuException("Push to PyPI repository failed!");
+            }
+
+        } catch (RetryException e) {
+            throw new HabushuException("Exceeded retry setting of: " + getPypiPushRetries(), e);
+        } catch (ExecutionException e) {
+            throw new HabushuException("Could not execute PyPI push!", e);
+        }
     }
 }
