@@ -7,6 +7,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
+import org.technologybrewery.habushu.util.HabushuUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,10 +43,10 @@ public class PublishToPyPiRepoPoetry extends AbstractPublishToPyPiRepo {
         PoetryCommandHelper poetryHelper = new PoetryCommandHelper(baseDir);
 
         String pomVersion = publishToPyPiRepoMojo.getProject().getVersion();
-        if (publishToPyPiRepoMojo.overridePackageVersion() && publishToPyPiRepoMojo.isPomVersionSnapshot(pomVersion)) {
+        if (publishToPyPiRepoMojo.overridePackageVersion() && HabushuUtil.isPomVersionSnapshot(pomVersion)) {
             String currentPythonPackageVersion = poetryHelper.execute(Arrays.asList(VERSION, "-s"));
 
-            String snapshotVersionToPublish = publishToPyPiRepoMojo.getPythonPackageVersion(pomVersion, true,
+            String snapshotVersionToPublish = HabushuUtil.getPythonPackageVersion(pomVersion, true,
                     publishToPyPiRepoMojo.getSnapshotNumberDateFormatPattern());
             try {
                 log.info(
@@ -115,7 +116,7 @@ public class PublishToPyPiRepoPoetry extends AbstractPublishToPyPiRepo {
 
             publishToRepoWithCredsArgs = new ArrayList<>();
 
-            if (!publishToPyPiRepoMojo.PUBLIC_PYPI_REPO_ID.equals(repoId)) {
+            if (!HabushuUtil.PUBLIC_PYPI_REPO_ID.equals(repoId)) {
                 publishToRepoWithCredsArgs.add(new ImmutablePair<>("--repository", false));
                 publishToRepoWithCredsArgs.add(new ImmutablePair<>(repoId, false));
             }
@@ -140,7 +141,7 @@ public class PublishToPyPiRepoPoetry extends AbstractPublishToPyPiRepo {
         } else {
             log.warn(String.format(
                     "PyPI repository credentials not specified in <server> element in settings.xml with <id> of %s",
-                    publishToPyPiRepoMojo.PUBLIC_PYPI_REPO_ID));
+                    HabushuUtil.PUBLIC_PYPI_REPO_ID));
             log.warn(
                     "Please populate settings.xml with PyPI credentials or ensure that Poetry is manually " +
                             "configured with the correct PyPI credentials (i.e. poetry config pypi-token.pypi my-token)");

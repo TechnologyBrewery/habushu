@@ -19,7 +19,7 @@ public class InitializeHabushuMojo extends AbstractHabushuMojo {
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
         String pomVersion = project.getVersion();
-        String expectedPythonPackageVersion = getPythonPackageVersion(pomVersion, false, null);
+        String expectedPythonPackageVersion = HabushuUtil.getPythonPackageVersion(pomVersion, false, null);
         if (HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile()) == PackageManager.POETRY){
             InitializeHabushuPoetry initializeHabushuPoetry = new InitializeHabushuPoetry(getPythonProjectBaseDir(), getLog(), overridePackageVersion, expectedPythonPackageVersion );
             initializeHabushuPoetry.doExecute();

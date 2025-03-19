@@ -6,6 +6,7 @@ import io.cucumber.java.en.When;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.junit.jupiter.api.Assertions;
+import org.technologybrewery.habushu.util.HabushuUtil;
 
 public class DeployPhaseSteps {
 
@@ -48,7 +49,7 @@ public class DeployPhaseSteps {
 
     @Then("the repository url of {string} contains a trailing slash")
     public void the_repository_url_of_contains_a_trailing_slash(String expectedRepositoryUrl) {
-        String processedRepositoryUrl = deployMojo.addTrailingSlash(deployMojo.devRepositoryUrl);
+        String processedRepositoryUrl = HabushuUtil.addTrailingSlash(deployMojo.devRepositoryUrl);
         Assertions.assertEquals(expectedRepositoryUrl, processedRepositoryUrl, "Unexpected repository url!");
         Assertions.assertTrue(processedRepositoryUrl.endsWith("/"), "Missing trailing slash!");
     }
@@ -56,12 +57,12 @@ public class DeployPhaseSteps {
 
     @Then("the repository url is null")
     public void the_repository_url_is_null() {
-        Assertions.assertNull(deployMojo.addTrailingSlash(deployMojo.devRepositoryUrl), "Expected null repository url!");
+        Assertions.assertNull(HabushuUtil.addTrailingSlash(deployMojo.devRepositoryUrl), "Expected null repository url!");
     }
 
     @Then("the repository url is empty")
     public void the_repository_url_is_empty() {
-        Assertions.assertEquals("", deployMojo.addTrailingSlash(deployMojo.devRepositoryUrl), "Expected null repository url!");
+        Assertions.assertEquals("", HabushuUtil.addTrailingSlash(deployMojo.devRepositoryUrl), "Expected null repository url!");
     }
 
 }
