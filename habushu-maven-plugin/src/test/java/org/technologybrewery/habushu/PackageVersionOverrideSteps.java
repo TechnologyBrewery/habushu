@@ -3,6 +3,7 @@ package org.technologybrewery.habushu;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.technologybrewery.habushu.util.HabushuUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -17,7 +18,7 @@ public class PackageVersionOverrideSteps {
 
     @When("the POM version is translated to a PEP 440 version")
     public void thePomVersionIsTranslatedToAPep440Version() {
-        tomlVersion = AbstractHabushuMojo.getPythonPackageVersion(pomVersion, false, null);
+        tomlVersion = HabushuUtil.getPythonPackageVersion(pomVersion, false, null);
     }
 
     @Then("the pyproject.toml file is updated with the version {string}")

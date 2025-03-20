@@ -2,13 +2,8 @@ package org.technologybrewery.habushu;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -31,10 +26,6 @@ import org.technologybrewery.habushu.util.PackageManager;
  * Contains logic common across the various Habushu mojos.
  */
 public abstract class AbstractHabushuMojo extends AbstractMojo {
-
-    protected static final String SNAPSHOT = "-SNAPSHOT";
-    protected static final Pattern SEMVER2_PATTERN = Pattern.compile("\\d+\\.\\d+\\.\\d+-(rc|alpha|beta)\\.\\d+$",
-                                                                     Pattern.CASE_INSENSITIVE);
 
     /**
      * The current Maven user's settings, pulled dynamically from their settings.xml
@@ -83,14 +74,6 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     /**
      * Specifies the {@code <id>} of the {@code <server>} element declared within
      * the utilized settings.xml configuration that represents the desired
-     * credentials to use when publishing the package to the official public PyPI
-     * repository.
-     */
-    protected static final String PUBLIC_PYPI_REPO_ID = "pypi";
-
-    /**
-     * Specifies the {@code <id>} of the {@code <server>} element declared within
-     * the utilized settings.xml configuration that represents the desired
      * credentials to use when publishing the package to a dev PyPI repository.
      */
     public static final String DEV_PYPI_REPO_ID = "dev-pypi";
@@ -109,14 +92,14 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * PyPI repository that requires authentication - it is expected that the
      * relevant {@code <server>} element provides the needed authentication details.
      * If this property is *not* specified, this property will default to
-     * {@link #PUBLIC_PYPI_REPO_ID} and the execution of the {@code deploy}
+     * PUBLIC_PYPI_REPO_ID and the execution of the {@code deploy}
      * lifecycle phase will publish this package to the official public PyPI
      * repository. Downstream package publishing functionality (i.e.
      * {@link PublishToPyPiRepoMojo}) will use the relevant settings.xml
      * {@code <server>} declaration with a matching {@code <id>} as credentials for
      * publishing the package to the official public PyPI repository.
      */
-    @Parameter(property = "habushu.pypiRepoId", defaultValue = PUBLIC_PYPI_REPO_ID)
+    @Parameter(property = "habushu.pypiRepoId", defaultValue = HabushuUtil.PUBLIC_PYPI_REPO_ID)
     protected String pypiRepoId;
 
     /**
@@ -491,69 +474,5 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
         return new File(getPythonProjectBaseDir(), "pyproject.toml");
     }
 
-    /**
-     * Gets the PEP-440 compliant Python package version associated with the given
-     * POM version.
-     * <p>
-     * If the provided POM version is a SNAPSHOT, the version is converted into its
-     * corresponding developmental release version, with its numeric component
-     * optionally included based on the given {@code addSnapshotNumber} and
-     * {@code snapshotNumberDateFormatPattern} parameters. For example, given the
-     * POM version of {@code 1.2.3-SNAPSHOT}, a Python package version of
-     * {@code 1.2.3.dev} will be returned if {@code addSnapshotNumber} is false. If
-     * {@code addSnapshotNumber} is true, the numeric component will be added and
-     * defaults to the number of seconds from the epoch (i.e.
-     * {@code 1.2.3.dev1658238063}). The format of the snapshot number may be
-     * modified by providing a date format pattern (i.e. "YYYYMMddHHmm" would yield
-     * {@code 1.2.3.dev202207191002})
-     * <p>
-     * If the provided POM version is a release version, it is expected to align
-     * with a valid PEP-440 final release version and is returned unmodified.
-     *
-     * @param pomVersion POM version of the encapsulating module in which Habushu is
-     *                   being executed.
-     * @return version number of the encapsulated Python package, appropriately
-     * formatted by the given parameters.
-     */
-    protected static String getPythonPackageVersion(String pomVersion, boolean addSnapshotNumber,
-                                             String snapshotNumberDateFormatPattern) {
-        Matcher matcher = SEMVER2_PATTERN.matcher(pomVersion);
-        if(matcher.matches()) {
-            String qualifier = matcher.group(1);
-            pomVersion = pomVersion.replace("-" + qualifier + ".", qualifier);
-        }
-        String pythonPackageVersion = pomVersion;
 
-        if (isPomVersionSnapshot(pomVersion)) {
-            pythonPackageVersion = replaceSnapshotWithDev(pomVersion);
-
-            if (addSnapshotNumber) {
-                String snapshotNumber;
-                LocalDateTime currentTime = LocalDateTime.now();
-
-                if (StringUtils.isNotEmpty(snapshotNumberDateFormatPattern)) {
-                    snapshotNumber = currentTime.format(DateTimeFormatter.ofPattern(snapshotNumberDateFormatPattern));
-                } else {
-                    snapshotNumber = String.valueOf(currentTime.toEpochSecond(ZoneOffset.UTC));
-                }
-                pythonPackageVersion += snapshotNumber;
-            }
-        }
-
-        return pythonPackageVersion;
-    }
-
-    protected static String replaceSnapshotWithDev(String pomVersion) {
-        return pomVersion.substring(0, pomVersion.indexOf(SNAPSHOT)) + ".dev";
-    }
-
-    /**
-     * Returns whether the given POM version is a SNAPSHOT version.
-     *
-     * @param pomVersion
-     * @return
-     */
-    protected static boolean isPomVersionSnapshot(String pomVersion) {
-        return pomVersion.endsWith(SNAPSHOT);
-    }
 }

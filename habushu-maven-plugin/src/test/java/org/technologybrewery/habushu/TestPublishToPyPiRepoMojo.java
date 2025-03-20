@@ -1,5 +1,7 @@
 package org.technologybrewery.habushu;
 
+import org.technologybrewery.habushu.util.HabushuUtil;
+
 import java.io.File;
 
 /**
@@ -11,7 +13,7 @@ public class TestPublishToPyPiRepoMojo extends PublishToPyPiRepoMojo {
         super();
 
         //mimic defaults in Mojo:
-        this.pypiRepoId = PUBLIC_PYPI_REPO_ID;
+        this.pypiRepoId = HabushuUtil.PUBLIC_PYPI_REPO_ID;
         this.useDevRepository = false;
         this.devRepositoryId = DEV_PYPI_REPO_ID;
         this.devRepositoryUrl = TEST_PYPI_REPOSITORY_URL;
@@ -24,10 +26,6 @@ public class TestPublishToPyPiRepoMojo extends PublishToPyPiRepoMojo {
     public String getRepositoryUrl(boolean publishToDev) {
         PublishToPyPiRepoPoetry publishToPyPiRepoPoetry = new PublishToPyPiRepoPoetry(new File("target/"), getLog(), this);
         return publishToPyPiRepoPoetry.getRepositoryUrl(publishToDev);
-    }
-
-    public String addTrailingSlash(String inputUrl) {
-        return AbstractPublishToPyPiRepo.addTrailingSlash(inputUrl);
     }
 
 }

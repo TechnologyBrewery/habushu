@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
+import org.technologybrewery.habushu.util.HabushuUtil;
 import org.technologybrewery.habushu.util.TomlReplacementTuple;
 import org.technologybrewery.habushu.util.TomlUtils;
 
@@ -173,7 +174,7 @@ public class InstallDependenciesPoetry extends AbstractInstallDependencies {
 
         String packageName = def.getPackageName();
 
-        if (installDependenciesMojo.overridePackageVersion() && updatedOperatorAndVersion.contains(SNAPSHOT)) {
+        if (installDependenciesMojo.overridePackageVersion() && updatedOperatorAndVersion.contains(HabushuUtil.SNAPSHOT)) {
             updatedOperatorAndVersion = replaceSnapshotWithWildcard(updatedOperatorAndVersion);
         }
 

@@ -40,10 +40,6 @@ public abstract class AbstractInstallDependencies {
      */
     protected InstallDependenciesMojo installDependenciesMojo;
 
-    protected static final String PUBLIC_PYPI_REPO_ID = "pypi";
-
-    protected static final String SNAPSHOT = "-SNAPSHOT";
-
 
     /**
      * New instance - these values are typically passed in from Maven-enabled parameters in the calling Mojo.
@@ -106,12 +102,12 @@ public abstract class AbstractInstallDependencies {
                                 LocalDateTime.now(), pypiRepoSimpleIndexUrl),
                         String.format("[[%s]]", packageIndexPath),
                         String.format("name = \"%s\"",
-                                StringUtils.isNotEmpty(repoId) && !PUBLIC_PYPI_REPO_ID.equals(repoId)
+                                StringUtils.isNotEmpty(repoId) && !HabushuUtil.PUBLIC_PYPI_REPO_ID.equals(repoId)
                                         ? repoId
                                         : "private-pypi-repo"),
                         String.format("url = \"%s\"", pypiRepoSimpleIndexUrl)));
                 if (HabushuUtil.isCurrentPackageManagerUv(getPyProjectTomlFile()) ) {
-                    newPypiRepoSourceConfig.add(String.format("publish-url = \"%s\"", getPublishUrl(repoUrl, !PUBLIC_PYPI_REPO_ID.equals(repoId))));
+                    newPypiRepoSourceConfig.add(String.format("publish-url = \"%s\"", getPublishUrl(repoUrl, !HabushuUtil.PUBLIC_PYPI_REPO_ID.equals(repoId))));
                 }
                 newPypiRepoSourceConfig.add("priority = \"supplemental\"");
 
@@ -168,28 +164,18 @@ public abstract class AbstractInstallDependencies {
     }
 
     protected static String replaceSnapshotWithWildcard(String pomVersion) {
-        return pomVersion.substring(0, pomVersion.indexOf(SNAPSHOT)) + ".*";
+        return pomVersion.substring(0, pomVersion.indexOf(HabushuUtil.SNAPSHOT)) + ".*";
     }
 
     protected String getPublishUrl(String repoUrl, boolean isDevRepository) {
-        String repositoryUrl = addTrailingSlash(repoUrl);
+        String repositoryUrl = HabushuUtil.addTrailingSlash(repoUrl);
         if (isDevRepository) {
-            repositoryUrl += addTrailingSlash(installDependenciesMojo.getDevRepositoryUrlUploadSuffix());
+            repositoryUrl += HabushuUtil.addTrailingSlash(installDependenciesMojo.getDevRepositoryUrlUploadSuffix());
         } else if(!StringUtils.isEmpty(installDependenciesMojo.getPypiUploadSuffix())) {
-            repositoryUrl += addTrailingSlash(installDependenciesMojo.getPypiUploadSuffix());
+            repositoryUrl += HabushuUtil.addTrailingSlash(installDependenciesMojo.getPypiUploadSuffix());
         }
 
         return repositoryUrl;
-    }
-
-
-    protected static String addTrailingSlash(String inputUrl) {
-        if (StringUtils.isNotBlank(inputUrl) && !StringUtils.endsWith(inputUrl, "/")) {
-            // PEP-0694 likes a trailing slash:
-            inputUrl += "/";
-        }
-
-        return inputUrl;
     }
 
     protected Config getMatchingPypiRepoIndexConfig(String packageIndexPath, String pypiRepoSimpleIndexUrl) {

@@ -73,22 +73,13 @@ public abstract class AbstractPublishToPyPiRepo {
     }
 
     protected String getRepositoryUrl(boolean publishToDev) {
-        String repoUrl = addTrailingSlash(publishToPyPiRepoMojo.getPypiRepoUrl());
+        String repoUrl = HabushuUtil.addTrailingSlash(publishToPyPiRepoMojo.getPypiRepoUrl());
         if (publishToDev) {
-            repoUrl = addTrailingSlash(publishToPyPiRepoMojo.getDevRepositoryUrl()) + addTrailingSlash(publishToPyPiRepoMojo.getDevRepositoryUrlUploadSuffix());
+            repoUrl = HabushuUtil.addTrailingSlash(publishToPyPiRepoMojo.getDevRepositoryUrl()) + HabushuUtil.addTrailingSlash(publishToPyPiRepoMojo.getDevRepositoryUrlUploadSuffix());
         } else if (!StringUtils.isEmpty(publishToPyPiRepoMojo.getPypiUploadSuffix())) {
-            repoUrl += addTrailingSlash(publishToPyPiRepoMojo.getPypiUploadSuffix());
+            repoUrl += HabushuUtil.addTrailingSlash(publishToPyPiRepoMojo.getPypiUploadSuffix());
         }
         return repoUrl;
-    }
-
-    protected static String addTrailingSlash(String inputUrl) {
-        if (StringUtils.isNotBlank(inputUrl) && !StringUtils.endsWith(inputUrl, "/")) {
-            // PEP-0694 likes a trailing slash:
-            inputUrl += "/";
-        }
-
-        return inputUrl;
     }
 
     protected void invokePublish(CommandHelper commandHelper, List<Pair<String, Boolean>> publishToRepoWithCredsArgs) {
