@@ -68,6 +68,17 @@
             ]
           }
         ]
+      },
+      {
+        "name": "poetry-v2-poetry-toml-migration",
+        "implementation": "org.technologybrewery.habushu.migration.poetryv2migrations.PoetryTomlMigration",
+        "fileSets": [
+          {
+            "includes": [
+              "poetry.toml"
+            ]
+          }
+        ]
       }
     ]
   }
