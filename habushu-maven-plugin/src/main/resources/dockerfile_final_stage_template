@@ -1,4 +1,0 @@
-FROM BASE_IMAGE AS final
-# Copy venv from builder and activate by adding to the path
-COPY --from=habushu_builder CHOWN_PLACEHOLDER /opt/venv /opt/venv/
-ENV PATH="/opt/venv/bin:$PATH"

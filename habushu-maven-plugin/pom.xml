@@ -131,6 +131,11 @@
             <version>${version.maven}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity-engine-core</artifactId>
+            <version>2.3</version>
+        </dependency>
 
         <!-- Provided Dependencies: -->
         <dependency>
