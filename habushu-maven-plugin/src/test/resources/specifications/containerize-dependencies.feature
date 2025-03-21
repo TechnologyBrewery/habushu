@@ -10,6 +10,7 @@ Feature: Test staging source files of specified dependencies and transitive path
     Examples:
       | packageManager |
       | poetry         |
+      | uv             |
 
   Scenario Outline: Dockerfile is updated the first time with containerization logic
     Given a single dependency with packaging type habushu for <packageManager>
@@ -21,6 +22,7 @@ Feature: Test staging source files of specified dependencies and transitive path
     Examples:
       | packageManager |
       | poetry         |
+      | uv             |
 
   Scenario Outline: Dockerfile is updated the second time with containerization logic
     Given a single dependency with packaging type habushu for <packageManager>
@@ -32,6 +34,7 @@ Feature: Test staging source files of specified dependencies and transitive path
     Examples:
       | packageManager |
       | poetry         |
+      | uv             |
 
   Scenario Outline: Dockerfile is automatically updated with containerization logic without any habushu builder/final stage tags
     Given a single dependency with packaging type habushu for <packageManager>
@@ -43,3 +46,4 @@ Feature: Test staging source files of specified dependencies and transitive path
     Examples:
       | packageManager |
       | poetry         |
+      | uv             |

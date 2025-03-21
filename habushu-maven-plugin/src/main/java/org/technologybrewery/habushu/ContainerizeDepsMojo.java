@@ -13,8 +13,13 @@ import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.technologybrewery.habushu.util.AbstractContainerizeDepsVelocityContext;
 import org.technologybrewery.habushu.util.ContainerizeDepsDockerfileHelper;
+import org.technologybrewery.habushu.util.ContainerizeDepsVelocityContextPoetry;
+import org.technologybrewery.habushu.util.ContainerizeDepsVelocityContextUv;
 import org.technologybrewery.habushu.util.HabushuUtil;
+import org.technologybrewery.habushu.util.PackageManager;
+import org.technologybrewery.habushu.util.TomlUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +37,7 @@ import java.util.stream.Collectors;
 public class ContainerizeDepsMojo extends AbstractHabushuMojo {
 
     private static final Logger logger = LoggerFactory.getLogger(ContainerizeDepsMojo.class);
+    private PackageManager manager;
 
     @Component
     protected MavenSession session;
@@ -40,7 +46,12 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      * The classpath directory in which the containerize dependency module looks for a Poetry dockerfile Velocity template
      */
     @Parameter(property = "habushu.dockerfileTemplatePoetry")
-    protected String dockerfileTemplatePoetry = "templates/dockerfile.vm";
+    protected String dockerfileTemplatePoetry = "templates/dockerfile_poetry.vm";
+    /**
+     * The classpath directory in which the containerize dependency module looks for a Poetry dockerfile Velocity template
+     */
+    @Parameter(property = "habushu.dockerfileTemplateUv")
+    protected String dockerfileTemplateUv = "templates/dockerfile_uv.vm";
 
     /**
      * The directory in which the collected Python project files will be staged for containerization.
@@ -121,6 +132,12 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     protected String dockerPoetryMonorepoDependencyPluginVersion;
 
     /**
+     * The version of uv to install in the container.
+     */
+    @Parameter(defaultValue = "0.6.2", property = "habushu.dockerUvVersion")
+    protected String dockerUvVersion;
+
+    /**
      * Overriding to allow execution in non-habushu projects.
      */
     @Override
@@ -158,11 +175,18 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         Path destRoot = getStagingPath();
         Path primaryProjectPath = null;
 
+
         for (MavenProject project : projectCollection.getAllProjects()) {
             Path projectPath = project.getBasedir().toPath();
             Path relativeProjectPath = sourceRoot.relativize(projectPath);
             if (project.equals(projectCollection.getPrimaryProject())) {
                 primaryProjectPath = relativeProjectPath;
+                manager = HabushuUtil.checkPythonPackageManager(
+                        new File(
+                                sourceRoot.resolve(primaryProjectPath).toString(),
+                                TomlUtils.PYPROJECT_TOML
+                        )
+                );
             }
 
             FileSet sourceFileSet = getSourceSet();
@@ -213,10 +237,17 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         Path basePath = project.getBasedir().toPath();
         Path relativeSrc = basePath.relativize(srcPath);
         fileSet.addInclude(relativeSrc +"/**");
-        fileSet.addInclude("pyproject.toml");
-        fileSet.addInclude("poetry.toml");
-        fileSet.addInclude("poetry.lock");
+        fileSet.addInclude(TomlUtils.PYPROJECT_TOML);
         fileSet.addInclude("README.md");
+
+        if (PackageManager.POETRY.equals(manager)) {
+            fileSet.addInclude("poetry.toml");
+            fileSet.addInclude("poetry.lock");
+        } else if (PackageManager.UV.equals(manager)){
+            fileSet.addInclude("uv.lock");
+        } else {
+            throwNoPackageManagerFound();
+        }
 
         return fileSet;
     }
@@ -285,17 +316,31 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     protected void performDockerfileUpdateForVirtualEnvironment(Path targetProjectPath) {
         Path outputDir = dockerContext.toPath().relativize(getStagingPath());
         ContainerizeDepsDockerfileHelper helper = new ContainerizeDepsDockerfileHelper();
-        helper.setVelocityContext(
-                outputDir.toString(),
-                targetProjectPath.toString(),
-                dockerUser,
-                dockerBuilderBase,
-                dockerFinalBase,
-                dockerPoetryVersion,
-                dockerPoetryMonorepoDependencyPluginVersion,
-                dockerPoetryPluginBundleVersion
-        );
-        helper.generateDockerfileContent(dockerfileTemplatePoetry);
+        AbstractContainerizeDepsVelocityContext context = null;
+        String template = null;
+
+        if (PackageManager.POETRY.equals(manager)) {
+            context = new ContainerizeDepsVelocityContextPoetry();
+            context.setMonorepoDependencyPluginVersion(dockerPoetryMonorepoDependencyPluginVersion);
+            context.setPluginBundleVersion(dockerPoetryPluginBundleVersion);
+            context.setVersion(dockerPoetryVersion);
+            template = dockerfileTemplatePoetry;
+        } else if (PackageManager.UV.equals(manager)){
+            context = new ContainerizeDepsVelocityContextUv();
+            context.setVersion(dockerUvVersion);
+            template = dockerfileTemplateUv;
+        } else {
+            throwNoPackageManagerFound();
+        }
+
+        context.setAnchorDirectory(outputDir.toString());
+        context.setSingleRepoProjectDir(targetProjectPath.toString());
+        context.setOwner(dockerUser);
+        context.setBuilderBaseImage(dockerBuilderBase);
+        context.setFinalBaseImage(dockerFinalBase);
+
+        helper.setVelocityContext(context);
+        helper.generateDockerfileContent(template);
         helper.writeDockerfile(Path.of(dockerfile.getPath()));
     }
 
@@ -337,5 +382,9 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
                 .filter(d -> HabushuUtil.HABUSHU.equals(d.getType()))
                 .map(ContainerizeDepsMojo::toGav)
                 .collect(Collectors.toSet());
+    }
+
+    private static void throwNoPackageManagerFound() {
+        throw new HabushuException("Unable to determine valid package manager for the Habushu dependency project");
     }
 }

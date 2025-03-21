@@ -77,13 +77,13 @@ public class ContainerizeDepsSteps {
         mavenProjectPath = path + "/extensions/extensions-monorepo-dep-consuming-application";
 
         // enables us to mock a maven build with the --also-make flag
-        mojoTestCase.addMavenProjectFile(new File(targetDefaultSingleMonorepoDepPath + "/extensions/extensions-python-dep-X/pom.xml"));
-        mojoTestCase.addMavenProjectFile(new File(targetDefaultSingleMonorepoDepPath + "/foundation/foundation-python-dep-Y/pom.xml"));
+        mojoTestCase.addMavenProjectFile(new File(path + "/extensions/extensions-python-dep-X/pom.xml"));
+        mojoTestCase.addMavenProjectFile(new File(path + "/foundation/foundation-python-dep-Y/pom.xml"));
 
         mojo = (ContainerizeDepsMojo) mojoTestCase.lookupConfiguredMojo(
                 new File(mavenProjectPath, POM_FILE), "containerize-dependencies"
         );
-        mojo.session.getRequest().setBaseDirectory(new File(targetDefaultSingleMonorepoDepPath));
+        mojo.session.getRequest().setBaseDirectory(new File(path));
 
     }
 
@@ -106,7 +106,7 @@ public class ContainerizeDepsSteps {
         mojo = (ContainerizeDepsMojo) mojoTestCase.lookupConfiguredMojo(
                 new File(mavenProjectPath, POM_FILE), "containerize-dependencies"
         );
-        mojo.session.getRequest().setBaseDirectory(new File(targetDefaultNoMonorepoDepPath));
+        mojo.session.getRequest().setBaseDirectory(new File(path));
     }
 
     @Then("no source files are staged in the build directory")
@@ -193,8 +193,12 @@ public class ContainerizeDepsSteps {
             assertFile(actualFiles, "foundation/foundation-python-dep-Y/poetry.toml");
             assertFile(actualFiles, "foundation/foundation-python-dep-Y/README.md");
         } else if (PackageManager.UV.equals(packageManager)) {
-            // TODO
-            fail();
+            assertFile(actualFiles, "extensions/extensions-python-dep-X/src/python_dep_x/python_dep_x.py");
+            assertFile(actualFiles, "extensions/extensions-python-dep-X/pyproject.toml");
+            assertFile(actualFiles, "extensions/extensions-python-dep-X/README.md");
+            assertFile(actualFiles, "foundation/foundation-python-dep-Y/src/python_dep_y/python_dep_y.py");
+            assertFile(actualFiles, "foundation/foundation-python-dep-Y/pyproject.toml");
+            assertFile(actualFiles, "foundation/foundation-python-dep-Y/README.md");
         }
     }
 
