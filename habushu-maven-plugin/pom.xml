@@ -156,6 +156,12 @@
             <version>3.13.1</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.maven.enforcer</groupId>
+            <artifactId>enforcer-api</artifactId>
+            <version>3.5.0</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- test dependencies -->
         <dependency>

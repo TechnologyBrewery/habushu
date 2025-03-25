@@ -33,6 +33,32 @@
                         <useDevRepository>true</useDevRepository>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>enforce-poetry</id>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <requirePoetryVersion>
+                                        <version>>=2.0.0</version>
+                                    </requirePoetryVersion>
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.technologybrewery.habushu</groupId>
+                            <artifactId>habushu-maven-plugin</artifactId>
+                            <version>${project.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -70,6 +96,7 @@
                 <module>habushu-default-python-strategy</module>
                 <module>habushu-running-python-scripts</module>
                 <module>habushu-poetry-containerize</module>
+                <module>habushu-poetry-enforcer-rule</module>
             </modules>
         </profile>
         <profile>

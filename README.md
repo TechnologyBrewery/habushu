@@ -743,6 +743,9 @@ configuration options.
 - [Containerizing dependencies with Poetry](./examples/habushu-poetry-containerize/README.md) - Containerizes dependencies
   in a Docker container
 - [Disable exportRequirementsWithoutPathDependencies](./examples/habushu-export-requirements-with-path-dependencies/README.md) - Disable the `exportRequirementsWithoutPathDependencies` default configuration
+- Enforcing specific version or version ranges of Poetry or uv:
+  - [Poetry Version Enforcement](./examples/habushu-poetry-enforcer-rule/README.md)
+  - uv Version Enforcement (coming soon)
 
 ### Maven Reactor Integration ###
 Optionally, Habushu supports partial builds via the Maven Reactor. This allows functionality such as `-rf` (resume from)
