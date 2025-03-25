@@ -1,0 +1,7 @@
+[virtualenvs]
+in-project = true
+use-poetry-python = false
+
+[experimental]
+system-git-client = true
+test-value = false

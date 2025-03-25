@@ -37,6 +37,8 @@ public final class TomlUtils {
     public static final String PYTHON = "python";
     public static final String README = "readme";
     public static final String DEPENDENCIES = "dependencies";
+    public static final String VIRTUAL_ENVS = "virtualenvs";
+    public static final String EXPERIMENTAL = "experimental";
 
     public static final String BUILD_SYSTEM = "build-system";
     public static final String REQUIRES = "requires";

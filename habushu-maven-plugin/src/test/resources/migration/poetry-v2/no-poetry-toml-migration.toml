@@ -1,3 +1,6 @@
 [virtualenvs]
 in-project = true
 use-poetry-python = false
+
+[experimental]
+test-value = false

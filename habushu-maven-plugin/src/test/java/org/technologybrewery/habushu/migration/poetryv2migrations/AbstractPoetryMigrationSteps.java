@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AbstractPoetryMigrationSteps{
     protected static File testTomlFileDirectory = new File("./target/test-classes/migration/poetry-v2");
@@ -16,9 +17,13 @@ public class AbstractPoetryMigrationSteps{
     protected Optional<Config> projectOpt;
     protected Optional<Config> toolPoetryOpt;
     protected Optional<Config> toolPoetryDependenciesOpt;
+    protected Optional<Config> virtualEnvsOpt;
+    protected Optional<Config> experimentalOpt;
     protected Config projectEntries;
     protected Config toolPoetryEntries;
     protected Config toolPoetryDependencyEntries;
+    protected Config virtualEnvsEntries;
+    protected Config experimentalEntries;
     protected boolean shouldExecute;
     protected boolean executionSucceeded;
 
@@ -52,6 +57,8 @@ public class AbstractPoetryMigrationSteps{
             entries = toolPoetryEntries;
         } else if (groupName.equals(TomlUtils.TOOL_POETRY_DEPENDENCIES)) {
             entries = toolPoetryDependencyEntries;
+        } else if (groupName.equals(TomlUtils.EXPERIMENTAL)) {
+            entries = experimentalEntries;
         } else {
             throw new IllegalArgumentException("Unknown group: " + groupName);
         }
@@ -80,13 +87,25 @@ public class AbstractPoetryMigrationSteps{
         } else if (groupName.equals(TomlUtils.TOOL_POETRY_DEPENDENCIES)) {
             toolPoetryDependenciesOpt = groupOpt;
             toolPoetryDependencyEntries = entries;
+        } else if (groupName.equals(TomlUtils.VIRTUAL_ENVS)){
+            virtualEnvsOpt = groupOpt;
+            virtualEnvsEntries = entries;
+        } else if (groupName.equals(TomlUtils.EXPERIMENTAL)){
+            experimentalOpt = groupOpt;
+            experimentalEntries = entries;
         } else {
             throw new IllegalArgumentException("Unknown group: " + groupName);
         }
     }
+
     protected void loadAndAssertDoesNotExist(String groupName) {
         Optional<Config> groupOpt = getOptionalConfig(pyProjectToml, groupName);
         assertFalse(groupOpt.isPresent(), groupName + " missing from toml file");
+    }
+
+    protected void assertNumOfEntries(Config group, Integer expectedExperimentalEntries ){
+        int actualEntries = getNumberOfEntries(group);
+        assertEquals(expectedExperimentalEntries, actualEntries, expectedExperimentalEntries + " entries should remain in the group!");
     }
 
 }
