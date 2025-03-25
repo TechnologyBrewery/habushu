@@ -4,6 +4,11 @@ package org.technologybrewery.habushu.util;
  * Common utility methods for handling TOML Poetry.
  */
 public final class PoetryUtil {
+
+    private PoetryUtil() {
+        // private constructor to prevent instantiation of all static utility class
+    }
+
     /**
      * Specifies the semver compliant requirement for the version of Poetry that
      * must be installed and available for Habushu to use.

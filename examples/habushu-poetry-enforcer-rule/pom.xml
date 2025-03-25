@@ -1,0 +1,66 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.technologybrewery.habushu</groupId>
+        <artifactId>examples</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+    </parent>
+
+    <name>habushu::Examples::Poetry Enforcer Rule</name>
+    <description>Example of how to use Habushu's Maven Enforcer Rule for validating Poetry versions</description>
+
+    <artifactId>habushu-poetry-enforcer-rule</artifactId>
+    <packaging>pom</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.masterthought</groupId>
+            <artifactId>cucumber-reporting</artifactId>
+        </dependency>
+        <!-- NB: workaround to trigger build cache invalidation when a new SNAPSHOT is available-->
+        <!-- This dependency is required specifically to build the examples in this repo -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>habushu-maven-plugin</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <directory>dist</directory>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <!--
+                        NB: this is also set up in the examples pom, but we are overriding it here to explicitly provide
+                        a concrete example of how it is configured.
+                     -->
+                    <execution>
+                        <id>enforce-poetry</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requirePoetryVersion>
+                                    <version>>=2.0.0</version>
+                                </requirePoetryVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.technologybrewery.habushu</groupId>
+                        <artifactId>habushu-maven-plugin</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
