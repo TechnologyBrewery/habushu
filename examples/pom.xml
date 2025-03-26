@@ -50,6 +50,19 @@
                                 </rules>
                             </configuration>
                         </execution>
+                        <execution>
+                            <id>enforce-uv</id>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <requireUvVersion>
+                                        <version>>=0.6.0</version>
+                                    </requireUvVersion>
+                                </rules>
+                            </configuration>
+                        </execution>
                     </executions>
                     <dependencies>
                         <dependency>
@@ -105,6 +118,7 @@
                 <module>add-habushu-to-new-or-existing-uv-project</module>
                 <module>habushu-export-requirements-with-path-dependencies</module>
                 <module>habushu-uv-package</module>
+                <module>habushu-uv-enforcer-rule</module>
             </modules>
         </profile>
     </profiles>

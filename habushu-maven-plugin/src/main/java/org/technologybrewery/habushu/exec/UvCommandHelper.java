@@ -1,18 +1,18 @@
 package org.technologybrewery.habushu.exec;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.technologybrewery.habushu.HabushuException;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Facilitates the execution of uv commands.
@@ -25,10 +25,6 @@ public class UvCommandHelper extends AbstractCommandHelper {
     private static final String EXTRACT_UV_VERSION_REGEX = "^(?:uv\\s)\\b((\\d+.?)(\\d+.?){1,2})\\b";
 
     private static final Pattern UV_VERSION_PATTERN = Pattern.compile(EXTRACT_UV_VERSION_REGEX);
-
-    private static final String EXTRACT_PYTHON_VERSION_REGEX = "^(?:[Pp]ython\\s)\\b((\\d+.?)(\\d+.?){1,2})\\b";
-
-    private static final Pattern pythonVersionPattern = Pattern.compile(EXTRACT_PYTHON_VERSION_REGEX);
 
     protected String pythonVersionFile; 
 
@@ -131,11 +127,11 @@ public class UvCommandHelper extends AbstractCommandHelper {
         return arguments;
     }
 
-    public List<String> createToolRunCommand(List<String> additional_arguments) {
+    public List<String> createToolRunCommand(List<String> additionalArguments) {
         List<String> arguments = new ArrayList<>();
         arguments.add("tool");
         arguments.add("run");
-        arguments.addAll(additional_arguments);
+        arguments.addAll(additionalArguments);
         return arguments;
     }
 
