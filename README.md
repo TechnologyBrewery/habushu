@@ -562,7 +562,7 @@ Default: `project-directory/dist` to be with the generated wheels.
 
 #### exportRequirementsWithUrls ####
 
-Whether or not the requirements.txt file should include source repository urls.
+Whether or not the requirements.txt file should include source repository urls. Available for Poetry projects only.
 
 Default: `false` so will not add the --without-urls flag and thus include urls
 
