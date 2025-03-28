@@ -152,29 +152,6 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void registerRepositoryToSupportAuthenticatedDependencyResolution(String repoId, String username, String password) {
-        PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
-
-        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
-            log.info(String.format("Did not find username and password for the server with <id> %s. Will use existing configuration.", repoId));
-        } else {
-            String configKey = String.format("http-basic.%s", repoId);
-            log.info(String.format("Adding username and password configuration for %s", repoId));
-
-            List<Pair<String, Boolean>> credentialConfigurationArgs = new ArrayList<>();
-            credentialConfigurationArgs.add(new ImmutablePair<>("config", false));
-            credentialConfigurationArgs.add(new ImmutablePair<>(configKey, false));
-            credentialConfigurationArgs.add(new ImmutablePair<>(username, false));
-            credentialConfigurationArgs.add(new ImmutablePair<>(password, true));
-
-            poetryHelper.executeWithSensitiveArgsAndLogOutput(credentialConfigurationArgs);
-        }
-    }
-
-    /**
      * Creates a {@link PyenvCommandHelper} that may be used to invoke Pyenv
      * commands from the project's working directory.
      *

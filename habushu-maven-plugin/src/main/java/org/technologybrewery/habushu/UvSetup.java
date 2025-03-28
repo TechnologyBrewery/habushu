@@ -101,13 +101,6 @@ public class UvSetup extends AbstractPythonPackageAndDependencyManagerSetup {
         return "(managed by uv)";
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void registerRepositoryToSupportAuthenticatedDependencyResolution(String repoId, String username, String password) {
-        // TODO update to include UV configuration with repos
-    }
 
     /**
      * Creates a {@link UvCommandHelper} that may be used to invoke uv

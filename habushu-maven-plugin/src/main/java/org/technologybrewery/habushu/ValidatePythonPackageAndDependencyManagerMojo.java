@@ -75,37 +75,6 @@ public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabus
                         usePyenv, patchInstallScript);
 
         pythonPackageAndDependencyManagerSetup.execute();
-
-        configurePrivatePyPiRepositoryCredentials(pythonPackageAndDependencyManagerSetup);
-        configurePrivateDevPyPiRepositoryCredentials(pythonPackageAndDependencyManagerSetup);
-    }
-
-    private void configurePrivateDevPyPiRepositoryCredentials(PythonPackageAndDependencyManagerSetup pythonPackageAndDependencyManagerSetup) {
-        if (useDevRepository) {
-            if (!TEST_PYPI_REPOSITORY_URL.equals(devRepositoryUrl)){
-                String pypiDevRepoIdUsername = findUsernameForServer(devRepositoryId);
-                String pypiDevRepoIdPassword = findPasswordForServer(devRepositoryId);
-                pythonPackageAndDependencyManagerSetup.registerRepositoryToSupportAuthenticatedDependencyResolution(devRepositoryId,
-                        pypiDevRepoIdUsername, pypiDevRepoIdPassword);
-            } else {
-                logSkipRationale(devRepositoryUrl);
-            }
-        }
-    }
-
-    private void configurePrivatePyPiRepositoryCredentials(PythonPackageAndDependencyManagerSetup pythonPackageAndDependencyManagerSetup) {
-        if (StringUtils.isNotEmpty(pypiRepoUrl) && !"https://pypi.org".equals(pypiRepoUrl)) {
-            String pypiRepoIdUsername = findUsernameForServer(pypiRepoId);
-            String pypiRepoIdPassword = findPasswordForServer(pypiRepoId);
-            pythonPackageAndDependencyManagerSetup.registerRepositoryToSupportAuthenticatedDependencyResolution(pypiRepoId, pypiRepoIdUsername,
-                    pypiRepoIdPassword);
-        } else {
-            logSkipRationale(pypiRepoUrl);
-        }
-    }
-
-    private void logSkipRationale(String repositoryUrl) {
-        getLog().debug("Skipping configuration for pulling from public readable repo: " + repositoryUrl);
     }
 
 }

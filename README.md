@@ -381,7 +381,7 @@ Default: `true`
 #### useDevRepository ####
 Instructs deployment to use a development repository rather than a release repository. This is conceptually
 similar to Maven's release vs. snapshot repositories, allowing the release repository to only have formal
-releases with a separate repository for all 'dev' releases.  Works in conjunction with the 'devRepositoryId'
+releases with a separate repository for all 'dev' releases.  Works in conjunction with the `devRepositoryId`
 Member and `devRepositoryUrl` properties
 
 Default: `false`

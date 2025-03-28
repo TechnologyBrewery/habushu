@@ -45,14 +45,6 @@ public interface PythonPackageAndDependencyManagerSetup {
     String pythonSourceMessage() throws MojoExecutionException;
 
     /**
-     * Registers repositories for dependency resolution
-     * @param repoId the repository id
-     * @param username the username for the repo
-     * @param password the password for the repo
-     */
-    void registerRepositoryToSupportAuthenticatedDependencyResolution(String repoId, String username, String password);
-
-    /**
      * When no explicit pythonVersion config is set, directs weather to use the existing projects python version or
      * the pom configs default value.
      * @param currentPythonVersion the projects current python version
