@@ -8,7 +8,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.11.4, <4"
+python = ">=3.12.9, <4"
 
 [tool.poetry.group.dev.dependencies]
 ruff = ">=0.9.9"

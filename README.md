@@ -196,7 +196,7 @@ All Habushu configurations may be set either via the `habushu-maven-plugin`'s `<
     <artifactId>habushu-maven-plugin</artifactId>
     <extensions>true</extensions>
     <configuration>
-        <pythonVersion>3.10.4</pythonVersion>
+        <pythonVersion>3.12.9</pythonVersion>
     </configuration>
 </plugin>
 ```
@@ -204,14 +204,14 @@ All Habushu configurations may be set either via the `habushu-maven-plugin`'s `<
 2. `-D` via command line
 
 ```shell
-mvn clean install -Dhabushu.pythonVersion=3.10.4
+mvn clean install -Dhabushu.pythonVersion=3.12.9
 ```
 
 3. POM properties
 
 ```xml
 	<properties>
-    <habushu.pythonVersion>3.10.4</habushu.pythonVersion>
+    <habushu.pythonVersion>3.12.9</habushu.pythonVersion>
 </properties>
 ```
 

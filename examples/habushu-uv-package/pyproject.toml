@@ -3,7 +3,7 @@ authors = [
     {name = "James Choi", email = "choi_james@bah.com"},
 ]
 license = {text = "MIT License"}
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "krausening>=20",
     "cryptography>=44.0.1",
