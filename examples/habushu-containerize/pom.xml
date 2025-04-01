@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.technologybrewery.habushu</groupId>
+        <artifactId>examples</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>habushu-containerize</artifactId>
+    <packaging>pom</packaging>
+
+    <name>habushu::Examples::Containerize Dependencies</name>
+
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>habushu-poetry-containerize</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>uv</id>
+            <modules>
+                <module>habushu-uv-containerize</module>
+            </modules>
+        </profile>
+    </profiles>
+</project>

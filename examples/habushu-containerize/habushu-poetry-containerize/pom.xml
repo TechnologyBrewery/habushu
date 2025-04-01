@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.technologybrewery.habushu</groupId>
+        <artifactId>habushu-containerize</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+    </parent>
+
+    <name>habushu::Examples::Containerize Dependencies::Poetry</name>
+    <description>Example of how to use the habushu-maven-plugin with Poetry to containerize a project and its dependencies</description>
+
+    <artifactId>habushu-poetry-containerize</artifactId>
+    <packaging>habushu</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>habushu-maven-plugin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${parent.groupId}</groupId>
+            <artifactId>add-habushu-to-new-or-existing-poetry-project</artifactId>
+            <version>${parent.version}</version>
+            <type>habushu</type>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.technologybrewery.habushu</groupId>
+                <artifactId>habushu-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>dockerize</id>
+                        <goals>
+                            <goal>containerize-dependencies</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <dockerfile>src/resources/Dockerfile</dockerfile>
+                            <dockerBuilderBase>docker.io/python:3.12</dockerBuilderBase>
+                            <dockerFinalBase>docker.io/python:3.12-slim</dockerFinalBase>
+                            <updateDockerfile>true</updateDockerfile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.technologybrewery.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+
+    </build>
+
+</project>

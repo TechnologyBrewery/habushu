@@ -9,11 +9,16 @@ The plugin will automatically inject logic for building and using this virtual e
 Dockerfile by default. The `dockerfile` configuration must be set to the target Dockerfile. To disable the Dockerfile
 update altogether, set the `updateDockerfile` configuration to `false`. Because the virtual environment that is created
 is dependent on the platform for which it is built, Habushu defaults to using `python:3.12` to build the virtual
-environment and  `python:3.12-slim` as the final image that packages/runs the virtual environment. This can be
-customized with the `dockerBuilderBase`, `dockerFinalBase`, `dockerUser`, `dockerPoetryVersion`, `dockerPoetryPluginBundleVersion`,
-`dockerPoetryMonorepoDependencyPluginVersion`, and `dockerfileTemplatePoetry` configurations, but care must be taken to
+environment and  `python:3.12-slim` as the final image that packages/runs the virtual environment. 
+
+This can be customized with the `dockerBuilderBase`, `dockerFinalBase`, `dockerUser` and configurations, but care must be taken to
 ensure the builder image platform is sufficiently similar to the final image platform so that the virtual environment is
 compatible.
+
+Additional configuration options are available depending on the package manager used by the `habushu` dependency:
+[Poetry](./habushu-poetry-containerize/README.md)
+[uv](./habushu-uv-containerize/README.md)
+
 
 ```xml
 <plugin>
@@ -43,11 +48,11 @@ final stage logic to copy over the built virtual environment to the final Docker
 #HABUSHU_BUILDER_STAGE
 
 FROM redhat/ubi9-minimal:latest AS builder
-RUN microdnf install -y python3.11
+RUN microdnf install -y python3.12
 
 #HABUSHU_FINAL_STAGE
 
-ENTRYPOINT ["/opt/venv/bin/python3.11", "-m", "pets.main", "--enable_docs_url", "True"]
+ENTRYPOINT ["/opt/venv/bin/python3.12", "-m", "pets.main", "--enable_docs_url", "True"]
 ```
 
 The plugin will only examine dependencies that are of the type `habushu` in the dependencies block of the `pom.xml` file.

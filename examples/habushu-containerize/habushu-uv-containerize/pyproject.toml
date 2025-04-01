@@ -1,0 +1,37 @@
+[project]
+name = "habushu_uv_containerize"
+version = "3.0.0.dev"
+description = "Example of how to use the habushu-maven-plugin to containerize an application"
+authors = [{name = "Isaac Becerra Llanos", email = "ibecerrallanos@cpointe-inc.com"}]
+requires-python = ">=3.11"
+dependencies = [
+    "ruff>=0.9.9",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 120
+indent-width = 4
+
+[tool.ruff.format]
+indent-style="space"
+line-ending="lf"
+quote-style="preserve"
+
+
+# Added by habushu-maven-plugin at 2025-03-28T16:24:39.161900 to use https://pypi.org/simple/ as source PyPi repository for installing dependencies
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple/"
+publish-url = "https://pypi.org/simple/"
+
+
+# Added by habushu-maven-plugin at 2025-03-28T16:24:39.162921 to use https://test.pypi.org/simple/ as source PyPi repository for installing dependencies
+[[tool.uv.index]]
+name = "dev-pypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+priority = "supplemental"
