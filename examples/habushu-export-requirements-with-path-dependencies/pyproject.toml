@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [
     { name = "Margaret Black", email = "black_margaret@bah.com" }
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "habushu-uv-package",
 ]

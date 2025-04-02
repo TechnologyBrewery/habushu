@@ -4,7 +4,7 @@ version = "3.0.0.dev"
 description = "Example of how to use the habushu-maven-plugin to containerize an application"
 authors = [{name = "Isaac Becerra Llanos", email = "ibecerrallanos@cpointe-inc.com"}]
 license = "MIT License"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dynamic = ["version", "dependencies"]
 
 [tool.poetry.dependencies]
