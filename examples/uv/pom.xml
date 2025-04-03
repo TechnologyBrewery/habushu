@@ -1,0 +1,64 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.technologybrewery.habushu</groupId>
+        <artifactId>examples</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>uv</artifactId>
+    <packaging>pom</packaging>
+
+    <name>habushu::Examples::uv</name>
+
+    <modules>
+        <module>habushu-uv-enforcer-rule</module>
+        <!--        <module>add-habushu-to-new-or-existing-uv-project</module>-->
+        <!--        <module>habushu-export-requirements-with-path-dependencies</module>-->
+        <!--        <module>habushu-uv-package</module>-->
+        <!--        <module>habushu-containerize</module>-->
+    </modules>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>enforce-uv</id>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <requireUvVersion>
+                                        <version>>=0.6.0</version>
+                                    </requireUvVersion>
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- NB: workaround to trigger build cache invalidation when a new SNAPSHOT is available-->
+            <!-- This dependency is required specifically to build the examples in this repo -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>habushu-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+
+</project>
