@@ -26,34 +26,69 @@ public class PoetrycoreVersionMigrationSteps {
 
     private boolean executionSucceeded;
 
-    @Given("an existing pyproject.toml file with poetry-core version of 1.6.0 in the build-system group")
-    public void an_existing_pyproject_toml_file_with_poetry_core_version_of_1_6_0_in_the_build_system_group() {
-        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-1-6-0.toml");
+    @Given("an existing pyproject.toml file with poetry-core version equal to 1.6.0 in the build-system group")
+    public void an_existing_pyproject_toml_file_with_poetry_core_version_equal_to_1_6_0_in_the_build_system_group() {
+        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-eq-1-6-0.toml");
+    }
+
+    @Given("an existing pyproject.toml file with poetry-core version greater than or equal to 1.6.0 in the build-system group")
+    public void an_existing_pyproject_toml_file_with_poetry_core_version_gte_1_6_0_in_the_build_system_group() {
+        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-gte-1-6-0.toml");
     }
 
     @Given("an existing pyproject.toml file with poetry-core version less than 1.6.0 in the build-system group")
     public void an_existing_pyproject_toml_file_with_poetry_core_version_less_than_1_6_0_in_the_build_system_group() {
-        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-1-0-0.toml");
+        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-lt-1-6-0.toml");
     }
 
-    @Given("an existing pyproject.toml file with poetry-core version of 1.7.0 in the build-system group")
-    public void an_existing_pyproject_toml_file_with_poetry_core_version_of_1_7_0_in_the_build_system_group() {
-        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-1-7-0.toml");
+    @Given("an existing pyproject.toml file with poetry-core version greater than or equal to 1 in the build-system group")
+    public void an_existing_pyproject_toml_file_with_poetry_core_version_of_1_in_the_build_system_group() {
+        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-gte-1.toml");
     }
 
-    @Given("an existing pyproject.toml file with poetry-core version of 2.0.0 in the build-system group")
-    public void an_existing_pyproject_toml_file_with_poetry_core_version_of_2_0_0_in_the_build_system_group() {
-        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-2-0-0.toml");
+    @Given("an existing pyproject.toml file with poetry-core version greater than or equal to 1.7.0 in the build-system group")
+    public void an_existing_pyproject_toml_file_with_poetry_core_version_gte_1_7_0_in_the_build_system_group() {
+        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-gte-1-7-0.toml");
     }
 
-    @Given("an existing pyproject.toml file with poetry-core version 1.5 in the build-system group")
-    public void an_existing_pyproject_toml_file_with_poetry_core_version_of_1_5_in_the_build_system_group() {
-        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-1-5.toml");
+    @Given("an existing pyproject.toml file with poetry-core version greater than or equal to 2.0.0 in the build-system group")
+    public void an_existing_pyproject_toml_file_with_poetry_core_version_gte_2_0_0_in_the_build_system_group() {
+        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-gte-2-0-0.toml");
     }
 
-    @Given("an existing pyproject.toml file with poetry-core version 1.5.8 in the build-system group")
+    @Given("an existing pyproject.toml file with poetry-core version greater than or equal to 1.5 in the build-system group")
+    public void an_existing_pyproject_toml_file_with_poetry_core_version_gte_1_5_in_the_build_system_group() {
+        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-gte-1-5.toml");
+    }
+
+    @Given("an existing pyproject.toml file with poetry-core version equal to 1.5.8 in the build-system group")
     public void an_existing_pyproject_toml_file_with_poetry_core_version_of_1_5_8_in_the_build_system_group() {
-        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-1-5-8.toml");
+        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-eq-1-5-8.toml");
+    }
+
+    @Given("an existing pyproject.toml file with poetry-core version greater than or equal to 1.5.8 in the build-system group")
+    public void an_existing_pyproject_toml_file_with_poetry_core_version_gte_1_5_8_in_the_build_system_group() {
+        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-gte-1-5-8.toml");
+    }
+
+    @Given("an existing pyproject.toml file with poetry-core version greater than or eq to 1.0.0 and less than 2.0.0 in the build-system group")
+    public void anExistingPyprojectTomlFileWithPoetryCoreVersionGreaterThanOrEqTo1_0_0AndLessThan2_0_0InTheBuildSystemGroup() {
+        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-gte-1-0-0-lt-2-0-0.toml");
+    }
+
+    @Given("an existing pyproject.toml file with poetry-core version greater than or equal to 1.0.0 and less than 1.6.0 in the build-system group")
+    public void anExistingPyprojectTomlFileWithPoetryCoreVersionGreaterThanOrEqTo1_0_0AndLessThan1_6_0InTheBuildSystemGroup() {
+        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-gte-1-0-0-lt-1-6-0.toml");
+    }
+
+    @Given("an existing pyproject.toml file with poetry-core version greater than or eq to 1.6.0 and less than 2.0.0 in the build-system group")
+    public void anExistingPyprojectTomlFileWithPoetryCoreVersionGreaterThanOrEqTo1_6_0AndLessThan2_0_0InTheBuildSystemGroup() {
+        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-gte-1-6-0-lt-2-0-0.toml");
+    }
+
+    @Given("an existing pyproject.toml file with poetry-core version greater than or equal to 2 and less than 3 in the build-system group")
+    public void anExistingPyprojectTomlFileWithPoetryCoreVersionGreaterThanOrEqTo2AndLessThan3InTheBuildSystemGroup() {
+        pyProjectToml = new File(testTomlFileDirectory, "with-poetry-core-version-gte-2-lt-3.toml");
     }
 
     @When("Habushu poetry core migration executes")
