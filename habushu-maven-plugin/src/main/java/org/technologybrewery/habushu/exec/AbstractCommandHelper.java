@@ -47,6 +47,17 @@ public abstract class AbstractCommandHelper implements CommandHelper {
     /**
      * {@inheritDoc}
      */
+    public void execute(List<String> arguments, Map<String, String> environmentVariables) {
+        if (logger.isInfoEnabled()) {
+            logExecutionInformation(arguments);
+        }
+        ProcessExecutor executor = createPackageManagerExecutor(arguments, environmentVariables);
+        executor.executeAndGetResult(logger);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public int executeAndLogOutput(List<String> arguments) {
         if (logger.isInfoEnabled()) {
             logExecutionInformation(arguments);
@@ -58,12 +69,12 @@ public abstract class AbstractCommandHelper implements CommandHelper {
     /**
      * {@inheritDoc}
      */
-    public void executeAndLogOutput(List<String> arguments, Map<String, String> environmentVariables) {
+    public int executeAndLogOutput(List<String> arguments, Map<String, String> environmentVariables) {
         if (logger.isInfoEnabled()) {
             logExecutionInformation(arguments);
         }
         ProcessExecutor executor = createPackageManagerExecutor(arguments, environmentVariables);
-        executor.executeAndRedirectOutput(logger);
+        return executor.executeAndRedirectOutput(logger);
     }
 
     /**
@@ -88,7 +99,7 @@ public abstract class AbstractCommandHelper implements CommandHelper {
     /**
      * {@inheritDoc}
      */
-    public Integer executePackageManagerCommandAndLogAfterTimeout(List<String> arguments, int timeout, TimeUnit timeUnit, String messageToDisplay) {
+    public Integer executeAndLogAfterTimeout(List<String> arguments, int timeout, TimeUnit timeUnit, String messageToDisplay) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<Integer> future = executor.submit(() -> this.executeAndLogOutput(arguments));
         try {
@@ -99,6 +110,31 @@ public abstract class AbstractCommandHelper implements CommandHelper {
                     messageToDisplay);
             try {
                 return future.get();
+            } catch (InterruptedException | ExecutionException e1) {
+                throw new RuntimeException("Error occurred while waiting for " + packageManagerCommand + " command to complete", e1);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Error occurred while performing %s command: %s %s",
+                    packageManagerCommand, packageManagerCommand, StringUtils.join(arguments, " ")), e);
+        } finally {
+            executor.shutdown();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void executeAndLogAfterTimeout(List<String> arguments, int timeout, TimeUnit timeUnit, String messageToDisplay, Map<String, String> environmentVariables) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Integer> future = executor.submit(() -> this.executeAndLogOutput(arguments, environmentVariables));
+        try {
+            future.get(timeout, timeUnit);
+        } catch (TimeoutException e) {
+            logger.warn("{} {} has been running for quite some time, you may want to quit the mvn process (Ctrl+c) and " +
+                            "run \"{}\" and restart your build.", packageManagerCommand, String.join(" ", arguments),
+                    messageToDisplay);
+            try {
+                future.get();
             } catch (InterruptedException | ExecutionException e1) {
                 throw new RuntimeException("Error occurred while waiting for " + packageManagerCommand + " command to complete", e1);
             }

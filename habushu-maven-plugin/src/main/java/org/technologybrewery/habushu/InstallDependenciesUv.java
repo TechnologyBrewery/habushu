@@ -6,7 +6,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.StringUtils;
-import org.technologybrewery.habushu.exec.UvCommandHelper;
+import org.technologybrewery.habushu.exec.UvAuthenticationCommandHelper;
 import org.technologybrewery.habushu.util.HabushuUtil;
 import org.technologybrewery.habushu.util.TomlReplacementTuple;
 import org.technologybrewery.habushu.util.TomlUtils;
@@ -39,6 +39,11 @@ import java.util.concurrent.TimeUnit;
  */
 public class InstallDependenciesUv extends AbstractInstallDependencies {
 
+    /**
+     * Instance of InstallDependenciesMojo
+     */
+    protected InstallDependenciesMojo installDependenciesMojo;
+
     protected static final String PUBLIC_PYPI_REPO_URL = "https://pypi.org/simple/";
     private static final String UV_CLEAN_CACHE_COMMAND = "uv cache clean";
     private static final String[] RELATIONAL_OPERATORS = {"=", "<", ">", "^"};
@@ -54,13 +59,14 @@ public class InstallDependenciesUv extends AbstractInstallDependencies {
     protected static final String PYPROJECT_PACKAGE_INDEX_PATH = "tool.uv.index";
 
     public InstallDependenciesUv(File baseDir, Log log, InstallDependenciesMojo mojo)  {
-        super(baseDir, log, mojo);
-    }
 
+        super(baseDir, log, mojo);
+        this.installDependenciesMojo = mojo;
+    }
 
     @Override
     public void doExecute() throws MojoFailureException {
-        UvCommandHelper uvCommandHelper = new UvCommandHelper(baseDir);
+        UvAuthenticationCommandHelper uvAuthenticationHelper = createUvAuthenticationCommandHelper();
 
         processManagedDependencyMismatches();
 
@@ -75,28 +81,21 @@ public class InstallDependenciesUv extends AbstractInstallDependencies {
 
         if (!installDependenciesMojo.skipPoetryLockUpdate()) {
             log.info("Locking dependencies specified in pyproject.toml...");
-            uvCommandHelper.executePackageManagerCommandAndLogAfterTimeout(
-                    uvCommandHelper.createLockCommand(installDependenciesMojo.skipPoetryLockUpdate, true),
+            uvAuthenticationHelper.executeLockCommandAndLogAfterTimeout(
+                    installDependenciesMojo.skipPoetryLockUpdate,
+                    true,
                     2,
                     TimeUnit.MINUTES,
                     UV_CLEAN_CACHE_COMMAND
             );
-
         }
-
-        List<String> syncCommand = uvCommandHelper.createSyncCommand();
-
-        for (String groupName : installDependenciesMojo.withGroups) {
-            syncCommand.add("--group");
-            syncCommand.add(groupName);
-        }
-        for (String groupName : installDependenciesMojo.withoutGroups) {
-            syncCommand.add("--no-group");
-            syncCommand.add(groupName);
-        }
-
-        log.info("Installing dependencies...");
-        uvCommandHelper.executePackageManagerCommandAndLogAfterTimeout(syncCommand, 2, TimeUnit.MINUTES, UV_CLEAN_CACHE_COMMAND);
+        uvAuthenticationHelper.executeSyncCommand(
+                installDependenciesMojo.withGroups,
+                installDependenciesMojo.withoutGroups,
+                2,
+                TimeUnit.MINUTES,
+                UV_CLEAN_CACHE_COMMAND
+        );
     }
 
     private void prepareDefaultRepositoryForInstallation() {
@@ -120,7 +119,7 @@ public class InstallDependenciesUv extends AbstractInstallDependencies {
             // search supplemental source. UV only search for specified index if available (if there's no tool.uv.index, it would fall back to default public pypi.).
             // Therefore, if we need to specify supplemental sources, we need to populate default ( or explicit) source first.
             List<String> defaultPypiRepoIndexConfig = Arrays.asList(System.lineSeparator(), String.format(
-                            "# Added by habushu-maven-plugin at %s to use %s as source PyPi repository for installing dependencies",
+                            "# Added by habushu-maven-plugin at %s to use %s as source repository for installing dependencies",
                             LocalDateTime.now(), pypiRepoSimpleIndexUrl),
                     String.format("[[%s]]", PYPROJECT_PACKAGE_INDEX_PATH),
                     String.format("name = \"%s\"", HabushuUtil.PUBLIC_PYPI_REPO_ID),
@@ -281,5 +280,15 @@ public class InstallDependenciesUv extends AbstractInstallDependencies {
 
             }
         }
+    }
+
+    /**
+     * Creates a {@link org.technologybrewery.habushu.exec.UvAuthenticationCommandHelper} that may be used to invoke uv
+     * commands that could require authentication from the project's working directory.
+     *
+     * @return command helper
+     */
+    protected UvAuthenticationCommandHelper createUvAuthenticationCommandHelper() {
+        return new UvAuthenticationCommandHelper(baseDir, null, installDependenciesMojo);
     }
 }

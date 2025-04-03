@@ -24,7 +24,7 @@ public class InitializeHabushuMojo extends AbstractHabushuMojo {
             InitializeHabushuPoetry initializeHabushuPoetry = new InitializeHabushuPoetry(getPythonProjectBaseDir(), getLog(), overridePackageVersion, expectedPythonPackageVersion );
             initializeHabushuPoetry.doExecute();
         } else {
-            InitializeHabushuUv initializeHabushuUv =  new InitializeHabushuUv(getPythonProjectBaseDir(), getLog(), overridePackageVersion, expectedPythonPackageVersion);
+            InitializeHabushuUv initializeHabushuUv =  new InitializeHabushuUv(getPythonProjectBaseDir(), getLog(), overridePackageVersion, expectedPythonPackageVersion, this);
             initializeHabushuUv.doExecute();
         }
     }

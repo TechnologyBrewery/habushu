@@ -2,3 +2,6 @@
 [virtualenvs]
 in-project = true
 use-poetry-python = false
+
+[repositories.dev-pypi]
+url = "https://test.pypi.org/legacy/"

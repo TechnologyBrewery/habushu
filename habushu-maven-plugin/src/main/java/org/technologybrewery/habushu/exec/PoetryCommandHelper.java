@@ -96,7 +96,7 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
      * @return execution value
      */
     public Integer executePoetryCommandAndLogAfterTimeout(List<String> arguments, int timeout, TimeUnit timeUnit) {
-        return executePackageManagerCommandAndLogAfterTimeout(arguments, timeout, timeUnit,
+        return executeAndLogAfterTimeout(arguments, timeout, timeUnit,
                 "poetry cache clear . --all");
     }
 

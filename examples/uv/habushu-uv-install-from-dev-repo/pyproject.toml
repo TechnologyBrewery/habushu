@@ -1,0 +1,38 @@
+[project]
+name = "habushu-uv-install-from-dev-repo"
+version = "3.0.0.dev"
+description = "Example of how to use Habushu to install a dependency from a development repository"
+readme = "README.md"
+authors = [
+    { name = "Margaret Black", email = "black_margaret@bah.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    # UNCOMMENT TO ENABLE FUNCTIONAL EXAMPLE
+#    "habushu-uv-publish-to-dev-repo",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff.format]
+indent-style="space"
+line-ending="lf"
+quote-style="preserve"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.11.4",
+]
+
+# Added by habushu-maven-plugin at 2025-04-08T09:57:15.989477 to use https://pypi.org/simple/ as source repository for installing dependencies
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple/"
+publish-url = "https://pypi.org/simple/"
+
+[[tool.uv.index]]
+name = "private-repo"
+url = "http://127.0.0.1:8080/simple/"
+publish-url = "http://127.0.0.1:8080/"

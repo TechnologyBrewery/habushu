@@ -64,7 +64,7 @@ public class InstallDependenciesPoetry extends AbstractInstallDependencies {
 
         if (!installDependenciesMojo.skipPoetryLockUpdate()) {
             log.info("Locking dependencies specified in pyproject.toml...");
-            poetryHelper.executePackageManagerCommandAndLogAfterTimeout(
+            poetryHelper.executeAndLogAfterTimeout(
                     poetryHelper.createLockCommand(installDependenciesMojo.skipPoetryLockUpdate()),
                     2,
                     TimeUnit.MINUTES,
@@ -85,7 +85,7 @@ public class InstallDependenciesPoetry extends AbstractInstallDependencies {
         }
 
         log.info("Installing dependencies...");
-        poetryHelper.executePackageManagerCommandAndLogAfterTimeout(installCommand, 2, TimeUnit.MINUTES, POETRY_CLEAN_CACHE_COMMAND);
+        poetryHelper.executeAndLogAfterTimeout(installCommand, 2, TimeUnit.MINUTES, POETRY_CLEAN_CACHE_COMMAND);
     }
 
     private void setUpInProjectVirtualEnvironment(PoetryCommandHelper poetryHelper) {
