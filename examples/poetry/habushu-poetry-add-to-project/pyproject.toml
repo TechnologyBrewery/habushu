@@ -1,8 +1,8 @@
 [tool.poetry]
-packages = [{include = "add_habushu_to_new_or_existing_poetry_project", from = "src"}]
+packages = [{include = "habushu_poetry_add_to_project", from = "src"}]
 
 [project]
-name = "add-habushu-to-new-or-existing-poetry-project"
+name = "habushu-poetry-add-to-project"
 version = "3.0.0.dev"
 description = "This example demonstrates how to add Habushu to a new or existing Poetry project."
 authors = [{name = "Margaret Black", email = "black_margaret@bah.com"}]

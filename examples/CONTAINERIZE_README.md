@@ -16,7 +16,7 @@ ensure the builder image platform is sufficiently similar to the final image pla
 compatible.
 
 Additional configuration options are available depending on the package manager used by the `habushu` dependency:
-[Poetry](./habushu-containerize/habushu-poetry-containerize/README.md)
+[Poetry](./poetry/habushu-poetry-containerize/README.md)
 [uv](./uv/habushu-uv-containerize/README.md)
 
 

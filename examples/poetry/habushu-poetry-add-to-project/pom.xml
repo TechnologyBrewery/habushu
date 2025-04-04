@@ -5,14 +5,14 @@
     
     <parent>
         <groupId>org.technologybrewery.habushu</groupId>
-        <artifactId>examples</artifactId>
+        <artifactId>poetry</artifactId>
         <version>3.0.0-SNAPSHOT</version>
     </parent>
 
-    <name>habushu::Examples::Add Habushu to a new or existing Poetry project</name>
+    <name>habushu::Examples::Poetry::Add Habushu to a project</name>
     <description>This example demonstrates how to add Habushu to a new or existing Poetry project</description>
 
-    <artifactId>add-habushu-to-new-or-existing-poetry-project</artifactId>
+    <artifactId>habushu-poetry-add-to-project</artifactId>
 
     <!-- set the Maven module packaging to habushu-->
     <!-- This allows us to build this Poetry project via the `mvn install` or `mvnd install` commands -->

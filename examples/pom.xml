@@ -76,11 +76,9 @@
             <modules>
                 <module>poetry</module>
                 <module>uv</module>
-                <module>add-habushu-to-new-or-existing-poetry-project</module>
                 <module>habushu-managed-dependencies</module>
                 <module>habushu-default-python-strategy</module>
                 <module>habushu-running-python-scripts</module>
-                <module>habushu-containerize</module>
             </modules>
         </profile>
         <profile>
