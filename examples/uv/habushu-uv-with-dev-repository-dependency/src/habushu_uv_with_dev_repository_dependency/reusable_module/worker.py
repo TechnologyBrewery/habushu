@@ -1,5 +1,5 @@
 # a simple module
-from habushu_uv_package.util.useful import i_do_something_useful
+from habushu_uv_with_dev_repository_dependency.util.useful import i_do_something_useful
 
 
 class SubWorker:

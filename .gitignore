@@ -66,7 +66,7 @@ generated/
 # https://python-poetry.org/docs/configuration/#virtualenvsin-project
 
 # TODO: Temporary fix until uv is fully integrated
-examples/habushu-uv-package/poetry.toml
+examples/uv/habushu-uv-package/poetry.toml
 
 # ruff
 .ruff_cache/

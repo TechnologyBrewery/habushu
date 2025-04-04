@@ -16,9 +16,10 @@
     <modules>
         <module>habushu-uv-enforcer-rule</module>
         <module>habushu-uv-add-to-project</module>
-        <!--        <module>habushu-export-requirements-with-path-dependencies</module>-->
-        <!--        <module>habushu-uv-package</module>-->
+        <module>habushu-uv-package</module>
         <module>habushu-uv-containerize</module>
+        <module>habushu-uv-disable-export-with-path-dependencies</module>
+        <module>habushu-uv-with-dev-repository-dependency</module>
     </modules>
 
     <build>

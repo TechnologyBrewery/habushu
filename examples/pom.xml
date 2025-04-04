@@ -81,14 +81,6 @@
                 <module>habushu-running-python-scripts</module>
             </modules>
         </profile>
-        <profile>
-            <id>uv</id>
-            <modules>
-                <module>habushu-export-requirements-with-path-dependencies</module>
-                <module>habushu-uv-package</module>
-                <module>habushu-uv-devrepository-package</module>
-            </modules>
-        </profile>
     </profiles>
 
 </project>
