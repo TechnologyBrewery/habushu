@@ -10,7 +10,7 @@ RUN find . -type f -name pyproject.toml -exec sed -i 's|develop[[:blank:]]*=[[:b
 
 
 USER root
-WORKDIR /work-dir/containerize-support/examples/add-habushu-to-new-or-existing-uv-project
+WORKDIR /work-dir/containerize-support/examples/uv/habushu-uv-add-to-project
 
 ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
@@ -25,7 +25,7 @@ RUN --mount=type=cache,target=${UV_CACHE_DIR} \
 FROM docker.io/python:3.12-slim AS final
 # Copy venv from builder and activate by adding to the path
 COPY --from=habushu_builder --chown=1001 \
-    /work-dir/containerize-support/examples/add-habushu-to-new-or-existing-uv-project/.venv \
+    /work-dir/containerize-support/examples/uv/habushu-uv-add-to-project/.venv \
     /opt/venv/
 ENV PATH="/opt/venv/bin:$PATH"
 #HABUSHU_FINAL_STAGE - HABUSHU GENERATED CODE (END)

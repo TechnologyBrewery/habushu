@@ -5,14 +5,14 @@
     
     <parent>
         <groupId>org.technologybrewery.habushu</groupId>
-        <artifactId>examples</artifactId>
+        <artifactId>uv</artifactId>
         <version>3.0.0-SNAPSHOT</version>
     </parent>
 
-    <name>habushu::Examples::Add Habushu to a new or existing uv project</name>
+    <name>habushu::Examples::uv::Add Habushu to a new or existing project</name>
     <description>This example demonstrates how to add Habushu to a new or existing uv project</description>
 
-    <artifactId>add-habushu-to-new-or-existing-uv-project</artifactId>
+    <artifactId>habushu-uv-add-to-project</artifactId>
 
     <!-- set the Maven module packaging to habushu-->
     <!-- This allows us to build this uv project via the `mvn install` or `mvnd install` commands -->

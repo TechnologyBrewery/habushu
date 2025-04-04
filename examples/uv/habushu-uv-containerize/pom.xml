@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.technologybrewery.habushu</groupId>
-        <artifactId>habushu-containerize</artifactId>
+        <artifactId>uv</artifactId>
         <version>3.0.0-SNAPSHOT</version>
     </parent>
 
-    <name>habushu::Examples::Containerize Dependencies::uv</name>
+    <name>habushu::Examples::uv::Containerize Dependencies</name>
     <description>Example of how to use the habushu-maven-plugin with uv to containerize a project and its dependencies</description>
 
     <artifactId>habushu-uv-containerize</artifactId>
@@ -22,7 +22,7 @@
         </dependency>
         <dependency>
             <groupId>${parent.groupId}</groupId>
-            <artifactId>add-habushu-to-new-or-existing-uv-project</artifactId>
+            <artifactId>habushu-uv-add-to-project</artifactId>
             <version>${parent.version}</version>
             <type>habushu</type>
         </dependency>
