@@ -106,7 +106,7 @@ def step_impl(context):
 
 ### Running Specified Tagged Tests ###
 
-"tagged-tests" is an example profile within [habushu-poetry-package-consumer](./examples/habushu-poetry-package-consumer/) used to specify a tag(s) to test.  The variable "tags" is used to specify which tags to test. To run multiple tests, comma separate them. To exclude a test, add "\~" in front of the tag.
+"tagged-tests" is an example profile within [habushu-poetry-package-consumer](examples/poetry/habushu-poetry-package-consumer/) used to specify a tag(s) to test.  The variable "tags" is used to specify which tags to test. To run multiple tests, comma separate them. To exclude a test, add "\~" in front of the tag.
 
 ```
 mvn clean test -Ptagged-tests -Dtags="one_tag"
