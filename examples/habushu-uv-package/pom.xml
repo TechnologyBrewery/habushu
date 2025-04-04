@@ -40,6 +40,7 @@
                                 <active>true</active>
                             </packageDefinition>
                         </managedDependencies>
+                        <enableDevRepositoryUrlUploadSuffix>true</enableDevRepositoryUrlUploadSuffix>
                         <deleteVirtualEnv>true</deleteVirtualEnv>
                     </configuration>
                 </plugin>

@@ -21,6 +21,7 @@ public class TestPublishToPyPiRepoMojo extends PublishToPyPiRepoMojo {
         this.skipDeploy = false;
         this.pypiUploadSuffix = "";
         this.devRepositoryUrlUploadSuffix = "legacy/";
+        this.enableDevRepositoryUrlUploadSuffix = true;
     }
 
     public String getRepositoryUrl(boolean publishToDev) {
