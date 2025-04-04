@@ -1,6 +1,6 @@
 import string
 import random
-from habushu_uv_package.reusable_module.worker import SubWorker
+from habushu_uv_with_dev_repository_dependency.reusable_module.worker import SubWorker
 
 print("I'm alive!")
 

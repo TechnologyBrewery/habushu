@@ -748,7 +748,7 @@ configuration options.
   the default python version if no version is explicitly set in `pythonVersion`
 - [Containerizing dependencies with Poetry](./examples/habushu-poetry-containerize/README.md) - Containerizes dependencies
   in a Docker container
-- [Disable exportRequirementsWithoutPathDependencies](./examples/habushu-export-requirements-with-path-dependencies/README.md) - Disable the `exportRequirementsWithoutPathDependencies` default configuration
+- [Disable exportRequirementsWithoutPathDependencies](examples/uv/habushu-export-requirements-with-path-dependencies/README.md) - Disable the `exportRequirementsWithoutPathDependencies` default configuration
 - Enforcing specific version or version ranges of Poetry or uv:
   - [Poetry Version Enforcement](./examples/poetry/habushu-poetry-enforcer-rule/README.md)
   - [uv Version Enforcement](examples/uv/habushu-uv-enforcer-rule/README.md)

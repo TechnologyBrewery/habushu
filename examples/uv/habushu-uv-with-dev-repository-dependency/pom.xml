@@ -4,14 +4,14 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.technologybrewery.habushu</groupId>
-        <artifactId>examples</artifactId>
+        <artifactId>uv</artifactId>
         <version>3.0.0-SNAPSHOT</version>
     </parent>
 
-    <name>habushu::Examples::Build an uv Package</name>
-    <description>Example of how to use the habushu-maven-plugin</description>
+    <name>habushu::Examples::uv::Use dev repo dependencies</name>
+    <description>Example of how to use development repository dependencies</description>
 
-    <artifactId>habushu-uv-package</artifactId>
+    <artifactId>habushu-uv-with-dev-repository-dependency</artifactId>
     <packaging>habushu</packaging>
 
     <dependencies>
@@ -40,6 +40,8 @@
                                 <active>true</active>
                             </packageDefinition>
                         </managedDependencies>
+                        <enableDevRepositoryUrlUploadSuffix>true</enableDevRepositoryUrlUploadSuffix>
+                        <devRepositoryUrlUploadSuffix>legacy/</devRepositoryUrlUploadSuffix>
                         <deleteVirtualEnv>true</deleteVirtualEnv>
                     </configuration>
                 </plugin>

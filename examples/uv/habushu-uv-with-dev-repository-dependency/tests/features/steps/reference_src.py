@@ -1,6 +1,6 @@
 from behave import when, then  # pylint: disable=no-name-in-module
-from habushu_uv_package.reusable_module.worker import SubWorker
-from habushu_uv_package.helloworld import generate_random_string
+from habushu_uv_with_dev_repository_dependency.reusable_module.worker import SubWorker
+from habushu_uv_with_dev_repository_dependency.helloworld import generate_random_string
 import logging
 
 

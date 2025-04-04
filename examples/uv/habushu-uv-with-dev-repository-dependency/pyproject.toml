@@ -9,9 +9,9 @@ dependencies = [
     "cryptography>=44.0.1",
     "uvicorn[standard]>=0.19.0",
 ]
-name = "habushu_uv_package"
+name = "habushu_uv_with_dev_repository_dependency"
 version = "3.0.0.dev"
-description = "Example of how to use the habushu-maven-plugin in a `uv`-based setting"
+description = "Example of how to use the habushu-maven-plugin with `uv` leveraging a development repository dependency"
 readme = "README.md"
 
 [dependency-groups]
