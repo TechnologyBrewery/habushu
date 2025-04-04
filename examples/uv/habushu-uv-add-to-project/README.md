@@ -10,7 +10,7 @@ To generate this project, we used the `uv init --lib` command:
 ```sh
 $ uv init habushu-uv-add-to-project --lib
 Initialized project `habushu-uv-add-to-project` at `habushu/examples/habushu-uv-add-to-project`
-$ tree add-habushu-to-new-or-existing-poetry-project
+$ tree habushu-poetry-add-to-project
 ├── README.md
 ├── pyproject.toml
 └── src

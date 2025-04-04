@@ -1,5 +1,5 @@
 from behave import when, then  # pylint: disable=no-name-in-module
-from add_habushu_to_new_or_existing_poetry_project.helloworld import hello_world
+from habushu_poetry_add_to_project.helloworld import hello_world
 import logging
 
 

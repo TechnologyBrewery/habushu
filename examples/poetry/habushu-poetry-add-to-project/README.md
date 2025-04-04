@@ -1,6 +1,6 @@
-[[Return to Main Documentation]](../../README.md)
+[[Return to Main Documentation]](../../../README.md)
 
-# add-habushu-to-new-or-existing-poetry-project
+# habushu-poetry-add-to-project
 This example demonstrates how to add Habushu to a new or existing Poetry project.
 
 ## Setting up the Project
@@ -8,9 +8,9 @@ This example demonstrates how to add Habushu to a new or existing Poetry project
 To generate this project, we used the `poetry new --src` command:
 
 ```sh
-$ poetry new add-habushu-to-new-or-existing-poetry-project --src 
-Created package add_habushu_to_new_or_existing_poetry_project in add-habushu-to-new-or-existing-poetry-project
-$ tree add-habushu-to-new-or-existing-poetry-project
+$ poetry new habushu-poetry-add-to-project --src 
+Created package add_habushu_to_new_or_existing_poetry_project in habushu-poetry-add-to-project
+$ tree habushu-poetry-add-to-project
 ├── README.md
 ├── poetry.toml
 ├── pyproject.toml
@@ -38,5 +38,5 @@ If migrating an earlier release of Habushu, follow the same process, but note th
     ```
 
 ## Adding Habushu to a Poetry Project
-To add Habushu to your project, create a `pom.xml` file in the top level of the project. Then, follow the steps outline in [Integrating Your Poetry/uv Project with Habushu and Maven](../../README.md#integrating-your-poetryuv-project-with-habushu-and-maven-).
+To add Habushu to your project, create a `pom.xml` file in the top level of the project. Then, follow the steps outline in [Integrating Your Poetry/uv Project with Habushu and Maven](../../../README.md#integrating-your-poetryuv-project-with-habushu-and-maven-).
 
