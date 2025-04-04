@@ -13,14 +13,23 @@ on:
         branches: [ "dev" ]
     pull_request_review:
       types: [submitted]
+    workflow_dispatch:
+      inputs:
+        branch:
+          description: 'Branch to build'
+          required: true
+          default: 'dev'
+          type: string
 
 jobs:
     build:
-        if: github.event.review.state == 'approved' || github.ref == 'refs/heads/dev'
+        if: github.event.review.state == 'approved' || github.event_name == 'workflow_dispatch'
         runs-on: ubuntu-latest
 
         steps:
             - uses: actions/checkout@v4
+              with:
+                ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.branch || github.ref }}
             - name: Install Python # use direct install rather than pyenv for CI for large speed improvement
               uses: actions/setup-python@v5
               with:

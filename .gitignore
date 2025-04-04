@@ -57,10 +57,9 @@ Thumbs.db
 # Pyenv, Poetry & uv
 .python-version
 .venv
-.env
 *.lock
 generated/
-!examples/habushu-poetry-package/src/habushu_poetry_package/generated/__init__.py
+!examples/poetry/habushu-poetry-package/src/habushu_poetry_package/generated/__init__.py
 
 # Local Poetry configuration
 !habushu-maven-plugin/src/test/resources/**/poetry.toml

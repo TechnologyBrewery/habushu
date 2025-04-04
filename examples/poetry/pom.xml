@@ -16,8 +16,8 @@
     <modules>
         <module>habushu-poetry-enforcer-rule</module>
         <!--        <module>add-habushu-to-new-or-existing-poetry-project</module>-->
-        <!--        <module>habushu-poetry-package</module>-->
-        <!--        <module>habushu-poetry-package-consumer</module>-->
+        <module>habushu-poetry-package</module>
+        <module>habushu-poetry-package-consumer</module>
         <!--        <module>habushu-managed-dependencies</module>-->
         <!--        <module>habushu-default-python-strategy</module>-->
         <!--        <module>habushu-running-python-scripts</module>-->
