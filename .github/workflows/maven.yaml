@@ -23,7 +23,7 @@ on:
 
 jobs:
     build:
-        if: github.event.review.state == 'approved' || github.event_name == 'workflow_dispatch'
+        if: github.event.review.state == 'approved' ||  github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
         runs-on: ubuntu-latest
 
         steps:
