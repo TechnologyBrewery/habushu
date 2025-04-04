@@ -24,11 +24,5 @@
                 <module>habushu-poetry-containerize</module>
             </modules>
         </profile>
-        <profile>
-            <id>uv</id>
-            <modules>
-                <module>habushu-uv-containerize</module>
-            </modules>
-        </profile>
     </profiles>
 </project>

@@ -1,5 +1,5 @@
 [project]
-name = "add-habushu-to-new-or-existing-uv-project"
+name = "habushu-uv-add-to-project"
 version = "3.0.0.dev"
 description = "This example demonstrates how to add Habushu to a new or existing uv project."
 readme = "README.md"

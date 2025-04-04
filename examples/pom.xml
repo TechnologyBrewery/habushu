@@ -86,11 +86,9 @@
         <profile>
             <id>uv</id>
             <modules>
-                <module>add-habushu-to-new-or-existing-uv-project</module>
                 <module>habushu-export-requirements-with-path-dependencies</module>
                 <module>habushu-uv-package</module>
                 <module>habushu-uv-devrepository-package</module>
-                <module>habushu-containerize</module>
             </modules>
         </profile>
     </profiles>
