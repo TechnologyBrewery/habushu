@@ -449,6 +449,12 @@ developers should specify this property through the plugin's `<configuration>` d
 ```
 Default: `https://test.pypi.org`
 
+#### enableDevRepositoryUrlUploadSuffix ####
+
+enables whether to append the path to the upload index relative to the devRepositoryUrl.
+
+Default: `true`
+
 #### devRepositoryUrlUploadSuffix ####
 
 Specifies the path to the upload index relative to the devRepositoryUrl.  Certain private repository solutions use

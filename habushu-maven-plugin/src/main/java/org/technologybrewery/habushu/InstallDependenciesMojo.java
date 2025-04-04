@@ -108,6 +108,15 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
     protected String pypiUploadSuffix = "";
 
     /**
+     * whether we enable devRepositoryUrlUploadSuffix.
+     * Setting devRepositoryUrlUploadSuffix to false will set devRepositoryUrlUploadSuffix to empty value regardless
+     * of devRepositoryUrlUploadSuffix property value.
+     * Setting devRepositoryUrlUploadSuffix to true will honor devRepositoryUrlUploadSuffix property values.
+     */
+    @Parameter(property = "habushu.enableDevRepositoryUrlUploadSuffix", defaultValue = "true")
+    protected boolean enableDevRepositoryUrlUploadSuffix;
+
+    /**
      * {{@link #pypiUploadSuffix repositoryUploadSuffix} contains critical information.  The main difference is that
      * this dev repository url path defaults to "legacy/" as the most common scenario when overriding the dev
      * repository URL is to leverage test.pypi.org, which needs this configuration.
@@ -209,6 +218,14 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
      */
     public String getDevRepositoryUrlUploadSuffix() {
         return devRepositoryUrlUploadSuffix;
+    }
+
+    /**
+     * whether to enable Dev Repository upload suffix for publishing url
+     * @return enableDevRepositoryUrlUploadSuffix
+     */
+    public boolean enableDevRepositoryUrlUploadSuffix() {
+        return enableDevRepositoryUrlUploadSuffix;
     }
 
 
