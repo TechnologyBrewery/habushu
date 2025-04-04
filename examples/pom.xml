@@ -36,34 +36,6 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>enforce-poetry</id>
-                            <goals>
-                                <goal>enforce</goal>
-                            </goals>
-                            <configuration>
-                                <rules>
-                                    <requirePoetryVersion>
-                                        <version>>=2.0.0</version>
-                                    </requirePoetryVersion>
-                                </rules>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>enforce-uv</id>
-                            <goals>
-                                <goal>enforce</goal>
-                            </goals>
-                            <configuration>
-                                <rules>
-                                    <requireUvVersion>
-                                        <version>>=0.6.0</version>
-                                    </requireUvVersion>
-                                </rules>
-                            </configuration>
-                        </execution>
-                    </executions>
                     <dependencies>
                         <dependency>
                             <groupId>org.technologybrewery.habushu</groupId>
@@ -102,6 +74,8 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
+                <module>poetry</module>
+                <module>uv</module>
                 <module>add-habushu-to-new-or-existing-poetry-project</module>
                 <module>habushu-poetry-package</module>
                 <module>habushu-poetry-package-consumer</module>
@@ -109,7 +83,6 @@
                 <module>habushu-default-python-strategy</module>
                 <module>habushu-running-python-scripts</module>
                 <module>habushu-containerize</module>
-                <module>habushu-poetry-enforcer-rule</module>
             </modules>
         </profile>
         <profile>
@@ -119,7 +92,6 @@
                 <module>habushu-export-requirements-with-path-dependencies</module>
                 <module>habushu-uv-package</module>
                 <module>habushu-containerize</module>
-                <module>habushu-uv-enforcer-rule</module>
             </modules>
         </profile>
     </profiles>
