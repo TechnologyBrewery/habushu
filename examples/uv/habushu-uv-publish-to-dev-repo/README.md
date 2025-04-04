@@ -105,7 +105,7 @@ In this example, the following configuration is located in the `deploy-example` 
     <useDevRepository>true</useDevRepository>
     <devRepositoryId>private-repo</devRepositoryId>
 
-    <!-- LEAVE OFF simple/ FROM THE END OF THE URL AS HABUSHU ADDS IT BACK FOR YOU -->
+    <!-- Leave off simple/ suffix to enable seamless upload and download capabilities -->
     <devRepositoryUrl>http://127.0.0.1:8080/</devRepositoryUrl>
     <enableDevRepositoryUrlUploadSuffix>false</enableDevRepositoryUrlUploadSuffix>
  </configuration>

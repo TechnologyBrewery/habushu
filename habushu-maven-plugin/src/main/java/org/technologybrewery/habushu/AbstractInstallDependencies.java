@@ -109,8 +109,10 @@ public abstract class AbstractInstallDependencies {
                 if (HabushuUtil.isCurrentPackageManagerUv(getPyProjectTomlFile()) ) {
                     newPypiRepoSourceConfig.add(String.format("publish-url = \"%s\"", getPublishUrl(repoUrl, !HabushuUtil.PUBLIC_PYPI_REPO_ID.equals(repoId))));
                 }
-                newPypiRepoSourceConfig.add("priority = \"supplemental\"");
 
+                if (shouldAddPriority()){
+                    newPypiRepoSourceConfig.add("priority = \"supplemental\"");
+                }
 
                 log.info(String.format("Private PyPi repository entry for %s not found in pyproject.toml",
                         repoUrl));
@@ -131,10 +133,11 @@ public abstract class AbstractInstallDependencies {
 
     /**
      * Attempts to infer the PEP-503 compliant PyPI simple repository index URL
-     * associated with the provided PyPI repository URL. In order to configure
-     * UV or Poetry to use a private PyPi repository as a source for installing package
-     * dependencies, the simple index URL of the repository <b>*must*</b> be
-     * utilized. For example, if a private PyPI repository is hosted at
+     * associated with the provided PyPI repository URL if the {@code enablePypiSimpleSuffix}
+     * flag is enabled (default is {@code true}).
+     * In most cases, in order to configure UV or Poetry to use a private PyPi repository as a
+     * source for installing package dependencies, the simple index URL of the repository <b>*must*</b>
+     * be utilized. For example, if a private PyPI repository is hosted at
      * https://my-company-sonatype-nexus/repository/internal-pypi and provided to
      * Habushu via the {@literal <pypiRepoUrl>} configuration, the simple index URL
      * returned by this method will be
@@ -152,7 +155,7 @@ public abstract class AbstractInstallDependencies {
         String lastPathSegment = CollectionUtils.isNotEmpty(repoUriPathSegments)
                 ? repoUriPathSegments.get(repoUriPathSegments.size() - 1)
                 : null;
-        if (!installDependenciesMojo.pypiSimpleSuffix.equals(lastPathSegment)) {
+        if (installDependenciesMojo.enablePypiSimpleSuffix() && !installDependenciesMojo.pypiSimpleSuffix.equals(lastPathSegment)) {
             // If the URL has no path, an unmodifiable Collections.emptyList() is returned,
             // so wrap in an ArrayList to enable later modifications
             repoUriPathSegments = new ArrayList<>(repoUriPathSegments);
@@ -191,4 +194,6 @@ public abstract class AbstractInstallDependencies {
 
         return matchingPypiRepoIndexConfig;
     }
+
+    protected abstract boolean shouldAddPriority();
 }

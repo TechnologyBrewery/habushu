@@ -21,17 +21,15 @@ indent-style="space"
 line-ending="lf"
 quote-style="preserve"
 
-
-# Added by habushu-maven-plugin at 2025-03-28T16:24:39.161900 to use https://pypi.org/simple/ as source PyPi repository for installing dependencies
+# Added by habushu-maven-plugin at 2025-04-09T09:49:15.815876 to use https://pypi.org/simple/ as source repository for installing dependencies
 [[tool.uv.index]]
 name = "pypi"
 url = "https://pypi.org/simple/"
 publish-url = "https://pypi.org/simple/"
 
 
-# Added by habushu-maven-plugin at 2025-03-28T16:24:39.162921 to use https://test.pypi.org/simple/ as source PyPi repository for installing dependencies
+# Added by habushu-maven-plugin at 2025-04-09T09:49:15.816809 to use https://test.pypi.org/simple/ as source PyPi repository for installing dependencies
 [[tool.uv.index]]
 name = "dev-pypi"
 url = "https://test.pypi.org/simple/"
 publish-url = "https://test.pypi.org/legacy/"
-priority = "supplemental"

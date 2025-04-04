@@ -32,6 +32,15 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
     protected boolean addPypiRepoAsPackageSources;
 
     /**
+     * Determines if pypiSimpleSuffix is enabled or not.
+     * Setting enablePypiSimpleSuffix to false will set pypiSimpleSuffix to empty value regardless
+     * of pypiSimpleSuffix property value.
+     * Setting enablePypiSimpleSuffix to true will honor pypiSimpleSuffix property value.
+     */
+    @Parameter(property = "habushu.enablePypiSimpleSuffix", defaultValue = "true")
+    protected boolean enablePypiSimpleSuffix;
+
+    /**
      * Configures the path for the simple index on a private pypi repository.
      * Certain private repository solutions (ie: devpi) use different names for the
      * simple index. devpi, for instance, uses "+simple".
@@ -108,10 +117,10 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
     protected String pypiUploadSuffix = "";
 
     /**
-     * whether we enable devRepositoryUrlUploadSuffix.
-     * Setting devRepositoryUrlUploadSuffix to false will set devRepositoryUrlUploadSuffix to empty value regardless
+     * Determines whether we enable devRepositoryUrlUploadSuffix.
+     * Setting enableDevRepositoryUrlUploadSuffix to false will set devRepositoryUrlUploadSuffix to empty value regardless
      * of devRepositoryUrlUploadSuffix property value.
-     * Setting devRepositoryUrlUploadSuffix to true will honor devRepositoryUrlUploadSuffix property values.
+     * Setting enableDevRepositoryUrlUploadSuffix to true will honor devRepositoryUrlUploadSuffix property values.
      */
     @Parameter(property = "habushu.enableDevRepositoryUrlUploadSuffix", defaultValue = "true")
     protected boolean enableDevRepositoryUrlUploadSuffix;
@@ -125,11 +134,19 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
     protected String devRepositoryUrlUploadSuffix;
 
     /**
-     * Get whether whether a private PyPi repository, is automatically added as a package source
+     * Get whether a private PyPi repository, is automatically added as a package source
      * @return addPypiRepoAsPackageSources
      */
     public boolean addPypiRepoAsPackageSources() {
         return addPypiRepoAsPackageSources;
+    }
+
+    /**
+     * Whether to enable path for the simple index on a pypi repository.
+     * @return enablePypiSimpleSuffix
+     */
+    public boolean enablePypiSimpleSuffix() {
+        return enablePypiSimpleSuffix;
     }
 
     /**

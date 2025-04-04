@@ -34,6 +34,9 @@
                 <groupId>org.technologybrewery.habushu</groupId>
                 <artifactId>habushu-maven-plugin</artifactId>
                 <!-- See habushu/examples/pom.xml for additional plugin configuration details -->
+                <configuration>
+                    <useDevRepository>false</useDevRepository>
+                </configuration>
             </plugin>
         </plugins>
     </build>
