@@ -77,6 +77,15 @@ public class PublishToPyPiRepoMojo extends AbstractHabushuMojo {
     protected String pypiUploadSuffix = "";
 
     /**
+     * whether we enable devRepositoryUrlUploadSuffix.
+     * Setting devRepositoryUrlUploadSuffix to false will set devRepositoryUrlUploadSuffix to empty value regardless
+     * of devRepositoryUrlUploadSuffix property value.
+     * Setting devRepositoryUrlUploadSuffix to true will honor devRepositoryUrlUploadSuffix property values.
+     */
+    @Parameter(property = "habushu.enableDevRepositoryUrlUploadSuffix", defaultValue = "true")
+    protected boolean enableDevRepositoryUrlUploadSuffix;
+
+    /**
      * {{@link #pypiUploadSuffix repositoryUploadSuffix} contains critical information.  The main difference is that
      * this dev repository url path defaults to "legacy/" as the most common scenario when overriding the dev
      * repository URL is to leverage test.pypi.org, which needs this configuration.
@@ -150,6 +159,10 @@ public class PublishToPyPiRepoMojo extends AbstractHabushuMojo {
 
     public long getPypiPushRetryMaxTimeout() {
         return pypiPushRetryMaxTimeout;
+    }
+
+    public boolean enableDevRepositoryUrlUploadSuffix() {
+        return enableDevRepositoryUrlUploadSuffix;
     }
 
 

@@ -75,7 +75,10 @@ public abstract class AbstractPublishToPyPiRepo {
     protected String getRepositoryUrl(boolean publishToDev) {
         String repoUrl = HabushuUtil.addTrailingSlash(publishToPyPiRepoMojo.getPypiRepoUrl());
         if (publishToDev) {
-            repoUrl = HabushuUtil.addTrailingSlash(publishToPyPiRepoMojo.getDevRepositoryUrl()) + HabushuUtil.addTrailingSlash(publishToPyPiRepoMojo.getDevRepositoryUrlUploadSuffix());
+            repoUrl = HabushuUtil.addTrailingSlash(publishToPyPiRepoMojo.getDevRepositoryUrl());
+            if(publishToPyPiRepoMojo.enableDevRepositoryUrlUploadSuffix()) {
+                repoUrl +=  HabushuUtil.addTrailingSlash(publishToPyPiRepoMojo.getDevRepositoryUrlUploadSuffix());
+            }
         } else if (!StringUtils.isEmpty(publishToPyPiRepoMojo.getPypiUploadSuffix())) {
             repoUrl += HabushuUtil.addTrailingSlash(publishToPyPiRepoMojo.getPypiUploadSuffix());
         }

@@ -1,0 +1,80 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.technologybrewery.habushu</groupId>
+        <artifactId>examples</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+    </parent>
+
+    <name>habushu::Examples::Build an uv Package</name>
+    <description>Example of how to use the habushu-maven-plugin</description>
+
+    <artifactId>habushu-uv-devrepository-package</artifactId>
+    <packaging>habushu</packaging>
+
+    <dependencies>
+        <!-- NB: workaround to trigger build cache invalidation when a new SNAPSHOT is available-->
+        <!-- This dependency is required specifically to build the examples in this repo -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>habushu-maven-plugin</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <directory>dist</directory>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.technologybrewery.habushu</groupId>
+                    <artifactId>habushu-maven-plugin</artifactId>
+                    <version>${project.version}</version>
+                    <configuration>
+                        <managedDependencies>
+                            <packageDefinition>
+                                <packageName>krausening</packageName>
+                                <operatorAndVersion>>=20</operatorAndVersion>
+                                <!-- optional - active is true by default:-->
+                                <active>true</active>
+                            </packageDefinition>
+                        </managedDependencies>
+                        <enableDevRepositoryUrlUploadSuffix>true</enableDevRepositoryUrlUploadSuffix>
+                        <devRepositoryUrlUploadSuffix>legacy/</devRepositoryUrlUploadSuffix>
+                        <deleteVirtualEnv>true</deleteVirtualEnv>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.technologybrewery.habushu</groupId>
+                <artifactId>habushu-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>net.masterthought</groupId>
+                <artifactId>maven-cucumber-reporting</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>integration-test</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.technologybrewery.habushu</groupId>
+                        <artifactId>habushu-maven-plugin</artifactId>
+                        <configuration>
+                            <!-- Demonstrates how different sets of environment variables may
+                                be injected into the virtual environment when executing tests through behave -->
+                            <behaveOptions>-D environment=integration_test --tags integration_test</behaveOptions>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

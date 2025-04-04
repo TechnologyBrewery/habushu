@@ -169,7 +169,7 @@ public abstract class AbstractInstallDependencies {
 
     protected String getPublishUrl(String repoUrl, boolean isDevRepository) {
         String repositoryUrl = HabushuUtil.addTrailingSlash(repoUrl);
-        if (isDevRepository) {
+        if (isDevRepository && installDependenciesMojo.enableDevRepositoryUrlUploadSuffix()) {
             repositoryUrl += HabushuUtil.addTrailingSlash(installDependenciesMojo.getDevRepositoryUrlUploadSuffix());
         } else if(!StringUtils.isEmpty(installDependenciesMojo.getPypiUploadSuffix())) {
             repositoryUrl += HabushuUtil.addTrailingSlash(installDependenciesMojo.getPypiUploadSuffix());
