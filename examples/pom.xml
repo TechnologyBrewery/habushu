@@ -13,6 +13,14 @@
 
     <name>habushu::Examples</name>
 
+    <modules>
+        <module>poetry</module>
+        <module>uv</module>
+        <module>habushu-managed-dependencies</module>
+        <module>habushu-default-python-strategy</module>
+        <module>habushu-running-python-scripts</module>
+    </modules>
+
     <build>
         <pluginManagement>
             <plugins>
@@ -66,21 +74,5 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <profiles>
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>poetry</module>
-                <module>uv</module>
-                <module>habushu-managed-dependencies</module>
-                <module>habushu-default-python-strategy</module>
-                <module>habushu-running-python-scripts</module>
-            </modules>
-        </profile>
-    </profiles>
 
 </project>
