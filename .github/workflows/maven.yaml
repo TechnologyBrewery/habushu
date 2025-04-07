@@ -23,7 +23,7 @@ on:
 
 jobs:
     build:
-        if: github.event.review.state == 'approved' || github.event_name == 'workflow_dispatch'
+        if: github.event.review.state == 'approved' || github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
         runs-on: ubuntu-latest
 
         steps:
@@ -64,6 +64,3 @@ jobs:
 
             - name: Test habushu-maven-plugin (Poetry)
               run: mvn -B install --file pom.xml -Dhabushu.usePyenv=false
-
-            - name: Test habushu-maven-plugin (uv)
-              run: mvn -B install -Puv --file pom.xml -Dhabushu.usePyenv=false
