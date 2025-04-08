@@ -2,7 +2,6 @@ package org.technologybrewery.habushu;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
@@ -139,7 +138,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     @Parameter(property = "habushu.devRepositoryId", defaultValue = DEV_PYPI_REPO_ID)
     protected String devRepositoryId;
 
-    /**
+    /**f
      * Specifies the URL of the PyPI repository to which this project's dev
      * archives will be published and/or used as a supplemental repository from which
      * dependencies may be installed. This property is <b>REQUIRED</b> if publishing
@@ -378,9 +377,9 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
 
         PackageManager packageManagerType = HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile());
         if (PackageManager.POETRY.equals(packageManagerType)) {
-            helper = new PoetryCommandHelper(getPythonProjectBaseDir());
+            helper = createPoetryCommandHelper();
         } else {
-            helper = new UvCommandHelper(getPythonProjectBaseDir());
+            helper = createUvCommandHelper();
         }
         return helper;
     }
@@ -472,6 +471,13 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     protected File getPyProjectTomlFile() {
         return new File(getPythonProjectBaseDir(), "pyproject.toml");
+    }
+
+    /**
+     * @return TEST_PYPI_REPOSITORY_URL
+     */
+    public String getTestPyPiRepositoryUrl() {
+        return TEST_PYPI_REPOSITORY_URL;
     }
 
 

@@ -1,0 +1,65 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.technologybrewery.habushu</groupId>
+        <artifactId>uv</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+    </parent>
+
+    <name>habushu::Examples::uv::Install from Development Repository</name>
+    <description>Example of how to use Habushu to install a dependency from a development repository</description>
+
+    <artifactId>habushu-uv-install-from-dev-repo</artifactId>
+    <packaging>habushu</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.masterthought</groupId>
+            <artifactId>cucumber-reporting</artifactId>
+        </dependency>
+        <!-- NB: workaround to trigger build cache invalidation when a new SNAPSHOT is available-->
+        <!-- This dependency is required specifically to build the examples in this repo -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>habushu-maven-plugin</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <directory>dist</directory>
+        <plugins>
+            <plugin>
+                <groupId>org.technologybrewery.habushu</groupId>
+                <artifactId>habushu-maven-plugin</artifactId>
+                <!-- See habushu/examples/pom.xml for additional plugin configuration details -->
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>install-example</id>
+            <build>
+                <directory>dist</directory>
+                <plugins>
+                    <plugin>
+                        <groupId>org.technologybrewery.habushu</groupId>
+                        <artifactId>habushu-maven-plugin</artifactId>
+                        <version>${project.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <useDevRepository>true</useDevRepository>
+                            <devRepositoryId>private-repo</devRepositoryId>
+                            <!-- Leave off simple/ suffix to enable seamless upload and download capabilities -->
+                            <devRepositoryUrl>http://127.0.0.1:8080/</devRepositoryUrl>
+                            <enableDevRepositoryUrlUploadSuffix>false</enableDevRepositoryUrlUploadSuffix>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

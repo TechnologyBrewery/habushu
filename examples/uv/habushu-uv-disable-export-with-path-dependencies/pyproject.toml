@@ -1,5 +1,5 @@
 [project]
-name = "habushu-export-requirements-with-path-dependencies"
+name = "habushu-uv-disable-export-with-path-dependencies"
 version = "3.0.0.dev"
 description = "This example demonstrates how to disable the exportRequirementsWithoutPathDependencies configuration in a uv project."
 readme = "README.md"

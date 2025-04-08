@@ -42,7 +42,7 @@ public interface CommandHelper {
      * @param arguments list of arguments for commands
      * @param environmentVariables list of environment variable for the command
      */
-    void executeAndLogOutput(List<String> arguments, Map<String, String> environmentVariables);
+    int executeAndLogOutput(List<String> arguments, Map<String, String> environmentVariables);
 
     /**
      * Similar to {@link #executeAndLogOutput(List)}, except the executed
@@ -72,7 +72,7 @@ public interface CommandHelper {
      * @param messageToDisplay message to display after timeout has occurred
      * @return executed results
      */
-    Integer executePackageManagerCommandAndLogAfterTimeout(List<String> arguments, int timeout,
+    Integer executeAndLogAfterTimeout(List<String> arguments, int timeout,
                                                                   TimeUnit timeUnit, String messageToDisplay);
 
     /**

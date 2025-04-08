@@ -104,29 +104,6 @@ public class UvCommandHelper extends AbstractCommandHelper {
         execute(Arrays.asList("add", packageName, "--group", "dev"));
     }
 
-    public List<String> createLockCommand(boolean skipUvLockRefresh, boolean skipUvCheck) {
-        List<String> arguments = new ArrayList<>();
-        arguments.add("lock");
-
-        if (!skipUvLockRefresh) {
-            arguments.add("--refresh");
-        }
-
-        if (!skipUvCheck) {
-            arguments.add("--check");
-        }
-        
-        return arguments;
-    }
-
-    public List<String> createSyncCommand() {
-        List<String> arguments = new ArrayList<>();
-
-        arguments.add("sync");
- 
-        return arguments;
-    }
-
     public List<String> createToolRunCommand(List<String> additionalArguments) {
         List<String> arguments = new ArrayList<>();
         arguments.add("tool");
@@ -148,12 +125,12 @@ public class UvCommandHelper extends AbstractCommandHelper {
         }
     }
 
-    public String executePythonPinCommand(String targetVersion) {
+    public void executePythonPinCommand(String targetVersion) {
         List<String> arguments = new ArrayList<>();
         arguments.add("python");
         arguments.add("pin");
         arguments.add(targetVersion);
-        return execute(arguments);
+        execute(arguments);
     }
 
     private String getMatchedPattern(Pattern pattern, String stringToSearch) {
@@ -164,5 +141,4 @@ public class UvCommandHelper extends AbstractCommandHelper {
         }
         return stringMatchingPattern;
     }
-
 }

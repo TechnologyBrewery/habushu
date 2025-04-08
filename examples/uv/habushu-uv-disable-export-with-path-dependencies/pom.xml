@@ -12,7 +12,7 @@
     <name>habushu::Examples::uv::Disable exportRequirementsWithoutPathDependencies</name>
     <description>This example demonstrates how to disable the exportRequirementsWithoutPathDependencies configuration in a uv project</description>
 
-    <artifactId>habushu-uv-export-with-path-dependencies</artifactId>
+    <artifactId>habushu-uv-disable-export-with-path-dependencies</artifactId>
 
     <!-- set the Maven module packaging to habushu-->
     <!-- This allows us to build this uv project via the `mvn install` or `mvnd install` commands -->
