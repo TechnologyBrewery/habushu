@@ -1,0 +1,24 @@
+# Habushu
+> A Maven plugin integrating Python projects into Maven builds for consistent, repeatable workflows.
+
+## Overview
+- Purpose: Enables virtual environment-based Python projects to be built within `Maven`, leveraging `Poetry`,`Pyenv` and `uv` for dependency management and automation.
+- License: MIT License
+- Organization: Technology Brewery
+
+## Core Documentation
+- [README](https://github.com/TechnologyBrewery/habushu/blob/dev/README.md): Main project details and setup instructions.
+- [Blog Post](https://codifyiq.substack.com/p/habushu-supporting-python-in-polyglot): Explains benefits in polyglot monorepos using Habushu.
+- [Example Projects](https://github.com/TechnologyBrewery/habushu/tree/dev/examples): Example projects
+
+## Key Features
+- Automates `Python` build lifecycle with `Poetry`/`uv` conventions.
+- Supports private PyPI repositories for dependency management.
+- Integrates with Maven for unified builds in mixed-language projects.
+
+## Usage
+- Install: Add `<groupId>org.technologybrewery.habushu</groupId><artifactId>habushu-maven-plugin</artifactId>` to your Maven POM.
+
+## Repository
+- [Source](https://github.com/TechnologyBrewery/habushu): Full codebase and examples.
+- Latest Version: 2.18.1 (as of last update) with 3.0.0 being released soon and adding `uv` and improved Poetry 2.0+ support.
