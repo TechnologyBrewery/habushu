@@ -18,10 +18,9 @@
         <module>habushu-poetry-add-to-project</module>
         <module>habushu-poetry-package</module>
         <module>habushu-poetry-package-consumer</module>
-        <!--        <module>habushu-managed-dependencies</module>-->
-        <!--        <module>habushu-default-python-strategy</module>-->
-        <!--        <module>habushu-running-python-scripts</module>-->
         <module>habushu-poetry-containerize</module>
+        <module>habushu-poetry-publish-to-dev-repo</module>
+        <module>habushu-poetry-install-from-dev-repo</module>
     </modules>
 
     <build>
@@ -45,6 +44,14 @@
                             </configuration>
                         </execution>
                     </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.technologybrewery.habushu</groupId>
+                    <artifactId>habushu-maven-plugin</artifactId>
+                    <configuration>
+                        <!-- Setting to false due to a poetry 2.0+ issue with this plugin-->
+                        <exportRequirementsWithoutPathDependencies>false</exportRequirementsWithoutPathDependencies>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

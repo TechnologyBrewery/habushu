@@ -20,7 +20,7 @@ This example demonstrates how to configure and use Habushu to install dependenci
 - **Secure and Reliable**: Supports encrypted credentials for accessing private repositories, ensuring secure installations.
 
 ## Prerequisites 
-- Complete the [Habushu uv Publish to Development Repository] example.
+- Complete the [Habushu uv Publish to Development Repository](../habushu-uv-publish-to-dev-repo) example.
 - Uncomment the `"habushu-uv-publish-to-dev-repo"` dependency in the `./pyproject.toml`.
 
 ## Habushu Configuration

@@ -5,14 +5,14 @@
 
     <parent>
         <groupId>org.technologybrewery.habushu</groupId>
-        <artifactId>uv</artifactId>
+        <artifactId>poetry</artifactId>
         <version>3.0.0-SNAPSHOT</version>
     </parent>
 
-    <name>habushu::Examples::uv::Publish to Development Repository</name>
+    <name>habushu::Examples::Poetry::Publish to Development Repository</name>
     <description>Example of how to use Habushu to publish to a development repository</description>
 
-    <artifactId>habushu-uv-publish-to-dev-repo</artifactId>
+    <artifactId>habushu-poetry-publish-to-dev-repo</artifactId>
     <packaging>habushu</packaging>
 
     <build>

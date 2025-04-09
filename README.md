@@ -760,8 +760,11 @@ configuration options.
 - [Poetry Version Enforcement](./examples/poetry/habushu-poetry-enforcer-rule/README.md) - Enforcing specific version or version ranges of Poetry
 - [Habushu's build lifecycle in a Poetry project](/examples/poetry/habushu-poetry-package/README.md) - Outlines the maven commands for the build lifecycle of Poetry project
 - [Poetry Package Consumer](/examples/poetry/habushu-poetry-package-consumer/README.md) - Consume another Poetry package from within the same monorepo structure using Habushu
+- Configure Habushu to use private repository for installation and/or publication of packages:
+  - [Publish to Development Repository](./examples/poetry/habushu-poetry-publish-to-dev-repo/README.md)
+  - [Install from Development Repository](./examples/poetry/habushu-poetry-install-from-dev-repo/README.md)
 
-- *uv-Specific Examples*
+*uv-Specific Examples*
 - [Add Habushu to an uv Project](examples/uv/habushu-uv-add-to-project/README.md) - Add Habushu to an uv project
 - [Containerizing dependencies with uv](./examples/uv/habushu-uv-containerize/README.md) - Containerizes dependencies
   in a Docker container
