@@ -80,6 +80,7 @@ public class UvCommandHelper extends AbstractCommandHelper {
      * @return
      */
     public void updatePythonVersion(String targetVersion) {
+        useUVToEnsurePythonVersionIsInstalled(targetVersion);
         executePythonPinCommand(targetVersion);
     }
 
@@ -131,6 +132,18 @@ public class UvCommandHelper extends AbstractCommandHelper {
         arguments.add("pin");
         arguments.add(targetVersion);
         execute(arguments);
+    }
+
+    /**
+     * Ensures the target version of Python is installed by calling uv venv
+     * @param targetVersion the requested version of Python to install
+     */
+    public void useUVToEnsurePythonVersionIsInstalled(String targetVersion) {
+        try {
+            execute(Arrays.asList("venv", "-p", targetVersion));
+        } catch (Throwable e) {
+            throw new HabushuException("UV could not install the desired version of python", e);
+        }
     }
 
     private String getMatchedPattern(Pattern pattern, String stringToSearch) {
