@@ -2,8 +2,6 @@ package org.technologybrewery.habushu.migration;
 
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.file.FileConfig;
-import com.vdurmont.semver4j.Semver;
-import com.vdurmont.semver4j.Semver.SemverType;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +18,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 
 /**
@@ -35,7 +32,6 @@ public class CustomPoetrycoreVersionMigration extends AbstractHabushuMigration {
     public static final Logger logger = LoggerFactory.getLogger(CustomPoetrycoreVersionMigration.class);
     protected Map<String, TomlReplacementTuple> replacements = new HashMap<>();
     private boolean isPoetryCoreVersionUpdateRequired;
-    private static final String POETRY_CORE_REQUIRED_VERSION = PoetryUtil.POETRY_CORE_VERSION_REQUIREMENT.substring(1);
 
     @Override
     protected boolean shouldExecuteOnFile(File file) {
@@ -49,7 +45,7 @@ public class CustomPoetrycoreVersionMigration extends AbstractHabushuMigration {
                     Map<String, Object> dependencyMap = buildSystem.valueMap();
                     for (Map.Entry<String, Object> dependency : dependencyMap.entrySet()) {
                         // check if we need to upgrade the poetry-core version.
-                        if(isPoetrycoreUpgradeRequired(dependency)) {
+                        if(isPoetryCoreUpgradeRequired(dependency)) {
                             shouldExecute = true;
                         }
                     }
@@ -61,36 +57,23 @@ public class CustomPoetrycoreVersionMigration extends AbstractHabushuMigration {
 
     @Override
     protected boolean performMigration(File pyProjectTomlFile) {
-        String fileContent = StringUtils.EMPTY;
+        StringBuilder fileContent = new StringBuilder(StringUtils.EMPTY);
         try (BufferedReader reader = new BufferedReader(new FileReader(pyProjectTomlFile))) {
             String line = reader.readLine();
             while (line != null) {
                 if (line.contains(StringUtils.SPACE) && line.contains(TomlUtils.EQUALS)) {
-                    String key = line.substring(0, line.indexOf(StringUtils.SPACE));
-                    if (key == null) {
-                        key = line.substring(0, line.indexOf(TomlUtils.EQUALS));
-                    } else {
-                        key = key.strip();
-                        TomlReplacementTuple matchedTuple = replacements.get(key);
-                        if ((matchedTuple != null) && (line.contains(TomlUtils.POETRY_CORE)) && (line.contains(TomlUtils.EQUALS))) {
-                            // update the poetry-core version if required.
-                            StringBuilder stringBuilder = new StringBuilder(line);
+                    TomlReplacementTuple matchedTuple = getTomlReplacementTuple(line);
+                    if (isAPythonCoreRequirement(matchedTuple, line)) {
+                        // update the poetry-core version if required.
+                        StringBuilder stringBuilder = new StringBuilder(line);
 
-                            if(isPoetryCoreVersionUpdateRequired){
-                                int versionIndex = line.lastIndexOf(TomlUtils.EQUALS) + 1;
-                                int endVersionIndex = line.lastIndexOf(TomlUtils.DOT) + 2;
-                                //This case will only occur when:
-                                // requires = ["poetry-core>=1"] where there is no dot after 1
-                                if(line.lastIndexOf(TomlUtils.DOT) == -1){
-                                    endVersionIndex = versionIndex + 1;
-                                }
-                                line = stringBuilder.replace(versionIndex, endVersionIndex, POETRY_CORE_REQUIRED_VERSION).toString();
-                                logger.info("Updating poetry-core version to {}.", POETRY_CORE_REQUIRED_VERSION);
-                            }
+                        if(isPoetryCoreVersionUpdateRequired){
+                            line = substituteWithDefaultPoetryCoreRequirement(matchedTuple, line, stringBuilder);
+                            logger.info("Updating poetry-core version to {}.", PoetryUtil.POETRY_CORE_VERSION_REQUIREMENT);
                         }
                     }
                 }
-                fileContent += line + "\n";
+                fileContent.append(line).append("\n");
                 line = reader.readLine();
             }
 
@@ -99,67 +82,77 @@ public class CustomPoetrycoreVersionMigration extends AbstractHabushuMigration {
         }
 
         try {
-            TomlUtils.writeTomlFile(pyProjectTomlFile, fileContent);
+            TomlUtils.writeTomlFile(pyProjectTomlFile, fileContent.toString());
         } catch (IOException e) {
             throw new BatonException("Problem while writing dependencies to TomlFile while updating the build-system's Poetry-core version!", e);
         }
         return true;
     }
 
-    private boolean isPoetrycoreUpgradeRequired(Map.Entry<String, Object> dependency) {
+    private TomlReplacementTuple getTomlReplacementTuple(String line) {
+        String key = line.substring(0, line.indexOf(StringUtils.SPACE));
+        key = key.strip();
+        return replacements.get(key);
+    }
+
+    private static String substituteWithDefaultPoetryCoreRequirement(TomlReplacementTuple matchedTuple, String line, StringBuilder stringBuilder) {
+        String originalOpAndVer = matchedTuple.getOriginalOperatorAndVersion();
+
+        int versionIndex = line.indexOf(originalOpAndVer);
+        int endVersionIndex = versionIndex + originalOpAndVer.length();
+        line = stringBuilder.replace(
+                versionIndex,
+                endVersionIndex,
+                matchedTuple.getUpdatedOperatorAndVersion()
+        ).toString();
+        return line;
+    }
+
+    private static boolean isAPythonCoreRequirement(TomlReplacementTuple matchedTuple, String line) {
+        return (matchedTuple != null) && (line.contains(TomlUtils.POETRY_CORE)) && TomlUtils.hasComparators(line);
+    }
+
+    private boolean isPoetryCoreUpgradeRequired(Map.Entry<String, Object> dependency) {
         String packageName = dependency.getKey();
-        Semver poetryCoreSemVerWithPatch;
 
         if (packageName.equals(TomlUtils.REQUIRES)) {
             String dependencyVal = dependency.getValue().toString();
-            if (dependencyVal.contains(TomlUtils.POETRY_CORE) && dependencyVal.contains(TomlUtils.EQUALS)) {
-                String poetrycoreVerFromToml = dependencyVal.substring(TomlUtils.getIndexOfFirstDigit(dependencyVal), TomlUtils.getIndexOfLastDigit(dependencyVal));
-                String poetrycoreVer = formatSemVerString(poetrycoreVerFromToml);
-                Semver poetryCoreSemVer = new Semver(poetrycoreVerFromToml, SemverType.NPM);
-                Semver poetryCoreSemVerReqVersion =  new Semver(POETRY_CORE_REQUIRED_VERSION, SemverType.NPM);
+            if (dependencyVal.contains(TomlUtils.POETRY_CORE) && TomlUtils.hasComparators(dependencyVal)) {
+                String poetryCoreVerFromToml = TomlUtils.getVersionRequirementsWithoutPackageName(dependencyVal);
+                if (poetryCoreVerFromToml == null) {
+                    throw new HabushuException( new StringBuilder()
+                            .append("Unable to parse given semantic versioning constraints of ")
+                            .append(TomlUtils.REQUIRES).append(" section in ").append(TomlUtils.BUILD_SYSTEM)
+                            .append(" of file ").append(TomlUtils.PYPROJECT_TOML).toString()
+                    );
+                }
 
-                if(poetryCoreSemVer.isLowerThan(poetryCoreSemVerReqVersion)){
+                PoetryCoreRequirement providedPoetryCoreRange = PoetryCoreRequirement
+                        .buildHabushu(poetryCoreVerFromToml);
+
+                PoetryCoreRequirement requiredPoetryCoreRange = PoetryCoreRequirement
+                        .buildHabushu(PoetryUtil.POETRY_CORE_VERSION_REQUIREMENT);
+
+                if(!requiredPoetryCoreRange.isEncompassedBy(providedPoetryCoreRange)){
                     isPoetryCoreVersionUpdateRequired = true;
-                    TomlReplacementTuple replacementTuple = new TomlReplacementTuple(packageName, poetrycoreVer, getUpdatedOperatorAndVersion());
+                    TomlReplacementTuple replacementTuple = new TomlReplacementTuple(
+                            packageName,
+                            poetryCoreVerFromToml,
+                            PoetryUtil.POETRY_CORE_VERSION_REQUIREMENT
+                    );
+
                     replacements.put(packageName, replacementTuple);
-                    logger.info("Found build-system's poetry-core version : {} less than the required version for Habushu. It will be updated to the required version of {}.", poetrycoreVer, POETRY_CORE_REQUIRED_VERSION);
+                    logger.info(
+                            "Found build-system's poetry-core version requirements :" +
+                            " {} less than the required version for Habushu." +
+                            " It will be updated to include the required version of {}.",
+                            providedPoetryCoreRange,
+                            PoetryUtil.POETRY_CORE_VERSION_REQUIREMENT
+                    );
                     return true;
                 }
             }
         }
         return false;
-    }
-
-    /**
-     * Converts a major.minor version to major.minor.patch version
-     * @param poetryCoreVer
-     * @return String formatted in semantic version format
-     */
-    private String formatSemVerString(String poetryCoreVer){
-
-        String formattedString = "0.0.0";
-
-        //Adding a zero if patch version is missing.
-        // Will be corrected to the right patch version in performMigration method
-        if (Pattern.matches("\\d", poetryCoreVer)) {
-            formattedString = poetryCoreVer + ".0.0";
-        } else if (Pattern.matches("\\d\\.\\d", poetryCoreVer)) {
-            formattedString = poetryCoreVer + ".0";
-        } else if (Pattern.matches("\\d\\.\\d\\.\\d", poetryCoreVer)) {
-            formattedString = poetryCoreVer;
-        }
-
-        return formattedString;
-    }
-
-    /**
-     * This method will the PoetryUtil POETRY_CORE_VERSION_REQUIREMENT to
-     * get the value and create an updatedOperatorAndVersion. Until this change
-     * it was being hard coded. Refactoring so only one change is needed in PoetryUtil
-     * when a new version is used
-     * @return a string of updatedOperatorAndVersion
-     */
-    private String getUpdatedOperatorAndVersion(){
-        return "poetry-core>="+POETRY_CORE_REQUIRED_VERSION;
     }
 }

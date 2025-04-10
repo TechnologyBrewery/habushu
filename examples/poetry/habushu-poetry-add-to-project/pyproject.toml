@@ -18,7 +18,7 @@ kappa-maki = "^1.0.2"
 ruff = ">=0.9.9"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 # Added by habushu-maven-plugin at 2025-02-25T15:38:56.068690 to use https://test.pypi.org/simple/ as source PyPi repository for installing dependencies
