@@ -13,19 +13,6 @@ dependencies = []
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-# Added by habushu-maven-plugin at 2025-04-07T11:48:27.694046 to use https://pypi.org/simple/ as source repository for installing dependencies
-[[tool.uv.index]]
-name = "pypi"
-url = "https://pypi.org/simple/"
-publish-url = "https://pypi.org/simple/"
-
-# Added by habushu-maven-plugin at 2025-04-07T11:48:27.696486 to use http://127.0.0.1:8080/simple/ as source PyPi repository for installing dependencies
-[[tool.uv.index]]
-name = "private-repo"
-url = "http://127.0.0.1:8080/simple/"
-publish-url = "http://127.0.0.1:8080/"
-priority = "supplemental"
-
 [tool.ruff.format]
 indent-style="space"
 line-ending="lf"
@@ -36,9 +23,15 @@ dev = [
     "ruff>=0.11.4",
 ]
 
-# Added by habushu-maven-plugin at 2025-04-08T10:17:04.753895 to use https://test.pypi.org/simple/ as source PyPi repository for installing dependencies
+# Added by habushu-maven-plugin at 2025-04-09T10:43:11.846365 to use https://pypi.org/simple/ as source repository for installing dependencies
 [[tool.uv.index]]
-name = "dev-pypi"
-url = "https://test.pypi.org/simple/"
-publish-url = "https://test.pypi.org/legacy/"
-priority = "supplemental"
+name = "pypi"
+url = "https://pypi.org/simple/"
+publish-url = "https://pypi.org/simple/"
+
+
+# Added by habushu-maven-plugin at 2025-04-09T10:47:56.854887 to use http://127.0.0.1:8080/simple/ as source PyPi repository for installing dependencies
+[[tool.uv.index]]
+name = "private-repo"
+url = "http://127.0.0.1:8080/simple/"
+publish-url = "http://127.0.0.1:8080/"

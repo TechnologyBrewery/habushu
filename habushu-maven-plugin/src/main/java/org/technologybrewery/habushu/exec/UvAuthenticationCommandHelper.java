@@ -182,7 +182,7 @@ public class UvAuthenticationCommandHelper extends AbstractCommandHelper {
         String uvIndexPasswordEnvironmentVariable = getUvIndexPasswordEnvironmentVariable(repoId);
 
         if (username==null && password==null) {
-            throw new HabushuException("Your credentials for " + repoId + " must be set in your ~/.m2/settings.xml" +
+            throw new HabushuException("Your credentials for " + repoId + " must be set in your ~/.m2/settings.xml. " +
                     "Visit the Publish to Development Repository and Install from Development Repository uv examples for additional configuration details.");
         } else {
             credentials.put(uvIndexUsernameEnvironmentVariable, username);

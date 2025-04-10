@@ -99,14 +99,7 @@ public class InstallDependenciesUv extends AbstractInstallDependencies {
     }
 
     private void prepareDefaultRepositoryForInstallation() {
-        String pypiRepoSimpleIndexUrl;
-        try {
-            pypiRepoSimpleIndexUrl = getPyPiRepoSimpleIndexUrl(PUBLIC_PYPI_REPO_URL);
-        } catch (URISyntaxException e) {
-            throw new HabushuException(
-                    String.format("Could not parse configured repoUrl %s", PUBLIC_PYPI_REPO_URL), e);
-        }
-        Config matchingPypiRepoIndexConfig = getMatchingPypiRepoIndexConfig(PYPROJECT_PACKAGE_INDEX_PATH, pypiRepoSimpleIndexUrl);
+        Config matchingPypiRepoIndexConfig = getMatchingPypiRepoIndexConfig(PYPROJECT_PACKAGE_INDEX_PATH, PUBLIC_PYPI_REPO_URL);
 
         if (!matchingPypiRepoIndexConfig.isEmpty()) {
             if (log.isDebugEnabled()) {
@@ -120,7 +113,7 @@ public class InstallDependenciesUv extends AbstractInstallDependencies {
             // Therefore, if we need to specify supplemental sources, we need to populate default ( or explicit) source first.
             List<String> defaultPypiRepoIndexConfig = Arrays.asList(System.lineSeparator(), String.format(
                             "# Added by habushu-maven-plugin at %s to use %s as source repository for installing dependencies",
-                            LocalDateTime.now(), pypiRepoSimpleIndexUrl),
+                            LocalDateTime.now(), PUBLIC_PYPI_REPO_URL),
                     String.format("[[%s]]", PYPROJECT_PACKAGE_INDEX_PATH),
                     String.format("name = \"%s\"", HabushuUtil.PUBLIC_PYPI_REPO_ID),
                     String.format("url = \"%s\"", PUBLIC_PYPI_REPO_URL),
@@ -290,5 +283,10 @@ public class InstallDependenciesUv extends AbstractInstallDependencies {
      */
     protected UvAuthenticationCommandHelper createUvAuthenticationCommandHelper() {
         return new UvAuthenticationCommandHelper(baseDir, null, installDependenciesMojo);
+    }
+
+    @Override
+    protected boolean shouldAddPriority() {
+        return false;
     }
 }

@@ -122,7 +122,7 @@ and Maven Build Cache Configuration. All require manual action to enable.
 #### Maven Build Directory Customization ####
 Update Maven's build configuration to point to the `dist` directory for output in the pom file for each Habushu module:
 ```xml
-    <build>
+<build>
     <directory>dist</directory>
     ...
 </build>
@@ -191,7 +191,7 @@ All Habushu configurations may be set either via the `habushu-maven-plugin`'s `<
 1. Plugin `<configuration>`
 
 ```xml
-	<plugin>
+<plugin>
     <groupId>org.technologybrewery.habushu</groupId>
     <artifactId>habushu-maven-plugin</artifactId>
     <extensions>true</extensions>
@@ -210,7 +210,7 @@ mvn clean install -Dhabushu.pythonVersion=3.12.9
 3. POM properties
 
 ```xml
-	<properties>
+<properties>
     <habushu.pythonVersion>3.12.9</habushu.pythonVersion>
 </properties>
 ```
@@ -324,7 +324,7 @@ If this property is **not** specified, this property will default to `pypi` and 
 This property will typically be specified as a command line option during the `deploy` lifecycle phase.  For example, given the following configuration in the utilized `settings.xml`:
 
 ```xml
-    <server>
+<server>
     <id>private-pypi-repo</id>
     <username>pypi-repo-username</username>
     <password>{encrypted-pypi-repo-password}</password>
@@ -345,7 +345,7 @@ Specifies the URL of the private PyPI repository to which this project's archive
 If the Habushu project depends on internal packages that may only be found on a private PyPI repository, developers should specify this property through the plugin's `<configuration>` definition:
 
 ```xml
-	<plugin>
+<plugin>
     <groupId>org.technologybrewery.habushu</groupId>
     <artifactId>habushu-maven-plugin</artifactId>
     <extensions>true</extensions>
@@ -357,15 +357,21 @@ If the Habushu project depends on internal packages that may only be found on a 
 
 Default: None
 
+#### enablePypiSimpleSuffix ####
+
+Determines whether to append the path to the simple index relative to the given PyPi repository URL.
+
+Default: `true`
+
 #### pypiSimpleSuffix ####
 
-Specifies the path to the simple index relative to the pypiRepoUrl.  Certain private repository solutions use non-standard paths (ie: devpi uses `+simple`).
+Specifies the path to the simple index relative to the `pypiRepoUrl`.  Certain private repository solutions use non-standard paths (ie: devpi uses `+simple`). `enablePypiSimpleSuffix` must be set to `true` to enable usage.
 
 Default: `simple`
 
 #### pypiUploadSuffix ####
 
-Specifies the path to the upload index relative to the pypiRepoUrl.  Certain private repository solutions use
+Specifies the path to the upload index relative to the `pypiRepoUrl`.  Certain private repository solutions use
 non-standard paths.
 
 Default: None
@@ -413,7 +419,7 @@ This property will typically be specified as a command line option during the `d
 given the following configuration in the utilized `settings.xml`:
 
 ```xml
-    <server>
+<server>
     <id>dev-pypi</id>
     <username>pypi-repo-username</username>
     <password>{encrypted-pypi-repo-password}</password>
@@ -438,7 +444,7 @@ If the Habushu project depends on internal packages that may only be found on a 
 developers should specify this property through the plugin's `<configuration>` definition:
 
 ```xml
-	<plugin>
+<plugin>
     <groupId>org.technologybrewery.habushu</groupId>
     <artifactId>habushu-maven-plugin</artifactId>
     <extensions>true</extensions>
@@ -451,7 +457,7 @@ Default: `https://test.pypi.org`
 
 #### enableDevRepositoryUrlUploadSuffix ####
 
-enables whether to append the path to the upload index relative to the devRepositoryUrl.
+Enables whether to append the path to the upload index relative to the `devRepositoryUrl`.
 
 Default: `true`
 
@@ -812,13 +818,11 @@ the `habushu-maven-plugin`, a single build may be used to build `habushu-maven-p
 * `mvnd clean install -Pdefault`: (ACTIVE BY DEFAULT - `-Pdefault` does not need to be specified) builds all modules.  Developers may use this profile to build and apply changes to existing `habushu-maven-plugin` `Mojo` classes
 
 ## Poetry v2.0.0+ Changes ##
-When on Poetry v2.0.0 and later, Baton migrations will automatically run on all `pyproject.toml` files in your Habushu project.
-This update introduces three migrations that ensure configurations are more in line with [PEP 621](https://peps.python.org/pep-0621/). 
+When on Poetry v2.0.0 and later, Baton migrations will automatically run on all `pyproject.toml` and `poetry.toml` files in your Habushu project.
+This update introduces a number of migrations that ensure configurations are more in line with [PEP 621](https://peps.python.org/pep-0621/).
 - `PoetryToProjectMigration`: Adds `[project]` section into TOML file and moves relevant fields from `[tool.poetry]` to `[project]`
 - `PoetryToProjectRequiresPythonMigration`: Relocates the Python dependency from `[tool.poetry.dependencies]` to the `requires-python` entry under `[project]`
 - `PoetryToProjectDynamicMigration`: Introduces a `dynamic` field under `[project]` that automatically includes `version` and `dependency`, if not already present. If a single `readme` (as a string) is included in `[tool.poetry]`, then migrates it from `[tool.poetry]` to `[project]`. If multiple `readme` values are defined (as a table) in `[tool.poetry]`, `readme` is added to the `dynamic` field list.
+- `PoetryTomlMigration`: Removes deprecated configurations from the `poetry.toml` file
 
 **Note:** Baton migrations are forward compatible only. If you upgrade to Poetry v2.0+ and later decide to downgrade, you will need to manually revert the changes in your TOML files.
-
-
-

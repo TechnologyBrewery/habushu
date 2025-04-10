@@ -300,4 +300,8 @@ public class InstallDependenciesPoetry extends AbstractInstallDependencies {
         return toolPoetryGroupSections;
     }
 
+    @Override
+    protected boolean shouldAddPriority() {
+        return true;
+    }
 }
