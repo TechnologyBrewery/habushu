@@ -4,4 +4,3 @@
 
 Additional configurations: `dockerPoetryVersion`, `dockerPoetryPluginBundleVersion`,
 `dockerPoetryMonorepoDependencyPluginVersion`, and `dockerfileTemplatePoetry`
-

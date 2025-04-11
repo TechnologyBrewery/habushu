@@ -14,15 +14,6 @@
     <artifactId>habushu-managed-dependencies</artifactId>
     <packaging>habushu</packaging>
 
-    <dependencies>
-        <!-- NB: workaround to trigger build cache invalidation when a new SNAPSHOT is available-->
-        <!-- This dependency is required specifically to build the examples in this repo -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>habushu-maven-plugin</artifactId>
-        </dependency>
-    </dependencies>
-
     <build>
         <directory>dist</directory>
         <plugins>
@@ -43,14 +34,6 @@
                     <updateManagedDependenciesWhenFound>false</updateManagedDependenciesWhenFound>
                     <!-- This would force a build failure when encountered a version not aligned: -->
                     <failOnManagedDependenciesMismatches>false</failOnManagedDependenciesMismatches>
-                    <useDevRepository>true</useDevRepository>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>net.masterthought</groupId>
-                <artifactId>maven-cucumber-reporting</artifactId>
-                <configuration>
-                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>

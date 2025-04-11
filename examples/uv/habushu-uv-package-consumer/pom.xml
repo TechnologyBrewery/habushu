@@ -16,16 +16,6 @@
 
     <build>
         <directory>dist</directory>
-        <plugins>
-            <plugin>
-                <groupId>org.technologybrewery.habushu</groupId>
-                <artifactId>habushu-maven-plugin</artifactId>
-                <configuration>
-                    <!-- Temporarily setting to false until the uv-monorepo-dependency-tool is released -->
-                    <rewriteLocalPathDepsInArchives>false</rewriteLocalPathDepsInArchives>
-                </configuration>
-            </plugin>
-        </plugins>
     </build>
 
     <dependencies>

@@ -21,7 +21,7 @@ This example demonstrates how to configure and use Habushu to install dependenci
 
 ## Prerequisites
 - Complete the [Habushu Poetry Publish to Development Repository](../habushu-poetry-publish-to-dev-repo) example.
-- Uncomment lines 11 and 24 in the `./pyproject.toml`.
+- Uncomment the `"habushu-poetry-publish-to-dev-repo"` dependencies in the `./pyproject.toml`.
 
 ## Habushu Configuration
 Follow the instructions in the Habushu Poetry Publish to Development Repository's [Example Setup](../habushu-poetry-publish-to-dev-repo/README.md#example-setup) through the [Update your pom.xml](../habushu-poetry-publish-to-dev-repo/README.md#update-your-pomxml) sections. In this example, the following configuration is located in the `install-example` profile. Outside the `habushu` repository, you can save this configuration in the `build` section of your project/module's `pom.xml` file.

@@ -18,25 +18,10 @@
     <!-- This allows us to build this Poetry project via the `mvn install` or `mvnd install` commands -->
     <packaging>habushu</packaging>
 
-    <dependencies>
-        <!-- NB: workaround to trigger build cache invalidation when a new SNAPSHOT is available-->
-        <!-- This dependency is required specifically to build the examples in this repo -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>habushu-maven-plugin</artifactId>
-        </dependency>
-    </dependencies>
-
     <build>
-        <!-- See the Maven Build Directory Customization section of the habushu/README.md for details -->
         <directory>dist</directory>
-        <plugins>
-            <plugin>
-                <groupId>org.technologybrewery.habushu</groupId>
-                <artifactId>habushu-maven-plugin</artifactId>
-                <!-- See habushu/examples/pom.xml for additional plugin configuration details -->
-            </plugin>
-        </plugins>
+        <!-- habushu-maven-plugin is inherited and activated via the examples/pom.xml -->
+        <!-- See the Maven Build Directory Customization section of the habushu/README.md for details -->
     </build>
 
 </project>
