@@ -14,11 +14,11 @@
     <name>habushu::Examples</name>
 
     <modules>
-        <module>poetry</module>
-        <module>uv</module>
         <module>habushu-managed-dependencies</module>
         <module>habushu-default-python-strategy</module>
         <module>habushu-running-python-scripts</module>
+        <module>poetry</module>
+        <module>uv</module>
     </modules>
 
     <build>
@@ -34,11 +34,9 @@
                     which is required for the plugin to function -->
                     <extensions>true</extensions>
                     <configuration>
-                        <pythonVersion>${version.python.default}</pythonVersion>
                         <!-- Skips any scenarios tagged with @integration-test - these will
                             be executed via the "integration-test" Maven profile -->
                         <behaveOptions>--tags ~integration_test</behaveOptions>
-                        <useDevRepository>true</useDevRepository>
                     </configuration>
                 </plugin>
                 <plugin>

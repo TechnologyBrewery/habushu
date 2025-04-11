@@ -1,0 +1,33 @@
+[project]
+name = "habushu-poetry-publish-to-dev-repo"
+version = "3.0.0.dev"
+description = "Example of how to use Habushu to publish to a development repository"
+authors = [
+    {name = "Margaret Black",email = "black_margaret@bah.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+]
+dynamic = ["version", "dependencies"]
+
+[tool.poetry]
+packages = [{include = "habushu_poetry_publish_to_dev_repo", from = "src"}]
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.11.4"
+
+[build-system]
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff.format]
+indent-style="space"
+line-ending="lf"
+quote-style="preserve"
+
+# Added by habushu-maven-plugin at 2025-04-09T12:53:27.609351 to use http://127.0.0.1:8080/simple/ as source PyPi repository for installing dependencies
+[[tool.poetry.source]]
+name = "private-repo"
+url = "http://127.0.0.1:8080/simple/"
+priority = "supplemental"

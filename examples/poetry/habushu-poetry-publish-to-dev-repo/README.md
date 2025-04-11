@@ -1,6 +1,6 @@
 [[Return to Main Documentation]](../../../README.md)
 
-# Habushu uv Publish to Development Repository
+# Habushu Poetry Publish to Development Repository
 
 ## Overview
 
@@ -58,7 +58,7 @@ When the project is built, Habushu will push the packaged module to the configur
 ### Example Setup
 This section is required purely to execute this example. If you already have a private repository, you can skip this section.
 
-#### Install Required Packages 
+#### Install Required Packages
 The `pypiserver` and `passlib` packages are required to execute this example.
 ```bash
 pip install pypiserver passlib
@@ -82,7 +82,7 @@ pypi-server run -p 8080 -a update,download,list --passwords ~/.htpasswd ~/privat
 ````
 
 ### Save your Development Repository Credentials in Maven
-Encrypt the password you chose by running `mvn --encrypt-password <your-password>`. For example, 
+Encrypt the password you chose by running `mvn --encrypt-password <your-password>`. For example,
 
 ```bash
 % mvn --encrypt-password password
@@ -103,15 +103,14 @@ Then update your `~/.m2/settings.xml`.
 In this example, the following configuration is located in the `deploy-example` profile. Outside the `habushu` repository, you can save this configuration in the `build` section of your project/module's `pom.xml` file.
 
 ```xml
- <configuration>
+<configuration>
     <useDevRepository>true</useDevRepository>
     <devRepositoryId>private-repo</devRepositoryId>
-
     <!-- Leave off simple/ suffix to enable seamless upload and download capabilities -->
     <devRepositoryUrl>http://127.0.0.1:8080/</devRepositoryUrl>
     <enableDevRepositoryUrlUploadSuffix>false</enableDevRepositoryUrlUploadSuffix>
- </configuration>
+</configuration>
 ```
 
 ### Build the project
-To publish this package/module to the development repository, run  `mvn clean deploy -pl :habushu-uv-publish-to-dev-repo -Pdeploy-example` from the root directory.
+To publish this package/module to the development repository, run `mvn clean deploy -pl :habushu-poetry-publish-to-dev-repo -Pdeploy-example` from the root directory.

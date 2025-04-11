@@ -1,0 +1,36 @@
+[project]
+name = "habushu-poetry-install-from-dev-repo"
+version = "3.0.0.dev"
+description = ""
+authors = [
+    {name = "Margaret Black",email = "black_margaret@bah.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+#    "habushu-poetry-publish-to-dev-repo"
+]
+dynamic = ["version", "dependencies"]
+
+[tool.poetry]
+packages = [{include = "habushu_poetry_install_from_dev_repo", from = "src"}]
+
+[[tool.poetry.source]]
+name = "private-repo"
+url = "http://127.0.0.1:8080/simple/"
+priority = "supplemental"
+
+[tool.poetry.dependencies]
+#habushu-poetry-publish-to-dev-repo = {source = "private-repo"}
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.11.4"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff.format]
+indent-style="space"
+line-ending="lf"
+quote-style="preserve"
