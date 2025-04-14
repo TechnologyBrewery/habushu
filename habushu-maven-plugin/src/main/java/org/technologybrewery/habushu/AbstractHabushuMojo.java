@@ -184,17 +184,11 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     protected MavenProject project;
 
     /**
-     * Indicates whether Habushu should leverage the
-     * {@code poetry-monorepo-dependency-plugin} or the
-     * {@code uv-monorepo-dependency-plugin} (<- todo) to rewrite any local path
+     * Indicates whether Habushu should rewrite any local path
      * dependencies (to other Poetry/uv projects) as versioned packaged dependencies in
-     * generated wheel/sdist archives. If {@code true}, Habushu will replace
-     * invocations of Poetry/uv's {@code build} and {@code publish} commands in the
-     * {@link BuildDeploymentArtifactsMojo} and {@link PublishToPyPiRepoMojo} with
-     * the extensions of those commands exposed by the
-     * {@code poetry-monorepo-dependency-plugin}/{@code uv-monorepo-dependency-plugin}, which are
-     * {@code build-rewrite-path-deps} and {@code publish-rewrite-path-deps}
-     * respectively.
+     * generated wheel/sdist archives. If {@code true}, Habushu will use the commands
+     * provided by the {@code poetry-monorepo-dependency-plugin} or the
+     * {@code uv-monorepo-dependency-tool} in Poetry or uv projects, respectively.
      * <p>
      * Typically, this flag will only be {@code true} when deploying/releasing
      * Habushu modules within a CI environment that are part of a monorepo project

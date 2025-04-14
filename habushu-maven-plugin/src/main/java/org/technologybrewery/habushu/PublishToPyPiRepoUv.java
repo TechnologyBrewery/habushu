@@ -129,7 +129,6 @@ public class PublishToPyPiRepoUv extends AbstractPublishToPyPiRepo {
             publishToRepoWithCredsArgs.add(new ImmutablePair<>(password, true));
         }
 
-        //TODO: we will implement publish-rewrite-path-deps once uv-monorepo-plugin supports it.
         String publishCommand = "publish";
 
         log.info(String.format("Publishing archives to %s",
@@ -138,9 +137,18 @@ public class PublishToPyPiRepoUv extends AbstractPublishToPyPiRepo {
         if (!publishToRepoWithCredsArgs.isEmpty()) {
             publishToRepoWithCredsArgs.add(0, new ImmutablePair<>(publishCommand, false));
             if (rebuildPackage) {
-                log.info("rebuilding uv before publishing PyPi repository...");
-                String buildCommand = "build";
-                uvCommandHelper.executeAndLogOutput(List.of(buildCommand));
+                log.info("Rebuilding uv before publishing PyPi repository...");
+                if (publishToPyPiRepoMojo.isRewriteLocalPathDepsInArchives()) {
+                    List<String> buildCommand = new ArrayList<>();
+                    buildCommand.add("uv-monorepo-dependency-tool");
+                    buildCommand.add("build-rewrite-path-deps");
+                    log.info("Building source and wheel archives with uv-monorepo-dependency-tool...");
+                    uvCommandHelper.executeAndLogOutput(uvCommandHelper.createToolRunCommand(buildCommand));
+                } else {
+                    log.info("Building source and wheel archives...");
+                    uvCommandHelper.executeAndLogOutput(Arrays.asList("build"));
+                }
+
             }
         } else {
             log.warn(String.format(

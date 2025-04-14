@@ -1,0 +1,43 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.technologybrewery.habushu</groupId>
+        <artifactId>uv</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+    </parent>
+
+    <name>habushu::Examples::uv::Consume a Local Package</name>
+    <description>Example of how to use the habushu-maven-plugin to consume other Habushu modules</description>
+
+    <artifactId>habushu-uv-package-consumer</artifactId>
+    <packaging>habushu</packaging>
+
+    <build>
+        <directory>dist</directory>
+        <plugins>
+            <plugin>
+                <groupId>org.technologybrewery.habushu</groupId>
+                <artifactId>habushu-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Temporarily setting to false until the uv-monorepo-dependency-tool is released -->
+                    <rewriteLocalPathDepsInArchives>false</rewriteLocalPathDepsInArchives>
+                    <!-- TODO: Setting to false until we add the export-without-path-deps to the uv-monorepo-dependency-tool -->
+                    <exportRequirementsWithoutPathDependencies>false</exportRequirementsWithoutPathDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <!-- Specify habushu-uv-package as a dependency so that this module's build is dependent upon it -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>habushu-uv-package</artifactId>
+            <version>${project.version}</version>
+            <type>habushu</type>
+        </dependency>
+    </dependencies>
+
+</project>

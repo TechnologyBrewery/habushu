@@ -21,6 +21,8 @@ In order to use Habushu, the following prerequisites must be installed:
 
 * Maven 3.9+ or mvnd 1.0.2+
 * Java 11+
+
+If you would like to use Habushu with Poetry-based projects, you must install:
 * [Poetry 1.5+](https://python-poetry.org/)
 * [Pyenv](https://github.com/pyenv/pyenv)
 
@@ -30,6 +32,7 @@ If you would like to use Habushu with uv-based projects, you must install:
 Additionally, Habushu may install and manage:
 
 * [poetry-monorepo-dependency-plugin](https://pypi.org/project/poetry-monorepo-dependency-plugin/) for Poetry-based projects
+* [uv-monorepo-dependency-tool](https://pypi.org/project/uv-monorepo-dependency-tool/) for uv-based projects
 
 ## Usage ##
 
@@ -234,7 +237,7 @@ Default: `true`
 
 When `pythonVersion` is not explicitly specified, this strategy helps decide where to get the default version. If set to 
 `PYTHONVERSION`, then Habushu will use the existing project's Python version. If set to `POM`, then Habushu will use 
-the default value for `pythonVerion`
+the default value for `pythonVersion`
 
 Default: `PYTHONVERSION`
 
@@ -299,15 +302,9 @@ Default: None
 
 #### rewriteLocalPathDepsInArchives ####
 
-Enables the use of the [poetry-monorepo-dependency-plugin](https://pypi.org/project/poetry-monorepo-dependency-plugin/) to rewrite
-any local path dependencies (to other Poetry projects) as versioned packaged dependencies in generated `wheel`/`sdist` archives. If `true`,
-Habushu will replace invocations of Poetry's `build` and `publish` commands with the extensions of those commands exposed by the
-`poetry-monorepo-dependency-plugin`, which are `build-rewrite-path-deps` and `publish-rewrite-path-deps`, respectively.
-
-To further ease working with monorepo dependencies, Habushu will specially handle how these dependencies are written to
-intermediate `requirements.txt` exports.  In this case, the dependencies will be excluded from the export unless
-`rewriteLocalPathDepsInArchives` is set to true.  This feature can be useful if installing the exported
-`requirements.txt` on another machine and/or Docker container.
+Rewrites any local path dependencies (to other projects with a `[project.version]` within the `pyproject.toml`) as versioned packaged dependencies in generated `wheel` archives.
+For Poetry projects, Habushu uses the [poetry-monorepo-dependency-plugin]()'s `build-rewrite-path-deps` and `publish-rewrite-path-deps` commands in place of Poetry's `build` and `publish` commands, respectively.
+For uv projects, Habushu uses the [uv-monorepo-dependency-tool]()'s `build-rewrite-path-deps` command in place of uv's `build` command.
 
 Typically, this flag will only be `true` when deploying/releasing Habushu modules within a CI environment that are part of a monorepo project
 structure which multiple Poetry projects depend on one another.
@@ -653,6 +650,10 @@ Default: `${project.basedir}/target`
 
 Controls whether locally pathed dependencies should be excluded from the requirements.txt export file.
 
+For Poetry projects, Habushu uses the [poetry-monorepo-dependency-plugin]()'s `export-without-path-deps` commands in place of Poetry's `export` command.
+
+[//]: # (TODO: For uv projects, Habushu uses the [uv-monorepo-dependency-tool]&#40;&#41;'s `export-without-path-deps` commands in place of uv's `export` command.)
+
 Default: `true`
 
 #### outputCucumberStyleTestReports ####
@@ -770,10 +771,14 @@ configuration options.
   in a Docker container
 - [Disable exportRequirementsWithoutPathDependencies](examples/uv/habushu-uv-disable-export-with-path-dependencies/README.md) - Disable the `exportRequirementsWithoutPathDependencies` default configuration
 - [uv Version Enforcement](examples/uv/habushu-uv-enforcer-rule/README.md) - Enforcing specific version or version ranges of uv
+- [Habushu's build lifecycle in an uv project](./examples/uv/habushu-uv-package/README.md) - Outlines the maven commands for the build lifecycle of an uv project
+- [uv Package Consumer](/examples/uv/habushu-uv-package-consumer/README.md)
+  - Consumes another uv package from within the same monorepo structure using Habushu
+  - Enables the `rewriteLocalPathDepsInArchives` configuration
 - Configure Habushu to use private repository for installation and/or publication of packages:
   - [Publish to Development Repository](./examples/uv/habushu-uv-publish-to-dev-repo/README.md)
   - [Install from Development Repository](./examples/uv/habushu-uv-install-from-dev-repo/README.md)
-- [Habushu's build lifecycle in an uv project](./examples/uv/habushu-uv-package/README.md) - Outlines the maven commands for the build lifecycle of an uv project
+
 
 ### Maven Reactor Integration ###
 Optionally, Habushu supports partial builds via the Maven Reactor. This allows functionality such as `-rf` (resume from)
