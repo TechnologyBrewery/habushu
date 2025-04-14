@@ -64,10 +64,6 @@
         <!-- This dependency is required specifically to build the examples in this repo -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>habushu-maven-plugin</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>habushu-poetry-package</artifactId>
             <version>${project.version}</version>
             <type>habushu</type>

@@ -17,12 +17,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>habushu-maven-plugin</artifactId>
-        </dependency>
-        <dependency>
             <groupId>${parent.groupId}</groupId>
-            <artifactId>habushu-poetry-add-to-project</artifactId>
+            <artifactId>habushu-poetry-package-consumer</artifactId>
             <version>${parent.version}</version>
             <type>habushu</type>
         </dependency>

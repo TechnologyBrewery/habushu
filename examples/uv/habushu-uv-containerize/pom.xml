@@ -17,12 +17,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>habushu-maven-plugin</artifactId>
-        </dependency>
-        <dependency>
             <groupId>${parent.groupId}</groupId>
-            <artifactId>habushu-uv-add-to-project</artifactId>
+            <artifactId>habushu-uv-package-consumer</artifactId>
             <version>${parent.version}</version>
             <type>habushu</type>
         </dependency>
