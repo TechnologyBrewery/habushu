@@ -5,7 +5,6 @@ import com.vdurmont.semver4j.Semver.SemverType;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.technologybrewery.habushu.exec.UvCommandHelper;
 import org.technologybrewery.habushu.util.UvUtil;
@@ -90,7 +89,9 @@ public class UvSetup extends AbstractPythonPackageAndDependencyManagerSetup {
      */
     @Override
     public void finalizePythonPackageAndDependencyManagerConfiguration() {
-        // Currently no monorepo dependency plugin to install
+        if (rewriteLocalPathDepsInArchives) {
+            installUvMonorepoDependencyTool();
+        }
     }
 
     /**
@@ -117,5 +118,10 @@ public class UvSetup extends AbstractPythonPackageAndDependencyManagerSetup {
      */
     protected UvCommandHelper createUvCommandHelper() {
         return new UvCommandHelper(baseDir);
+    }
+
+    private void installUvMonorepoDependencyTool() {
+        UvCommandHelper uvHelper = createUvCommandHelper();
+        uvHelper.executeToolInstallCommand("uv-monorepo-dependency-tool@latest");
     }
 }

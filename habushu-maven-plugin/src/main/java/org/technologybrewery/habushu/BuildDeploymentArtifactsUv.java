@@ -32,15 +32,16 @@ public class BuildDeploymentArtifactsUv extends AbstractBuildDeploymentArtifacts
 
         UvCommandHelper uvCommandHelper =  new UvCommandHelper(baseDir);
 
-        String buildCommand;
-        String buildLogMessage;
-        //TODO: rewriteLocalPathDepsInArchives Implementation shall be available once uv-monorepo-dependency-plugin is implemented.
-        buildCommand = "build";
-        buildLogMessage = "Building source and wheel archives...";
-
-        log.info(buildLogMessage);
-        uvCommandHelper.executeAndLogOutput(Arrays.asList(buildCommand));
-
+        if (buildDeploymentArtifactsMojo.rewriteLocalPathDepsInArchives()) {
+            List<String> buildCommand = new ArrayList<>();
+            buildCommand.add("uv-monorepo-dependency-tool");
+            buildCommand.add("build-rewrite-path-deps");
+            log.info("Building source and wheel archives with uv-monorepo-dependency-tool...");
+            uvCommandHelper.executeAndLogOutput(uvCommandHelper.createToolRunCommand(buildCommand));
+        } else {
+            log.info("Building source and wheel archives...");
+            uvCommandHelper.executeAndLogOutput(Arrays.asList("build"));
+        }
 
         if (buildDeploymentArtifactsMojo.exportRequirementsFile()) {
             log.info("Exporting requirements.txt file...");

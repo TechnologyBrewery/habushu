@@ -105,6 +105,14 @@ public class UvCommandHelper extends AbstractCommandHelper {
         execute(Arrays.asList("add", packageName, "--group", "dev"));
     }
 
+    public void executeToolInstallCommand(String argument) {
+        List<String> arguments = new ArrayList<>();
+        arguments.add("tool");
+        arguments.add("install");
+        arguments.add(argument);
+        executeAndLogOutput(arguments);
+    }
+
     public List<String> createToolRunCommand(List<String> additionalArguments) {
         List<String> arguments = new ArrayList<>();
         arguments.add("tool");
