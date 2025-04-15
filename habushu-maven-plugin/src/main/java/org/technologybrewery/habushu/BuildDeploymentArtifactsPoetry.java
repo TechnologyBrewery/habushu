@@ -55,7 +55,7 @@ public class BuildDeploymentArtifactsPoetry extends AbstractBuildDeploymentArtif
             }
 
             List<String> command = new ArrayList<>();
-            command.add(buildDeploymentArtifactsMojo.exportRequirementsWithoutPathDependencies() ? "export-without-path-deps" : "export");
+            command.add("export");
             command.add("--output");
             String outputFile = buildDeploymentArtifactsMojo.getExportRequirementsFolder() + "/requirements.txt";
             command.add(outputFile);

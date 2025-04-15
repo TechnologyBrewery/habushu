@@ -48,10 +48,6 @@
                 <plugin>
                     <groupId>org.technologybrewery.habushu</groupId>
                     <artifactId>habushu-maven-plugin</artifactId>
-                    <configuration>
-                        <!-- Setting to false due to a poetry 2.0+ issue with this plugin-->
-                        <exportRequirementsWithoutPathDependencies>false</exportRequirementsWithoutPathDependencies>
-                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

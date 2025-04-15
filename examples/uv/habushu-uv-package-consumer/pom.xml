@@ -23,8 +23,6 @@
                 <configuration>
                     <!-- Temporarily setting to false until the uv-monorepo-dependency-tool is released -->
                     <rewriteLocalPathDepsInArchives>false</rewriteLocalPathDepsInArchives>
-                    <!-- TODO: Setting to false until we add the export-without-path-deps to the uv-monorepo-dependency-tool -->
-                    <exportRequirementsWithoutPathDependencies>false</exportRequirementsWithoutPathDependencies>
                 </configuration>
             </plugin>
         </plugins>

@@ -59,9 +59,7 @@ public class BuildDeploymentArtifactsUv extends AbstractBuildDeploymentArtifacts
             // By default, uv includes the development dependency group in the exported requirements file.
             // Disabling this feature as we don't need this capability in a containerization setting
             command.add("--no-dev");
-            if (buildDeploymentArtifactsMojo.exportRequirementsWithoutPathDependencies()) {
-                command.add("--no-sources");
-            }
+
             command.add("--output-file");
             String outputFile = buildDeploymentArtifactsMojo.getExportRequirementsFolder() + "/requirements.txt";
             command.add(outputFile);

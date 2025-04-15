@@ -19,7 +19,6 @@
         <module>habushu-uv-package</module>
         <module>habushu-uv-package-consumer</module>
         <module>habushu-uv-containerize</module>
-        <module>habushu-uv-disable-export-with-path-dependencies</module>
         <module>habushu-uv-publish-to-dev-repo</module>
         <module>habushu-uv-install-from-dev-repo</module>
     </modules>

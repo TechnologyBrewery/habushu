@@ -47,9 +47,6 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
     @Parameter(property = "habushu.exportRequirementsWithHashes", required = false, defaultValue = "true")
     protected boolean exportRequirementsWithHashes;
 
-    @Parameter(property = "habushu.exportRequirementsWithoutPathDependencies", required = false, defaultValue = "true")
-    protected boolean exportRequirementsWithoutPathDependencies;
-
     /**
      * By default, export to the dist folder to be included with the build archive.
      */
@@ -88,10 +85,6 @@ public class BuildDeploymentArtifactsMojo extends AbstractHabushuMojo {
 
     public boolean exportRequirementsWithHashes() {
         return exportRequirementsWithHashes;
-    }
-
-    public boolean exportRequirementsWithoutPathDependencies() {
-        return exportRequirementsWithoutPathDependencies;
     }
 
     public String getExportRequirementsFolder() {
