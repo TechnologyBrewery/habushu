@@ -648,13 +648,7 @@ Default: `${project.basedir}/target`
 
 #### exportRequirementsWithoutPathDependencies ####
 
-Controls whether locally pathed dependencies should be excluded from the requirements.txt export file.
-
-For Poetry projects, Habushu uses the [poetry-monorepo-dependency-plugin]()'s `export-without-path-deps` commands in place of Poetry's `export` command.
-
-[//]: # (TODO: For uv projects, Habushu uses the [uv-monorepo-dependency-tool]&#40;&#41;'s `export-without-path-deps` commands in place of uv's `export` command.)
-
-Default: `true`
+Deprecated. Use the `containerize-dependencies` goal instead. See the [Containerize README](./examples/CONTAINERIZE_README.md) for details.
 
 #### outputCucumberStyleTestReports ####
 
@@ -769,7 +763,6 @@ configuration options.
 - [Add Habushu to an uv Project](examples/uv/habushu-uv-add-to-project/README.md) - Add Habushu to an uv project
 - [Containerizing dependencies with uv](./examples/uv/habushu-uv-containerize/README.md) - Containerizes dependencies
   in a Docker container
-- [Disable exportRequirementsWithoutPathDependencies](examples/uv/habushu-uv-disable-export-with-path-dependencies/README.md) - Disable the `exportRequirementsWithoutPathDependencies` default configuration
 - [uv Version Enforcement](examples/uv/habushu-uv-enforcer-rule/README.md) - Enforcing specific version or version ranges of uv
 - [Habushu's build lifecycle in an uv project](./examples/uv/habushu-uv-package/README.md) - Outlines the maven commands for the build lifecycle of an uv project
 - [uv Package Consumer](/examples/uv/habushu-uv-package-consumer/README.md)
