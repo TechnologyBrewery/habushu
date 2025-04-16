@@ -11,7 +11,7 @@ COPY --chown=1001 target/containerize-support ./containerize-support/
 RUN find . -type f -name pyproject.toml -exec sed -i 's|develop[[:blank:]]*=[[:blank:]]*true|develop = false|g' {} \;
 
 USER root
-WORKDIR /work-dir/containerize-support/examples/poetry/habushu-poetry-add-to-project
+WORKDIR /work-dir/containerize-support/examples/poetry/habushu-poetry-package-consumer
 ENV POETRY_CACHE_DIR="/.cache/pypoetry"
 # Export target project's virtual environment to /opt/venv
 RUN --mount=type=cache,target=${POETRY_CACHE_DIR} \

@@ -173,35 +173,44 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      */
     protected Path stageHabushuProjects(Path sourceRoot, ProjectCollectionResult projectCollection) throws IOException {
         Path destRoot = getStagingPath();
-        Path primaryProjectPath = null;
+
+        MavenProject primaryProject = projectCollection.getPrimaryProject();
+        if (primaryProject == null) {
+            throwNoPrimaryProjectError(getProject());
+        }
+        Path primaryProjectPath = sourceRoot.relativize(
+                projectCollection.getPrimaryProject().getBasedir().toPath()
+        );
+
+        manager = HabushuUtil.checkPythonPackageManager(
+                new File(
+                        sourceRoot.resolve(primaryProjectPath).toString(),
+                        TomlUtils.PYPROJECT_TOML
+                )
+        );
 
 
         for (MavenProject project : projectCollection.getAllProjects()) {
             Path projectPath = project.getBasedir().toPath();
             Path relativeProjectPath = sourceRoot.relativize(projectPath);
-            if (project.equals(projectCollection.getPrimaryProject())) {
-                primaryProjectPath = relativeProjectPath;
-                manager = HabushuUtil.checkPythonPackageManager(
-                        new File(
-                                sourceRoot.resolve(primaryProjectPath).toString(),
-                                TomlUtils.PYPROJECT_TOML
-                        )
-                );
-            }
-
             FileSet sourceFileSet = getSourceSet();
+
             sourceFileSet.setDirectory(projectPath.toString());
             stageSourcesForProject(sourceRoot, destRoot, sourceFileSet, relativeProjectPath);
         }
         if( primaryProjectPath == null ) {
-            String habushuDependency = getProjectHabushuDependencies(getProject()).toString().split(":")[1];
-            StringBuilder message = new StringBuilder()
-                    .append("Habushu project to containerize was not included in the provided projects (-pl).")
-                    .append(" Ensure the Habushu project is in the build and the POM dependencies are configured correctly.")
-                    .append(String.format("%n Add :%s to project build scope to resolve", habushuDependency));
-            throw new HabushuException(message.toString());
+            throwNoPrimaryProjectError(getProject());
         }
         return primaryProjectPath;
+    }
+
+    private void throwNoPrimaryProjectError(MavenProject project) {
+        String habushuDependency = getProjectHabushuDependencies(project).toString().split(":")[1];
+        StringBuilder message = new StringBuilder()
+                .append("Habushu project to containerize was not included in the provided projects (-pl).")
+                .append(" Ensure the Habushu project is in the build and the POM dependencies are configured correctly.")
+                .append(String.format("%n Add :%s to project build scope to resolve", habushuDependency));
+        throw new HabushuException(message.toString());
     }
 
     /**
