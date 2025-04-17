@@ -1,6 +1,6 @@
-[[Return to Main Documentation]](../../../README.md)
+[[Return to Examples Documentation]](../../README.md)
 
-# Habushu Poetry Install From Development Repository
+# Install Package From Development Repository
 
 ## Overview
 

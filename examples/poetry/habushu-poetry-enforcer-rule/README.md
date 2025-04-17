@@ -1,11 +1,11 @@
-[[Return to Main Documentation]](../../../README.md)
+[[Return to Examples Documentation]](../../README.md)
 
-#### Poetry Enforcer Rule ####
+# Poetry Version Enforcement
 
 Habushu supports a broad range of Poetry versions, however, projects will often want to norm on a specific version or
 version range. For instance, 2.x `pyproject.toml` formats are generally not compatible for versions of Poetry less
 than 2.x. The Maven Enforcer is a well established approach to ensuring minimum environmental constraints are met
-during builds. Rather than build our own approach, we have created Maven Enforcer Rule that can be applied to your
+during builds. Rather than build our own approach, we have created Maven Enforcer Rule, [requirePoetryVersion](../../../docs/CONFIGURATION_README.md#requirepoetryversion), that can be applied to your
 project for Poetry versions.
 
 ```xml
@@ -41,11 +41,3 @@ project for Poetry versions.
     </dependencies>
 </plugin>
 ```
-
-#### requirePoetryVersion ####
-
-The **REQUIRED** rule name to use with the Maven Enforcer Plugin to validate Poetry versions.
-
-#### version ####
-
-The **REQUIRED** version or version range Poetry must have to pass the Enforcer check. 

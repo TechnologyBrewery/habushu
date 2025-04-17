@@ -15,6 +15,15 @@
 
     <build>
         <directory>dist</directory>
+        <plugins>
+            <plugin>
+                <groupId>org.technologybrewery.habushu</groupId>
+                <artifactId>habushu-maven-plugin</artifactId>
+                <configuration>
+                    <rewriteLocalPathDepsInArchives>true</rewriteLocalPathDepsInArchives>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <profiles>
@@ -26,22 +35,7 @@
                         <groupId>org.technologybrewery.habushu</groupId>
                         <artifactId>habushu-maven-plugin</artifactId>
                         <configuration>
-                            <!-- Use this profile to test specific tagged tests -->
-                            <behaveOptions>--tags ${tags}</behaveOptions>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>ci</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.technologybrewery.habushu</groupId>
-                        <artifactId>habushu-maven-plugin</artifactId>
-                        <configuration>
-                            <rewriteLocalPathDepsInArchives>true</rewriteLocalPathDepsInArchives>
+                            <behaveExcludeManualTag>false</behaveExcludeManualTag>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -50,6 +44,7 @@
     </profiles>
 
     <dependencies>
+        <!-- Specify habushu-poetry-package as a dependency so that this module's build is dependent upon it -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>habushu-poetry-package</artifactId>

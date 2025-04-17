@@ -1,6 +1,6 @@
-[[Return to Main Documentation]](../../../README.md)
+[[Return to Examples Documentation]](../../README.md)
 
-# Habushu uv Package Consumer
+# uv Package Consumer
 
 ## Overview
 
@@ -10,10 +10,8 @@ monorepo environment, with particular focus on seamless development workflows.
 
 ## Key Features
 
-- **Implicit Version Handling**: Habushu automatically manages versioning between development and release versions,
-  eliminating the need for manual version updates during development cycles.
 - **Local Path References**: During development, the package uses local path references to the `habushu-uv-package`,
-  enabling real-time code changes to be immediately reflected without requiring reinstallation.
+  enabling real-time code changes to be immediately reflected without requiring re-installation.
 - **Monorepo Integration**: Leverages the `uv-monorepo-dependency-tool` to maintain consistent dependency
   management across the monorepo.
 - **Development Mode**: Uses uv's `editable = true` flag to create an editable installation, perfect for active
@@ -66,12 +64,3 @@ This project demonstrates several Habushu features:
         </configuration>
     </plugin>
    ```
-   
-## Benefits
-
-- **Simplified Development**: Make changes to `habushu-uv-package` and immediately see the effects in this consumer
-  package without re-installation.
-- **Consistent Versioning**: Habushu handles version resolution automatically, ensuring consistency across the monorepo.
-- **Seamless Transitions**: Easily switch between development and release modes without changing dependency configurations.
-- **Reduced Maintenance**: No need to manually update version numbers across multiple packages during development.
-
