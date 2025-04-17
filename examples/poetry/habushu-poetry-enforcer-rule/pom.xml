@@ -14,19 +14,6 @@
     <artifactId>habushu-poetry-enforcer-rule</artifactId>
     <packaging>pom</packaging>
 
-    <dependencies>
-        <dependency>
-            <groupId>net.masterthought</groupId>
-            <artifactId>cucumber-reporting</artifactId>
-        </dependency>
-        <!-- NB: workaround to trigger build cache invalidation when a new SNAPSHOT is available-->
-        <!-- This dependency is required specifically to build the examples in this repo -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>habushu-maven-plugin</artifactId>
-        </dependency>
-    </dependencies>
-
     <build>
         <directory>dist</directory>
         <plugins>

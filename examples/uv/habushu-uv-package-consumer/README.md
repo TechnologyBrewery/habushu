@@ -59,11 +59,11 @@ This project demonstrates several Habushu features:
 2. **rewriteLocalPathDepsInArchives**: Rewrites any local path dependencies (to other projects with a `[project.version]` within the `pyproject.toml`) as versioned packaged dependencies in generated `wheel`/`sdist` archives.
    ```xml
     <plugin>
-    <groupId>org.technologybrewery.habushu</groupId>
-    <artifactId>habushu-maven-plugin</artifactId>
-    <configuration>
-        <rewriteLocalPathDepsInArchives>true</rewriteLocalPathDepsInArchives>
-    </configuration>
+        <groupId>org.technologybrewery.habushu</groupId>
+        <artifactId>habushu-maven-plugin</artifactId>
+        <configuration>
+            <rewriteLocalPathDepsInArchives>true</rewriteLocalPathDepsInArchives>
+        </configuration>
     </plugin>
    ```
    

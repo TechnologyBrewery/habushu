@@ -15,16 +15,6 @@
 
     <build>
         <directory>dist</directory>
-        <plugins>
-            <plugin>
-                <groupId>org.technologybrewery.habushu</groupId>
-                <artifactId>habushu-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>net.masterthought</groupId>
-                <artifactId>maven-cucumber-reporting</artifactId>
-            </plugin>
-        </plugins>
     </build>
 
     <profiles>
@@ -60,17 +50,11 @@
     </profiles>
 
     <dependencies>
-        <!-- NB: workaround to trigger build cache invalidation when a new SNAPSHOT is available-->
-        <!-- This dependency is required specifically to build the examples in this repo -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>habushu-poetry-package</artifactId>
             <version>${project.version}</version>
             <type>habushu</type>
-        </dependency>
-        <dependency>
-            <groupId>net.masterthought</groupId>
-            <artifactId>cucumber-reporting</artifactId>
         </dependency>
     </dependencies>
 

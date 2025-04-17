@@ -17,9 +17,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>${parent.groupId}</groupId>
+            <groupId>${project.parent.groupId}</groupId>
             <artifactId>habushu-poetry-package-consumer</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
             <type>habushu</type>
         </dependency>
     </dependencies>
@@ -50,7 +50,6 @@
                 <artifactId>docker-maven-plugin</artifactId>
             </plugin>
         </plugins>
-
     </build>
 
 </project>

@@ -24,10 +24,3 @@ indent-width = 4
 indent-style="space"
 line-ending="lf"
 quote-style="preserve"
-
-
-# Added by habushu-maven-plugin at 2025-03-12T16:30:58.712573 to use https://test.pypi.org/simple/ as source PyPi repository for installing dependencies
-[[tool.poetry.source]]
-name = "dev-pypi"
-url = "https://test.pypi.org/simple/"
-priority = "supplemental"

@@ -8,6 +8,7 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+#    UNCOMMENT TO ENABLE FUNCTIONAL EXAMPLE
 #    "habushu-poetry-publish-to-dev-repo"
 ]
 dynamic = ["version", "dependencies"]
@@ -21,6 +22,7 @@ url = "http://127.0.0.1:8080/simple/"
 priority = "supplemental"
 
 [tool.poetry.dependencies]
+#    UNCOMMENT TO ENABLE FUNCTIONAL EXAMPLE
 #habushu-poetry-publish-to-dev-repo = {source = "private-repo"}
 
 [tool.poetry.group.dev.dependencies]

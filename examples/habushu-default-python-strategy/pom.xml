@@ -20,16 +20,6 @@
         <version.python.default/>
     </properties>
 
-    <dependencies>
-        <!-- NB: workaround to trigger build cache invalidation when a new SNAPSHOT is available-->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>habushu-maven-plugin</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
     <build>
         <directory>dist</directory>
         <plugins>
@@ -42,13 +32,6 @@
                     <defaultPythonStrategy>PYTHONVERSION</defaultPythonStrategy>
                     <!-- This will tell Habushu to overriding the existing projects with the default Python version -->
                     <!--<defaultPythonStrategy>POM</defaultPythonStrategy>-->
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>net.masterthought</groupId>
-                <artifactId>maven-cucumber-reporting</artifactId>
-                <configuration>
-                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>

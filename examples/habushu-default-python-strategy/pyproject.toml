@@ -20,12 +20,6 @@ ruff = ">=0.9.9"
 requires = ["poetry-core>=1.6.0"]
 build-backend = "poetry.core.masonry.api"
 
-# Added by habushu-maven-plugin at 2024-05-06T17:43:13.504546 to use https://test.pypi.org/simple/ as source PyPi repository for installing dependencies
-[[tool.poetry.source]]
-name = "dev-pypi"
-url = "https://test.pypi.org/simple/"
-priority = "supplemental"
-
 [tool.ruff.format]
 indent-style="space"
 line-ending="lf"

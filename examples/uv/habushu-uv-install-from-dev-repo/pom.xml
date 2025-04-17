@@ -17,12 +17,6 @@
 
     <build>
         <directory>dist</directory>
-        <plugins>
-            <plugin>
-                <groupId>org.technologybrewery.habushu</groupId>
-                <artifactId>habushu-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
     </build>
 
     <profiles>
@@ -34,7 +28,6 @@
                     <plugin>
                         <groupId>org.technologybrewery.habushu</groupId>
                         <artifactId>habushu-maven-plugin</artifactId>
-                        <version>${project.version}</version>
                         <extensions>true</extensions>
                         <configuration>
                             <useDevRepository>true</useDevRepository>

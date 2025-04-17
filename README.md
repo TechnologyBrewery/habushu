@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit)
 [![Build (github)](https://github.com/TechnologyBrewery/habushu/actions/workflows/maven.yaml/badge.svg)](https://github.com/TechnologyBrewery/habushu/actions/workflows/maven.yaml)
 
-In Okinawa, habushu (pronounced HA-BU-SHU) is a sake that is made with venomous snake. The alcohol in the snake assists in dissolving the snake's venom and making it non-poinsonous. **In Maven, Habushu allows virtual environment-based Python projects to be included as part a Maven build. This brings some order and consistency to what can otherwise be haphazardly structured projects.**
+In Okinawa, habushu (pronounced HA-BU-SHU) is a sake that is made with venomous snake. The alcohol in the snake assists in dissolving the snake's venom and making it non-poisonous. **In Maven, Habushu allows virtual environment-based Python projects to be included as part a Maven build. This brings some order and consistency to what can otherwise be haphazardly structured projects.**
 
 ## Why Do You Need Habushu? ##
 
@@ -13,7 +13,7 @@ Habushu is implemented as a series of [Maven](https://maven.apache.org/) plugins
 
 No one person will agree with all the opinions implemented by Habushu. The value in being able to run entire builds from a single `mvn clean install` command regardless of your prior experience with the projects adds substantial value - both locally and in DevSecOps scenarios.
 
-More information about how Habushu can be used and benefit your project can be found in [this blog post, which covers how Habushu helps acheive repeatable Python builds in polyglot monorepos](https://codifyiq.substack.com/p/habushu-supporting-python-in-polyglot).
+More information about how Habushu can be used and benefit your project can be found in [this blog post, which covers how Habushu helps achieve repeatable Python builds in polyglot monorepos](https://codifyiq.substack.com/p/habushu-supporting-python-in-polyglot).
 
 ## Requirements ##
 
