@@ -29,9 +29,9 @@
                 <configuration>
                     <!-- This will prevent the Habushu default python version from overriding the existing projects
                     version -->
-                    <defaultPythonStrategy>PYTHONVERSION</defaultPythonStrategy>
-                    <!-- This will tell Habushu to overriding the existing projects with the default Python version -->
-                    <!--<defaultPythonStrategy>POM</defaultPythonStrategy>-->
+                    <!-- <defaultPythonStrategy>PYTHONVERSION</defaultPythonStrategy> -->
+                    <!-- This will tell Habushu to override the existing projects with the default Python version -->
+                    <!-- <defaultPythonStrategy>POM</defaultPythonStrategy> -->
                 </configuration>
             </plugin>
         </plugins>

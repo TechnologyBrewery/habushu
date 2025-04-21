@@ -374,4 +374,15 @@ public final class HabushuUtil {
         return inputUrl;
     }
 
+    /**
+     * Validates the existence of the .python-version file.
+     *
+     * @param baseDir the base directory of the project
+     * @return true if .python-version file exists in the project directory.
+     */
+    public static boolean validatePythonVersionFile(File baseDir) {
+        File pythonVersionFile = new File(baseDir, ".python-version");
+        return pythonVersionFile.exists();
+    }
+
 }
