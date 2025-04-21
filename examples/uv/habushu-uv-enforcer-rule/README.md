@@ -1,10 +1,10 @@
-[[Return to Main Documentation]](../../../README.md)
+[[Return to Examples Documentation]](../../README.md)
 
-#### uv Enforcer Rule ####
+# uv Version Enforcement
 
 Projects will often want to norm on a specific version or version range. The Maven Enforcer is a well established 
 approach to ensuring minimum environmental constraints are met during builds. Rather than build our own approach, we 
-have created Maven Enforcer Rule that can be applied to your project for uv versions.
+have created Maven Enforcer Rule, [requireUvVersion](../../../docs/CONFIGURATION_README.md#requireuvversion) that can be applied to your project for uv versions.
 
 ```xml
 <plugin>
@@ -39,11 +39,3 @@ have created Maven Enforcer Rule that can be applied to your project for uv vers
     </dependencies>
 </plugin>
 ```
-
-#### requireUvVersion ####
-
-The **REQUIRED** rule name to use with the Maven Enforcer Plugin to validate uv versions.
-
-#### version ####
-
-The **REQUIRED** version or version range uv must have to pass the Enforcer check. 

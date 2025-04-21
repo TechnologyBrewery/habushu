@@ -1,6 +1,6 @@
-[[Return to Main Documentation]](../../../README.md)
+[[Return to Examples Documentation]](../../README.md)
 
-# Habushu Poetry Package Consumer
+# Poetry Package Consumer
 
 ## Overview
 
@@ -10,10 +10,8 @@ monorepo environment, with particular focus on seamless development workflows.
 
 ## Key Features
 
-- **Implicit Version Handling**: Habushu automatically manages versioning between development and release versions, 
-eliminating the need for manual version updates during development cycles.
 - **Local Path References**: During development, the package uses local path references to the `habushu-poetry-package`, 
-enabling real-time code changes to be immediately reflected without requiring reinstallation.
+enabling real-time code changes to be immediately reflected without requiring re-installation.
 - **Monorepo Integration**: Leverages the `poetry-monorepo-dependency-plugin` to maintain consistent dependency 
 management across the monorepo.
 - **Development Mode**: Uses Poetry's `develop = true` flag to create an editable installation, perfect for active 
@@ -38,10 +36,28 @@ When you build or publish:
 - For development: Habushu maintains local references
 - For release: Habushu properly resolves versions for distribution
 
-## Benefits
+## Habushu Integration
 
-- **Simplified Development**: Make changes to `habushu-poetry-package` and immediately see the effects in this consumer 
-package without re-installation.
-- **Consistent Versioning**: Habushu handles version resolution automatically, ensuring consistency across the monorepo.
-- **Seamless Transitions**: Easily switch between development and release modes without changing dependency configurations.
-- **Reduced Maintenance**: No need to manually update version numbers across multiple packages during development.
+This project demonstrates several Habushu features: 
+
+1. **dependency**: Includes another Habushu module as a build dependency
+   ```xml
+    <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>habushu-uv-package</artifactId>
+        <version>${project.version}</version>
+        <type>habushu</type>
+    </dependency>
+   ```
+
+2. **rewriteLocalPathDepsInArchives**: Rewrites any local path dependencies (to other projects with a `[project.version]` within the `pyproject.toml`) as versioned packaged dependencies in generated `wheel` archives.
+   ```xml
+    <plugin>
+    <groupId>org.technologybrewery.habushu</groupId>
+    <artifactId>habushu-maven-plugin</artifactId>
+    <configuration>
+        <rewriteLocalPathDepsInArchives>true</rewriteLocalPathDepsInArchives>
+    </configuration>
+    </plugin>
+   ```
+   

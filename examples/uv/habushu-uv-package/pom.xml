@@ -16,25 +16,6 @@
 
     <build>
         <directory>dist</directory>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.technologybrewery.habushu</groupId>
-                    <artifactId>habushu-maven-plugin</artifactId>
-                    <configuration>
-                        <managedDependencies>
-                            <packageDefinition>
-                                <packageName>krausening</packageName>
-                                <operatorAndVersion>>=20</operatorAndVersion>
-                                <!-- optional - active is true by default:-->
-                                <active>true</active>
-                            </packageDefinition>
-                        </managedDependencies>
-                        <deleteVirtualEnv>true</deleteVirtualEnv>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
     </build>
 
     <profiles>

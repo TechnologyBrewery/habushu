@@ -1,6 +1,6 @@
-[[Return to Main Documentation]](../../../README.md)
+[[Return to Examples Documentation]](../../README.md)
 
-# Habushu Poetry Publish to Development Repository
+# Publish Package to Development Repository
 
 ## Overview
 

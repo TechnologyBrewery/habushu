@@ -16,28 +16,6 @@
 
     <build>
         <directory>dist</directory>
-        <plugins>
-            <plugin>
-                <groupId>org.technologybrewery.habushu</groupId>
-                <artifactId>habushu-maven-plugin</artifactId>
-                <configuration>
-                    <managedDependencies>
-                        <packageDefinition>
-                            <packageName>ruff</packageName>
-                            <operatorAndVersion>>=0.9.9</operatorAndVersion>
-                            <!-- optional - active is true by default:-->
-                            <active>true</active>
-                        </packageDefinition>
-                        <packageDefinition>
-                            <packageName>uvicorn</packageName>
-                            <operatorAndVersion>>=0.19.0</operatorAndVersion>
-                            <!-- optional - active is true by default:-->
-                            <active>true</active>
-                        </packageDefinition>
-                    </managedDependencies>
-                </configuration>
-            </plugin>
-        </plugins>
     </build>
 
     <profiles>

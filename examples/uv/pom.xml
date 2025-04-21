@@ -15,7 +15,6 @@
 
     <modules>
         <module>habushu-uv-enforcer-rule</module>
-        <module>habushu-uv-add-to-project</module>
         <module>habushu-uv-package</module>
         <module>habushu-uv-package-consumer</module>
         <module>habushu-uv-containerize</module>

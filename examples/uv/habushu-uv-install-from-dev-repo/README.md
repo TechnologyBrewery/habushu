@@ -1,6 +1,6 @@
-[[Return to Main Documentation]](../../../README.md)
+[[Return to Examples Documentation]](../../../examples/README.md)
 
-# Habushu uv Install From Development Repository
+# Install Package From Development Repository
 
 ## Overview
 
@@ -28,8 +28,3 @@ Follow the instructions in the Habushu uv Publish to Development Repository's [E
 
 ## Build the project
 Run `mvn clean install -Pinstall-example` from this module or run `mvn clean install -pl :habushu-uv-install-from-dev-repo -Pinstall-example` from the root directory to build this module.
-
-## Running uv Commands Natively
-If you want to run uv commands via the command line, you will need to follow uv's instructions to [Configure Alternative Package Indices](https://docs.astral.sh/uv/guides/integration/alternative-indexes).
-
-Note: If you export your repo's credentials to your command line, you will not need to configure Habushu. However, this is not advised as it can lead to confusion when building your project in CI.
