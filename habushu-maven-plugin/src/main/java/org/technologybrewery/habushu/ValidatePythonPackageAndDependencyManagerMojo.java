@@ -59,6 +59,14 @@ public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabus
     @Parameter(defaultValue = "${project.build.directory}/pyenv-patch-install-python-version.sh", readonly = true)
     private File patchInstallScript;
 
+    /**
+     * File specifying the location of a generated shell script that will attempt to
+     * install the specified version of Python using "pyenv install --patch" with a
+     * patch that attempts to resolve the expected compilation error.
+     */
+    @Parameter(defaultValue = "latest", property = "habushu.poetryMonorepoDependencyPluginVersion")
+    protected String poetryMonorepoDependencyPluginVersion;
+
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
         PackageManager packageManager = HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile());
@@ -80,7 +88,7 @@ public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabus
         PythonPackageAndDependencyManagerSetup pythonPackageAndDependencyManagerSetup =
                 HabushuUtil.getPythonPackageAndDependencyManagerSetup(packageManager, pythonVersion, isPythonVersionConfigurationSet,
                         defaultPythonStrategy, getPythonProjectBaseDir(), rewriteLocalPathDepsInArchives, getLog(),
-                        usePyenv, patchInstallScript);
+                        usePyenv, patchInstallScript, poetryMonorepoDependencyPluginVersion);
 
         pythonPackageAndDependencyManagerSetup.execute();
 

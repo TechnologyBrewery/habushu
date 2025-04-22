@@ -5,7 +5,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import com.vdurmont.semver4j.Semver;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -24,11 +27,13 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
     private static final Logger logger = LoggerFactory.getLogger(PoetryCommandHelper.class);
 
     public static final String VERSION_DELIMITER = "@";
+    public static final String LATEST_VERSION = "latest";
     private static final int EXIT_SUCCESS = 0;
 
     private static final String EXTRACT_VERSION_REGEX = "[^0-9\\.]";
 
     protected volatile String showPluginsResult;
+    protected volatile String showOutdatedPluginsResult;
     protected static final Object pluginSystemLock = new Object();
 
 
@@ -106,47 +111,62 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
      * double-checked locking execution of the `poetry self add <plugin>` call and avoidance of the add altogether if
      * the plugin already exists.
      *
-     * @param name name of the plugin to install
+     * @param pluginName name of the plugin to install
      * @return execution value
      */
-    public int installPoetryPlugin(String name) {
+    public int installPoetryPlugin(String pluginName, String pluginVersion) {
         int result = EXIT_SUCCESS;
-        if (pluginNeedsInstalling(name)) {
-            result = performInstallPoetryPlugin(name);
+        if (pluginNeedsInstalling(pluginName, pluginVersion)) {
+            result = performInstallPoetryPlugin(pluginName, pluginVersion);
         }
-
         return result;
     }
 
-    private int performInstallPoetryPlugin(String name) {
+    private int performInstallPoetryPlugin(String pluginName, String pluginVersion) {
         int result = EXIT_SUCCESS;
-
+        String pluginNameAndVersion = pluginName + VERSION_DELIMITER + pluginVersion;
         List<String> args = new ArrayList<>();
         args.add("self");
         args.add("add");
-        args.add(name);
+        args.add(pluginNameAndVersion);
         synchronized (pluginSystemLock) {
-            if (pluginNeedsInstalling(name)) {
+            if (pluginNeedsInstalling(pluginName, pluginVersion)) {
                 result = this.executeAndLogOutput(args);
 
                 // un-cache known set of plugins:
                 showPluginsResult = null;
+                showOutdatedPluginsResult = null;
             }
         }
 
         return result;
     }
 
-    private boolean pluginNeedsInstalling(String name) {
+    private boolean pluginNeedsInstalling(String pluginName, String pluginVersion) {
         executeShowPlugins();
 
-        String pluginNameWithoutVersion = name;
-        if (name.contains(VERSION_DELIMITER)) {
-            pluginNameWithoutVersion = pluginNameWithoutVersion.substring(0, name.indexOf(VERSION_DELIMITER));
-        }
+        boolean pluginInstalled = showPluginsResult.contains(pluginName);
 
-        return !showPluginsResult.contains(pluginNameWithoutVersion);
+        if (pluginInstalled) {
+            if (LATEST_VERSION.equals(pluginVersion)) {
+                executeShowOutdatedPlugins();
+                return showOutdatedPluginsResult.contains(pluginName);
+            } else {
+                String pluginRegex = "(?:" + pluginName + "\\s\\()(\\w+.*)(?:\\))";
+                Pattern pluginPattern = Pattern.compile(pluginRegex);
+                Matcher pluginVersionMatchedPattern = pluginPattern.matcher(showPluginsResult);
+                if (pluginVersionMatchedPattern.find()) {
+                    String currentPluginVersion = pluginVersionMatchedPattern.group(1);
+                    return !currentPluginVersion.equals(pluginVersion.trim());
+                }
+                // If we can't find the plugin version in the showPluginsResult, install the requested version to be safe.
+                return true;
+            }
+        } else {
+            return true;
+        }
     }
+
 
     private void executeShowPlugins() {
         if (StringUtils.isBlank(showPluginsResult)) {
@@ -166,6 +186,31 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
                 synchronized (pluginSystemLock) {
                     if (StringUtils.isBlank(showPluginsResult)) {
                         showPluginsResult = this.execute(args);
+                    }
+                }
+
+            }
+        }
+    }
+
+    private void executeShowOutdatedPlugins() {
+        if (StringUtils.isBlank(showOutdatedPluginsResult)) {
+            List<String> args = new ArrayList<>();
+            args.add("self");
+            args.add("show");
+            args.add("--outdated");
+            try {
+                if (StringUtils.isBlank(showOutdatedPluginsResult)) {
+                    showOutdatedPluginsResult = this.execute(args);
+                }
+            } catch (HabushuException e) {
+                logger.info("Plugin status could not be determined. This is normally a race condition on another"
+                        + " thread touching poetry's underlying pyproject.toml, trying one more time...");
+                // let's be more careful round two and assume that there was a plugin being installed, so we need to
+                // respect that the lock could be engaged and synchronize on it to ensure ordered execution:
+                synchronized (pluginSystemLock) {
+                    if (StringUtils.isBlank(showOutdatedPluginsResult)) {
+                        showOutdatedPluginsResult = this.execute(args);
                     }
                 }
 

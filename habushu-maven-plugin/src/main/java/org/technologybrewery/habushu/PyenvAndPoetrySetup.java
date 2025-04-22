@@ -39,6 +39,9 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
      */
     private final File patchInstallScript;
 
+    private static final String poetryMonorepoDependencyPluginName = "poetry-monorepo-dependency-plugin";
+    private final String poetryMonorepoDependencyPluginVersion;
+
     /**
      * New instance - these values are typically passed in from Maven-enabled parameters in the calling Mojo.
      *
@@ -48,10 +51,11 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
      */
     public PyenvAndPoetrySetup(String pythonVersion, boolean isPythonVersionConfigurationSet, String defaultPythonStrategy,
                                File baseDir, boolean rewriteLocalPathDepsInArchives, Log log, boolean usePyenv,
-                               File patchInstallScript) {
+                               File patchInstallScript, String poetryMonorepoDependencyPluginVersion) {
         super(pythonVersion, isPythonVersionConfigurationSet, defaultPythonStrategy, baseDir, rewriteLocalPathDepsInArchives, log);
         this.usePyenv = usePyenv;
         this.patchInstallScript = patchInstallScript;
+        this.poetryMonorepoDependencyPluginVersion = poetryMonorepoDependencyPluginVersion;
     }
 
     private List<String> validatePyenvInstallation(List<String> missingRequiredToolMsgs) {
@@ -251,7 +255,7 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
     private void installPoetryMonorepoDependencyPlugin() {
         PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
         log.info("Checking for updates to poetry-monorepo-dependency-plugin...");
-        poetryHelper.installPoetryPlugin("poetry-monorepo-dependency-plugin@latest");
+        poetryHelper.installPoetryPlugin(poetryMonorepoDependencyPluginName, poetryMonorepoDependencyPluginVersion);
     }
     
     /**

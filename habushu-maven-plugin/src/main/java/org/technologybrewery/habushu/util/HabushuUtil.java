@@ -222,13 +222,14 @@ public final class HabushuUtil {
      * @param log
      * @param usePyenv
      * @param patchInstallScript
+     * @param poetryMonorepoDependencyPluginVersion
      * @return
      * @throws MojoExecutionException
      */
     public static PythonPackageAndDependencyManagerSetup getPythonPackageAndDependencyManagerSetup(
             PackageManager pythonPackageAndDependencyManager, String pythonVersion, boolean isPythonVersionConfigurationSet,
             String defaultPythonStrategy, File baseDir, boolean rewriteLocalPathDepsInArchives, Log log,
-            Boolean usePyenv, File patchInstallScript) {
+            Boolean usePyenv, File patchInstallScript, String poetryMonorepoDependencyPluginVersion) {
         // Set the poetry-based parameters to null
         if (pythonPackageAndDependencyManager == PackageManager.UV) {
             usePyenv = null;
@@ -237,7 +238,7 @@ public final class HabushuUtil {
 
         return PythonPackageAndDependencyManagerFactory.createPythonPackageAndDependencyManagerSetup(
                 pythonVersion, isPythonVersionConfigurationSet, defaultPythonStrategy, baseDir, rewriteLocalPathDepsInArchives, log,
-                pythonPackageAndDependencyManager, usePyenv, patchInstallScript);
+                pythonPackageAndDependencyManager, usePyenv, patchInstallScript, poetryMonorepoDependencyPluginVersion);
     }
 
     /**
