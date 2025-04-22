@@ -122,11 +122,11 @@ Default: `3.12.9`
 
 ### defaultPythonStrategy
 
-When `pythonVersion` is not explicitly specified, this strategy helps decide where to get the default version. If set to
-`PYTHONVERSION`, then Habushu will use the existing project's Python version. If set to `POM`, then Habushu will use
-the default value for `pythonVersion`.
+If set to `PYTHONVERSION`, then Habushu will use the Python version supplied in the `.python-version` file located in the project directory. If set to `POM`, then Habushu will use the default value for `pythonVersion`.
 
-Default: `PYTHONVERSION`
+**Note:** If set to `PYTHONVERSION` and no `.python-version` file is found in the project directory the build will fail with an error. 
+
+Default: `POM`
 
 **Example:** [Default Python Strategy](../examples/habushu-default-python-strategy/README.md)
 

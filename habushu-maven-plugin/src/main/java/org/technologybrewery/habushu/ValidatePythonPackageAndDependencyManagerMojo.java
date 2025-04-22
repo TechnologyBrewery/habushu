@@ -8,6 +8,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.StringUtils;
+import org.technologybrewery.habushu.util.DefaultPythonStrategy;
 import org.technologybrewery.habushu.util.HabushuUtil;
 import org.technologybrewery.habushu.util.PackageManager;
 import org.technologybrewery.habushu.util.PoetryUtil;
@@ -41,7 +42,7 @@ public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabus
     /**
      * The default python version strategy.
      */
-    @Parameter(defaultValue = "PYTHONVERSION", property = "habushu.defaultPythonStrategy")
+    @Parameter(defaultValue = "POM", property = "habushu.defaultPythonStrategy")
     protected String defaultPythonStrategy;
 
     /**
@@ -62,8 +63,15 @@ public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabus
     public void doExecute() throws MojoExecutionException, MojoFailureException {
         PackageManager packageManager = HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile());
         boolean isPythonVersionConfigurationSet = true;
-
-        // If pythonVersion was not given then update isPythonVersionConfigurationSet and set it to the default
+        boolean isPythonVersionFilePresent = HabushuUtil.validatePythonVersionFile(getPythonProjectBaseDir());
+        
+        // If the defaultPythonStrategy is set to PYTHONVERSION, then we need to check if the .python-version file is present
+        if (DefaultPythonStrategy.PYTHONVERSION.name().equalsIgnoreCase(defaultPythonStrategy) &&
+            !isPythonVersionFilePresent) {
+            throw new MojoExecutionException("defaultPythonStrategy is set to PYTHONVERSION, but no .python-version file was found in the project directory.");
+        }
+        
+         // If pythonVersion was not given then update isPythonVersionConfigurationSet and set it to the default
         if (StringUtils.isEmpty(pythonVersion)) {
             isPythonVersionConfigurationSet = false;
             pythonVersion = HabushuUtil.PYTHON_DEFAULT_VERSION_REQUIREMENT;
