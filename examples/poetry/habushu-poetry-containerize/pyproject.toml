@@ -7,8 +7,6 @@ license = "MIT License"
 requires-python = ">=3.12"
 dynamic = ["version", "dependencies"]
 
-[tool.poetry.dependencies]
-
 [tool.poetry.group.dev.dependencies]
 ruff = ">=0.9.9"
 

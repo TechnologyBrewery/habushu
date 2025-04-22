@@ -2,32 +2,25 @@ package org.technologybrewery.habushu.migration.poetryv2migrations;
 
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.file.FileConfig;
-import org.technologybrewery.habushu.util.TomlUtils;
 
 import java.io.File;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+
+/**
+ * Pure helper methods for loading TOML groups and making assertions.
+ * All methods take explicit File + section/key arguments—no static fields.
+ */
 public class AbstractPoetryMigrationSteps{
     protected static File testTomlFileDirectory = new File("./target/test-classes/migration/poetry-v2");
     protected static File pyProjectToml;
-    protected Optional<Config> projectOpt;
-    protected Optional<Config> toolPoetryOpt;
-    protected Optional<Config> toolPoetryDependenciesOpt;
-    protected Optional<Config> virtualEnvsOpt;
-    protected Optional<Config> experimentalOpt;
-    protected Config projectEntries;
-    protected Config toolPoetryEntries;
-    protected Config toolPoetryDependencyEntries;
-    protected Config virtualEnvsEntries;
-    protected Config experimentalEntries;
-    protected boolean shouldExecute;
-    protected boolean executionSucceeded;
 
-    protected void verifyExecutionOccurred() {
+    protected void verifyExecutionOccurred(boolean shouldExecute, boolean executionSucceeded) {
         assertTrue(shouldExecute, "Migration should have been selected to execute!");
         assertTrue(executionSucceeded, "Migration should have executed successfully!");
     }
@@ -46,66 +39,43 @@ public class AbstractPoetryMigrationSteps{
     /**
      * Helper method to check if entry exists within specified toml group
      */
-    protected void assertKeyExists(String groupName, String key, boolean shouldExist) {
-        loadAndAssertGroupExists(groupName);
-
-        // Retrieve the appropriate entries based on groupName
-        Config entries;
-        if (groupName.equals(TomlUtils.PROJECT)) {
-            entries = projectEntries;
-        } else if (groupName.equals(TomlUtils.TOOL_POETRY)) {
-            entries = toolPoetryEntries;
-        } else if (groupName.equals(TomlUtils.TOOL_POETRY_DEPENDENCIES)) {
-            entries = toolPoetryDependencyEntries;
-        } else if (groupName.equals(TomlUtils.EXPERIMENTAL)) {
-            entries = experimentalEntries;
-        } else {
-            throw new IllegalArgumentException("Unknown group: " + groupName);
-        }
-
+    protected void assertKeyExists(Config groupEntries, String key, boolean shouldExist) {
         if (shouldExist) {
-            assertTrue(entries.contains(key), key + " should exist under " + groupName);
+            assertTrue(groupEntries.contains(key), key + " should exist in group");
         } else {
-            assertFalse(entries.contains(key), key + " should NOT exist under " + groupName);
+            assertFalse(groupEntries.contains(key), key + " should NOT exist in group");
         }
     }
 
     /**
-     * Helper methods to load a toml group and assert its presence
+     * Helper methods to load a toml group and/or assert its presence
      */
-    protected void loadAndAssertGroupExists(String groupName) {
+    protected Config loadAndAssertGroupExists(String groupName){
         Optional<Config> groupOpt = getOptionalConfig(pyProjectToml, groupName);
         assertTrue(groupOpt.isPresent(), groupName + " missing from toml file");
-        Config entries = groupOpt.get();
-
-        if (groupName.equals(TomlUtils.PROJECT)) {
-            projectOpt = groupOpt;
-            projectEntries = entries;
-        } else if (groupName.equals(TomlUtils.TOOL_POETRY)) {
-            toolPoetryOpt = groupOpt;
-            toolPoetryEntries = entries;
-        } else if (groupName.equals(TomlUtils.TOOL_POETRY_DEPENDENCIES)) {
-            toolPoetryDependenciesOpt = groupOpt;
-            toolPoetryDependencyEntries = entries;
-        } else if (groupName.equals(TomlUtils.VIRTUAL_ENVS)){
-            virtualEnvsOpt = groupOpt;
-            virtualEnvsEntries = entries;
-        } else if (groupName.equals(TomlUtils.EXPERIMENTAL)){
-            experimentalOpt = groupOpt;
-            experimentalEntries = entries;
-        } else {
-            throw new IllegalArgumentException("Unknown group: " + groupName);
-        }
+        return groupOpt.get();
     }
 
-    protected void loadAndAssertDoesNotExist(String groupName) {
+    protected void assertGroupExists(String groupName){
         Optional<Config> groupOpt = getOptionalConfig(pyProjectToml, groupName);
-        assertFalse(groupOpt.isPresent(), groupName + " missing from toml file");
+        assertTrue(groupOpt.isPresent(), groupName + " missing from toml file");
     }
 
-    protected void assertNumOfEntries(Config group, Integer expectedExperimentalEntries ){
-        int actualEntries = getNumberOfEntries(group);
-        assertEquals(expectedExperimentalEntries, actualEntries, expectedExperimentalEntries + " entries should remain in the group!");
+    protected void assertGroupDoesNotExist(String groupName){
+        Optional<Config> groupOpt = getOptionalConfig(pyProjectToml, groupName);
+        assertFalse(groupOpt.isPresent(), groupName + " should not be in toml file");
     }
 
+    protected void assertNumOfEntries(Config groupName, Integer expectedExperimentalEntries ){
+        int actualNumEntries = getNumberOfEntries(groupName);
+        assertEquals(expectedExperimentalEntries, actualNumEntries, expectedExperimentalEntries + " entries should remain in the group!");
+    }
+
+    /**
+     * Helper method to check if header (as "[sectionName]" string) exists in a toml file
+     */
+    protected boolean isSectionHeaderMissing(List<String> allHeaders, String sectionName) {
+        return allHeaders.stream()
+                .noneMatch(header -> header.equals(sectionName));
+    }
 }

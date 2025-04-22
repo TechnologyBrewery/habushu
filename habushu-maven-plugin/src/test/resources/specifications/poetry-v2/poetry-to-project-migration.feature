@@ -1,4 +1,4 @@
-@poetryToProjectMigration
+@poetry-v2-migration
 Feature: Test automatic migrations of required fields from [tool.project] to [project] applied to pyproject.toml file based on given Poetry version
 
   Scenario Outline: Poetry version is at least 2.0.0 and the poetry-to-project migration moves fields from [tool.poetry] to [project]

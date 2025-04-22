@@ -1,5 +1,3 @@
-[tool.poetry]
-
 [project]
 name = "habushu_poetry_package_consumer"
 version = "3.0.0.dev"
