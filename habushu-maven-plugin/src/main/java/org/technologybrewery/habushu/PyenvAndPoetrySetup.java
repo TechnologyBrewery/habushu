@@ -12,6 +12,7 @@ import org.technologybrewery.habushu.exec.PyenvCommandHelper;
 import org.technologybrewery.habushu.exec.PythonVersionHelper;
 import org.technologybrewery.habushu.util.PoetryUtil;
 import org.technologybrewery.habushu.util.HabushuUtil;
+import org.technologybrewery.habushu.util.PyenvUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ import java.util.List;
  * Subclass of PythonPackageAndDependencyManagerSetup. Ensures Poetry-related pre-requisite tools that Habushu leverages are installed and available on the
  * developer's machine to support the same functionality across multiple Mojo implementations. These include:
  * <ul>
- * <li>pyenv</li>
+ * <li>pyenv (installed version must satisfy {@link PyenvUtil#PYENV_VERSION_REQUIREMENT})</li>
  * <li>Poetry (installed version must satisfy {@link PoetryUtil#POETRY_VERSION_REQUIREMENT})</li>
  * <li>Required Poetry plugins (currently only {@code poetry-monorepo-dependency-plugin})</li>
  * </ul>
@@ -56,18 +57,6 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
         this.usePyenv = usePyenv;
         this.patchInstallScript = patchInstallScript;
         this.poetryMonorepoDependencyPluginVersion = poetryMonorepoDependencyPluginVersion;
-    }
-
-    private List<String> validatePyenvInstallation(List<String> missingRequiredToolMsgs) {
-        PyenvCommandHelper pyenvHelper = createPyenvCommandHelper();
-        log.debug("Checking if pyenv is installed...");
-        if (!pyenvHelper.isPyenvInstalled()) {
-            missingRequiredToolMsgs.add(
-                    "'pyenv' is not currently installed! Please install pyenv and try again. Visit https://github.com/pyenv/pyenv for more information.");
-        } else {
-            log.debug("pyenv already installed");
-        }
-        return missingRequiredToolMsgs;
     }
 
     private String validateAndConfigurePythonViaPyenv(File patchInstallScript) throws MojoExecutionException {
@@ -110,28 +99,43 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
             ValidationTrackingStatus validationTracker, List<String> missingRequiredToolMsgs) {
             missingRequiredToolMsgs = validatePoetryInstallationAndVersion(validationTracker, missingRequiredToolMsgs);
             if (usePyenv) {
-                missingRequiredToolMsgs = validatePyenvInstallation(missingRequiredToolMsgs);
-                missingRequiredToolMsgs = validatePyenvConfiguration(missingRequiredToolMsgs);
+                missingRequiredToolMsgs = validatePyenvInstallationAndVersion(missingRequiredToolMsgs);
             }
             return missingRequiredToolMsgs;
     }
 
-    private List<String> validatePyenvConfiguration(List<String> missingRequiredToolMsgs) {
+    private List<String> validatePyenvInstallationAndVersion(List<String> missingRequiredToolMsgs) {
+        PyenvCommandHelper pyenvHelper = createPyenvCommandHelper();
+        log.debug("Validating pyenv installation/version and configuration...");
+        Pair<Boolean, String> pyenvInstallStatusAndVersion = pyenvHelper.getIsPyenvInstalledAndVersion();
+        // Check if pyenv is installed and with correct version
+        if (Boolean.FALSE.equals(pyenvInstallStatusAndVersion.getLeft())) {
+            missingRequiredToolMsgs.add(
+                    "'pyenv' is not currently installed! Please install pyenv and try again. Visit https://github.com/pyenv/pyenv for more information.");
+            return missingRequiredToolMsgs;
+        } else {
+            Semver pyenvVersionSemver = new Semver(pyenvInstallStatusAndVersion.getRight(), SemverType.NPM);
+            if (!pyenvVersionSemver.satisfies(PyenvUtil.PYENV_VERSION_REQUIREMENT)) {
+                missingRequiredToolMsgs.add(String.format(
+                        "Pyenv version %s was installed - Habushu requires that installed version of Pyenv satisfies %s.  Please update Pyenv by following the instructions at https://github.com/pyenv/pyenv",
+                        pyenvInstallStatusAndVersion.getRight(), PyenvUtil.PYENV_VERSION_REQUIREMENT));
+            } 
+        }
+        // Validate pyenv configuration
         File shellConfigFile = HabushuUtil.getShellConfigFile();
         if (shellConfigFile == null) {
             missingRequiredToolMsgs.add("Could not determine shell configuration file. Pyenv might not be installed correctly. " +
-            "Visit https://github.com/pyenv/pyenv?tab=readme-ov-file#b-set-up-your-shell-environment-for-pyenv to properly configure Pyenv for use with Habushu.");
+                    "Visit https://github.com/pyenv/pyenv?tab=readme-ov-file#b-set-up-your-shell-environment-for-pyenv to properly configure Pyenv for use with Habushu.");
+        } else if (!shellConfigFile.exists()) {
+            missingRequiredToolMsgs.add("Configuration file, " + shellConfigFile + " not found. Pyenv might not be installed correctly. " +
+                    "Visit https://github.com/pyenv/pyenv?tab=readme-ov-file#b-set-up-your-shell-environment-for-pyenv to properly configure Pyenv for use with Habushu.");
         }
 
-        if (shellConfigFile != null && !shellConfigFile.exists()) {
-            missingRequiredToolMsgs.add("Configuration file, " + shellConfigFile + " not found. Pyenv might not be installed correctly. " +
-            "Visit https://github.com/pyenv/pyenv?tab=readme-ov-file#b-set-up-your-shell-environment-for-pyenv to properly configure Pyenv for use with Habushu.");
-        }
         String pathEnvironmentVariable = HabushuUtil.getEnvironmentVariable("PATH");
-        String shimsPath = HabushuUtil.getHomeDirectory() + "/.pyenv/shims" ;
+        String shimsPath = HabushuUtil.getHomeDirectory() + "/.pyenv/shims";
         if (!pathEnvironmentVariable.contains(shimsPath)) {
             missingRequiredToolMsgs.add("'pyenv' is installed, but not configured correctly. " +
-            "Visit https://github.com/pyenv/pyenv?tab=readme-ov-file#b-set-up-your-shell-environment-for-pyenv to properly configure Pyenv for use with Habushu.");
+                    "Visit https://github.com/pyenv/pyenv?tab=readme-ov-file#b-set-up-your-shell-environment-for-pyenv to properly configure Pyenv for use with Habushu.");
         }
         return missingRequiredToolMsgs;
     }

@@ -24,7 +24,7 @@ In order to use Habushu, the following prerequisites must be installed:
 
 If you would like to use Habushu with Poetry-based projects, you must install:
 * [Poetry 1.5+](https://python-poetry.org/)
-* [Pyenv](https://github.com/pyenv/pyenv)
+* [Pyenv 1.2.21+](https://github.com/pyenv/pyenv)
 
 If you would like to use Habushu with uv-based projects, you must install:
 * [uv 0.5+](https://docs.astral.sh/uv/)

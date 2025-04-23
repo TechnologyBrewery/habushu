@@ -15,6 +15,7 @@
 
     <modules>
         <module>habushu-poetry-enforcer-rule</module>
+        <module>habushu-pyenv-enforcer-rule</module>
         <module>habushu-poetry-package</module>
         <module>habushu-poetry-package-consumer</module>
         <module>habushu-poetry-containerize</module>

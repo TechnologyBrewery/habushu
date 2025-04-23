@@ -106,6 +106,7 @@ mvn clean install -Dhabushu.pythonVersion=3.12.9
   - [version](#version)
   - [Poetry-Specific Version Enforcement Configurations](#poetry-specific-version-enforcement-configurations) 
     - [requirePoetryVersion](#requirePoetryVersion)
+    - [requirePyenvVersion](#requirePyenvVersion)
   - [uv-Specific Version Enforcement Configurations](#uv-specific-version-enforcement-configurations)
     - [requireUvVersion](#requireUvVersion)
 - [Poetry-Specific Configurations](#poetry-specific-configurations)
@@ -712,11 +713,17 @@ Default: None
 
 ### Poetry-Specific Version Enforcement Configurations
 
+#### requirePoetryVersion
 **Example:** [Poetry Version Enforcement](../examples/poetry/habushu-poetry-enforcer-rule/README.md)
 
-#### requirePoetryVersion
-
 The **REQUIRED** rule name to use with the Maven Enforcer Plugin to validate Poetry versions.
+
+Default: None
+
+#### requirePyenvVersion
+**Example:** [Pyenv Version Enforcement](../examples/poetry/habushu-pyenv-enforcer-rule/README.md)
+
+The **REQUIRED** rule name to use with the Maven Enforcer Plugin to validate Pyenv versions.
 
 Default: None
 
