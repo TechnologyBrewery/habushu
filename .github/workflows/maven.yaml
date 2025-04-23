@@ -62,5 +62,5 @@ jobs:
             - name: Build habushu-maven-plugin
               run: mvn -B install -Pbootstrap --file pom.xml
 
-            - name: Test habushu-maven-plugin (Poetry)
+            - name: Test habushu-maven-plugin
               run: mvn -B install --file pom.xml -Dhabushu.usePyenv=false

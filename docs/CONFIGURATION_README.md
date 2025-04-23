@@ -110,6 +110,7 @@ mvn clean install -Dhabushu.pythonVersion=3.12.9
 - [Poetry-Specific Configurations](#poetry-specific-configurations)
   - [usePyenv](#usepyenv)
   - [useInProjectVirtualEnvironment](#useinprojectvirtualenvironment)
+  - [poetryMonorepoDependencyPluginVersion](#poetrymonorepodependencypluginversion)
 
 ## General Habushu Configurations
 
@@ -683,12 +684,6 @@ The version of the poetry-plugin-bundle to install in the container.
 
 Default: `1.5.0`
 
-#### dockerPoetryMonorepoDependencyPluginVersion
-
-The version of the poetry-monorepo-dependency-plugin to install in the container.
-
-Default: `1.2.0`
-
 ## uv-Specific Containerization Configurations
 
 **Example:** [Containerizing Dependencies with uv](../examples/uv/habushu-uv-containerize/README.md)
@@ -746,5 +741,10 @@ environments from a central location.
 
 Default: `true`
 
+### poetryMonorepoDependencyPluginVersion
+
+Specifies the specific version of the`poetry-monorepo-dependency-plugin` to be installed.
+
+Default: `latest`
 
 
