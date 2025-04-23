@@ -1,0 +1,37 @@
+[project]
+name = "habushu-poetry-dependency-groups"
+version = "3.0.0.dev"
+description = "Example of how to use the dependency group related habushu-maven-plugin configurations with Poetry"
+authors = [
+    {name = "Margaret Black",email = "black_margaret@bah.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+]
+dynamic = ["version", "dependencies"]
+
+[tool.poetry]
+packages = [{include = "habushu_poetry_dependency_groups", from = "src"}]
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.11.6"
+
+[tool.poetry.group.groupA]
+optional = true
+
+[tool.poetry.group.groupA.dependencies]
+numpy = "^2.2.5"
+
+[tool.poetry.group.groupB.dependencies]
+six = "^1.17.0"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff.format]
+indent-style="space"
+line-ending="lf"
+quote-style="preserve"

@@ -38,8 +38,6 @@ mvn clean install -Dhabushu.pythonVersion=3.12.9
   - [pythonVersion](#pythonversion)
   - [defaultPythonStrategy](#defaultpythonstrategy)
   - [rewriteLocalPathDepsInArchives](#rewritelocalpathdepsinarchives)
-  - [withGroups](#withgroups)
-  - [withoutGroups](#withoutgroups)
   - [forceSync](#forcesync)
   - [skipPoetryLockUpdate](#skippoetrylockupdate)
   - [deleteVirtualEnv](#deletevirtualenv)
@@ -55,6 +53,9 @@ mvn clean install -Dhabushu.pythonVersion=3.12.9
   - [lint](#lint)
   - [useFormatter](#useformatter)
   - [runCommandArgs](#runcommandargs)
+- [Dependency Group Configurations](#dependency-group-configurations)
+  - [withGroups](#withgroups)
+  - [withoutGroups](#withoutgroups)
 - [Managed Dependencies Configurations](#managed-dependencies-configurations)
   - [managedDependencies](#manageddependencies)
   - [updateManagedDependenciesWhenFound](#updatemanageddependencieswhenfound)
@@ -142,59 +143,9 @@ structure which multiple Poetry projects depend on one another.
 
 Default: `false`
 
-**Example:** 
+**Examples:** 
 - [Poetry Package Consumer](../examples/poetry/habushu-poetry-package-consumer/README.md)
 - [uv Package Consumer](../examples/uv/habushu-uv-package-consumer/README.md)
-
-### withGroups
-
-Specifies which dependency groups to include within the installation.  Example usage:
-```shell
-mvn clean install -Dhabushu.withGroups=dev,test
-```
-or
-```xml
-<plugin>
-    <groupId>org.technologybrewery.habushu</groupId>
-    <artifactId>habushu-maven-plugin</artifactId>
-    <extensions>true</extensions>
-    <configuration>
-        <withGroups>
-            <withGroup>dev</withGroup>
-            <withGroup>test</withGroup>
-        </withGroups>
-    </configuration>
-</plugin>
-```
-
-Default: None
-
-**Example:** TODO
-
-### withoutGroups
-Specifies dependency groups to exclude within the installation.  Example usage:
-
-```shell
-mvn clean install -Dhabushu.withoutGroups=dev,test
-```
-or
-```xml
-<plugin>
-    <groupId>org.technologybrewery.habushu</groupId>
-    <artifactId>habushu-maven-plugin</artifactId>
-    <extensions>true</extensions>
-    <configuration>
-        <withoutGroups>
-            <withoutGroup>dev</withoutGroup>
-            <withoutGroup>test</withoutGroup>
-        </withoutGroups>
-    </configuration>
-</plugin>
-```
-
-Default: None
-
-**Example:** TODO
 
 ### forceSync
 
@@ -309,6 +260,63 @@ Whitespace-delimited command arguments that will be provided to `run` to execute
 Default: None
 
 **Example:** [Running Python Scripts](../examples/habushu-running-python-scripts/README.md)
+
+## Dependency Group Configurations
+### withGroups
+
+Specifies which dependency groups to include within the installation.  Example usage:
+```shell
+mvn clean install -Dhabushu.withGroups=dev,test
+```
+or
+```xml
+<plugin>
+    <groupId>org.technologybrewery.habushu</groupId>
+    <artifactId>habushu-maven-plugin</artifactId>
+    <extensions>true</extensions>
+    <configuration>
+        <withGroups>
+            <withGroup>dev</withGroup>
+            <withGroup>test</withGroup>
+        </withGroups>
+    </configuration>
+</plugin>
+```
+
+Default: None
+
+**Examples:**
+- [Poetry Dependency Groups](../examples/poetry/habushu-poetry-dependency-groups/README.md)
+
+[//]: # (- [uv Dependency Groups]&#40;TODO&#41;)
+
+### withoutGroups
+Specifies dependency groups to exclude within the installation.  Example usage:
+
+```shell
+mvn clean install -Dhabushu.withoutGroups=dev,test
+```
+or
+```xml
+<plugin>
+    <groupId>org.technologybrewery.habushu</groupId>
+    <artifactId>habushu-maven-plugin</artifactId>
+    <extensions>true</extensions>
+    <configuration>
+        <withoutGroups>
+            <withoutGroup>dev</withoutGroup>
+            <withoutGroup>test</withoutGroup>
+        </withoutGroups>
+    </configuration>
+</plugin>
+```
+
+Default: None
+
+**Examples:**
+- [Poetry Dependency Groups](../examples/poetry/habushu-poetry-dependency-groups/README.md)
+
+[//]: # (- [uv Dependency Groups]&#40;TODO&#41;)
 
 ## Managed Dependencies Configurations
 

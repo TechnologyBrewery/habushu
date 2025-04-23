@@ -20,6 +20,7 @@
         <module>habushu-poetry-containerize</module>
         <module>habushu-poetry-publish-to-dev-repo</module>
         <module>habushu-poetry-install-from-dev-repo</module>
+        <module>habushu-poetry-dependency-groups</module>
     </modules>
 
     <build>

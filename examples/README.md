@@ -24,6 +24,7 @@ configuration options.
 - Configure Habushu to use a private development repository for installation and/or publication of packages:
     - [Publish Package to Development Repository](poetry/habushu-poetry-publish-to-dev-repo/README.md)
     - [Install Package From Development Repository](poetry/habushu-poetry-install-from-dev-repo/README.md)
+- [Poetry Dependency Groups](poetry/habushu-poetry-dependency-groups/README.md) - Outlines how to use the [withGroups](../docs/CONFIGURATION_README.md#withgroups) and [withoutGroups](../docs/CONFIGURATION_README.md#withoutgroups) configurations
 
 ## uv-Specific Examples
 - [uv Version Enforcement](uv/habushu-uv-enforcer-rule/README.md) - Enforces a specific version or version range of uv
