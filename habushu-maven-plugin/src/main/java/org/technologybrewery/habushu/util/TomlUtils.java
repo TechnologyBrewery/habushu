@@ -1,12 +1,17 @@
 package org.technologybrewery.habushu.util;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
+import com.electronwill.nightconfig.core.Config;
 import org.apache.commons.collections4.CollectionUtils;
+import org.technologybrewery.baton.BatonException;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
 
 import java.util.regex.Matcher;
@@ -16,7 +21,6 @@ import java.util.regex.Pattern;
  * Common utility methods for handling TOML files.
  */
 public final class TomlUtils {
-
     public static final String EQUALS = "=";
     public static final String DOUBLE_QUOTE = "\"";
     public static final String TOOL_POETRY = "tool.poetry";
@@ -69,6 +73,13 @@ public final class TomlUtils {
      * The regex captures <operator> (package-a) and <version> (>=2.0.0) as separate groups named "operator" and "version"
      */
     private static final String OPERATOR_AND_VERSION_REGEX = "^(?<operator>[><=]+)(?<version>\\d+(?:\\.\\d+)?(?:\\.\\d+)?)$";
+
+    /**
+     * Matches a TOML section header line (single or nested),
+     * e.g. "[a.b]" or "[[a.b]]", capturing the text between the brackets
+     * as group 1 (the full section name without surrounding '[' or ']').
+     */
+    private static final String TOML_SECTION_HEADER_REGEX = "^\\[+(.+?)\\]+$";
 
 
     protected TomlUtils() {
@@ -374,6 +385,84 @@ public final class TomlUtils {
      */
     public static boolean hasComparators(String string) {
         return COMPARATORS.stream().anyMatch(string::contains);
+    }
+
+    /**
+     * Reads a TOML file and extracts every section header (the text between '[' and ']').
+     *
+     * @param file  the TOML file to scan
+     * @return      a list of section names without surrounding brackets
+     */
+    public static List<String> extractTomlSectionHeaders(File file){
+        Pattern headerPattern = Pattern.compile(TOML_SECTION_HEADER_REGEX);
+        List<String> sectionHeadersList = new ArrayList<>();
+        try(BufferedReader reader = new BufferedReader(new FileReader(file))){
+            String line = reader.readLine();
+            while (line != null){
+                Matcher m = headerPattern.matcher(line.strip());
+                if (m.matches()) {
+                    sectionHeadersList.add(m.group(1));
+                }
+                line = reader.readLine();
+            }
+        } catch (IOException e){
+            throw new BatonException("Error while extracting section headers from pyproject.toml file!", e);
+        }
+        return sectionHeadersList;
+    }
+
+    /**
+     * Returns the list of keys in the given TOML section whose values
+     * are themselves nested Config tables (i.e. subsections).
+     *
+     * @param section  the Config representing a TOML table
+     * @return         a list of keys whose associated values are Config instances
+     */
+    public static List<String> getConfigKeys(Config section){
+        List<String> configKeys = new ArrayList<>();
+        for (Config.Entry entry : section.entrySet()){
+            if (entry.getValue() instanceof Config){
+                configKeys.add(entry.getKey());
+            }
+        }
+        return configKeys;
+    }
+
+    /**
+     * Determines whether a TOML section contains no direct key–value entries
+     * and no inline tables, i.e. it only consists of subtables that each
+     * have their own explicit headers.
+     *
+     * @param sectionConfig      the Config representing the TOML section to check
+     * @param parentHeaderName  the full section name used to match headers
+     *                          in allTomlSectionHeaders (e.g. "tool.poetry")
+     * @param allTomlHeaders    list of all section headers in the file (strings between '[' and ']')
+     * @return                   {@code true} if the section has neither literal
+     *                          values nor inline tables; {@code false} otherwise
+     */
+
+    public static boolean isSectionEmpty(Config sectionConfig, String parentHeaderName, List<String> allTomlHeaders){
+        // extract the names of any nested Configs under parent section
+        List<String> childConfigKeys = getConfigKeys(sectionConfig);
+
+        // if there are any literal values (i.e. non-Config entries), the parent section is not empty
+        if (sectionConfig.entrySet().size() != childConfigKeys.size()){
+            return false;
+        }
+
+        // for each nested Config, check if there is a corresponding exact or nested header
+        for (String key : childConfigKeys){
+            String prefix = parentHeaderName + "." + key;
+            // e.g., if parentHeaderName = tool.poetry & key = dependencies,
+            // returns true if [tool.poetry.dependencies] (exact) or [tool.poetry.dependencies.group] (nested) exists
+            boolean headerExists = allTomlHeaders.stream().anyMatch(header -> header.equals(prefix) || header.startsWith(prefix + "."));
+
+            if (!headerExists){
+                // no matching header means this was an inline table and parent section is not empty
+                return false;
+            }
+        }
+        return true;
     }
 
 }

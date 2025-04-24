@@ -59,6 +59,7 @@ This update introduces a number of migrations that ensure configurations are mor
 - `PoetryToProjectRequiresPythonMigration`: Relocates the Python dependency from `[tool.poetry.dependencies]` to the `requires-python` entry under `[project]`
 - `PoetryToProjectDynamicMigration`: Introduces a `dynamic` field under `[project]` that automatically includes `version` and `dependency`, if not already present. If a single `readme` (as a string) is included in `[tool.poetry]`, then migrates it from `[tool.poetry]` to `[project]`. If multiple `readme` values are defined (as a table) in `[tool.poetry]`, `readme` is added to the `dynamic` field list.
 - `PoetryTomlMigration`: Removes deprecated configurations from the `poetry.toml` file
+- `PoetryRemoveEmptyTomlMigration`: Removes any empty `[tool.poetry]` and `[tool.poetry.dependencies]` headers from `pyproject.toml`
 
 **Note:** Baton migrations are forward compatible only. If you upgrade to Poetry v2.0+ and later decide to downgrade, you will need to manually revert the changes in your TOML files.
 

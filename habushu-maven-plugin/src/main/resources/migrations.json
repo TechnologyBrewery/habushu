@@ -79,6 +79,20 @@
             ]
           }
         ]
+      },
+      {
+        "name": "poetry-v2-remove-empty-toml-migration",
+        "implementation": "org.technologybrewery.habushu.migration.poetryv2migrations.PoetryRemoveEmptyTomlMigration",
+        "fileSets": [
+          {
+            "includes": [
+              "pyproject.toml"
+            ],
+            "excludes": [
+              "**/examples/poetry/habushu-poetry-install-from-dev-repo/pyproject.toml"
+            ]
+          }
+        ]
       }
     ]
   }
