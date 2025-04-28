@@ -1,0 +1,61 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.technologybrewery.habushu</groupId>
+        <artifactId>poetry</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+    </parent>
+
+    <name>habushu::Examples::Pyenv Enforcer Rule</name>
+    <description>Example of how to use Habushu's Maven Enforcer Rule for validating pyenv versions</description>
+
+    <artifactId>habushu-pyenv-enforcer-rule</artifactId>
+    <packaging>pom</packaging>
+
+    <build>
+        <directory>dist</directory>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>pyenv-enforcer-example</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>enforce-pyenv</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <!-- 
+                                            NOTE: you will need to XML encode if your leading character is a less than sign:
+                                            Example: <=2.1.1 becomes &lt;=2.1.1
+                                        -->
+                                        <requirePyenvVersion>
+                                            <version>>=1.2.21</version>
+                                        </requirePyenvVersion>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.technologybrewery.habushu</groupId>
+                                <artifactId>habushu-maven-plugin</artifactId>
+                                <version>${project.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

@@ -14,6 +14,7 @@ import org.technologybrewery.habushu.HabushuException;
 import org.technologybrewery.habushu.util.HabushuUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Facilitates the execution of pyenv commands related to managing, selecting,
@@ -28,20 +29,6 @@ public class PyenvCommandHelper {
 
     public PyenvCommandHelper(File workingDirectory) {
         this.workingDirectory = workingDirectory;
-    }
-
-    /**
-     * Returns a boolean value indicating whether pyenv is installed.
-     */
-    public boolean isPyenvInstalled() {
-        try {
-            String foundVersion = executeWithDebugLogging(Arrays.asList("--version"));
-            logger.debug("Found {}", foundVersion);
-        } catch (Throwable e) {
-            return false;
-        }
-
-        return true;
     }
 
     /**
@@ -191,5 +178,14 @@ public class PyenvCommandHelper {
         fullCommandArgs.add(PYENV_COMMAND);
         fullCommandArgs.addAll(arguments);
         return new ProcessExecutor(workingDirectory, fullCommandArgs, Platform.guess(), null);
+    }
+
+    public Pair<Boolean, String> getIsPyenvInstalledAndVersion() {
+        try {
+            String version = executeWithDebugLogging(Arrays.asList("--version"));
+            return Pair.of(true, version.replace("pyenv ", "").trim());
+        } catch (Throwable e) {
+            return Pair.of(false, null);
+        }
     }
 }
