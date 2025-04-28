@@ -288,8 +288,7 @@ Default: None
 
 **Examples:**
 - [Poetry Dependency Groups](../examples/poetry/habushu-poetry-dependency-groups/README.md)
-
-[//]: # (- [uv Dependency Groups]&#40;TODO&#41;)
+- [uv Dependency Groups](../examples/uv/habushu-uv-dependency-groups/README.md)
 
 ### withoutGroups
 Specifies dependency groups to exclude within the installation.  Example usage:
@@ -314,10 +313,11 @@ or
 
 Default: None
 
+**NOTE:** While Habushu does support this configuration for `uv`, `uv sync --no-group <group>` is underdeveloped and does not possess
+strong useful functionality at this time.
+
 **Examples:**
 - [Poetry Dependency Groups](../examples/poetry/habushu-poetry-dependency-groups/README.md)
-
-[//]: # (- [uv Dependency Groups]&#40;TODO&#41;)
 
 ## Managed Dependencies Configurations
 
