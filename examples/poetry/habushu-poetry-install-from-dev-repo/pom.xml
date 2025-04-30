@@ -17,6 +17,18 @@
 
     <build>
         <directory>dist</directory>
+        <plugins>
+            <plugin>
+                <groupId>org.technologybrewery.habushu</groupId>
+                <artifactId>habushu-maven-plugin</artifactId>
+                <configuration>
+                    <deactivateMigrations>
+                        <!--  Skip migration that removes empty TOML headers to keep functional example valid-->
+                        <deactivateMigration>poetry-v2-remove-empty-toml-migration</deactivateMigration>
+                    </deactivateMigrations>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <profiles>

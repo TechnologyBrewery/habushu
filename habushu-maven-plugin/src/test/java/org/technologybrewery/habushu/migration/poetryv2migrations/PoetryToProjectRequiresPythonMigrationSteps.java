@@ -44,6 +44,43 @@ public class PoetryToProjectRequiresPythonMigrationSteps extends AbstractPoetryM
         assertKeyExists(projectEntries, TomlUtils.REQUIRES_PYTHON, false);
     }
 
+    @Given("an existing pyproject.toml file with an inline dependencies table with only python and no requires-python entry in the project group")
+    public void an_existing_pyproject_toml_file_with_inline_dependencies_table_and_no_requires_python_entry_in_project_group() {
+        pyProjectToml = new File(testTomlFileDirectory, "with-only-python-in-inline-deps-table-and-no-requires-python-in-project.toml");
+        Config projectEntries = loadAndAssertGroupExists(TomlUtils.PROJECT);
+        assertKeyExists(projectEntries, TomlUtils.REQUIRES_PYTHON, false);
+        Config toolPoetryDepsEntries = loadAndAssertGroupExists(TomlUtils.TOOL_POETRY_DEPENDENCIES);
+        assertKeyExists(toolPoetryDepsEntries, TomlUtils.PYTHON, true);
+    }
+
+    @Given("an existing pyproject.toml file with an inline dependencies table with multiple entries and no requires-python entry in the project group")
+    public void an_existing_pyproject_toml_file_with_inline_dependencies_table_with_multiple_entries_and_no_requires_python_entry_in_project_group(){
+        pyProjectToml = new File(testTomlFileDirectory, "with-inline-deps-table-and-no-requires-python-in-project.toml");
+        Config projectEntries = loadAndAssertGroupExists(TomlUtils.PROJECT);
+        assertKeyExists(projectEntries, TomlUtils.REQUIRES_PYTHON, false);
+        Config toolPoetryEntries = loadAndAssertGroupExists(TomlUtils.TOOL_POETRY_DEPENDENCIES);
+        assertKeyExists(toolPoetryEntries, TomlUtils.PYTHON, true);
+    }
+
+    @Given("an existing pyproject.toml file with an inline dependencies table with multiple entries and a requires-python entry in the project group")
+    public void an_existing_pyproject_toml_file_with_inline_dependencies_table_with_multiple_entries_and_a_requires_python_entry_in_project_group(){
+        pyProjectToml = new File(testTomlFileDirectory, "with-inline-deps-table-and-a-requires-python-in-project.toml");
+        Config projectEntries = loadAndAssertGroupExists(TomlUtils.PROJECT);
+        assertKeyExists(projectEntries, TomlUtils.REQUIRES_PYTHON, true);
+        Config toolPoetryEntries = loadAndAssertGroupExists(TomlUtils.TOOL_POETRY_DEPENDENCIES);
+        assertKeyExists(toolPoetryEntries, TomlUtils.PYTHON, true);
+    }
+
+    @Given("an existing pyproject.toml file with an inline dependencies table with only python and a requires-python entry in the project group")
+    public void an_existing_pyproject_toml_file_with_inline_dependencies_table_with_only_python_and_a_requires_python_entry_in_project_group(){
+        pyProjectToml = new File(testTomlFileDirectory, "with-only-python-in-inline-deps-table-and-a-requires-python-in-project.toml");
+        Config projectEntries = loadAndAssertGroupExists(TomlUtils.PROJECT);
+        assertKeyExists(projectEntries, TomlUtils.REQUIRES_PYTHON, true);
+        Config toolPoetryEntries = loadAndAssertGroupExists(TomlUtils.TOOL_POETRY_DEPENDENCIES);
+        assertKeyExists(toolPoetryEntries, TomlUtils.PYTHON, true);
+    }
+
+
     @When("the Habushu poetry-to-project-requires-python migration executes")
     public void the_habushu_poetry_to_project_requires_python_migration_executes() {
         PoetryToProjectRequiresPythonMigration migration = new PoetryToProjectRequiresPythonMigration();
@@ -72,5 +109,18 @@ public class PoetryToProjectRequiresPythonMigrationSteps extends AbstractPoetryM
     @Then("the poetry to project requires python migration did not execute")
     public void the_poetry_to_project_requires_python_migration_did_not_execute() {
         assertFalse(shouldExecute, "Migration execution should have been skipped!");
+    }
+
+    @Then("the dependencies inline table no longer exists in the tool.poetry group")
+    public void the_dependencies_inline_table_no_longer_exists_in_tool_poetry_group(){
+        Config toolPoetryEntries = loadAndAssertGroupExists(TomlUtils.TOOL_POETRY);
+        assertKeyExists(toolPoetryEntries, TomlUtils.DEPENDENCIES, false);
+    }
+
+    @Then("python is removed from the dependencies inline table in the tool.poetry group")
+    public void python_is_removed_from_dependencies_inline_table_in_tool_poetry_group(){
+        assertGroupExists(TomlUtils.TOOL_POETRY);
+        Config toolPoetryDepsEntries = loadAndAssertGroupExists(TomlUtils.TOOL_POETRY_DEPENDENCIES);
+        assertKeyExists(toolPoetryDepsEntries, TomlUtils.PYTHON, false);
     }
 }

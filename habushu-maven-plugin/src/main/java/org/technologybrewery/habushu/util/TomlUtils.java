@@ -49,8 +49,8 @@ public final class TomlUtils {
     public static final String DOT = ".";
     public static final String DOT_REGEX = "\\.";
     public static final String PYPROJECT_TOML = "pyproject.toml";
-    public static final String CARROT = "^";
-    public static final String CARROT_REGEX = "\\^";
+    public static final String CARET = "^";
+    public static final String CARET_REGEX = "\\^";
     public static final String GREATER_THAN = ">";
     public static final String GREATER_THAN_OR_EQUAL_TO = ">=";
     public static final String COMMA = ",";
@@ -79,7 +79,20 @@ public final class TomlUtils {
      * e.g. "[a.b]" or "[[a.b]]", capturing the text between the brackets
      * as group 1 (the full section name without surrounding '[' or ']').
      */
-    private static final String TOML_SECTION_HEADER_REGEX = "^\\[+(.+?)\\]+$";
+    private static final Pattern TOML_SECTION_HEADER_PATTERN = Pattern.compile("^\\[+(.+?)\\]+$");
+
+    /**
+     * Matches an inline Python dependency assignment in a TOML table
+     * using single/double quotes, and with optional whitespaces
+     * e.g. `python = ">=3.12.0,<4"`, `python='^3.12'`
+     */
+    public static final Pattern PYTHON_DEPENDENCIES_PATTERN = Pattern.compile("\\bpython\\s*=\\s*('|\").*?('|\")");
+
+    /**
+     * Matches a single comma with optional whitespaces
+     * e.g. `, ` and ` ,`
+     */
+    public static final Pattern COMMA_PATTERN = Pattern.compile("\\s*,\\s*");
 
 
     protected TomlUtils() {
@@ -332,8 +345,8 @@ public final class TomlUtils {
      * @param semver the initial semantic version using a "^"
      * @return the adjusted semantic version using ">=" and "<"
      */
-    public static String refactorCarrotIntoGreaterThanLessThan(String semver) {
-        String[] carrotSplit = semver.split(CARROT_REGEX);
+    public static String refactorCaretIntoGreaterThanLessThan(String semver) {
+        String[] carrotSplit = semver.split(CARET_REGEX);
         String semverNoComparator = carrotSplit[1];
 
         Integer nextMajorSemver;
@@ -394,12 +407,11 @@ public final class TomlUtils {
      * @return      a list of section names without surrounding brackets
      */
     public static List<String> extractTomlSectionHeaders(File file){
-        Pattern headerPattern = Pattern.compile(TOML_SECTION_HEADER_REGEX);
         List<String> sectionHeadersList = new ArrayList<>();
         try(BufferedReader reader = new BufferedReader(new FileReader(file))){
             String line = reader.readLine();
             while (line != null){
-                Matcher m = headerPattern.matcher(line.strip());
+                Matcher m = TOML_SECTION_HEADER_PATTERN.matcher(line.strip());
                 if (m.matches()) {
                     sectionHeadersList.add(m.group(1));
                 }

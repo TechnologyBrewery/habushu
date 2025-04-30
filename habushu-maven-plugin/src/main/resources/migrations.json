@@ -87,9 +87,6 @@
           {
             "includes": [
               "pyproject.toml"
-            ],
-            "excludes": [
-              "**/examples/poetry/habushu-poetry-install-from-dev-repo/pyproject.toml"
             ]
           }
         ]
