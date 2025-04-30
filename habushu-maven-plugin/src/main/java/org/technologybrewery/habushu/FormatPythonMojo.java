@@ -26,22 +26,14 @@ import org.technologybrewery.habushu.util.TomlUtils;
 public class FormatPythonMojo extends AbstractHabushuMojo {
 
     protected static final String FORMATTER_PACKAGE = "ruff";
-    protected static final String PYPROJECT_TOML_FORMATTER_HEADER = "[tool.ruff.format]";
 
-    protected static final String DEFAULT_CONFIGS = String.join("",
-            "\n[tool.ruff.format]\n",
-            "indent-style=\"space\"\n",
-            "line-ending=\"lf\"\n",
-            "quote-style=\"preserve\"\n"
-            );
-        
     protected List<String> formatCommands = Arrays.asList("run", FORMATTER_PACKAGE, "format");
 
     /**
      * Toggle for whether the habushu project should automatically leverage ruff formatting.
      */
-   @Parameter(property = "habushu.useFormatter", defaultValue = "true")
-   protected boolean useFormatter = true;
+    @Parameter(property = "habushu.useFormatter", defaultValue = "true")
+    protected boolean useFormatter = true;
 
     @Override
     public void doExecute() throws HabushuException {
@@ -51,8 +43,6 @@ public class FormatPythonMojo extends AbstractHabushuMojo {
                     String.format("Formatting disabled. Continuing without using %s to format...", FORMATTER_PACKAGE));
             return;
         }
-
-        addDefaultFormatConfigsIfNotPreset(getPyProjectTomlFile());
 
         List<String> directoriesToFormat = new ArrayList<>();
         if (this.sourceDirectory.exists()) {
@@ -85,32 +75,5 @@ public class FormatPythonMojo extends AbstractHabushuMojo {
                     String.format("%s dependency not specified in pyproject.toml - installing now...", FORMATTER_PACKAGE));
             helper.installDevelopmentDependency(FORMATTER_PACKAGE);
         }
-    }
-
-    protected void addDefaultFormatConfigsIfNotPreset(File pyprojectToml) throws HabushuException {
-        try {
-            if (pyprojectToml.exists()) {
-                if(!containsRuffFormatterConfigs(pyprojectToml)) {
-                    Files.write(
-                            pyprojectToml.toPath(),
-                            DEFAULT_CONFIGS.getBytes(StandardCharsets.UTF_8),
-                            StandardOpenOption.APPEND
-                    );
-                }
-            } else{
-                throw new HabushuException(String.format("Config file %s not found", TomlUtils.PYPROJECT_TOML));
-            }
-        } catch(IOException e){
-            getLog().error("Error adding default ruff configurations to pyproject.toml file");
-            throw new HabushuException(e);
-        }
-    }
-
-    protected boolean containsRuffFormatterConfigs(File pyprojectToml) throws IOException {
-        Stream<String> configsStream = Files.lines(pyprojectToml.toPath());
-        boolean configsFound = configsStream
-                .anyMatch(line -> line.contains(PYPROJECT_TOML_FORMATTER_HEADER));
-        configsStream.close();
-        return configsFound;
     }
 }

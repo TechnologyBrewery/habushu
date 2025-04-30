@@ -28,14 +28,6 @@ dev = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.ruff.lint]
-ignore = ["E4","E7","F"]
-
-[tool.ruff.format]
-indent-style="space"
-line-ending="lf"
-quote-style="preserve"
-
 # Added by habushu-maven-plugin at 2025-04-09T09:49:04.175061 to use https://pypi.org/simple/ as source repository for installing dependencies
 [[tool.uv.index]]
 name = "pypi"

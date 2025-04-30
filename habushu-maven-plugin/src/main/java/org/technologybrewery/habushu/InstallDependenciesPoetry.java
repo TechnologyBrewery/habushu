@@ -210,12 +210,8 @@ public class InstallDependenciesPoetry extends AbstractInstallDependencies {
                     String line = reader.readLine();
 
                     while (line != null) {
-                        if (line.contains(StringUtils.SPACE) || line.contains(EQUALS)) {
-                            String key = line.substring(0, line.indexOf(StringUtils.SPACE));
-
-                            if (key == null) {
-                                key = line.substring(0, line.indexOf(EQUALS));
-                            }
+                        if (line.contains(EQUALS)) {
+                            String key = line.substring(0, line.indexOf(EQUALS));
 
                             if (key != null) {
                                 key = key.strip();

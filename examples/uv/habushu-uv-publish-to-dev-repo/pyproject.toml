@@ -13,11 +13,6 @@ dependencies = []
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.ruff.format]
-indent-style="space"
-line-ending="lf"
-quote-style="preserve"
-
 [dependency-groups]
 dev = [
     "ruff>=0.11.4",
@@ -28,7 +23,6 @@ dev = [
 name = "pypi"
 url = "https://pypi.org/simple/"
 publish-url = "https://pypi.org/simple/"
-
 
 # Added by habushu-maven-plugin at 2025-04-09T10:47:56.854887 to use http://127.0.0.1:8080/simple/ as source PyPi repository for installing dependencies
 [[tool.uv.index]]
