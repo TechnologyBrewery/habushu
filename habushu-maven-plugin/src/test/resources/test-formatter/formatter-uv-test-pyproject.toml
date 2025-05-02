@@ -14,10 +14,3 @@ description = "Example of how to use the habushu-maven-plugin"
 dev = [
     "ruff>=0.9.9",
 ]
-
-[tool.ruff]
-line-length = 120
-indent-width = 4
-
-[tool.ruff.format]
-quote-style = "preserve"
