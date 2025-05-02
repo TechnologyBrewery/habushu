@@ -18,17 +18,11 @@ build-backend = "hatchling.build"
 [tool.uv.sources]
 habushu-uv-package = { path = "../habushu-uv-package", editable = true }
 
-
 # Added by habushu-maven-plugin at 2025-04-14T10:35:55.964075 to use https://pypi.org/simple/ as source repository for installing dependencies
 [[tool.uv.index]]
 name = "pypi"
 url = "https://pypi.org/simple/"
 publish-url = "https://pypi.org/simple/"
-
-[tool.ruff.format]
-indent-style="space"
-line-ending="lf"
-quote-style="preserve"
 
 [dependency-groups]
 dev = [

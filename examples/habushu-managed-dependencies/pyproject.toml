@@ -15,11 +15,3 @@ kappa-maki = ">=1.0.0"
 [build-system]
 requires = ["poetry-core>=1.6.0"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.ruff.format]
-indent-style="space"
-line-ending="lf"
-quote-style="preserve"
-
-[tool.ruff.lint]
-ignore = ["E4","E7","F"]

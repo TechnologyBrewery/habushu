@@ -21,11 +21,6 @@ ruff = "^0.11.4"
 requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.ruff.format]
-indent-style="space"
-line-ending="lf"
-quote-style="preserve"
-
 # Added by habushu-maven-plugin at 2025-04-09T12:53:27.609351 to use http://127.0.0.1:8080/simple/ as source PyPi repository for installing dependencies
 [[tool.poetry.source]]
 name = "private-repo"

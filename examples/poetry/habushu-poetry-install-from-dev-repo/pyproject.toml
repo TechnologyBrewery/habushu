@@ -21,18 +21,11 @@ name = "private-repo"
 url = "http://127.0.0.1:8080/simple/"
 priority = "supplemental"
 
-[tool.poetry.dependencies]
 #    UNCOMMENT TO ENABLE FUNCTIONAL EXAMPLE
 #habushu-poetry-publish-to-dev-repo = {source = "private-repo"}
-
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.11.4"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.ruff.format]
-indent-style="space"
-line-ending="lf"
-quote-style="preserve"

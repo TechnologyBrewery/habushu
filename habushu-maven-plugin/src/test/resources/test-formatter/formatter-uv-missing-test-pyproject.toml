@@ -15,6 +15,4 @@ line-length = 120
 indent-width = 4
 
 [tool.ruff.format]
-indent-style="space"
-line-ending="lf"
-quote-style="preserve"
+quote-style = "preserve"
