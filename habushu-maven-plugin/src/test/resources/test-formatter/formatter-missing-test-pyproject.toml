@@ -10,10 +10,3 @@ dynamic = ["version"]
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.ruff]
-line-length = 120
-indent-width = 4
-
-[tool.ruff.format]
-quote-style = "preserve"

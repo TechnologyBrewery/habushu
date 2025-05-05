@@ -9,10 +9,3 @@ requires-python = "<4.0,>=3.9"
 name = "habushu_uv_package"
 version = "2.4.0.dev"
 description = "Example of how to use the habushu-maven-plugin"
-
-[tool.ruff]
-line-length = 120
-indent-width = 4
-
-[tool.ruff.format]
-quote-style = "preserve"

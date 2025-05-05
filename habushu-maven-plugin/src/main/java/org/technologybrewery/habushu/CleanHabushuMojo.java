@@ -81,13 +81,19 @@ public class CleanHabushuMojo extends CleanMojo {
     @Override
     public void execute() throws MojoExecutionException {
         if (HabushuUtil.HABUSHU.equals(packaging)) {
-            if (HabushuUtil.checkPythonPackageManager(new File(workingDirectory, TomlUtils.PYPROJECT_TOML)) == PackageManager.POETRY){
-                CleanHabushuPoetry cleanHabushuPoetry = new CleanHabushuPoetry(workingDirectory, getLog(), this);
-                cleanHabushuPoetry.doExecute();
+            File pyprojectFile = new File(workingDirectory, TomlUtils.PYPROJECT_TOML);
+            if (pyprojectFile.exists()){
+                if (HabushuUtil.checkPythonPackageManager(new File(workingDirectory, TomlUtils.PYPROJECT_TOML)) == PackageManager.POETRY){
+                    CleanHabushuPoetry cleanHabushuPoetry = new CleanHabushuPoetry(workingDirectory, getLog(), this);
+                    cleanHabushuPoetry.doExecute();
+                } else {
+                    CleanHabushuUv cleanHabushuUv = new CleanHabushuUv(workingDirectory, getLog(), this);
+                    cleanHabushuUv.doExecute();
+                }
             } else {
-                CleanHabushuUv cleanHabushuUv = new CleanHabushuUv(workingDirectory, getLog(), this);
-                cleanHabushuUv.doExecute();
+                getLog().info("Skipping execution - pyproject.toml does not exist");
             }
+
 
         } else {
             getLog().info("Skipping execution - packaging type is not 'habushu'");
