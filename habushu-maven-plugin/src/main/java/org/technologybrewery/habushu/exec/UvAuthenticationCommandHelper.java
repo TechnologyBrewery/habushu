@@ -86,6 +86,7 @@ public class UvAuthenticationCommandHelper extends AbstractCommandHelper {
             arguments.add(groupName);
         }
         for (String groupName : withoutGroups) {
+            logger.warn("While Habushu does support this configuration, `uv sync --no-group` is underdeveloped and does not possess strong useful functionality at this time.");
             arguments.add("--no-group");
             arguments.add(groupName);
         }
