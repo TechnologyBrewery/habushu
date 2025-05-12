@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 public class ContainerizeDepsMojo extends AbstractHabushuMojo {
 
     private static final Logger logger = LoggerFactory.getLogger(ContainerizeDepsMojo.class);
-    private PackageManager packageManager;
+    public PackageManager packageManager;
 
     @Component
     protected MavenSession session;
@@ -82,9 +82,39 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     protected String dockerUser;
 
     /**
+     * Overwrite with Docker template path if a custom template is preferred.
+     */
+    @Parameter(property = "habushu.dockerTemplatePath")
+    protected File dockerTemplatePath;
+
+    /**
+     * The default Dockerfile builder stage template for Poetry. Overwrite if a custom template is preferred.
+     */
+    @Parameter(defaultValue = "templates/dockerfile_poetry_builder_stage_template.vm", property = "habushu.dockerPoetryBuilderStageTemplatePath")
+    protected String dockerPoetryBuilderStageTemplatePath;
+
+    /**
+     * The default Dockerfile final stage template for Poetry. Overwrite if a custom template is preferred.
+     */
+    @Parameter(defaultValue = "templates/dockerfile_poetry_final_stage_template.vm", property = "habushu.dockerPoetryFinalStageTemplatePath")
+    protected String dockerPoetryFinalStageTemplatePath;
+
+    /**
+     * The default Dockerfile builder stage template for Poetry. Overwrite if a custom template is preferred.
+     */
+    @Parameter(defaultValue = "templates/dockerfile_uv_builder_stage_template.vm", property = "habushu.dockerUvBuilderStageTemplatePath")
+    protected String dockerUvBuilderStageTemplatePath;
+
+    /**
+     * The default Dockerfile final stage template for Poetry. Overwrite if a custom template is preferred.
+     */
+    @Parameter(defaultValue = "templates/dockerfile_uv_final_stage_template.vm", property = "habushu.dockerUvFinalStageTemplatePath")
+    protected String dockerUvFinalStageTemplatePath;
+
+    /**
      * The base image to use for building the virtual env. This base image will be used to bundle the virtual
      * environment for the target project. As the venv must be built on the same platform as the final runtime to ensure
-     * compatibility, this image must share a platform with {@link dockerFinalBase}. The base image must have the target
+     * compatibility, this image must share a platform with {@link #dockerFinalBase}. The base image must have the target
      * Python version resolvable via the PATH.
      */
     @Parameter(defaultValue = "docker.io/python:3.12", property = "habushu.dockerBuilderBase")
@@ -93,7 +123,7 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     /**
      * The base image to use for final packaging of the virtual env. This base image will be used to run the final
      * container runtime.  As the venv must be built on the same platform as the final runtime to ensure compatibility,
-     * this image must share a platform with {@link dockerBuilderBase}. The base image must have the target Python
+     * this image must share a platform with {@link #dockerBuilderBase}. The base image must have the target Python
      * version resolvable via the PATH.
      */
     @Parameter(defaultValue = "docker.io/python:3.12-slim", property = "habushu.dockerFinalBase")
@@ -287,10 +317,9 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
 
     protected void performDockerfileUpdateForVirtualEnvironment(Path targetProjectPath) {
         Path outputDir = dockerContext.toPath().relativize(getStagingPath());
-        ContainerizeDepsDockerfileHelper helper = new ContainerizeDepsDockerfileHelper();
+        ContainerizeDepsDockerfileHelper helper = new ContainerizeDepsDockerfileHelper(this);
         String updatedDockerfile =
-                helper.updateDockerfileWithContainerStageLogic(this.packageManager, this.dockerfile,
-                    outputDir.toString(), targetProjectPath.toString(), dockerUser, dockerBuilderBase, dockerFinalBase, dockerPoetryVersion, dockerPoetryPluginBundleVersion, dockerUvVersion);
+                helper.updateDockerfileWithContainerStageLogic(outputDir.toString(), targetProjectPath.toString());
 
         try (Writer writer = new FileWriter(this.dockerfile)) {
             writer.write(updatedDockerfile);
@@ -305,6 +334,54 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
                 .filter(d -> HabushuUtil.HABUSHU.equals(d.getType()))
                 .map(ContainerizeDepsMojo::toGav)
                 .collect(Collectors.toSet());
+    }
+
+    public File getDockerfile() {
+        return dockerfile;
+    }
+
+    public String getDockerUser() {
+        return dockerUser;
+    }
+
+    public File getDockerTemplatePath() {
+        return dockerTemplatePath;
+    }
+
+    public String getDockerPoetryBuilderStageTemplatePath(){
+        return dockerPoetryBuilderStageTemplatePath;
+    }
+
+    public String getDockerPoetryFinalStageTemplatePath(){
+        return dockerPoetryFinalStageTemplatePath;
+    }
+
+    public String getDockerUvBuilderStageTemplatePath(){
+        return dockerUvBuilderStageTemplatePath;
+    }
+
+    public String getDockerUvFinalStageTemplatePath(){
+        return dockerUvFinalStageTemplatePath;
+    }
+
+    public String getDockerBuilderBase() {
+        return dockerBuilderBase;
+    }
+
+    public String getDockerFinalBase() {
+        return dockerFinalBase;
+    }
+
+    public String getDockerPoetryVersion() {
+        return dockerPoetryVersion;
+    }
+
+    public String getDockerPoetryPluginBundleVersion() {
+        return dockerPoetryPluginBundleVersion;
+    }
+
+    public String getDockerUvVersion() {
+        return dockerUvVersion;
     }
 
     /**

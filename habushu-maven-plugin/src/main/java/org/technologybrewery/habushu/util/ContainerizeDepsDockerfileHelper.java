@@ -1,6 +1,9 @@
 package org.technologybrewery.habushu.util;
 
 import org.apache.velocity.VelocityContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.technologybrewery.habushu.ContainerizeDepsMojo;
 import org.technologybrewery.habushu.HabushuException;
 
 import org.apache.velocity.Template;
@@ -8,37 +11,51 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 
 import java.io.StringWriter;
-import java.io.File;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.Properties;
+import java.io.File;
 
 public class ContainerizeDepsDockerfileHelper {
+    private final ContainerizeDepsMojo containerizeDepsMojo;
+    private final VelocityEngine engine;
     public static final String HABUSHU_FINAL_STAGE = "#HABUSHU_FINAL_STAGE";
     public static final String HABUSHU_BUILDER_STAGE = "#HABUSHU_BUILDER_STAGE";
     public static final String HABUSHU_COMMENT_START = " - HABUSHU GENERATED CODE (DO NOT MODIFY)";
     public static final String HABUSHU_COMMENT_END = " - HABUSHU GENERATED CODE (END)";
-    public static final String POETRY_FINAL_STAGE_TEMPLATE = "templates/dockerfile_poetry_final_stage_template.vm";
-    public static final String POETRY_BUILDER_STAGE_TEMPLATE = "templates/dockerfile_poetry_builder_stage_template.vm";
-    public static final String UV_FINAL_STAGE_TEMPLATE = "templates/dockerfile_uv_final_stage_template.vm";
-    public static final String UV_BUILDER_STAGE_TEMPLATE = "templates/dockerfile_uv_builder_stage_template.vm";
-    public static final String BUILDER_STAGE = "BUILDER_STAGE";
-    public static final String FINAL_STAGE = "FINAL_STAGE";
+    private static final String BUILDER_STAGE = "BUILDER_STAGE";
+    private static final String FINAL_STAGE = "FINAL_STAGE";
+    private static final Logger log = LoggerFactory.getLogger(ContainerizeDepsDockerfileHelper.class);
 
 
-    private final VelocityEngine engine;
 
     /**
      * This class can be initialized to generate and write a dockerfile for venv use
      */
-    public ContainerizeDepsDockerfileHelper() {
-        Properties props = new Properties();
-        props.setProperty("resource.loader", "classpath");
-        props.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
-        props.setProperty("file.resource.loader.class", "org.apache.velocity.runtime.resource.loader.FileResourceLoader");
-        props.setProperty("file.resource.loader.path", "src/main/resources/templates"); // Directory containing Dockerfile templates
-        engine = new VelocityEngine(props);
+    public ContainerizeDepsDockerfileHelper(ContainerizeDepsMojo containerizeDepsMojo) {
+        this.containerizeDepsMojo = containerizeDepsMojo;
+        this.engine = new VelocityEngine();
+
+        File dockerTemplatePath = containerizeDepsMojo.getDockerTemplatePath();
+        if (dockerTemplatePath != null){
+            setVelocityPropertiesForFilePath(dockerTemplatePath);
+        } else {
+            setVelocityPropertiesForClassPath();
+        }
+    }
+
+    private void setVelocityPropertiesForClassPath() {
+        engine.setProperty("resource.loader", "classpath");
+        engine.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
+        engine.setProperty("runtime.log.logsystem.class", "org.apache.velocity.runtime.log.NullLogChute");
+        engine.init();
+    }
+
+    private void setVelocityPropertiesForFilePath(File templateDir) {
+        engine.setProperty("resource.loader", "file");
+        engine.setProperty("file.resource.loader.class", "org.apache.velocity.runtime.resource.loader.FileResourceLoader");
+        engine.setProperty("file.resource.loader.path", templateDir.getAbsolutePath());
+        engine.setProperty("runtime.log.logsystem.class", "org.apache.velocity.runtime.log.NullLogChute");
         engine.init();
     }
 
@@ -53,17 +70,17 @@ public class ContainerizeDepsDockerfileHelper {
 
     private String getPoetryStageTemplate(String stage) {
         if (BUILDER_STAGE.equals(stage)){
-            return POETRY_BUILDER_STAGE_TEMPLATE;
+            return containerizeDepsMojo.getDockerPoetryBuilderStageTemplatePath();
         } else {
-            return POETRY_FINAL_STAGE_TEMPLATE;
+            return containerizeDepsMojo.getDockerPoetryFinalStageTemplatePath();
         }
     }
 
     private String getUvStageTemplate(String stage) {
         if (BUILDER_STAGE.equals(stage)){
-            return UV_BUILDER_STAGE_TEMPLATE;
+            return containerizeDepsMojo.getDockerUvBuilderStageTemplatePath();
         } else {
-            return UV_FINAL_STAGE_TEMPLATE;
+            return containerizeDepsMojo.getDockerUvFinalStageTemplatePath();
         }
     }
 
@@ -78,20 +95,18 @@ public class ContainerizeDepsDockerfileHelper {
         context.setVersion(uvVersion);
     }
 
-    private String getDockerTemplate(PackageManager packageManager, String stage, String anchorDirectory, String moduleBaseDir,
-                                                  String owner, String baseImage, String poetryVersion,
-                                                  String poetryPluginBundleVersion, String uvVersion) {
+    private String getDockerTemplate(String stage, String anchorDirectory, String moduleBaseDir, String baseImage) {
         String template;
-        if (PackageManager.POETRY.equals(packageManager)) {
+        if (PackageManager.POETRY.equals(containerizeDepsMojo.packageManager)) {
             ContainerizeDepsVelocityContextPoetry context = new ContainerizeDepsVelocityContextPoetry();
-            setSharedVelocityTemplateContext(context, anchorDirectory, moduleBaseDir, owner, baseImage);
-            setPoetryVelocityTemplateContext(context, poetryPluginBundleVersion, poetryVersion);
+            setSharedVelocityTemplateContext(context, anchorDirectory, moduleBaseDir, containerizeDepsMojo.getDockerUser(), baseImage);
+            setPoetryVelocityTemplateContext(context, containerizeDepsMojo.getDockerPoetryPluginBundleVersion(), containerizeDepsMojo.getDockerPoetryVersion());
             template = getPoetryStageTemplate(stage);
             return createContainerStageContentFrom(context, template);
         } else {
             ContainerizeDepsVelocityContextUv context = new ContainerizeDepsVelocityContextUv();
-            setSharedVelocityTemplateContext(context, anchorDirectory, moduleBaseDir, owner, baseImage);
-            setUvVelocityTemplateContext(context, uvVersion);
+            setSharedVelocityTemplateContext(context, anchorDirectory, moduleBaseDir, containerizeDepsMojo.getDockerUser(), baseImage);
+            setUvVelocityTemplateContext(context, containerizeDepsMojo.getDockerUvVersion());
             template = getUvStageTemplate(stage);
             return createContainerStageContentFrom(context, template);
         }
@@ -111,25 +126,20 @@ public class ContainerizeDepsDockerfileHelper {
 
     /**
      * Update the Dockerfile with container stage logic
-     * @param dockerFile the Dockerfile to be updated
      * @param anchorDirectory the anchor directory
-     * @param moduleBaseDir the module base directory
-     * @param owner the uid/name to give ownership of the virtual env to within the container
-     * @param builderBaseImage the image to use for bundling the virtual environment
-     * @param finalBaseImage the image to use for running the virtual environment
      * @return updated Dockerfile content
      */
-    public String updateDockerfileWithContainerStageLogic(PackageManager packageManager, File dockerFile, String anchorDirectory, String moduleBaseDir, String owner, String builderBaseImage, String finalBaseImage, String poetryVersion, String poetryPluginBundleVersion, String uvVersion) {
+    public String updateDockerfileWithContainerStageLogic(String anchorDirectory, String moduleBaseDir) {
 
-        String builderStageContent = getDockerTemplate(packageManager, BUILDER_STAGE, anchorDirectory, moduleBaseDir, owner, builderBaseImage, poetryVersion, poetryPluginBundleVersion, uvVersion);
-        String finalStageContent = getDockerTemplate(packageManager, FINAL_STAGE, null, moduleBaseDir, owner, finalBaseImage, null, null, null);
+        String builderStageContent = getDockerTemplate(BUILDER_STAGE, anchorDirectory, moduleBaseDir, containerizeDepsMojo.getDockerBuilderBase());
+        String finalStageContent = getDockerTemplate(FINAL_STAGE, null, moduleBaseDir, containerizeDepsMojo.getDockerFinalBase());
         StringBuilder content = new StringBuilder();
         boolean builderStageContentIncluded = false;
         boolean finalStageContentIncluded = false;
         int firstFromLine = -1;
 
         boolean skipLine = false;
-        try (BufferedReader buffer = new BufferedReader(new FileReader(dockerFile))) {
+        try (BufferedReader buffer = new BufferedReader(new FileReader(containerizeDepsMojo.getDockerfile()))) {
             String line = buffer.readLine();
 
             while (line != null) {
