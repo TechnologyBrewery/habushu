@@ -18,7 +18,7 @@ RUN uv sync --frozen --no-editable --no-dev
 FROM docker.io/python:3.12-slim AS final
 
 # Copy venv from builder and activate by adding to the path
-COPY --from=habushu_builder --chown=1001 \
+COPY --from=habushu_builder --chown=1001 --chmod=744 \
     /work-dir/containerize-support/examples/uv/habushu-uv-package-consumer/.venv \
     /opt/venv/
 ENV PATH="/opt/venv/bin:$PATH"

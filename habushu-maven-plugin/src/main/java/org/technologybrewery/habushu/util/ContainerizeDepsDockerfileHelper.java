@@ -60,11 +60,12 @@ public class ContainerizeDepsDockerfileHelper {
     }
 
     private void setSharedVelocityTemplateContext(AbstractContainerizeDepsVelocityContext context,
-                                                  String anchorDirectory, String singleRepoProjectDir, String owner,
+                                                  String anchorDirectory, String singleRepoProjectDir,
                                                   String baseImage) {
         context.setAnchorDirectory(anchorDirectory);
         context.setSingleRepoProjectDir(singleRepoProjectDir);
-        context.setOwner(owner);
+        context.setOwner(containerizeDepsMojo.getDockerUser());
+        context.setVenvDirectoryPermissions(containerizeDepsMojo.getDockerVenvDirectoryPermissions());
         context.setBaseImage(baseImage);
     }
 
@@ -84,29 +85,27 @@ public class ContainerizeDepsDockerfileHelper {
         }
     }
 
-    private void setPoetryVelocityTemplateContext(ContainerizeDepsVelocityContextPoetry context,
-                                                  String poetryPluginBundleVersion, String poetryVersion) {
-        context.setPluginBundleVersion(poetryPluginBundleVersion);
-        context.setVersion(poetryVersion);
+    private void setPoetryVelocityTemplateContext(ContainerizeDepsVelocityContextPoetry context) {
+        context.setPluginBundleVersion(containerizeDepsMojo.getDockerPoetryPluginBundleVersion());
+        context.setVersion(containerizeDepsMojo.getDockerPoetryVersion());
     }
 
-    private void setUvVelocityTemplateContext(ContainerizeDepsVelocityContextUv context,
-                                                  String uvVersion) {
-        context.setVersion(uvVersion);
+    private void setUvVelocityTemplateContext(ContainerizeDepsVelocityContextUv context) {
+        context.setVersion(containerizeDepsMojo.getDockerUvVersion());
     }
 
     private String getDockerTemplate(String stage, String anchorDirectory, String moduleBaseDir, String baseImage) {
         String template;
         if (PackageManager.POETRY.equals(containerizeDepsMojo.packageManager)) {
             ContainerizeDepsVelocityContextPoetry context = new ContainerizeDepsVelocityContextPoetry();
-            setSharedVelocityTemplateContext(context, anchorDirectory, moduleBaseDir, containerizeDepsMojo.getDockerUser(), baseImage);
-            setPoetryVelocityTemplateContext(context, containerizeDepsMojo.getDockerPoetryPluginBundleVersion(), containerizeDepsMojo.getDockerPoetryVersion());
+            setSharedVelocityTemplateContext(context, anchorDirectory, moduleBaseDir, baseImage);
+            setPoetryVelocityTemplateContext(context);
             template = getPoetryStageTemplate(stage);
             return createContainerStageContentFrom(context, template);
         } else {
             ContainerizeDepsVelocityContextUv context = new ContainerizeDepsVelocityContextUv();
-            setSharedVelocityTemplateContext(context, anchorDirectory, moduleBaseDir, containerizeDepsMojo.getDockerUser(), baseImage);
-            setUvVelocityTemplateContext(context, containerizeDepsMojo.getDockerUvVersion());
+            setSharedVelocityTemplateContext(context, anchorDirectory, moduleBaseDir, baseImage);
+            setUvVelocityTemplateContext(context);
             template = getUvStageTemplate(stage);
             return createContainerStageContentFrom(context, template);
         }

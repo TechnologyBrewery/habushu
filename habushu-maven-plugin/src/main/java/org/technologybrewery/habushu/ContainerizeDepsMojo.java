@@ -82,6 +82,13 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     protected String dockerUser;
 
     /**
+     * The directory permissions for the virtual env.
+     * Set to an empty string to disable.
+     */
+    @Parameter(defaultValue = "744", property = "habushu.dockerVenvDirectoryPermissions")
+    protected String dockerVenvDirectoryPermissions;
+
+    /**
      * Overwrite with Docker template path if a custom template is preferred.
      */
     @Parameter(property = "habushu.dockerTemplatePath")
@@ -342,6 +349,10 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
 
     public String getDockerUser() {
         return dockerUser;
+    }
+
+    public String getDockerVenvDirectoryPermissions(){
+        return dockerVenvDirectoryPermissions;
     }
 
     public File getDockerTemplatePath() {

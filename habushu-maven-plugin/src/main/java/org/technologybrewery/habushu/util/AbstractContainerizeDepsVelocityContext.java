@@ -8,6 +8,8 @@ public abstract class AbstractContainerizeDepsVelocityContext extends VelocityCo
     private static final String BASE_IMAGE = "baseImage";
     private static final String ANCHOR_DIRECTORY = "anchorDirectory";
     private static final String CHOWN = "chownPlaceholder";
+    private static final String CHMOD = "chmodPlaceholder";
+
 
     public void setSingleRepoProjectDir(String singleRepoProjectDir) {
         put(SINGLE_REPO_PROJECT_DIR, singleRepoProjectDir);
@@ -26,6 +28,14 @@ public abstract class AbstractContainerizeDepsVelocityContext extends VelocityCo
             put(CHOWN, "--chown=" + owner);
         } else {
             put(CHOWN, StringUtils.EMPTY);
+        }
+    }
+
+    public void setVenvDirectoryPermissions(String permissions) {
+        if (StringUtils.isNotEmpty(permissions)) {
+            put(CHMOD, "--chmod=" + permissions);
+        } else {
+            put(CHMOD, StringUtils.EMPTY);
         }
     }
 
