@@ -2,7 +2,6 @@ package org.technologybrewery.habushu;
 
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
-import io.cucumber.java.ParameterType;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -10,7 +9,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.junit.jupiter.api.Assertions;
-import org.technologybrewery.habushu.util.PackageManager;
+import org.technologybrewery.habushu.util.ContainerizeDepsDockerfileHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,23 +21,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.fail;
-
 public class ContainerizeDepsSteps {
-    private static final String HABUSHU_FINAL_STAGE = "#HABUSHU_FINAL_STAGE";
-    private static final String HABUSHU_BUILDER_STAGE = "#HABUSHU_BUILDER_STAGE";
-    private static final String HABUSHU_COMMENT_START = " - HABUSHU GENERATED CODE (DO NOT MODIFY)";
-    private static final String HABUSHU_COMMENT_END = " - HABUSHU GENERATED CODE (END)";
-
 
     protected String targetDefaultNoMonorepoDepPath = "target/test-classes/containerize-dependencies/"
             + "default-no-monorepo-dep/test-monorepo";
     protected String targetDefaultSingleMonorepoDepPath = "target/test-classes/containerize-dependencies/"
             + "default-single-monorepo-dep/test-monorepo";
-    protected String targetUvNoMonorepoDepPath = "target/test-classes/containerize-dependencies/"
-                                                      + "uv-no-monorepo-dep/test-monorepo";
-    protected String targetUvSingleMonorepoDepPath = "target/test-classes/containerize-dependencies/"
-                                                          + "uv-single-monorepo-dep/test-monorepo";
     protected File dockerfile;
     protected String mavenProjectPath;
     private final String POM_FILE = "pom.xml";
@@ -46,14 +34,6 @@ public class ContainerizeDepsSteps {
     private final ContainerizeDepsMojoTestWrapper mojoTestCase = new ContainerizeDepsMojoTestWrapper();
 
     private ContainerizeDepsMojo mojo;
-
-    /**
-     * Define Cucumber parameter parsing for org.technologybrewery.habushu.util.PackageManager
-     */
-    @ParameterType("(?i)POETRY|UV")
-    public PackageManager packageManager(String packageManager) {
-        return PackageManager.valueOf(packageManager.toUpperCase());
-    }
 
     @Before("@containerizeDependencies")
     public void configureMavenTestSession() throws Exception {
@@ -71,19 +51,18 @@ public class ContainerizeDepsSteps {
         }
     }
 
-    @Given("a single dependency with packaging type habushu for {packageManager}")
-    public void a_single_dependency_with_packaging_type_habushu_for(PackageManager packageManager) throws Exception {
-        String path = PackageManager.POETRY.equals(packageManager) ? targetDefaultSingleMonorepoDepPath : targetUvSingleMonorepoDepPath;
-        mavenProjectPath = path + "/extensions/extensions-monorepo-dep-consuming-application";
+    @Given("a single dependency with packaging type habushu")
+    public void a_single_dependency_with_packaging_type_habushu() throws Exception {
+        mavenProjectPath = targetDefaultSingleMonorepoDepPath + "/extensions/extensions-monorepo-dep-consuming-application";
 
         // enables us to mock a maven build with the --also-make flag
-        mojoTestCase.addMavenProjectFile(new File(path + "/extensions/extensions-python-dep-X/pom.xml"));
-        mojoTestCase.addMavenProjectFile(new File(path + "/foundation/foundation-python-dep-Y/pom.xml"));
+        mojoTestCase.addMavenProjectFile(new File(targetDefaultSingleMonorepoDepPath + "/extensions/extensions-python-dep-X/pom.xml"));
+        mojoTestCase.addMavenProjectFile(new File(targetDefaultSingleMonorepoDepPath + "/foundation/foundation-python-dep-Y/pom.xml"));
 
         mojo = (ContainerizeDepsMojo) mojoTestCase.lookupConfiguredMojo(
                 new File(mavenProjectPath, POM_FILE), "containerize-dependencies"
         );
-        mojo.session.getRequest().setBaseDirectory(new File(path));
+        mojo.session.getRequest().setBaseDirectory(new File(targetDefaultSingleMonorepoDepPath));
 
     }
 
@@ -92,28 +71,10 @@ public class ContainerizeDepsSteps {
         mojo.execute();
     }
 
-    @Then("the source files of the dependency and transitive Habushu-type dependencies are staged for {packageManager} containerization")
+    @Then("the source files of the dependency and transitive Habushu-type dependencies are staged for containerization")
     public void
-    the_source_files_of_the_dependency_and_transitive_habushu_type_dependencies_are_staged_for_containerization(final PackageManager packageManager) {
-        assertStaged(mojo.getStagingPath(), packageManager);
-    }
-
-    @Given("no Habushu-type dependencies for {packageManager}")
-    public void no_habushu_type_dependencies(PackageManager packageManager) throws Exception {
-        String path = PackageManager.POETRY.equals(packageManager) ?
-                targetDefaultNoMonorepoDepPath : targetUvNoMonorepoDepPath;
-        mavenProjectPath = path + "/no-monorepo-dep-application";
-        mojo = (ContainerizeDepsMojo) mojoTestCase.lookupConfiguredMojo(
-                new File(mavenProjectPath, POM_FILE), "containerize-dependencies"
-        );
-        mojo.session.getRequest().setBaseDirectory(new File(path));
-    }
-
-    @Then("no source files are staged in the build directory")
-    public void no_source_files_are_staged_in_the_build_directory() {
-        String containerizeSupportPath = mojo.getSession().getCurrentProject().getBuild().getDirectory()
-                + "/containerize-support";
-        Assertions.assertTrue(isNonExistentOrEmptyDir(new File(containerizeSupportPath)));
+    the_source_files_of_the_dependency_and_transitive_habushu_type_dependencies_are_staged_for_containerization() {
+        assertStaged(mojo.getStagingPath());
     }
 
     @Given("a dockerfile to update")
@@ -121,21 +82,22 @@ public class ContainerizeDepsSteps {
         setDockerfile("/src/main/resources/docker/Dockerfile");
     }
 
-    @Then("all the source files to build the dependency are staged for {packageManager} in the build directory")
-    public void all_the_source_files_to_build_the_dep_are_staged_in_the_build_directory(PackageManager packageManager) {
-        assertStaged(mojo.getStagingPath(), packageManager);
+    @Then("all the source files to build the dependency are staged in the build directory")
+    public void all_the_source_files_to_build_the_dep_are_staged_in_the_build_directory() {
+        assertStaged(mojo.getStagingPath());
     }
 
     @Then("the Dockerfile is updated to leverage a virtual environment for the dependency")
     public void dockerfile_is_updated_to_build_a_virtual_env_for_the_dependency() {
         String updatedDockerfile = getUpdatedDockerfile();
-        Assertions.assertTrue(updatedDockerfile.contains(HABUSHU_BUILDER_STAGE + HABUSHU_COMMENT_START),
+        StringBuilder contentBuilder = new StringBuilder();
+        Assertions.assertTrue(updatedDockerfile.contains(ContainerizeDepsDockerfileHelper.HABUSHU_BUILDER_STAGE + ContainerizeDepsDockerfileHelper.HABUSHU_COMMENT_START),
                 "The Dockerfile is updated with `#HABUSHU_BUILDER_STAGE - HABUSHU GENERATED CODE (DO NOT MODIFY)` comment ");
-        Assertions.assertTrue(updatedDockerfile.contains(HABUSHU_BUILDER_STAGE + HABUSHU_COMMENT_END),
+        Assertions.assertTrue(updatedDockerfile.contains(ContainerizeDepsDockerfileHelper.HABUSHU_BUILDER_STAGE + ContainerizeDepsDockerfileHelper.HABUSHU_COMMENT_END),
                 "The Dockerfile is updated with `#HABUSHU_BUILDER_STAGE - HABUSHU GENERATED CODE (END)` comment ");
-        Assertions.assertTrue(updatedDockerfile.contains(HABUSHU_FINAL_STAGE + HABUSHU_COMMENT_START),
+        Assertions.assertTrue(updatedDockerfile.contains(ContainerizeDepsDockerfileHelper.HABUSHU_FINAL_STAGE + ContainerizeDepsDockerfileHelper.HABUSHU_COMMENT_START),
                 "The Dockerfile is updated with `#HABUSHU_FINAL_STAGE - HABUSHU GENERATED CODE (DO NOT MODIFY)` comment ");
-        Assertions.assertTrue(updatedDockerfile.contains(HABUSHU_FINAL_STAGE + HABUSHU_COMMENT_END),
+        Assertions.assertTrue(updatedDockerfile.contains(ContainerizeDepsDockerfileHelper.HABUSHU_FINAL_STAGE + ContainerizeDepsDockerfileHelper.HABUSHU_COMMENT_END),
                 "The Dockerfile is updated with `#HABUSHU_FINAL_STAGE - HABUSHU GENERATED CODE (END)` comment ");
     }
 
@@ -175,7 +137,7 @@ public class ContainerizeDepsSteps {
         return contents == null || contents.length == 0;
     }
 
-    private void assertStaged(Path actual, PackageManager packageManager) {
+    private void assertStaged(Path actual) {
         Set<Path> actualFiles;
         try {
             actualFiles = getRelativizedPaths(actual);
@@ -183,23 +145,14 @@ public class ContainerizeDepsSteps {
             throw new RuntimeException();
         }
 
-        if (PackageManager.POETRY.equals(packageManager)) {
-            assertFile(actualFiles, "extensions/extensions-python-dep-X/src/python_dep_x/python_dep_x.py");
-            assertFile(actualFiles, "extensions/extensions-python-dep-X/pyproject.toml");
-            assertFile(actualFiles, "extensions/extensions-python-dep-X/poetry.toml");
-            assertFile(actualFiles, "extensions/extensions-python-dep-X/README.md");
-            assertFile(actualFiles, "foundation/foundation-python-dep-Y/src/python_dep_y/python_dep_y.py");
-            assertFile(actualFiles, "foundation/foundation-python-dep-Y/pyproject.toml");
-            assertFile(actualFiles, "foundation/foundation-python-dep-Y/poetry.toml");
-            assertFile(actualFiles, "foundation/foundation-python-dep-Y/README.md");
-        } else if (PackageManager.UV.equals(packageManager)) {
-            assertFile(actualFiles, "extensions/extensions-python-dep-X/src/python_dep_x/python_dep_x.py");
-            assertFile(actualFiles, "extensions/extensions-python-dep-X/pyproject.toml");
-            assertFile(actualFiles, "extensions/extensions-python-dep-X/README.md");
-            assertFile(actualFiles, "foundation/foundation-python-dep-Y/src/python_dep_y/python_dep_y.py");
-            assertFile(actualFiles, "foundation/foundation-python-dep-Y/pyproject.toml");
-            assertFile(actualFiles, "foundation/foundation-python-dep-Y/README.md");
-        }
+        assertFile(actualFiles, "extensions/extensions-python-dep-X/src/python_dep_x/python_dep_x.py");
+        assertFile(actualFiles, "extensions/extensions-python-dep-X/pyproject.toml");
+        assertFile(actualFiles, "extensions/extensions-python-dep-X/poetry.toml");
+        assertFile(actualFiles, "extensions/extensions-python-dep-X/README.md");
+        assertFile(actualFiles, "foundation/foundation-python-dep-Y/src/python_dep_y/python_dep_y.py");
+        assertFile(actualFiles, "foundation/foundation-python-dep-Y/pyproject.toml");
+        assertFile(actualFiles, "foundation/foundation-python-dep-Y/poetry.toml");
+        assertFile(actualFiles, "foundation/foundation-python-dep-Y/README.md");
     }
 
     private static void assertFile(Set<Path> actualFiles, String path) {

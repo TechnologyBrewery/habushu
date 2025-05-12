@@ -99,7 +99,6 @@ mvn clean install -Dhabushu.pythonVersion=3.12.9
   - [Poetry-Specific Containerization Configurations](#poetry-specific-containerization-configurations)
     - [dockerPoetryVersion](#dockerpoetryversion)
     - [dockerPoetryPluginBundleVersion](#dockerpoetrypluginbundleversion)
-    - [dockerPoetryMonorepoDependencyPluginVersion](#dockerpoetrymonorepodependencypluginversion)
 - [uv-Specific Containerization Configurations](#uv-specific-containerization-configurations)
   - [dockerUvVersion](#dockeruvversion)
 - [Version Enforcement Configurations](#version-enforcement-configurations)
