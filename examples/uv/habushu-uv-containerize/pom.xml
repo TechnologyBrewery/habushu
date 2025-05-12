@@ -13,40 +13,38 @@
     <artifactId>habushu-uv-containerize</artifactId>
     <packaging>docker-build</packaging>
 
-    <profiles>
-        <profile>
-            <id>containerize-example</id>
-                <build>
-            <plugins>
-                <plugin>
-                    <groupId>org.technologybrewery.habushu</groupId>
-                    <artifactId>habushu-maven-plugin</artifactId>
-                    <version>${project.version}</version>
-                    <executions>
-                        <execution>
-                            <id>dockerize</id>
-                            <goals>
-                                <goal>containerize-dependencies</goal>
-                            </goals>
-                            <phase>prepare-package</phase>
-                            <configuration>
-                                <dockerfile>src/main/docker/Dockerfile</dockerfile>
-                                <dockerBuilderBase>docker.io/python:3.12</dockerBuilderBase>
-                                <dockerFinalBase>docker.io/python:3.12-slim</dockerFinalBase>
-                                <updateDockerfile>true</updateDockerfile>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.technologybrewery.fabric8</groupId>
-                    <artifactId>docker-maven-plugin</artifactId>
-                    <extensions>true</extensions>
-                </plugin>
-            </plugins>
-        </build>
-        </profile>
-    </profiles>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.technologybrewery.habushu</groupId>
+                <artifactId>habushu-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <id>dockerize</id>
+                        <goals>
+                            <goal>containerize-dependencies</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <dockerfile>src/main/docker/Dockerfile</dockerfile>
+                            <dockerBuilderBase>docker.io/python:3.12</dockerBuilderBase>
+                            <dockerFinalBase>docker.io/python:3.12-slim</dockerFinalBase>
+                            <updateDockerfile>true</updateDockerfile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.technologybrewery.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <skipPush>true</skipPush>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 
     <dependencies>
