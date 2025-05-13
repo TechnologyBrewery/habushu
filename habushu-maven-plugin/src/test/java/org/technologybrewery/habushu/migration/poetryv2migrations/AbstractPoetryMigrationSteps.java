@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class AbstractPoetryMigrationSteps{
     protected static File testTomlFileDirectory = new File("./target/test-classes/migration/poetry-v2");
     protected static File pyProjectToml;
+    protected static File pythonFile;
 
     protected void verifyExecutionOccurred(boolean shouldExecute, boolean executionSucceeded) {
         assertTrue(shouldExecute, "Migration should have been selected to execute!");

@@ -90,6 +90,29 @@
             ]
           }
         ]
+      },
+      {
+        "name": "remove-pylint-and-black-dependencies-migration",
+        "implementation": "org.technologybrewery.habushu.migration.RemovePylintBlackMigration",
+        "fileSets": [
+          {
+            "includes": [
+              "pyproject.toml"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "remove-pylint-comments-migration",
+        "implementation": "org.technologybrewery.habushu.migration.RemovePylintCommentsMigration",
+        "fileSets": [
+          {
+            "includes": [
+              "src/**/*.py",
+              "tests/**/*.py"
+            ]
+          }
+        ]
       }
     ]
   }

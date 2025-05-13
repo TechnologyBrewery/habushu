@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Writer;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -133,6 +134,20 @@ public final class HabushuUtil {
             writer.write(commands);
         } catch (IOException e) {
             throw new HabushuException("Could not write to file.", e);
+        }
+    }
+
+    /**
+     * Writes the given content to the given file
+     * @param targetFile The file to write content to
+     * @param fileContent The content to write to file
+     * @throws IOException
+     */
+    public static void writeFile(File targetFile, String fileContent) throws IOException {
+        if (fileContent != null) {
+            try (Writer writer = new FileWriter(targetFile)) {
+                writer.write(fileContent);
+            }
         }
     }
 
