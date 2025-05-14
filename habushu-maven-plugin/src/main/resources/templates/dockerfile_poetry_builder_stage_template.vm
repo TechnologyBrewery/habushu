@@ -1,4 +1,4 @@
-FROM $baseImage AS habushu_builder
+FROM $builderBaseImage AS habushu_builder
 
 # Install pipx
 RUN python -m ensurepip --upgrade

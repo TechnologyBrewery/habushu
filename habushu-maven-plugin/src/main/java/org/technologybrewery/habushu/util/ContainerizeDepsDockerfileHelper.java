@@ -15,19 +15,17 @@ import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-public class ContainerizeDepsDockerfileHelper {
-    private final ContainerizeDepsMojo containerizeDepsMojo;
+public abstract class ContainerizeDepsDockerfileHelper {
+    public final ContainerizeDepsMojo containerizeDepsMojo;
     private final VelocityEngine engine;
     public static final String HABUSHU_FINAL_STAGE = "#HABUSHU_FINAL_STAGE";
     public static final String HABUSHU_BUILDER_STAGE = "#HABUSHU_BUILDER_STAGE";
     public static final String HABUSHU_COMMENT_START = " - HABUSHU GENERATED CODE (DO NOT MODIFY)";
     public static final String HABUSHU_COMMENT_END = " - HABUSHU GENERATED CODE (END)";
-    private static final String BUILDER_STAGE = "BUILDER_STAGE";
-    private static final String FINAL_STAGE = "FINAL_STAGE";
     private static final Logger log = LoggerFactory.getLogger(ContainerizeDepsDockerfileHelper.class);
-
-
 
     /**
      * This class can be initialized to generate and write a dockerfile for venv use
@@ -37,21 +35,21 @@ public class ContainerizeDepsDockerfileHelper {
         this.engine = new VelocityEngine();
 
         File dockerTemplatePath = containerizeDepsMojo.getDockerTemplatePath();
-        if (dockerTemplatePath != null){
+        if (dockerTemplatePath != null) {
             setVelocityPropertiesForFilePath(dockerTemplatePath);
         } else {
             setVelocityPropertiesForClassPath();
         }
     }
 
-    private void setVelocityPropertiesForClassPath() {
+    public void setVelocityPropertiesForClassPath() {
         engine.setProperty("resource.loader", "classpath");
         engine.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
         engine.setProperty("runtime.log.logsystem.class", "org.apache.velocity.runtime.log.NullLogChute");
         engine.init();
     }
 
-    private void setVelocityPropertiesForFilePath(File templateDir) {
+    public void setVelocityPropertiesForFilePath(File templateDir) {
         engine.setProperty("resource.loader", "file");
         engine.setProperty("file.resource.loader.class", "org.apache.velocity.runtime.resource.loader.FileResourceLoader");
         engine.setProperty("file.resource.loader.path", templateDir.getAbsolutePath());
@@ -59,136 +57,134 @@ public class ContainerizeDepsDockerfileHelper {
         engine.init();
     }
 
-    private void setSharedVelocityTemplateContext(AbstractContainerizeDepsVelocityContext context,
-                                                  String anchorDirectory, String singleRepoProjectDir,
-                                                  String baseImage) {
-        context.setAnchorDirectory(anchorDirectory);
-        context.setSingleRepoProjectDir(singleRepoProjectDir);
-        context.setOwner(containerizeDepsMojo.getDockerUser());
-        context.setVenvDirectoryPermissions(containerizeDepsMojo.getDockerVenvDirectoryPermissions());
-        context.setBaseImage(baseImage);
+    public void setSharedVelocityTemplateContext(AbstractContainerizeDepsVelocityContext context) {
+        context.setAnchorDirectory();
+        context.setSingleRepoProjectDir();
+        context.setOwner();
+        context.setVenvDirectoryPermissions();
     }
 
-    private String getPoetryStageTemplate(String stage) {
-        if (BUILDER_STAGE.equals(stage)){
-            return containerizeDepsMojo.getDockerPoetryBuilderStageTemplatePath();
-        } else {
-            return containerizeDepsMojo.getDockerPoetryFinalStageTemplatePath();
-        }
+    public void setBuilderSharedContext(AbstractContainerizeDepsVelocityContext context) {
+        setSharedVelocityTemplateContext(context);
+        context.setBuilderBaseImage();
     }
 
-    private String getUvStageTemplate(String stage) {
-        if (BUILDER_STAGE.equals(stage)){
-            return containerizeDepsMojo.getDockerUvBuilderStageTemplatePath();
-        } else {
-            return containerizeDepsMojo.getDockerUvFinalStageTemplatePath();
-        }
+    public void setFinalSharedContext(AbstractContainerizeDepsVelocityContext context) {
+        setSharedVelocityTemplateContext(context);
+        context.setFinalBaseImage();
     }
 
-    private void setPoetryVelocityTemplateContext(ContainerizeDepsVelocityContextPoetry context) {
-        context.setPluginBundleVersion(containerizeDepsMojo.getDockerPoetryPluginBundleVersion());
-        context.setVersion(containerizeDepsMojo.getDockerPoetryVersion());
-    }
+    public abstract String getBuilderStageContent();
 
-    private void setUvVelocityTemplateContext(ContainerizeDepsVelocityContextUv context) {
-        context.setVersion(containerizeDepsMojo.getDockerUvVersion());
-    }
-
-    private String getDockerTemplate(String stage, String anchorDirectory, String moduleBaseDir, String baseImage) {
-        String template;
-        if (PackageManager.POETRY.equals(containerizeDepsMojo.packageManager)) {
-            ContainerizeDepsVelocityContextPoetry context = new ContainerizeDepsVelocityContextPoetry();
-            setSharedVelocityTemplateContext(context, anchorDirectory, moduleBaseDir, baseImage);
-            setPoetryVelocityTemplateContext(context);
-            template = getPoetryStageTemplate(stage);
-            return createContainerStageContentFrom(context, template);
-        } else {
-            ContainerizeDepsVelocityContextUv context = new ContainerizeDepsVelocityContextUv();
-            setSharedVelocityTemplateContext(context, anchorDirectory, moduleBaseDir, baseImage);
-            setUvVelocityTemplateContext(context);
-            template = getUvStageTemplate(stage);
-            return createContainerStageContentFrom(context, template);
-        }
-    }
+    public abstract String getFinalStageContent();
 
     /**
      * Generate the dockerfile contents based on a given template
-     * @param context VelocityContext
+     *
+     * @param context  VelocityContext
      * @param template the Poetry or uv template
      */
-    public String createContainerStageContentFrom(VelocityContext context, String template){
+    public String createContainerStageContentFrom(VelocityContext context, String template) {
         Template vmTemplate = engine.getTemplate(template);
         StringWriter writer = new StringWriter();
         vmTemplate.merge(context, writer);
         return writer.toString();
     }
 
-    /**
-     * Update the Dockerfile with container stage logic
-     * @param anchorDirectory the anchor directory
-     * @return updated Dockerfile content
-     */
-    public String updateDockerfileWithContainerStageLogic(String anchorDirectory, String moduleBaseDir) {
-
-        String builderStageContent = getDockerTemplate(BUILDER_STAGE, anchorDirectory, moduleBaseDir, containerizeDepsMojo.getDockerBuilderBase());
-        String finalStageContent = getDockerTemplate(FINAL_STAGE, null, moduleBaseDir, containerizeDepsMojo.getDockerFinalBase());
-        StringBuilder content = new StringBuilder();
-        boolean builderStageContentIncluded = false;
-        boolean finalStageContentIncluded = false;
-        int firstFromLine = -1;
-
-        boolean skipLine = false;
-        try (BufferedReader buffer = new BufferedReader(new FileReader(containerizeDepsMojo.getDockerfile()))) {
-            String line = buffer.readLine();
-
-            while (line != null) {
-                line = line.stripTrailing();
-                if(firstFromLine < 0 && line.strip().startsWith("FROM")) {
-                    firstFromLine = content.length();
-                }
-
-                // start skipping the line if reads HABUSHU_COMMENT_START
-                if (!skipLine && line.contains(HABUSHU_COMMENT_START)) {
-                    skipLine = true;
-                }
-
-                // end skipping the line when reads HABUSHU_COMMENT_END
-                if (skipLine && line.contains(HABUSHU_COMMENT_END)) {
-                    skipLine = false;
-                }
-
-                if (!skipLine) {
-                    if (line.contains(HABUSHU_BUILDER_STAGE)) {
-                        line = wrapWithHabushuComment(builderStageContent, HABUSHU_BUILDER_STAGE);
-                        builderStageContentIncluded = true;
-                    }
-
-                    if (line.contains(HABUSHU_FINAL_STAGE)) {
-                        line = wrapWithHabushuComment(finalStageContent, HABUSHU_FINAL_STAGE);
-                        finalStageContentIncluded = true;
-                    }
-                    content.append(line).append("\n");
-                }
-                line = buffer.readLine();
-            }
-            if (!builderStageContentIncluded) {
-                content.insert(Integer.max(firstFromLine, 0), wrapWithHabushuComment(builderStageContent, HABUSHU_BUILDER_STAGE) + "\n\n");
-            }
-            if (!finalStageContentIncluded) {
-                content.append("\n");
-                content.append(wrapWithHabushuComment(finalStageContent, HABUSHU_FINAL_STAGE)).append("\n");
-            }
-        } catch (IOException e) {
-            throw new HabushuException("Could not update Dockerfile with container stage logic.", e);
-        }
-        return content.toString();
+    private Boolean builderContentPresent(String dockerfileContent) {
+        return dockerfileContent.contains(getBuilderStageStartComment());
     }
 
-    private static String wrapWithHabushuComment(String content, String stage) {
-        StringBuilder contentBuilder = new StringBuilder();
-        contentBuilder.append(stage).append(HABUSHU_COMMENT_START).append("\n");
-        contentBuilder.append(content).append("\n");
-        contentBuilder.append(stage).append(HABUSHU_COMMENT_END);
-        return contentBuilder.toString();
+    private Boolean finalContentPresent(String dockerfileContent) {
+        return dockerfileContent.contains(getFinalStageStartComment());
+    }
+
+    private Boolean addBuilderContentCommentPresent(String dockerfileContent) {
+        return dockerfileContent.contains(HABUSHU_BUILDER_STAGE);
+    }
+
+    private Boolean addFinalContentCommentPresent(String dockerfileContent) {
+        return dockerfileContent.contains(HABUSHU_FINAL_STAGE);
+    }
+
+    private String getBuilderStageStartComment() {
+        return HABUSHU_BUILDER_STAGE + HABUSHU_COMMENT_START;
+    }
+
+    private String getBuilderStageEndComment() {
+        return HABUSHU_BUILDER_STAGE + HABUSHU_COMMENT_END;
+    }
+
+    private String getFinalStageStartComment() {
+        return HABUSHU_FINAL_STAGE + HABUSHU_COMMENT_START;
+    }
+
+    private String getFinalStageEndComment() {
+        return HABUSHU_FINAL_STAGE + HABUSHU_COMMENT_END;
+    }
+
+    private String getWrappedBuilderStageContent(){
+        return getWrappedBuilderStageContent(false);
+    }
+
+    private String getWrappedBuilderStageContent(Boolean includeNewLineAtEnd) {
+        String builderStageContent = getBuilderStageContent();
+        String wrappedBuilderStageContent = getBuilderStageStartComment() + "\n" + builderStageContent + "\n" + getBuilderStageEndComment();
+        if (includeNewLineAtEnd) {
+            return wrappedBuilderStageContent + "\n";
+        }
+        return wrappedBuilderStageContent;
+    }
+
+    private String getWrappedFinalStageContent(){
+        return getWrappedFinalStageContent(false);
+    }
+
+    private String getWrappedFinalStageContent(Boolean includeNewLineAtEnd) {
+        String finalStageContent = getFinalStageContent();
+        String wrappedFinalStageContent = getFinalStageStartComment() + "\n" + finalStageContent + "\n" + getFinalStageEndComment();
+        if (includeNewLineAtEnd) {
+            return wrappedFinalStageContent + "\n";
+        }
+        return wrappedFinalStageContent;
+    }
+
+    private String updateDockerfileWithBuilderLogic() {
+        try {
+            String dockerfileContent = Files.readString(Paths.get(containerizeDepsMojo.getDockerfile().toString()));
+            if (!builderContentPresent(dockerfileContent)) {
+                if (!addBuilderContentCommentPresent(dockerfileContent)) {
+                    log.warn("Adding builder stage Habushu-logic to beginning of the Dockerfile. We advise you review the updated Dockerfile.");
+                    return getWrappedBuilderStageContent(true) + "\n" + dockerfileContent;
+                } else {
+                    return dockerfileContent.replace(HABUSHU_BUILDER_STAGE, getWrappedBuilderStageContent(true));
+                }
+            }
+            return dockerfileContent;
+        } catch (IOException e) {
+            throw new HabushuException("Could not update Dockerfile with builder stage logic.", e);
+        }
+    }
+
+    private String updateDockerfileWithFinalLogic(String dockerfileContent) {
+        if (!finalContentPresent(dockerfileContent)) {
+            if (!addFinalContentCommentPresent(dockerfileContent)) {
+                log.warn("Adding final stage Habushu-logic to the end of the Dockerfile. We advise you review the updated Dockerfile.");
+                return dockerfileContent + "\n\n" + getWrappedFinalStageContent();
+            } else {
+                return dockerfileContent.replace(HABUSHU_FINAL_STAGE, getWrappedFinalStageContent(true));
+            }
+        }
+        return dockerfileContent;
+    }
+
+    /**
+     * Update the Dockerfile with container stage logic
+     *
+     * @return updated Dockerfile content
+     */
+    public String updateDockerfileWithContainerStageLogic() {
+        String dockerfileContent = updateDockerfileWithBuilderLogic();
+        return updateDockerfileWithFinalLogic(dockerfileContent);
     }
 }

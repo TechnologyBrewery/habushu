@@ -2,28 +2,39 @@ package org.technologybrewery.habushu.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
+import org.technologybrewery.habushu.ContainerizeDepsMojo;
 
 public abstract class AbstractContainerizeDepsVelocityContext extends VelocityContext {
+    private final ContainerizeDepsMojo containerizeDepsMojo;
     private static final String SINGLE_REPO_PROJECT_DIR = "singleRepoProjectDir";
-    private static final String BASE_IMAGE = "baseImage";
+    private static final String BUILDER_BASE_IMAGE = "builderBaseImage";
+    private static final String FINAL_BASE_IMAGE = "finalBaseImage";
     private static final String ANCHOR_DIRECTORY = "anchorDirectory";
     private static final String CHOWN = "chownPlaceholder";
     private static final String CHMOD = "chmodPlaceholder";
 
-
-    public void setSingleRepoProjectDir(String singleRepoProjectDir) {
-        put(SINGLE_REPO_PROJECT_DIR, singleRepoProjectDir);
+    public AbstractContainerizeDepsVelocityContext(ContainerizeDepsMojo containerizeDepsMojo){
+        this.containerizeDepsMojo = containerizeDepsMojo;
     }
 
-    public void setBaseImage(String baseImage) {
-        put(BASE_IMAGE, baseImage);
+    public void setSingleRepoProjectDir() {
+        put(SINGLE_REPO_PROJECT_DIR, containerizeDepsMojo.moduleBaseDir);
     }
 
-    public void setAnchorDirectory(String anchorDirectory) {
-        put(ANCHOR_DIRECTORY, anchorDirectory);
+    public void setBuilderBaseImage() {
+        put(BUILDER_BASE_IMAGE, containerizeDepsMojo.getDockerBuilderBase());
     }
 
-    public void setOwner(String owner) {
+    public void setFinalBaseImage() {
+        put(FINAL_BASE_IMAGE, containerizeDepsMojo.getDockerFinalBase());
+    }
+
+    public void setAnchorDirectory() {
+        put(ANCHOR_DIRECTORY, containerizeDepsMojo.anchorDirectory);
+    }
+
+    public void setOwner() {
+        String owner = containerizeDepsMojo.getDockerUser();
         if (StringUtils.isNotEmpty(owner)) {
             put(CHOWN, "--chown=" + owner);
         } else {
@@ -31,7 +42,8 @@ public abstract class AbstractContainerizeDepsVelocityContext extends VelocityCo
         }
     }
 
-    public void setVenvDirectoryPermissions(String permissions) {
+    public void setVenvDirectoryPermissions() {
+        String permissions = containerizeDepsMojo.getDockerVenvDirectoryPermissions();
         if (StringUtils.isNotEmpty(permissions)) {
             put(CHMOD, "--chmod=" + permissions);
         } else {
