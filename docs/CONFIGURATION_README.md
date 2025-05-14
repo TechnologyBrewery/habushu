@@ -689,6 +689,12 @@ The user to set as the owner of the virtual env. This is useful when the Docker 
 
 Default: `1001`
 
+### dockerVenvDirectoryPermissions
+
+The directory permissions for the virtual env. Set to an empty string to disable.
+
+Default: `744`
+
 ### dockerTemplatePath
 
 Overwrite with Docker template path if a custom template is preferred.
