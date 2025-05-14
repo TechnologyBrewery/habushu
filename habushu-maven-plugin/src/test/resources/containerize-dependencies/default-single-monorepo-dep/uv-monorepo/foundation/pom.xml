@@ -3,16 +3,15 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <name>Test Monorepo</name>
+    <name>Foundation</name>
     <groupId>org.test.monorepo</groupId>
-    <artifactId>test-monorepo</artifactId>
+    <artifactId>foundation</artifactId>
     <version>1.0.0</version>
 
     <packaging>pom</packaging>
-
+    
     <modules>
-        <module>extensions</module>
-        <module>foundation</module>
+        <module>foundation-python-dep-Y</module>
     </modules>
 
 </project>

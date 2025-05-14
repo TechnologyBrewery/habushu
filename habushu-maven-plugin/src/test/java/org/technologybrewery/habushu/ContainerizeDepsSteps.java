@@ -22,14 +22,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ContainerizeDepsSteps {
-
-    protected String targetDefaultNoMonorepoDepPath = "target/test-classes/containerize-dependencies/"
-            + "default-no-monorepo-dep/test-monorepo";
     protected String targetDefaultSingleMonorepoDepPath = "target/test-classes/containerize-dependencies/"
-            + "default-single-monorepo-dep/test-monorepo";
+            + "default-single-monorepo-dep";
+
+    protected String poetryMonorepoDepPath = targetDefaultSingleMonorepoDepPath + "/poetry-monorepo";
+    protected String uvMonorepoDepPath = targetDefaultSingleMonorepoDepPath + "/uv-monorepo";
     protected File dockerfile;
     protected String mavenProjectPath;
     private final String POM_FILE = "pom.xml";
+    private final String POETRY = "poetry";
 
     private final ContainerizeDepsMojoTestWrapper mojoTestCase = new ContainerizeDepsMojoTestWrapper();
 
@@ -51,18 +52,28 @@ public class ContainerizeDepsSteps {
         }
     }
 
-    @Given("a single dependency with packaging type habushu")
-    public void a_single_dependency_with_packaging_type_habushu() throws Exception {
-        mavenProjectPath = targetDefaultSingleMonorepoDepPath + "/extensions/extensions-monorepo-dep-consuming-application";
+    private String getPackageManagerProjectPath(String packageManager){
+        if (POETRY.equalsIgnoreCase(packageManager)) {
+            return poetryMonorepoDepPath;
+        } else {
+            return uvMonorepoDepPath;
+        }
+    }
+
+    @Given("a single {string}-based dependency with packaging type Habushu")
+    public void a_single_package_manager_based_dependency_with_packaging_type_habushu(String packageManager) throws Exception {
+        String projectPath = getPackageManagerProjectPath(packageManager);
+
+        mavenProjectPath = projectPath + "/extensions/extensions-monorepo-dep-consuming-application";
 
         // enables us to mock a maven build with the --also-make flag
-        mojoTestCase.addMavenProjectFile(new File(targetDefaultSingleMonorepoDepPath + "/extensions/extensions-python-dep-X/pom.xml"));
-        mojoTestCase.addMavenProjectFile(new File(targetDefaultSingleMonorepoDepPath + "/foundation/foundation-python-dep-Y/pom.xml"));
+        mojoTestCase.addMavenProjectFile(new File(projectPath + "/extensions/extensions-python-dep-X/pom.xml"));
+        mojoTestCase.addMavenProjectFile(new File(projectPath + "/foundation/foundation-python-dep-Y/pom.xml"));
 
         mojo = (ContainerizeDepsMojo) mojoTestCase.lookupConfiguredMojo(
                 new File(mavenProjectPath, POM_FILE), "containerize-dependencies"
         );
-        mojo.session.getRequest().setBaseDirectory(new File(targetDefaultSingleMonorepoDepPath));
+        mojo.session.getRequest().setBaseDirectory(new File(projectPath));
 
     }
 
@@ -71,10 +82,10 @@ public class ContainerizeDepsSteps {
         mojo.execute();
     }
 
-    @Then("the source files of the dependency and transitive Habushu-type dependencies are staged for containerization")
+    @Then("the source files of the {string}-based dependency and transitive Habushu-type dependencies are staged for containerization")
     public void
-    the_source_files_of_the_dependency_and_transitive_habushu_type_dependencies_are_staged_for_containerization() {
-        assertStaged(mojo.getStagingPath());
+    the_source_files_of_the_package_manager_based_dependency_and_transitive_habushu_type_dependencies_are_staged_for_containerization(String packageManager) {
+        assertStaged(mojo.getStagingPath(), packageManager);
     }
 
     @Given("a dockerfile to update")
@@ -82,15 +93,16 @@ public class ContainerizeDepsSteps {
         setDockerfile("/src/main/resources/docker/Dockerfile");
     }
 
-    @Then("all the source files to build the dependency are staged in the build directory")
-    public void all_the_source_files_to_build_the_dep_are_staged_in_the_build_directory() {
-        assertStaged(mojo.getStagingPath());
+    @Then("all the source files to build the {string}-based dependency are staged in the build directory")
+    public void all_the_source_files_to_build_the_package_manager_based_dep_are_staged_in_the_build_directory(String packageManager) {
+        assertStaged(mojo.getStagingPath(), packageManager);
     }
 
     @Then("the Dockerfile is updated to leverage a virtual environment for the dependency")
     public void dockerfile_is_updated_to_build_a_virtual_env_for_the_dependency() {
         String updatedDockerfile = getUpdatedDockerfile();
-        StringBuilder contentBuilder = new StringBuilder();
+
+        // Confirm the Habushu logic is present in the Dockerfile
         Assertions.assertTrue(updatedDockerfile.contains(ContainerizeDepsDockerfileHelper.HABUSHU_BUILDER_STAGE + ContainerizeDepsDockerfileHelper.HABUSHU_COMMENT_START),
                 "The Dockerfile is updated with `#HABUSHU_BUILDER_STAGE - HABUSHU GENERATED CODE (DO NOT MODIFY)` comment ");
         Assertions.assertTrue(updatedDockerfile.contains(ContainerizeDepsDockerfileHelper.HABUSHU_BUILDER_STAGE + ContainerizeDepsDockerfileHelper.HABUSHU_COMMENT_END),
@@ -99,6 +111,21 @@ public class ContainerizeDepsSteps {
                 "The Dockerfile is updated with `#HABUSHU_FINAL_STAGE - HABUSHU GENERATED CODE (DO NOT MODIFY)` comment ");
         Assertions.assertTrue(updatedDockerfile.contains(ContainerizeDepsDockerfileHelper.HABUSHU_FINAL_STAGE + ContainerizeDepsDockerfileHelper.HABUSHU_COMMENT_END),
                 "The Dockerfile is updated with `#HABUSHU_FINAL_STAGE - HABUSHU GENERATED CODE (END)` comment ");
+
+        // Confirm the pre-existing logic is still present in the Dockerfile
+        String dockerfileCommentLine = "# syntax=docker/dockerfile:1";
+        String dockerfileFromLine = "FROM scratch";
+        String dockerfileAddLine = "ADD hello /";
+        String dockerfileCmdLine = "CMD [\"/hello\"]";
+
+        Assertions.assertTrue(updatedDockerfile.contains(dockerfileCommentLine),
+                "The Dockerfile still contains the comment line.");
+        Assertions.assertTrue(updatedDockerfile.contains(dockerfileFromLine),
+                "The Dockerfile still contains the original FROM line.");
+        Assertions.assertTrue(updatedDockerfile.contains(dockerfileAddLine),
+                "The Dockerfile still contains the original ADD line.");
+        Assertions.assertTrue(updatedDockerfile.contains(dockerfileCmdLine),
+                "The Dockerfile still contains the original CMD line.");
     }
 
     @Given("a dockerfile already updated")
@@ -121,23 +148,7 @@ public class ContainerizeDepsSteps {
         mojo.setDockerfile(dockerfile);
     }
 
-    private boolean isNonExistentOrEmptyDir(File dir) {
-        // Directory does not exist
-        if (!dir.exists()) {
-            return true;
-        }
-
-        // The path exists but is not a directory
-        if (!dir.isDirectory()) {
-            return false;
-        }
-
-        // Check if the directory is empty
-        String[] contents = dir.list();
-        return contents == null || contents.length == 0;
-    }
-
-    private void assertStaged(Path actual) {
+    private void assertStaged(Path actual, String packageManager) {
         Set<Path> actualFiles;
         try {
             actualFiles = getRelativizedPaths(actual);
@@ -147,12 +158,15 @@ public class ContainerizeDepsSteps {
 
         assertFile(actualFiles, "extensions/extensions-python-dep-X/src/python_dep_x/python_dep_x.py");
         assertFile(actualFiles, "extensions/extensions-python-dep-X/pyproject.toml");
-        assertFile(actualFiles, "extensions/extensions-python-dep-X/poetry.toml");
         assertFile(actualFiles, "extensions/extensions-python-dep-X/README.md");
         assertFile(actualFiles, "foundation/foundation-python-dep-Y/src/python_dep_y/python_dep_y.py");
         assertFile(actualFiles, "foundation/foundation-python-dep-Y/pyproject.toml");
-        assertFile(actualFiles, "foundation/foundation-python-dep-Y/poetry.toml");
         assertFile(actualFiles, "foundation/foundation-python-dep-Y/README.md");
+
+        if (POETRY.equalsIgnoreCase(packageManager)){
+            assertFile(actualFiles, "extensions/extensions-python-dep-X/poetry.toml");
+            assertFile(actualFiles, "foundation/foundation-python-dep-Y/poetry.toml");
+        }
     }
 
     private static void assertFile(Set<Path> actualFiles, String path) {
