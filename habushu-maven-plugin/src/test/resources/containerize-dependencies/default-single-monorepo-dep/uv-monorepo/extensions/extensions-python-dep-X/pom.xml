@@ -3,20 +3,22 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <name>Extensions::Monorepo Dependency-Consuming Application</name>
+    <name>Extensions::Python Dependency X</name>
     <groupId>org.test.monorepo</groupId>
-    <artifactId>extensions-monorepo-dep-consuming-application</artifactId>
+    <artifactId>extensions-python-dep-X</artifactId>
     <version>1.0.0</version>
 
-    <packaging>pom</packaging>
+    <packaging>habushu</packaging>
 
     <build>
-        <directory>${project.basedir}/target</directory>
         <plugins>
             <plugin>
                 <groupId>org.technologybrewery.habushu</groupId>
                 <artifactId>habushu-maven-plugin</artifactId>
-                <version>${project.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <usePyenv>false</usePyenv>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -24,7 +26,7 @@
     <dependencies>
         <dependency>
             <groupId>org.test.monorepo</groupId>
-            <artifactId>extensions-python-dep-X</artifactId>
+            <artifactId>foundation-python-dep-Y</artifactId>
             <version>${project.version}</version>
             <type>habushu</type>
         </dependency>

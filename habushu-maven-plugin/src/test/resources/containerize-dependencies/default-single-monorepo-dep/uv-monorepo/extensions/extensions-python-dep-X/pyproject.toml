@@ -1,0 +1,14 @@
+[project]
+name = "extensions-python-dep-x"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Margaret Black", email = "black_margaret@bah.com" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
