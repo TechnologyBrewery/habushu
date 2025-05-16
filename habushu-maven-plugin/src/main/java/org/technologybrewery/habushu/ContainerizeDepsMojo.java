@@ -16,14 +16,16 @@ import org.slf4j.LoggerFactory;
 import org.technologybrewery.habushu.util.ContainerizeDepsDockerfileHelper;
 import org.technologybrewery.habushu.util.HabushuUtil;
 import org.technologybrewery.habushu.util.PackageManager;
-
+import org.technologybrewery.habushu.util.PoetryContainerizeDepsDockerfileHelper;
+import org.technologybrewery.habushu.util.UvContainerizeDepsDockerfileHelper;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 /**
@@ -35,7 +37,9 @@ import java.util.stream.Collectors;
 public class ContainerizeDepsMojo extends AbstractHabushuMojo {
 
     private static final Logger logger = LoggerFactory.getLogger(ContainerizeDepsMojo.class);
-    public PackageManager packageManager;
+    private PackageManager packageManager;
+    public String anchorDirectory;
+    public String moduleBaseDir;
 
     @Component
     protected MavenSession session;
@@ -168,13 +172,13 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
 
         ProjectCollectionResult result = getHabushuProjects();
         try {
-            Path targetProjectPath = stageHabushuProjects(sourceRoot, result);
+            setModuleBaseDir(stageHabushuProjects(sourceRoot, result).toString());
             setPackageManager(result.getPrimaryProject());
             if (this.updateDockerfile) {
                 if (this.dockerfile == null) {
                     throw new HabushuException("`updateDockerfile` is set to true but `dockerfile` is not specified");
                 }
-                performDockerfileUpdateForVirtualEnvironment(targetProjectPath);
+                performDockerfileUpdateForVirtualEnvironment();
             }
         } catch (IOException e) {
             throw new HabushuException("Failed to prepare containerization of Habushu dependency", e);
@@ -314,6 +318,10 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         this.packageManager = HabushuUtil.checkPythonPackageManager(pyprojectPath);
     }
 
+    protected void setAnchorDirectory(String anchorDirectory) { this.anchorDirectory = anchorDirectory; }
+
+    protected void setModuleBaseDir(String moduleBaseDir) { this.moduleBaseDir = moduleBaseDir; }
+
     protected void setDockerfile(File dockerfile) {
         this.dockerfile = dockerfile;
     }
@@ -322,11 +330,16 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         this.updateDockerfile = update;
     }
 
-    protected void performDockerfileUpdateForVirtualEnvironment(Path targetProjectPath) {
-        Path outputDir = dockerContext.toPath().relativize(getStagingPath());
-        ContainerizeDepsDockerfileHelper helper = new ContainerizeDepsDockerfileHelper(this);
+    protected void performDockerfileUpdateForVirtualEnvironment() {
+        setAnchorDirectory(dockerContext.toPath().relativize(getStagingPath()).toString());
+        ContainerizeDepsDockerfileHelper helper;
+        if (PackageManager.POETRY.equals(packageManager)){
+            helper = new PoetryContainerizeDepsDockerfileHelper(this);
+        } else {
+            helper = new UvContainerizeDepsDockerfileHelper(this);
+        }
         String updatedDockerfile =
-                helper.updateDockerfileWithContainerStageLogic(outputDir.toString(), targetProjectPath.toString());
+                helper.updateDockerfileWithContainerStageLogic();
 
         try (Writer writer = new FileWriter(this.dockerfile)) {
             writer.write(updatedDockerfile);
