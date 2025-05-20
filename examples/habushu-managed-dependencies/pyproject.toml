@@ -1,6 +1,6 @@
 [project]
 name = "habushu_managed_dependencies"
-version = "3.0.0.dev"
+version = "3.0.0"
 description = "Example of how to use the habushu managed dependencies"
 authors = [{name = "Ryan Ashcraft", email = "ryan.ashcraft@codifyiq.com"}]
 license = "MIT License"

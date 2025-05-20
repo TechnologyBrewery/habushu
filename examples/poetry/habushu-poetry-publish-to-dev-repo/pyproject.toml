@@ -1,6 +1,6 @@
 [project]
 name = "habushu-poetry-publish-to-dev-repo"
-version = "3.0.0.dev"
+version = "3.0.0"
 description = "Example of how to use Habushu to publish to a development repository"
 authors = [
     {name = "Margaret Black",email = "black_margaret@bah.com"}
