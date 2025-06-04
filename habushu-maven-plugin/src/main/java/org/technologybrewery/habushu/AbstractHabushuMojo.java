@@ -71,6 +71,12 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
     protected File testDirectory;
 
     /**
+     * Test package used for test (`behave` or `pytest`). If neither was set, it will always fall back to `behave`
+     */
+    @Parameter(property = "habushu.testPackage", required = false, defaultValue = "behave")
+    protected String testPackage;
+
+    /**
      * Specifies the {@code <id>} of the {@code <server>} element declared within
      * the utilized settings.xml configuration that represents the desired
      * credentials to use when publishing the package to a dev PyPI repository.
@@ -472,6 +478,18 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     public String getTestPyPiRepositoryUrl() {
         return TEST_PYPI_REPOSITORY_URL;
+    }
+
+    /**
+     * Returns testPackage. The default testPackage is `behave`. If neither behave nor pytest is set, it will fall back to `behave`
+     * @return testPackage
+     */
+    public String getTestPackage() {
+        if (testPackage == null || !testPackage.trim().equals("pytest")) {
+            return "behave";
+        } else {
+            return "pytest";
+        }
     }
 
 

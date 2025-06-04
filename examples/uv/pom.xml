@@ -21,6 +21,7 @@
         <module>habushu-uv-publish-to-dev-repo</module>
         <module>habushu-uv-install-from-dev-repo</module>
         <module>habushu-uv-dependency-groups</module>
+        <module>habushu-uv-pytest</module>
     </modules>
 
     <build>

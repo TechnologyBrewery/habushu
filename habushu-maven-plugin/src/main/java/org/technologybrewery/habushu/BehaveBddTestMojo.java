@@ -103,14 +103,18 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
-        if (HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile()) == PackageManager.POETRY) {
-            BehaveBddTestPoetry behaveBddTestPoetry = new BehaveBddTestPoetry(getLog(), this,
-                    createPoetryCommandHelper());
-            behaveBddTestPoetry.doExecute();
+        if (getTestPackage().equals("behave")) {
+            if (HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile()) == PackageManager.POETRY) {
+                BehaveBddTestPoetry behaveBddTestPoetry = new BehaveBddTestPoetry(getLog(), this,
+                        createPoetryCommandHelper());
+                behaveBddTestPoetry.doExecute();
+            } else {
+                BehaveBddTestUv behaveBddTestUv = new BehaveBddTestUv(getLog(), this,
+                        createUvCommandHelper());
+                behaveBddTestUv.doExecute();
+            }
         } else {
-            BehaveBddTestUv behaveBddTestUv = new BehaveBddTestUv(getLog(), this,
-                    createUvCommandHelper());
-            behaveBddTestUv.doExecute();
+            getLog().info(String.format("This Mojo is not used for %s test.", getTestPackage()));
         }
     }
 }

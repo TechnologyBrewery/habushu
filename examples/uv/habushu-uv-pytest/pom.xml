@@ -1,0 +1,63 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.technologybrewery.habushu</groupId>
+        <artifactId>uv</artifactId>
+        <version>3.1.0-SNAPSHOT</version>
+    </parent>
+
+    <name>habushu::Examples::uv::Pytest</name>
+    <description>Example of how to use pytest to with uv</description>
+
+    <artifactId>habushu-uv-pytest</artifactId>
+    <packaging>habushu</packaging>
+    <properties>
+        <habushu.ENV_VAR>HelloWorld</habushu.ENV_VAR>
+    </properties>
+
+    <build>
+        <directory>dist</directory>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.technologybrewery.habushu</groupId>
+                    <artifactId>habushu-maven-plugin</artifactId>
+                    <configuration>
+                        <testPackage>pytest</testPackage>
+                        <!--  Increase verbosity to print more info to the console regarding the tests -->
+                        <enableVerbose>true</enableVerbose>
+                        <!-- set environment variables -->
+                        <pytestTestEnvironmentVariables>
+                            <TEST_MODULE>habushu-uv-pytest</TEST_MODULE>
+                            <ENV_VAR>${habushu.ENV_VAR}</ENV_VAR>
+                        </pytestTestEnvironmentVariables>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    <profiles>
+        <profile>
+            <id>integration-test</id>
+            <build>
+                <directory>dist</directory>
+                <plugins>
+                    <plugin>
+                        <groupId>org.technologybrewery.habushu</groupId>
+                        <artifactId>habushu-maven-plugin</artifactId>
+                        <configuration>
+                            <!-- setting to only run the integration_test mark, which is first registered in the pyproject.toml file
+                             and secondly, tagged in the pytest test file with @pytest.mark.integration_test
+                             ref: https://docs.pytest.org/en/stable/how-to/mark.html#registering-marks -->
+                            <pytestOptions>-m integration_test -v</pytestOptions>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>
