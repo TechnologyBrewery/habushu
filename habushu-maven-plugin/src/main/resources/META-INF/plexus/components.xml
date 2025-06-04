@@ -23,7 +23,10 @@
                                 org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:format-python,
                                 org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:validate-python
                             </process-classes>
-                            <test>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:behave-bdd-test</test>
+                            <test>
+                                org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:behave-bdd-test,
+                                org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:pytest-test
+                            </test>
                             <package>org.technologybrewery.habushu:habushu-maven-plugin:${project.version}:build-deployment-artifacts</package>
                             <install>
                                 org.apache.maven.plugins:maven-install-plugin:install

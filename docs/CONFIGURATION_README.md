@@ -68,6 +68,11 @@ mvn clean install -Dhabushu.pythonVersion=3.12.9
   - [skipTests](#skiptests)
   - [outputCucumberStyleTestReports](#outputcucumberstyletestreports)
   - [omitSkippedTests](#omitskippedtests)
+- [Pytest Configurations](#pytest-configurations)
+  - [pytestOptions](#pytestoptions)
+  - [enableVerbose](#enableverbose)
+  - [pytestTestEnvironmentVariables](#pytesttestenvironmentvariables)
+  - [skipTests](#skiptests)
 - [Requirements.Txt Configurations](#requirementstxt-configurations)
   - [exportRequirementsFile](#exportrequirementsfile)
   - [exportRequirementsFolder](#exportrequirementsfolder)
@@ -219,6 +224,12 @@ Developers will typically **not** modify this property but is made available for
 
 Default: `${project.basedir}/tests`
 
+### testPackage
+
+The test package used for testing. Supporting test package is either `behave` or `pytest`. If neither was set, it will always fall back to `behave`.
+
+Default: `behave`
+
 ### mavenArtifactFile
 
 Location of the artifact that will be published for this module.  Maven wants to install an artifact with the pom file.
@@ -353,7 +364,6 @@ Default: `true`
 Determines if the build should be failed when managed dependency mismatches are found.
 
 Default: `false`
-
 ## Behave Configurations
 
 ### behaveOptions
@@ -443,6 +453,75 @@ Default: `true`
 Controls whether skipped tests should be completely omitted from test reports rather than showing up as a skip/failure. This mimics the default behavior of Cucumber and will have no effect if `outputCucumberStyleTestReports` is not set to `true`
 
 Default: `true`
+
+## Pytest Configurations
+
+### pytestOptions
+
+Options that should be passed to the `pytest` command when executing tests. If this value is provided, then `enableVerbose` is ignored.
+
+`pytest` supports a [number of command line options](https://docs.pytest.org/en/6.2.x/reference.html#command-line-flags) - developers may adjust the default test execution behavior to optimize productivity, such as selectively executing tests associated with a [custom registered mark](https://docs.pytest.org/en/stable/how-to/mark.html#registering-marks) in the `pyproject.toml` file (`mvn clean test -Dhabushu.pytestOptions="-m integration_test"`).
+
+Default: None
+
+**Examples:**
+- [Pytest with uv](../examples/uv/habushu-uv-pytest)
+
+### enableVerbose
+
+Enable a more detail test outcome including which test passed, failed, or is skipped to be printed to the console during `pytest` test.
+
+Default: `false`
+
+**Examples:**
+- [Pytest with uv](../examples/uv/habushu-uv-pytest)
+
+### pytestTestEnvironmentVariables
+
+Enables the ability to set environment variables when executing the pytest tests. The environment variables should be
+defined in the pom.xml:
+```xml
+<plugin>
+    <groupId>org.technologybrewery.habushu</groupId>
+    <artifactId>habushu-maven-plugin</artifactId>
+    <version>${project.version}</version>
+    <configuration>
+      <testPackage>pytest</testPackage>
+      <pytestTestEnvironmentVariables>
+        <ENV_VAR>VALUE</ENV_VAR>
+      </pytestTestEnvironmentVariables>
+    </configuration>
+</plugin>
+```
+To pass environment variables in via the command line using the `-D` option, use a property placeholder in the pom.xml:
+```xml
+<plugin>
+  <groupId>org.technologybrewery.habushu</groupId>
+  <artifactId>habushu-maven-plugin</artifactId>
+  <version>${project.version}</version>
+  <configuration>
+    <testPackage>pytest</testPackage>
+    <pytestTestEnvironmentVariables>
+      <ENV_VAR>${habushu.ENV_VAR}</ENV_VAR>
+    </pytestTestEnvironmentVariables>
+  </configuration>
+</plugin>
+```
+Then you can specify the value from the cli: `mvn clean install -Dhabushu.ENV_VAR=customValue`. A default value can be
+set in the `<properties>` tag of the pom.xml.
+
+Default: None
+
+**Examples:**
+- [Pytest with uv](../examples/uv/habushu-uv-pytest)
+
+### skipTests
+
+Skips running tests.  Using this property is **NOT RECOMMENDED** but may be convenient on occasion.
+
+Example usage: `mvn clean install -Dhabushu.skipTests=true`
+
+Default: `false`
 
 ## Requirements.Txt Configurations
 
