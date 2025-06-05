@@ -1,9 +1,10 @@
 #HABUSHU_BUILDER_STAGE - HABUSHU GENERATED CODE (DO NOT MODIFY)
 FROM docker.io/python:3.12 AS habushu_builder
+USER root
 
 # Install pipx
 RUN python -m ensurepip --upgrade
-RUN python -m pip install --user pipx
+RUN python -m pip install --force-reinstall --user pipx
 
 # Poetry and supporting plugin installations
 RUN $HOME/.local/bin/pipx install poetry==2.0.1 && \
@@ -13,7 +14,6 @@ WORKDIR /work-dir
 COPY --chown=1001 target/containerize-support ./containerize-support/
 RUN find . -type f -name pyproject.toml -exec sed -i 's|develop[[:blank:]]*=[[:blank:]]*true|develop = false|g' {} \;
 
-USER root
 WORKDIR /work-dir/containerize-support/examples/poetry/habushu-poetry-package-consumer
 ENV POETRY_CACHE_DIR="/.cache/pypoetry"
 

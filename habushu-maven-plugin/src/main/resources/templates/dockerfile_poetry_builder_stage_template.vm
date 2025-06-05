@@ -1,8 +1,9 @@
 FROM $builderBaseImage AS habushu_builder
+USER root
 
 # Install pipx
 RUN python -m ensurepip --upgrade
-RUN python -m pip install --user pipx
+RUN python -m pip install --force-reinstall --user pipx
 
 # Poetry and supporting plugin installations
 RUN $HOME/.local/bin/pipx install poetry==$poetryVersion && \
@@ -12,7 +13,6 @@ WORKDIR /work-dir
 COPY $chownPlaceholder $anchorDirectory ./containerize-support/
 RUN find . -type f -name pyproject.toml -exec sed -i 's|develop[[:blank:]]*=[[:blank:]]*true|develop = false|g' {} \;
 
-USER root
 WORKDIR /work-dir/containerize-support/$singleRepoProjectDir
 ENV POETRY_CACHE_DIR="/.cache/pypoetry"
 
