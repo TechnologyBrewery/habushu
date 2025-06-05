@@ -46,6 +46,7 @@ mvn clean install -Dhabushu.pythonVersion=3.12.9
   - [overridePackageVersion](#overridepackageversion)
   - [sourceDirectory](#sourcedirectory)
   - [testDirectory](#testdirectory)
+  - [testPackage](#testpackage)
   - [mavenArtifactFile](#mavenartifactfile)
   - [workingDirectory](#workingdirectory)
   - [distDirectory](#distdirectory)
@@ -439,6 +440,7 @@ Default: None
 Skips running tests.  Using this property is **NOT RECOMMENDED** but may be convenient on occasion.
 
 Example usage: `mvn clean install -Dhabushu.skipTests=true`
+**Note:** this will skip both `behave` and `pytest` tests
 
 Default: `false`
 
@@ -520,6 +522,7 @@ Default: None
 Skips running tests.  Using this property is **NOT RECOMMENDED** but may be convenient on occasion.
 
 Example usage: `mvn clean install -Dhabushu.skipTests=true`
+**Note:** this will skip both `behave` and `pytest` tests
 
 Default: `false`
 

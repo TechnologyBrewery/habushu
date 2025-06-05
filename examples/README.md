@@ -40,3 +40,4 @@ configuration options.
     - [Publish Package to Development Repository](uv/habushu-uv-publish-to-dev-repo/README.md)
     - [Install Package From Development Repository](uv/habushu-uv-install-from-dev-repo/README.md)
 - [uv Dependency Groups](uv/habushu-uv-dependency-groups/README.md) - Outlines how to use the [withGroups](../docs/CONFIGURATION_README.md#withgroups) configuration
+- [Testing with pytest](uv/habushu-uv-pytest/README.md) - Configure Habushu to use pytest for automated tests

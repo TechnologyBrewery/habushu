@@ -26,6 +26,8 @@ Leverages the [ruff formatter](https://docs.astral.sh/ruff/formatter/) package t
 
 Uses [behave](https://github.com/behave/behave) to execute BDD scenarios that are defined in `tests/features`. By default, as per [behaveExcludeManualTag](CONFIGURATION_README.md#behaveexcludemanualtag), features/scenarios tagged with `@manual` are skipped.
 
+Small-scale projects can [opt](CONFIGURATION_README.md#testpackage) to use [pytest](https://docs.pytest.org/en/stable/) as a lighter-weight alternative to behave. _Note: pytest is currently only supported for uv-based projects at the moment._
+
 ### package
 
 Builds the `sdist` and `wheel` archives of this project using the package manager's `build` functionality. If the [containerize-dependencies](HABUSHU_LIFECYCLE_README.md#containerize-dependencies) goal is enabled, supporting monorepo dependency source files will be staged.

@@ -1,8 +1,8 @@
 [[Return to Examples Documentation]](../../README.md)
 
-# Use pytest with uv
+# Test with pytest
 
-This project demonstrates how to use pytest with uv
+This project demonstrates how to test with pytest
 
 ## Project Structure
 
