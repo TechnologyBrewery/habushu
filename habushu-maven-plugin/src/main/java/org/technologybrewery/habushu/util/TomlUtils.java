@@ -470,7 +470,7 @@ public final class TomlUtils {
             boolean headerExists = allTomlHeaders.stream().anyMatch(header -> header.equals(prefix) || header.startsWith(prefix + "."));
 
             if (!headerExists){
-                // no matching header means this was an inline table and parent section is not empty
+                // no matching header means this was an inline table and a parent section is not empty
                 return false;
             }
         }

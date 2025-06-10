@@ -72,6 +72,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
 
     /**
      * Test package used for test (`behave` or `pytest`). If neither was set, it will always fall back to `behave`
+     * Note: this configuration will be ignored if the test package (`behave` or `pytest`) is already configured in the pyproject.toml
      */
     @Parameter(property = "habushu.testPackage", required = false, defaultValue = "behave")
     protected String testPackage;

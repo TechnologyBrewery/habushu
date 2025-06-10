@@ -5,6 +5,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.technologybrewery.habushu.HabushuException;
 
 import java.io.File;
@@ -90,7 +91,8 @@ public class UvCommandHelper extends AbstractCommandHelper {
     @Override
     public boolean isDependencyInstalled(String packageName) {
         try {
-            execute(Arrays.asList("pip", "show", packageName));
+            // if the package is not installed, log as info
+            executeWithCustomExceptionLogLevel(Arrays.asList("pip", "show", packageName), Level.INFO);
         } catch (Throwable e) {
             return false;
         }

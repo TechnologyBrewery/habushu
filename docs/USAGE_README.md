@@ -4,7 +4,7 @@
 
 A Poetry or uv project using the `src/` packaging layout only needs an appropriately configured `pom.xml` within the root level of the project to be instrumented through Habushu and participate in a Maven build lifecycle.  The following depicts the required folder structure within an example Habushu module named `spam-ham-eggs`, including the placement of the required `pom.xml` and `pyproject.toml` configurations and utilization of [behave](https://behave.readthedocs.io/en/stable/index.html) for automated testing by default:
 
-**Note:** alternatively, for uv project, you can use [pytest](https://docs.pytest.org/en/stable/) for automated testing.
+**Note:** alternatively, for uv project, you can use [pytest](https://docs.pytest.org/en/stable/) for automated testing. For more information, refer to: [Testing with pytest](../examples/uv/habushu-uv-pytest/README.md)
 
 ```
 	spam-ham-eggs
@@ -18,11 +18,6 @@ A Poetry or uv project using the `src/` packaging layout only needs an appropria
 	        ├── spam_ham_eggs.feature
     	    └── steps
 	            └── spam_ham_eggs_step.py
---------------------------------------------------   pytest test folder structure 
-	└── tests
-	    ├── test_ham_eggs.py                   # any test files start with `test_` or end with `_test`
-	    └── subdir  
-	          └── test_file2.py                # any test files start with `test_` or end with `_test`
 ```
 
 Best practices for creating a new project (possibly based on an existing Python package or older Habushu module) and adding needed Habushu plugin declaration to the module's `pom.xml` are described below. For working examples, see the [Examples](../examples/README.md) documentation.

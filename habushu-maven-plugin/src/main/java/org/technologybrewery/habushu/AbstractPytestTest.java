@@ -65,11 +65,15 @@ public abstract class AbstractPytestTest {
         }
     }
 
-    protected void checkAndInstallPytest() {
-        if (!this.commandHelper.isDependencyInstalled(PYTEST_PACKAGE)) {
-            this.log.info(String.format("%s dependency not specified in pyproject.toml - installing now...",
+    protected void installPytest() {
+        this.log.info(String.format("%s dependency not specified in pyproject.toml - installing now...",
                     PYTEST_PACKAGE));
-            this.commandHelper.installDevelopmentDependency(PYTEST_PACKAGE);
+        this.commandHelper.installDevelopmentDependency(PYTEST_PACKAGE);
+    }
+
+    protected void checkAndInstallPytest() {
+        if (!pytestTestMojo.isPytestInstalled()) {
+            installPytest();
         }
     }
 

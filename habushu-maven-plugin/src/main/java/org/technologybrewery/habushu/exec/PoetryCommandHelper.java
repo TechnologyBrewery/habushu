@@ -15,6 +15,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.technologybrewery.habushu.HabushuException;
 
 /**
@@ -70,7 +71,8 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
     @Override
     public boolean isDependencyInstalled(String packageName) {
         try {
-            String result = execute(Arrays.asList("show", packageName)).trim();
+            // if the package is not installed, log as info
+            String result = executeWithCustomExceptionLogLevel(Arrays.asList("show", packageName), Level.INFO).trim();
             return !result.isEmpty();
         } catch (Throwable e) {
             return false;

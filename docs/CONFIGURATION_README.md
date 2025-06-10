@@ -230,6 +230,7 @@ Default: `${project.basedir}/tests`
 The test package used for testing. Supporting test package is either `behave` or `pytest`. If neither was set, it will always fall back to `behave`.
 
 Default: `behave`
+**Note:** Auto detection for the test package will take precedence over this configuration. If there is no `behave` or `pytest` configured in the `pyproject.toml` file, this configuration will take place.
 
 ### mavenArtifactFile
 
@@ -488,6 +489,7 @@ defined in the pom.xml:
     <artifactId>habushu-maven-plugin</artifactId>
     <version>${project.version}</version>
     <configuration>
+      <!-- if the pytest is configured in the pyproject.toml file, you can ignore the `testPackage` configuration -->
       <testPackage>pytest</testPackage>
       <pytestTestEnvironmentVariables>
         <ENV_VAR>VALUE</ENV_VAR>
@@ -502,6 +504,7 @@ To pass environment variables in via the command line using the `-D` option, use
   <artifactId>habushu-maven-plugin</artifactId>
   <version>${project.version}</version>
   <configuration>
+    <!-- if the pytest is configured in the pyproject.toml file, you can ignore the `testPackage` configuration -->
     <testPackage>pytest</testPackage>
     <pytestTestEnvironmentVariables>
       <ENV_VAR>${habushu.ENV_VAR}</ENV_VAR>

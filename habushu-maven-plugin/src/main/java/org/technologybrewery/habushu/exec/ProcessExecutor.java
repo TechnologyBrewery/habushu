@@ -20,8 +20,9 @@ import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.technologybrewery.habushu.HabushuException;
+import org.slf4j.event.Level;
 import org.slf4j.Logger;
+import org.technologybrewery.habushu.HabushuException;
 
 /**
  * Largely pulled from the com.github.eirslett:frontend-maven-plugin and then
@@ -54,6 +55,11 @@ public class ProcessExecutor {
     }
 
     public String executeAndGetResult(final Logger logger) {
+        return executeAndGetResult(logger, Level.ERROR);
+    }
+
+    public String executeAndGetResult(final Logger logger, final Level exceptionLogLevel) {
+
         ByteArrayOutputStream stdout = new ByteArrayOutputStream();
         ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
@@ -61,8 +67,8 @@ public class ProcessExecutor {
         try {
             exitValue = execute(logger, stdout, stderr);
         } catch (Throwable e) {
-            displayProcessOutputForException(stdout, logger);
-            displayProcessOutputForException(stderr, logger);
+            displayProcessOutputForException(stdout, logger, exceptionLogLevel);
+            displayProcessOutputForException(stderr, logger, exceptionLogLevel);
             throw new HabushuException("Could not invoke command! See output above.", e);
         }
         if (exitValue == 0) {
@@ -205,16 +211,26 @@ public class ProcessExecutor {
     }
 
     /**
-     * Helper method that logs the given process output at the error level if its
+     * Helper method that logs the given process output at the given log level if its
      * content is not blank.
      *
      * @param output
      * @param logger
+     * @param logLevel to print out the process exception
      */
-    protected void displayProcessOutputForException(ByteArrayOutputStream output, Logger logger) {
+    protected void displayProcessOutputForException(ByteArrayOutputStream output, Logger logger, Level logLevel) {
         String outputAsStr = output.toString();
         if (StringUtils.isNotBlank(outputAsStr)) {
-            logger.error(outputAsStr);
+            switch (logLevel.toInt()) {
+                case 20:
+                    logger.info(outputAsStr);
+                    break;
+                case 30:
+                    logger.warn(outputAsStr);
+                    break;
+                default:
+                    logger.error(outputAsStr);
+            }
         }
     }
 }

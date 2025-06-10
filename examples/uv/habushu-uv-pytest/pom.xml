@@ -26,7 +26,6 @@
                     <groupId>org.technologybrewery.habushu</groupId>
                     <artifactId>habushu-maven-plugin</artifactId>
                     <configuration>
-                        <testPackage>pytest</testPackage>
                         <!--  Increase verbosity to print more info to the console regarding the tests -->
                         <enableVerbose>true</enableVerbose>
                         <!-- set environment variables -->
