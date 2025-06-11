@@ -8,6 +8,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.technologybrewery.habushu.exec.CommandHelper;
 import org.technologybrewery.habushu.util.HabushuUtil;
 import org.technologybrewery.habushu.util.PackageManager;
 
@@ -101,9 +102,16 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
         return behaveTestEnvironmentVariables;
     }
 
+    private boolean behaveInstalled = false;
+    public boolean isBehaveInstalled() {
+        return behaveInstalled;
+    }
+
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
-        if (getTestPackage().equals("behave")) {
+        // if behave is installed, use behave as test package, otherwise check the testpackage configuration
+        String testPackage = getTestPackage(getCommandHelper());
+        if (testPackage.equals("behave")) {
             if (HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile()) == PackageManager.POETRY) {
                 BehaveBddTestPoetry behaveBddTestPoetry = new BehaveBddTestPoetry(getLog(), this,
                         createPoetryCommandHelper());
@@ -114,7 +122,18 @@ public class BehaveBddTestMojo extends AbstractHabushuMojo {
                 behaveBddTestUv.doExecute();
             }
         } else {
-            getLog().info(String.format("This Mojo is not used for %s test.", getTestPackage()));
+            getLog().info(String.format("This Mojo is not used for %s test.", testPackage));
         }
+    }
+
+    public String getTestPackage(CommandHelper commandHelpers) {
+        if (commandHelpers.isDependencyInstalled("behave")) {
+            this.behaveInstalled = true;
+            return "behave";
+        }
+        if (commandHelpers.isDependencyInstalled("pytest")) {
+            return "pytest";
+        }
+        return super.getTestPackage();
     }
 }

@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 /**
  * Facilitates the execution of package manager commands.
@@ -37,11 +38,28 @@ public abstract class AbstractCommandHelper implements CommandHelper {
      * {@inheritDoc}
      */
     public String execute(List<String> arguments) {
+        // by default, log the exception as an error
+        return executeWithCustomExceptionLogLevel(arguments, Level.ERROR);
+    }
+
+    /**
+     * Executes a package manager command with the given arguments, logs the executed
+     * command, and log the exception output with the given log level
+     * returns the resultant process output as a string. This method
+     * should be utilized when performing downstream logic based on the output of a
+     * command, or it is desirable to not show the command's generated
+     * stdout.
+     *
+     * @param arguments list of arguments for commands
+     * @param exceptionLogLevel print out the execution output at given level
+     * @return execution Result
+     */
+    public String executeWithCustomExceptionLogLevel(List<String> arguments, Level exceptionLogLevel) {
         if (logger.isInfoEnabled()) {
             logExecutionInformation(arguments);
         }
         ProcessExecutor executor = createPackageManagerExecutor(arguments);
-        return executor.executeAndGetResult(logger);
+        return executor.executeAndGetResult(logger, exceptionLogLevel);
     }
 
     /**

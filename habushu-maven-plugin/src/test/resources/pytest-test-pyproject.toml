@@ -1,17 +1,13 @@
 [project]
 name = "habushu-uv-pytest"
 version = "3.1.0.dev"
-description = "Example of how to use Habushu for pytest testing"
+description = "A uv pyproject config without pytest installed"
 readme = "README.md"
-authors = [
-    {name = "Chaoyi Sun", email = "csun@cpointe-inc.com"},
-]
 requires-python = ">=3.12"
 
 [tool.uv]
 # habushu will detect the pytest dependency for test package
 dev-dependencies = [
-    "pytest>=8.3.3",
 ]
 
 # Register custom marks in your pyproject.toml file

@@ -24,7 +24,20 @@ habushu-uv-pytest/
 ```
 **Note:** the test file must be named with test_*.py or *_test.py for pytest to detect as test files.
 
-## Configure `testPackage` to `pytest` in the `habush-maven-plugin` plugin
+## Configure `pytest` as testPackage
+
+### Configure the `pytest` dependency in `pyproject.toml` file
+Preferably, set the `pytest` dependency to the `pyproject.toml` file. Habushu will first detect if there is a `pytest` configured in the `pyproject.toml` file for the test package.
+
+```toml
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.3.3",
+]
+```
+
+### Alternatively, configure `testPackage` to `pytest` in the `habush-maven-plugin` plugin
+If `pytest` already configured in the `pyproject.toml` file, this configuration can be ignored.
 
 ```xml
         <plugin>

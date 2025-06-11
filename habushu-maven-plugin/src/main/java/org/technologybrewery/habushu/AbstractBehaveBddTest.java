@@ -42,7 +42,7 @@ public abstract class AbstractBehaveBddTest {
         if (hasTests(behaveDirectory)) {
             checkAndInstallBehave();
 
-            // The package managers Habushu currently supports run this behave command in the exact same way
+            // The package managers Habushu currently support run this behave command in the exact same way
             List<String> executeBehaveTestArgs = new ArrayList<>(Arrays.asList("run", BEHAVE_PACKAGE,
                     canonicalPathForFile));
 
@@ -59,11 +59,15 @@ public abstract class AbstractBehaveBddTest {
         }
     }
 
-    protected void checkAndInstallBehave() {
-        if (!this.commandHelper.isDependencyInstalled(BEHAVE_PACKAGE)) {
-            this.log.info(String.format("%s dependency not specified in pyproject.toml - installing now...",
+    protected void installBehave() {
+        this.log.info(String.format("%s dependency not specified in pyproject.toml - installing now...",
                     BEHAVE_PACKAGE));
-            this.commandHelper.installDevelopmentDependency(BEHAVE_PACKAGE);
+        this.commandHelper.installDevelopmentDependency(BEHAVE_PACKAGE);
+    }
+
+    protected void checkAndInstallBehave() {
+        if (!behaveBddTestMojo.isBehaveInstalled()) {
+            installBehave();
         }
     }
 

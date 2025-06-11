@@ -6,6 +6,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.technologybrewery.habushu.exec.CommandHelper;
+import org.technologybrewery.habushu.exec.UvCommandHelper;
 import org.technologybrewery.habushu.util.HabushuUtil;
 import org.technologybrewery.habushu.util.PackageManager;
 
@@ -64,18 +66,37 @@ public class PytestTestMojo extends AbstractHabushuMojo {
         return pytestTestEnvironmentVariables;
     }
 
+    private boolean pytestInstalled = false;
+    public boolean isPytestInstalled() {
+        return pytestInstalled;
+    }
+
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
-        if (getTestPackage().equals("pytest")) {
+        UvCommandHelper uvCommandHelper = createUvCommandHelper();
+        // if pytest is installed, use pytest as test package, otherwise check the testpackage configuration
+        String testPackage = getTestPackage(uvCommandHelper);
+        if (testPackage.equals("pytest")) {
             if (HabushuUtil.checkPythonPackageManager(getPyProjectTomlFile()) == PackageManager.POETRY) {
                 getLog().info("Pytest test is not yet supported for Poetry projects");
             } else {
                 PytestTestUv pytestTestUv = new PytestTestUv(getLog(), this,
-                        createUvCommandHelper());
+                        uvCommandHelper);
                 pytestTestUv.doExecute();
             }
         } else {
-            getLog().info(String.format("This Mojo is not used for %s test.", getTestPackage()));
+            getLog().info(String.format("This Mojo is not used for %s test.", testPackage));
         }
+    }
+
+    public String getTestPackage(CommandHelper uvCommandHelper) {
+        if (uvCommandHelper.isDependencyInstalled("pytest")) {
+            this.pytestInstalled = true;
+            return "pytest";
+        }
+        if (uvCommandHelper.isDependencyInstalled("behave")) {
+            return "behave";
+        }
+        return super.getTestPackage();
     }
 }
