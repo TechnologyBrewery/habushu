@@ -55,7 +55,7 @@ if [[ "$?" -ne 0 ]] ; then
 fi
 
 echo "/////////// Deploy Habushu to Maven Central ///////////"
-mvn clean deploy -P ossrh-release -Dmaven.build.cache.enabled=false
+mvn clean deploy -P central-release -Dmaven.build.cache.enabled=false
 
 if [[ "$?" -ne 0 ]] ; then
   echo 'Process failed! Unable to deploy Habushu to Maven Central!'; exit 1
