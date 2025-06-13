@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.technologybrewery</groupId>
         <artifactId>parent</artifactId>
-        <version>12</version>
+        <version>14</version>
     </parent>
 
     <groupId>org.technologybrewery.habushu</groupId>
@@ -102,13 +102,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-        <plugins>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <extensions>true</extensions>
-            </plugin>
-        </plugins>
     </build>
 
     <profiles>
@@ -128,7 +121,7 @@
             </modules>
         </profile>
         <profile>
-            <id>ossrh-release</id>
+            <id>central-release</id>
             <modules>
                 <module>habushu-maven-plugin</module>
             </modules>
