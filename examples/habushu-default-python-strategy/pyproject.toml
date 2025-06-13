@@ -1,6 +1,6 @@
 [project]
 name = "habushu_default_python_strategy"
-version = "3.1.0.dev"
+version = "3.1.0"
 description = "Example of how to use the habushu default python strategy configuration"
 authors = [{name = "Ryan Ashcraft", email = "ryan.ashcraft@codifyiq.com"}]
 license = "MIT License"

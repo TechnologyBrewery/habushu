@@ -1,6 +1,6 @@
 [project]
 name = "habushu-poetry-dependency-groups"
-version = "3.1.0.dev"
+version = "3.1.0"
 description = "Example of how to use the dependency group related habushu-maven-plugin configurations with Poetry"
 authors = [
     {name = "Margaret Black",email = "black_margaret@bah.com"}
