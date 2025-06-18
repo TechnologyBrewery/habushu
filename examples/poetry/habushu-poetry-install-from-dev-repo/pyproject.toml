@@ -1,6 +1,6 @@
 [project]
 name = "habushu-poetry-install-from-dev-repo"
-version = "3.1.1"
+version = "3.1.2.dev"
 description = ""
 authors = [
     {name = "Margaret Black",email = "black_margaret@bah.com"}
