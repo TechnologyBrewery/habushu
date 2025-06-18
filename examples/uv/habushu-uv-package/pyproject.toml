@@ -1,6 +1,6 @@
 [project]
 name = "habushu_uv_package"
-version = "3.1.0.dev"
+version = "3.1.1"
 description = "Example of how to use the habushu-maven-plugin in a uv-based setting"
 readme = "README.md"
 authors = [
