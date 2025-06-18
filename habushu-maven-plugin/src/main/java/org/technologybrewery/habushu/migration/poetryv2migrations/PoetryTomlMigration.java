@@ -28,7 +28,7 @@ public class PoetryTomlMigration extends AbstractPoetryMigration{
 
     @Override
     protected boolean shouldExecuteOnFile(File file) {
-        if (isPoetryVersionAtLeast2){
+        if (checkPoetryVersionAtLeast2()) {
             try(FileConfig tomlFileConfig = FileConfig.of(file)){
                 tomlFileConfig.load();
                 Optional<Config> virtualEnvsGroupOpt = tomlFileConfig.getOptional(TomlUtils.VIRTUAL_ENVS);

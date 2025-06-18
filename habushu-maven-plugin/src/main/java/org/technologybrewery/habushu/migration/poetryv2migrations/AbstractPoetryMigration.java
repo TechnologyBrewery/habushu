@@ -21,7 +21,12 @@ import java.util.stream.Collectors;
 public abstract class AbstractPoetryMigration extends AbstractHabushuMigration {
     private static final Logger logger = LoggerFactory.getLogger(AbstractPoetryMigration.class);
     protected File workingDirectory;
-    protected boolean isPoetryVersionAtLeast2 = checkPoetryVersionAtLeast2();
+    protected Boolean isPoetryVersionAtLeast2;
+
+    @Override
+    protected boolean shouldExecuteOnFile(File file) {
+        return isPoetryProject(file) && checkPoetryVersionAtLeast2();
+    }
 
     @Override
     public void setMavenProject(MavenProject project) {
@@ -30,15 +35,19 @@ public abstract class AbstractPoetryMigration extends AbstractHabushuMigration {
     }
 
     protected boolean checkPoetryVersionAtLeast2(){
-        PoetryCommandHelper poetryHelper = new PoetryCommandHelper(workingDirectory);
-        return poetryHelper.isPoetryVersionAtLeastMinimumVersion();
+        if (isPoetryVersionAtLeast2 == null) {
+            PoetryCommandHelper poetryHelper = new PoetryCommandHelper(workingDirectory);
+            isPoetryVersionAtLeast2 = poetryHelper.isPoetryVersionAtLeastMinimumVersion();
+        }
+
+        return isPoetryVersionAtLeast2;
     }
 
     public void setWorkingDirectory(File workingDirectory){
         this.workingDirectory = workingDirectory;
     }
 
-    public void setIsPoetryVersionAtLeast2(boolean isPoetryVersionAtLeast2){
+    void setIsPoetryVersionAtLeast2(Boolean isPoetryVersionAtLeast2){
         this.isPoetryVersionAtLeast2 = isPoetryVersionAtLeast2;
     }
 
