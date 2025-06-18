@@ -25,7 +25,7 @@ public class PoetryRemoveEmptyTomlMigration extends AbstractPoetryMigration{
 
     @Override
     protected boolean shouldExecuteOnFile(File file) {
-        if (isPoetryProject(file) && isPoetryVersionAtLeast2){
+        if (super.shouldExecuteOnFile(file)) {
             try(FileConfig tomlFileConfig = FileConfig.of(file)){
                 tomlFileConfig.load();
                 List<String> allTomlSectionHeaders = TomlUtils.extractTomlSectionHeaders(file);

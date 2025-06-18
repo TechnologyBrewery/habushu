@@ -37,7 +37,7 @@ public class PoetryToProjectMigration extends AbstractPoetryMigration {
         boolean shouldExecute = false;
         Config.setInsertionOrderPreserved(true);
 
-        if (isPoetryProject(file) && isPoetryVersionAtLeast2) {
+        if (super.shouldExecuteOnFile(file)) {
             try (FileConfig tomlFileConfig = FileConfig.of(file)) {
                 tomlFileConfig.load();
                 Optional<Config> poetryGroupOpt = tomlFileConfig.getOptional(TomlUtils.TOOL_POETRY);

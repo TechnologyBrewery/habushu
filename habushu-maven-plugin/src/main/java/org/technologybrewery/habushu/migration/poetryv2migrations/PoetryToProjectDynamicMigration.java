@@ -37,7 +37,7 @@ public class PoetryToProjectDynamicMigration extends AbstractPoetryMigration{
     protected boolean shouldExecuteOnFile(File file) {
         boolean shouldExecute = false;
 
-        if (isPoetryProject(file) && isPoetryVersionAtLeast2) {
+        if (super.shouldExecuteOnFile(file)) {
             try (FileConfig tomlFileConfig = FileConfig.of(file)) {
                 tomlFileConfig.load();
 
