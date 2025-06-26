@@ -12,16 +12,16 @@ Feature: Test creating Poetry Helper commands based on the given Poetry version
       | 2.0.0         | true           |
       | 2.0.1         | true           |
 
-  Scenario Outline: Create lock command with skipPoetryLockUpdate
+  Scenario Outline: Create lock command with skipLockUpdate
     Given the Poetry version is "<poetryVersion>"
-    And skipPoetryLockUpdate is <skipPoetryLockUpdate>
+    And skipLockUpdate is <skipLockUpdate>
     When the lock command is created
     Then the returned arguments should be:
       | <expectedArg1> |
       | <expectedArg2> |
 
     Examples:
-      | poetryVersion | skipPoetryLockUpdate | expectedArg1 | expectedArg2       |
+      | poetryVersion | skipLockUpdate | expectedArg1 | expectedArg2       |
       | 2.0.0         | true                 | lock         |                    |
       | 2.0.0         | false                | lock         | --regenerate       |
       | 1.6.1         | true                 | lock         | --no-update        |

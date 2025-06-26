@@ -33,9 +33,9 @@ public class PoetryCommandHelperSteps {
         assertEquals(expectedResult, isPoetryVersionAtLeast2, "Unexpected Poetry version found.");
     }
 
-    @Given("skipPoetryLockUpdate is {}")
-    public void skip_poetry_lock_update_is(boolean skipPoetryLockUpdate) {
-        testSkipUpdate = skipPoetryLockUpdate;
+    @Given("skipLockUpdate is {}")
+    public void skip_poetry_lock_update_is(boolean skipLockUpdate) {
+        testSkipUpdate = skipLockUpdate;
     }
 
     @When("the lock command is created")

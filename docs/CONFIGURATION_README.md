@@ -39,7 +39,7 @@ mvn clean install -Dhabushu.pythonVersion=3.12.9
   - [defaultPythonStrategy](#defaultpythonstrategy)
   - [rewriteLocalPathDepsInArchives](#rewritelocalpathdepsinarchives)
   - [forceSync](#forcesync)
-  - [skipPoetryLockUpdate](#skippoetrylockupdate)
+  - [skipLockUpdate](#skiplockupdate)
   - [deleteVirtualEnv](#deletevirtualenv)
   - [skipDeploy](#skipdeploy)
   - [snapshotNumberDateFormatPattern](#snapshotnumberdateformatpattern)
@@ -169,9 +169,9 @@ Default: `false`
 
 **Example:** TODO
 
-### skipPoetryLockUpdate
+### skipLockUpdate
 
-Typically enabled when running CI, this configuration enables skipping the update of Poetry's lock file via `poetry lock`. If `poetry.lock` does not exist, the subsequent execution of `poetry install` will create it regardless of this configuration. If `poetry.lock` has a mismatch with its `pyproject.toml` definition, the build will fail.
+Typically enabled when running CI, this configuration enables skipping the update of Poetry or uv lock file via their `lock` commands. If their lock files does not exist, the subsequent execution of `install` will create it regardless of this configuration. If `poetry.lock` or `uv.lock` have a mismatch with its `pyproject.toml` definition, the build will fail.
 
 Default: `false`
 

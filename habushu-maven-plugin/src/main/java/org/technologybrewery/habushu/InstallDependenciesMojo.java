@@ -51,8 +51,8 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
     /**
      * Configures whether the lock file will be updated before install.
      */
-    @Parameter(defaultValue = "false", property = "habushu.skipPoetryLockUpdate")
-    protected boolean skipPoetryLockUpdate;
+    @Parameter(defaultValue = "false", property = "habushu.skipLockUpdate")
+    protected boolean skipLockUpdate;
 
     /**
      * Specifies groups to include in the installation.
@@ -161,8 +161,8 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
      * Get configuration for the path for the simple index on a private pypi repository.
      * @return pypiSimpleSuffix
      */
-    public boolean skipPoetryLockUpdate() {
-        return skipPoetryLockUpdate;
+    public boolean skipLockUpdate() {
+        return skipLockUpdate;
     }
 
     /**

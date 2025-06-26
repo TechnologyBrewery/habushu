@@ -238,16 +238,16 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
         return createLockCommand(true);
     }
 
-    public List<String> createLockCommand(boolean skipPoetryLockUpdate) {
+    public List<String> createLockCommand(boolean skipLockUpdate) {
         List<String> arguments = new ArrayList<>();
         arguments.add("lock");
 
         if (isPoetryVersionAtLeastMinimumVersion()) {
-            if (!skipPoetryLockUpdate) {
+            if (!skipLockUpdate) {
                 arguments.add("--regenerate");
             }
         } else {
-            if (skipPoetryLockUpdate) {
+            if (skipLockUpdate) {
                 arguments.add("--no-update");
             }
         }
