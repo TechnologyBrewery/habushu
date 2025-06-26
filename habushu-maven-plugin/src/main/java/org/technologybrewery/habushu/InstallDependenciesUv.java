@@ -79,10 +79,10 @@ public class InstallDependenciesUv extends AbstractInstallDependencies {
             prepareRepositoryForInstallation(installDependenciesMojo.getDevRepositoryId(), installDependenciesMojo.getDevRepositoryUrl(), PYPROJECT_PACKAGE_INDEX_PATH);
         }
 
-        if (!installDependenciesMojo.skipPoetryLockUpdate()) {
+        if (!installDependenciesMojo.skipLockUpdate()) {
             log.info("Locking dependencies specified in pyproject.toml...");
             uvAuthenticationHelper.executeLockCommandAndLogAfterTimeout(
-                    installDependenciesMojo.skipPoetryLockUpdate,
+                    installDependenciesMojo.skipLockUpdate,
                     true,
                     2,
                     TimeUnit.MINUTES,
