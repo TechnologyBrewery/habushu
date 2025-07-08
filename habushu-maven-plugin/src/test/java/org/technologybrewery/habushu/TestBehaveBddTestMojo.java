@@ -62,6 +62,11 @@ public class TestBehaveBddTestMojo extends BehaveBddTestMojo {
             public void installDevelopmentDependency(String packageName) {
 
             }
+
+            @Override
+            public String getProjectVersion() {
+                return "";
+            }
         };
     }
 

@@ -6,7 +6,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.StringUtils;
-import org.technologybrewery.habushu.exec.UvAuthenticationCommandHelper;
+import org.technologybrewery.habushu.exec.UvCommandHelper;
 import org.technologybrewery.habushu.util.HabushuUtil;
 import org.technologybrewery.habushu.util.TomlReplacementTuple;
 import org.technologybrewery.habushu.util.TomlUtils;
@@ -17,7 +17,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
@@ -66,7 +65,7 @@ public class InstallDependenciesUv extends AbstractInstallDependencies {
 
     @Override
     public void doExecute() throws MojoFailureException {
-        UvAuthenticationCommandHelper uvAuthenticationHelper = createUvAuthenticationCommandHelper();
+        UvCommandHelper uvHelper = createUvCommandHelper();
 
         processManagedDependencyMismatches();
 
@@ -81,17 +80,16 @@ public class InstallDependenciesUv extends AbstractInstallDependencies {
 
         if (!installDependenciesMojo.skipLockUpdate()) {
             log.info("Locking dependencies specified in pyproject.toml...");
-            uvAuthenticationHelper.executeLockCommandAndLogAfterTimeout(
-                    installDependenciesMojo.skipLockUpdate,
+            uvHelper.executeLockCommandAndLogAfterTimeout(
+                    installDependenciesMojo,
                     true,
                     2,
                     TimeUnit.MINUTES,
                     UV_CLEAN_CACHE_COMMAND
             );
         }
-        uvAuthenticationHelper.executeSyncCommand(
-                installDependenciesMojo.withGroups,
-                installDependenciesMojo.withoutGroups,
+        uvHelper.executeSyncCommand(
+                installDependenciesMojo,
                 2,
                 TimeUnit.MINUTES,
                 UV_CLEAN_CACHE_COMMAND
@@ -276,13 +274,13 @@ public class InstallDependenciesUv extends AbstractInstallDependencies {
     }
 
     /**
-     * Creates a {@link org.technologybrewery.habushu.exec.UvAuthenticationCommandHelper} that may be used to invoke uv
+     * Creates a {@link org.technologybrewery.habushu.exec.UvCommandHelper} that may be used to invoke uv
      * commands that could require authentication from the project's working directory.
      *
      * @return command helper
      */
-    protected UvAuthenticationCommandHelper createUvAuthenticationCommandHelper() {
-        return new UvAuthenticationCommandHelper(baseDir, null, installDependenciesMojo);
+    protected UvCommandHelper createUvCommandHelper() {
+        return new UvCommandHelper(baseDir);
     }
 
     @Override
