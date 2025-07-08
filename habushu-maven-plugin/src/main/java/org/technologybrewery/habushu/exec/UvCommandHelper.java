@@ -121,6 +121,19 @@ public class UvCommandHelper extends AbstractCommandHelper {
      * {@inheritDoc}
      */
     @Override
+    public String getProjectName() {
+        List<String> getPythonProjectVersion = Arrays.asList(
+                "--from=toml-cli", "toml",
+                "get", "--toml-path=pyproject.toml",
+                "project.name");
+        List<String> getPythonProjectVersionCommamd = createToolRunCommand(getPythonProjectVersion);
+        return execute(getPythonProjectVersionCommamd);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getProjectVersion() {
         List<String> getPythonProjectVersion = Arrays.asList(
                 "--from=toml-cli", "toml",

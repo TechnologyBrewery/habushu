@@ -93,6 +93,13 @@ public interface CommandHelper {
     void installDevelopmentDependency(String packageName);
 
     /**
+     * Reads the project name as seen by the package manager tool (i.e. pyproject.toml).
+     *
+     * @return the project name
+     */
+    String getProjectName();
+
+    /**
      * Reads the project version as seen by the package manager tool (i.e. pyproject.toml).
      *
      * @return the project version

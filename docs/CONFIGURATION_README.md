@@ -98,11 +98,11 @@ mvn clean install -Dhabushu.pythonVersion=3.12.9
     - [addPypiRepoAsPackageSources](#addpypirepoaspackagesources)
 - [Containerization Configurations](#containerization-configurations)
   - [stagingDirectory](#stagingdirectory)
-  - [defaultSourceSet](#defaultsourceset)
   - [updateDockerfile](#updatedockerfile)
   - [dockerfile](#dockerfile)
   - [dockerContext](#dockercontext)
   - [dockerUser](#dockeruser)
+  - [dockerVenvDirectoryPermissions](#dockerVenvDirectoryPermissions)
   - [dockerTemplatePath](#dockertemplatepath)
   - [dockerBuilderBase](#dockerbuilderbase)
   - [dockerFinalBase](#dockerfinalbase) 
@@ -744,12 +744,6 @@ Default: `true`
 Controls the location of where containerization files will be copied to as part of the [containerize-dependencies](HABUSHU_LIFECYCLE_README.md#containerize-dependencies) goal.
 
 Default: `${project.build.directory}/containerize-support`
-
-### defaultSourceSet
-
-For each Python project that is identified as required for containerization, the files identified by this fileset will be copied to the staging directory. It is not currently possible to define different filesets for different projects.
-
-Default: `"{project.basedir}/src/**", "*.toml", "*.lock" and "README.md"`
 
 ### updateDockerfile
 

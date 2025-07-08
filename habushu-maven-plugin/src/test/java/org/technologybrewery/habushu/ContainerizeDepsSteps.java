@@ -52,14 +52,6 @@ public class ContainerizeDepsSteps {
         }
     }
 
-    private String getPackageManagerProjectPath(String packageManager){
-        if (POETRY.equalsIgnoreCase(packageManager)) {
-            return poetryMonorepoDepPath;
-        } else {
-            return uvMonorepoDepPath;
-        }
-    }
-
     @Given("a single {string}-based dependency with packaging type Habushu")
     public void a_single_package_manager_based_dependency_with_packaging_type_habushu(String packageManager) throws Exception {
         String projectPath = getPackageManagerProjectPath(packageManager);
@@ -82,20 +74,14 @@ public class ContainerizeDepsSteps {
         mojo.execute();
     }
 
-    @Then("the source files of the {string}-based dependency and transitive Habushu-type dependencies are staged for containerization")
-    public void
-    the_source_files_of_the_package_manager_based_dependency_and_transitive_habushu_type_dependencies_are_staged_for_containerization(String packageManager) {
-        assertStaged(mojo.getStagingPath(), packageManager);
+    @Then("the wheels of the dependency and transitive monorepo dependencies are staged in the build directory")
+    public void the_wheels_of_the_dependency_are_staged_in_the_build_directory() {
+        assertStaged(mojo.getStagingPath());
     }
 
     @Given("a dockerfile to update")
     public void a_dockerfile_to_update() {
         setDockerfile("/src/main/resources/docker/Dockerfile");
-    }
-
-    @Then("all the source files to build the {string}-based dependency are staged in the build directory")
-    public void all_the_source_files_to_build_the_package_manager_based_dep_are_staged_in_the_build_directory(String packageManager) {
-        assertStaged(mojo.getStagingPath(), packageManager);
     }
 
     @Then("the Dockerfile is updated to leverage a virtual environment for the dependency")
@@ -148,7 +134,7 @@ public class ContainerizeDepsSteps {
         mojo.setDockerfile(dockerfile);
     }
 
-    private void assertStaged(Path actual, String packageManager) {
+    private void assertStaged(Path actual) {
         Set<Path> actualFiles;
         try {
             actualFiles = getRelativizedPaths(actual);
@@ -156,17 +142,8 @@ public class ContainerizeDepsSteps {
             throw new RuntimeException();
         }
 
-        assertFile(actualFiles, "extensions/extensions-python-dep-X/src/python_dep_x/python_dep_x.py");
-        assertFile(actualFiles, "extensions/extensions-python-dep-X/pyproject.toml");
-        assertFile(actualFiles, "extensions/extensions-python-dep-X/README.md");
-        assertFile(actualFiles, "foundation/foundation-python-dep-Y/src/python_dep_y/python_dep_y.py");
-        assertFile(actualFiles, "foundation/foundation-python-dep-Y/pyproject.toml");
-        assertFile(actualFiles, "foundation/foundation-python-dep-Y/README.md");
-
-        if (POETRY.equalsIgnoreCase(packageManager)){
-            assertFile(actualFiles, "extensions/extensions-python-dep-X/poetry.toml");
-            assertFile(actualFiles, "foundation/foundation-python-dep-Y/poetry.toml");
-        }
+        assertFile(actualFiles, "renamed_python_dep_Y-1.0.0-py3-none-any.whl");
+        assertFile(actualFiles, "extensions_python_dep_X-1.0.0.dev0-py3-none-any.whl");
     }
 
     private static void assertFile(Set<Path> actualFiles, String path) {
@@ -190,6 +167,14 @@ public class ContainerizeDepsSteps {
             e.printStackTrace();
         }
         return contentBuilder.toString();
+    }
+
+    private String getPackageManagerProjectPath(String packageManager){
+        if (POETRY.equalsIgnoreCase(packageManager)) {
+            return poetryMonorepoDepPath;
+        } else {
+            return uvMonorepoDepPath;
+        }
     }
 
 }

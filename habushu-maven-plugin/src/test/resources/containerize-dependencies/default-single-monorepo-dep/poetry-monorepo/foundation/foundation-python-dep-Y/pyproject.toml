@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "extensions-python-dep-Y"
+name = "renamed-python-dep-Y"
 version = "1.0.0"
 description = "description"
 authors = ["author"]

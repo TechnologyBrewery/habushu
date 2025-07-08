@@ -90,6 +90,16 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
      * {@inheritDoc}
      */
     @Override
+    public String getProjectName() {
+        // the full version command prints "project-name version"
+        String result = execute(Arrays.asList("version", "--no-ansi"));
+        return result.split(" ")[0];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getProjectVersion() {
         return execute(Arrays.asList("version", "-s"));
     }

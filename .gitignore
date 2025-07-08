@@ -63,6 +63,8 @@ Thumbs.db
 *.lock
 generated/
 !examples/poetry/habushu-poetry-package/src/habushu_poetry_package/generated/__init__.py
+!**/src/test/resources/**/dist/
+!**/src/test/resources/**/dist/**
 
 # Local Poetry configuration
 !habushu-maven-plugin/src/test/resources/**/poetry.toml

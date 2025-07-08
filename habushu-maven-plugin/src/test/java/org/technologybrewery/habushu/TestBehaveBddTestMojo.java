@@ -64,6 +64,11 @@ public class TestBehaveBddTestMojo extends BehaveBddTestMojo {
             }
 
             @Override
+            public String getProjectName() {
+                return "";
+            }
+
+            @Override
             public String getProjectVersion() {
                 return "";
             }
