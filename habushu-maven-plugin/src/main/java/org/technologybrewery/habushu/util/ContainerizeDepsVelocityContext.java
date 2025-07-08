@@ -4,21 +4,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.technologybrewery.habushu.ContainerizeDepsMojo;
 
-public abstract class AbstractContainerizeDepsVelocityContext extends VelocityContext {
-    private final ContainerizeDepsMojo containerizeDepsMojo;
-    private static final String SINGLE_REPO_PROJECT_DIR = "singleRepoProjectDir";
+import java.util.List;
+
+public class ContainerizeDepsVelocityContext extends VelocityContext {
+    private static final String STAGING_DIRECTORY = "stagingDirectory";
+    private static final String PROJECT_WHEELS = "projectWheels";
+    private static final String EXTRA_WHEELS = "extraWheels";
     private static final String BUILDER_BASE_IMAGE = "builderBaseImage";
     private static final String FINAL_BASE_IMAGE = "finalBaseImage";
-    private static final String ANCHOR_DIRECTORY = "anchorDirectory";
     private static final String CHOWN = "chownPlaceholder";
     private static final String CHMOD = "chmodPlaceholder";
 
-    public AbstractContainerizeDepsVelocityContext(ContainerizeDepsMojo containerizeDepsMojo){
-        this.containerizeDepsMojo = containerizeDepsMojo;
-    }
+    private final ContainerizeDepsMojo containerizeDepsMojo;
 
-    public void setSingleRepoProjectDir() {
-        put(SINGLE_REPO_PROJECT_DIR, containerizeDepsMojo.moduleBaseDir);
+    public ContainerizeDepsVelocityContext(ContainerizeDepsMojo containerizeDepsMojo){
+        this.containerizeDepsMojo = containerizeDepsMojo;
     }
 
     public void setBuilderBaseImage() {
@@ -29,8 +29,8 @@ public abstract class AbstractContainerizeDepsVelocityContext extends VelocityCo
         put(FINAL_BASE_IMAGE, containerizeDepsMojo.getDockerFinalBase());
     }
 
-    public void setAnchorDirectory() {
-        put(ANCHOR_DIRECTORY, containerizeDepsMojo.anchorDirectory);
+    public void setStagingDirectory() {
+        put(STAGING_DIRECTORY, containerizeDepsMojo.getStagingDirectoryRelativeToContext());
     }
 
     public void setOwner() {
@@ -51,6 +51,11 @@ public abstract class AbstractContainerizeDepsVelocityContext extends VelocityCo
         }
     }
 
-    public abstract void setVersion(String version);
+    public void setProjectWheels(List<String> orderedProjectWheels) {
+        put(PROJECT_WHEELS, orderedProjectWheels);
+    }
 
+    public void setExtraWheels() {
+        put(EXTRA_WHEELS, containerizeDepsMojo.getExtraWheels());
+    }
 }

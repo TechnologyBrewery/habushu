@@ -10,7 +10,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.model.fileset.FileSet;
-import org.apache.maven.shared.model.fileset.util.FileSetManager;
+import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.technologybrewery.habushu.exec.CommandHelper;
@@ -19,8 +19,6 @@ import org.technologybrewery.habushu.exec.UvCommandHelper;
 import org.technologybrewery.habushu.util.ContainerizeDepsDockerfileHelper;
 import org.technologybrewery.habushu.util.HabushuUtil;
 import org.technologybrewery.habushu.util.PackageManager;
-import org.technologybrewery.habushu.util.PoetryContainerizeDepsDockerfileHelper;
-import org.technologybrewery.habushu.util.UvContainerizeDepsDockerfileHelper;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -31,7 +29,10 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,8 +46,6 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
 
     private static final Logger logger = LoggerFactory.getLogger(ContainerizeDepsMojo.class);
     private PackageManager packageManager;
-    public String anchorDirectory;
-    public String moduleBaseDir;
 
     @Component
     protected MavenSession session;
@@ -63,7 +62,7 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      * projects. If not set, defaults to "{habushu.sourceDirectory}/**", "*.toml", "*.lock" and "README.md".
      */
     @Parameter
-    protected FileSet defaultSourceSet;
+    protected FileSet defaultSourceSet; //TODO: Remove via migration
 
     /**
      * Controls whether a Dockerfile is updated with logic to copy and build the Habushu project and its dependencies
@@ -105,29 +104,42 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     @Parameter(property = "habushu.dockerTemplatePath")
     protected File dockerTemplatePath;
 
-    /**
-     * The default Dockerfile builder stage template for Poetry. Overwrite if a custom template is preferred.
-     */
-    @Parameter(defaultValue = "templates/dockerfile_poetry_builder_stage_template.vm", property = "habushu.dockerPoetryBuilderStageTemplatePath")
-    protected String dockerPoetryBuilderStageTemplatePath;
-
-    /**
-     * The default Dockerfile final stage template for Poetry. Overwrite if a custom template is preferred.
-     */
-    @Parameter(defaultValue = "templates/dockerfile_poetry_final_stage_template.vm", property = "habushu.dockerPoetryFinalStageTemplatePath")
-    protected String dockerPoetryFinalStageTemplatePath;
 
     /**
      * The default Dockerfile builder stage template for Poetry. Overwrite if a custom template is preferred.
      */
-    @Parameter(defaultValue = "templates/dockerfile_uv_builder_stage_template.vm", property = "habushu.dockerUvBuilderStageTemplatePath")
-    protected String dockerUvBuilderStageTemplatePath;
+    @Parameter(defaultValue = "templates/dockerfile_builder_stage_template.vm", property = "habushu.dockerPoetryBuilderStageTemplatePath")
+    protected String dockerBuilderStageTemplatePath;
 
     /**
      * The default Dockerfile final stage template for Poetry. Overwrite if a custom template is preferred.
      */
-    @Parameter(defaultValue = "templates/dockerfile_uv_final_stage_template.vm", property = "habushu.dockerUvFinalStageTemplatePath")
-    protected String dockerUvFinalStageTemplatePath;
+    @Parameter(defaultValue = "templates/dockerfile_final_stage_template.vm", property = "habushu.dockerPoetryFinalStageTemplatePath")
+    protected String dockerFinalStageTemplatePath;
+
+    /**
+     * The default Dockerfile builder stage template for Poetry. Overwrite if a custom template is preferred.
+     */
+    @Parameter(defaultValue = "", property = "habushu.dockerPoetryBuilderStageTemplatePath")
+    protected String dockerPoetryBuilderStageTemplatePath; //TODO: Remove via migration
+
+    /**
+     * The default Dockerfile final stage template for Poetry. Overwrite if a custom template is preferred.
+     */
+    @Parameter(defaultValue = "", property = "habushu.dockerPoetryFinalStageTemplatePath")
+    protected String dockerPoetryFinalStageTemplatePath; //TODO: Remove via migration
+
+    /**
+     * The default Dockerfile builder stage template for Poetry. Overwrite if a custom template is preferred.
+     */
+    @Parameter(defaultValue = "", property = "habushu.dockerUvBuilderStageTemplatePath")
+    protected String dockerUvBuilderStageTemplatePath; //TODO: Remove via migration
+
+    /**
+     * The default Dockerfile final stage template for Poetry. Overwrite if a custom template is preferred.
+     */
+    @Parameter(defaultValue = "", property = "habushu.dockerUvFinalStageTemplatePath")
+    protected String dockerUvFinalStageTemplatePath; //TODO: Remove via migration
 
     /**
      * The base image to use for building the virtual env. This base image will be used to bundle the virtual
@@ -151,19 +163,19 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      * The version of Poetry to install in the container.
      */
     @Parameter(defaultValue = "2.0.1", property = "habushu.dockerPoetryVersion")
-    protected String dockerPoetryVersion;
+    protected String dockerPoetryVersion; //TODO: Remove via migration
 
     /**
      * The version of the poetry-plugin-bundle to install in the container.
      */
     @Parameter(defaultValue = "1.5.0", property = "habushu.dockerPoetryPluginBundleVersion")
-    protected String dockerPoetryPluginBundleVersion;
+    protected String dockerPoetryPluginBundleVersion; //TODO: Remove via migration
 
     /**
      * The version of uv to install in the container.
      */
     @Parameter(defaultValue = "0.6.2", property = "habushu.dockerUvVersion")
-    protected String dockerUvVersion;
+    protected String dockerUvVersion; //TODO: Remove via migration
 
     /**
      * Overriding to allow execution in non-habushu projects.
@@ -176,16 +188,15 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     @Override
     protected void doExecute() throws MojoExecutionException, MojoFailureException {
         Path sourceRoot = Path.of(session.getExecutionRootDirectory());
-
         ProjectStack result = getHabushuProjects();
         try {
             setPackageManager(result.getPrimaryProject());
-            setModuleBaseDir(stageHabushuProjects(sourceRoot, result).toString());
+            stageHabushuProjects(sourceRoot, result);
             if (this.updateDockerfile) {
                 if (this.dockerfile == null) {
                     throw new HabushuException("`updateDockerfile` is set to true but `dockerfile` is not specified");
                 }
-                performDockerfileUpdateForVirtualEnvironment();
+                performDockerfileUpdateForVirtualEnvironment(result);
             }
         } catch (IOException e) {
             throw new HabushuException("Failed to prepare containerization of Habushu dependency", e);
@@ -197,34 +208,21 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      *
      * @param sourceRoot the root directory that contains the source files of the projects
      * @param projectCollection corresponding projects of the pom's habushu-type dependencies
-     * @return the relative path from the staging root to the primary project being containerized
      * @throws IOException if an error occurs while copying files
      */
-    protected Path stageHabushuProjects(Path sourceRoot, ProjectStack projectCollection) throws IOException {
+    protected void stageHabushuProjects(Path sourceRoot, ProjectStack projectCollection) throws IOException {
         Path destRoot = getStagingPath();
-        Path primaryProjectPath = null;
+        Files.createDirectories(destRoot);
 
         for (ProjectInfo info : projectCollection.getAllProjects()) {
             Path projectPath = info.getProject().getBasedir().toPath();
             Path relativeProjectPath = sourceRoot.relativize(projectPath);
-            if (info.getProject().equals(projectCollection.getPrimaryProject())) {
-                primaryProjectPath = relativeProjectPath;
+            Path wheelName = stageProject(sourceRoot, destRoot, relativeProjectPath);
+            if (wheelName == null) {
+                throw new HabushuException("Failed to find wheel file for " + info.getProject().getArtifactId());
             }
-
-            FileSet sourceFileSet = getSourceSet();
-            sourceFileSet.setDirectory(projectPath.toString());
-            Path wheelName = stageProject(sourceRoot, destRoot, sourceFileSet, relativeProjectPath);
-            info.setWheelFile(wheelName);
+            info.setWheelName(wheelName);
         }
-        if( primaryProjectPath == null ) {
-            String habushuDependency = getProjectHabushuDependencies(getProject()).toString().split(":")[1];
-            StringBuilder message = new StringBuilder()
-                    .append("Habushu project to containerize was not included in the provided projects (-pl).")
-                    .append(" Ensure the Habushu project is in the build and the POM dependencies are configured correctly.")
-                    .append(String.format("%n Add :%s to project build scope to resolve", habushuDependency));
-            throw new HabushuException(message.toString());
-        }
-        return primaryProjectPath;
     }
 
     /**
@@ -233,44 +231,25 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      *
      * @param sourceRoot the root directory that contains the project
      * @param destRoot the root directory to copy sources into
-     * @param sourceFileSet the set of files to copy
      * @param relativeProjectPath the relative path of the project from the source/destination root
      * @return the name of the wheel for the given project
      * @throws IOException
      */
-    protected Path stageProject(Path sourceRoot, Path destRoot, FileSet sourceFileSet, Path relativeProjectPath) throws IOException {
-        FileSetManager fileSetManager = new FileSetManager();
-        logger.info("Staging {} monorepo dependency files from {}.",
-                fileSetManager.getIncludedFiles(sourceFileSet).length,
-                relativeProjectPath.getFileName()
-        );
-        for (String includedFile : fileSetManager.getIncludedFiles(sourceFileSet)) {
-            Path relativeFilePath = relativeProjectPath.resolve(includedFile);
-            Files.createDirectories(destRoot.resolve(relativeFilePath).getParent());
-            Files.copy(sourceRoot.resolve(relativeFilePath), destRoot.resolve(relativeFilePath));
-        }
-
+    protected Path stageProject(Path sourceRoot, Path destRoot, Path relativeProjectPath) throws IOException {
         Path copiedWheel = null;
+        logger.info("Staging monorepo dependency files from {}.", relativeProjectPath.getFileName());
         Path projectDir = sourceRoot.resolve(relativeProjectPath);
         Path distDir = projectDir.resolve("dist");
-        CommandHelper commandHelper = packageManager == PackageManager.POETRY ?
-                new PoetryCommandHelper(projectDir.toFile()) :
-                new UvCommandHelper(projectDir.toFile());
+        CommandHelper commandHelper = createCommandHelper(projectDir);
         if (Files.isDirectory(distDir)) {
-            Files.createDirectories(destRoot);
-            String normalizedName = commandHelper.getProjectName().replace('-', '_');
-            String version = commandHelper.getProjectVersion();
-            //there could be a build descriptor, or a missing implied 0 as in 1.0.0.dev0
-            String wheelGlob = normalizedName + "-" + version + "*-*-none-any.whl";
-            logger.info("Searching for wheels matching {}", wheelGlob);
-            try (DirectoryStream<Path> ds = Files.newDirectoryStream(distDir, wheelGlob)) {
+            String wheelPattern = constructWheelNamePattern(commandHelper);
+            logger.info("Searching for wheels matching {}", wheelPattern);
+            try (DirectoryStream<Path> ds = Files.newDirectoryStream(distDir, wheelPattern)) {
                 for (Path wheel : ds) {
                     if (copiedWheel != null) {
-                        throw new HabushuException(
-                                String.format("Multiple wheels found for project [%s]! found %s and %s",
-                                        projectDir.getFileName(),
-                                        copiedWheel,
-                                        wheel.getFileName()));
+                        String message = String.format("Multiple wheels found for project [%s]! found %s and %s",
+                                projectDir.getFileName(), copiedWheel, wheel.getFileName());
+                        throw new HabushuException(message);
                     }
                     copiedWheel = destRoot.resolve(wheel.getFileName());
                     Files.copy(wheel, copiedWheel, StandardCopyOption.REPLACE_EXISTING);
@@ -280,22 +259,6 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         return copiedWheel;
     }
 
-    protected FileSet getSourceSet() {
-        if( defaultSourceSet != null ) {
-            return defaultSourceSet;
-        }
-
-        FileSet fileSet = new FileSet();
-        Path srcPath = sourceDirectory.toPath();
-        Path basePath = project.getBasedir().toPath();
-        Path relativeSrc = basePath.relativize(srcPath);
-        fileSet.addInclude(relativeSrc +"/**");
-        fileSet.addInclude("*.toml");
-        fileSet.addInclude("*.lock");
-        fileSet.addInclude("README.md");
-
-        return fileSet;
-    }
 
     /**
      * Checks listed habushu-type dependencies against the set of projects included in the Maven build's session
@@ -315,7 +278,15 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         } else {
             throw new HabushuException("No `habushu` packaged dependencies were found to containerize.");
         }
-        return collectHabushuDependenciesAsProjects(project, collectionResult);
+        collectHabushuDependenciesAsProjects(project, collectionResult);
+        if (collectionResult.hasPendingProjects()) {
+            String habushuDependency = getProjectHabushuDependencies(getProject()).toString().split(":")[1];
+            String message = "Habushu project to containerize was not included in the provided projects (-pl)." +
+                    " Ensure the Habushu project is in the build and the POM dependencies are configured correctly." +
+                    String.format("%n Add :%s to project build scope to resolve", habushuDependency);
+            throw new HabushuException(message);
+        }
+        return collectionResult;
     }
 
     /**
@@ -323,16 +294,15 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      * @param currentProject the project to interrogate the habushu-type dependencies against
      * @param collectionResult the result object to add the projects to
      */
-    protected ProjectStack collectHabushuDependenciesAsProjects(MavenProject currentProject, ProjectStack collectionResult) {
-        Set<String> habushuDeps = getProjectHabushuDependencies(currentProject);
+    protected void collectHabushuDependenciesAsProjects(MavenProject currentProject, ProjectStack collectionResult) {
+        collectionResult.addPendingProjects(getProjectHabushuDependencies(currentProject));
         for (MavenProject project : getSession().getAllProjects()) {
-            if (habushuDeps.contains(toGav(project))) {
+            if (collectionResult.isPendingProject(toGav(project))) {
                 logger.info("Found project {} as habushu-type dependency.", project);
                 collectionResult.pushProject(project);
                 collectHabushuDependenciesAsProjects(project, collectionResult);
             }
         }
-        return collectionResult;
     }
 
     protected static String toGav(Dependency dependency) {
@@ -356,10 +326,6 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         this.packageManager = HabushuUtil.checkPythonPackageManager(pyprojectPath);
     }
 
-    protected void setAnchorDirectory(String anchorDirectory) { this.anchorDirectory = anchorDirectory; }
-
-    protected void setModuleBaseDir(String moduleBaseDir) { this.moduleBaseDir = moduleBaseDir; }
-
     protected void setDockerfile(File dockerfile) {
         this.dockerfile = dockerfile;
     }
@@ -368,23 +334,33 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         this.updateDockerfile = update;
     }
 
-    protected void performDockerfileUpdateForVirtualEnvironment() {
-        setAnchorDirectory(dockerContext.toPath().relativize(getStagingPath()).toString());
-        ContainerizeDepsDockerfileHelper helper;
-        if (PackageManager.POETRY.equals(packageManager)){
-            helper = new PoetryContainerizeDepsDockerfileHelper(this);
-        } else {
-            helper = new UvContainerizeDepsDockerfileHelper(this);
-        }
-        String updatedDockerfile =
-                helper.updateDockerfileWithContainerStageLogic();
+    protected void performDockerfileUpdateForVirtualEnvironment(ProjectStack result) {
+        List<String> orderedProjectWheels = result.getAllProjects().stream()
+                .map(ProjectInfo::getWheelName)
+                .collect(Collectors.toList());
+        ContainerizeDepsDockerfileHelper helper = new  ContainerizeDepsDockerfileHelper(this, orderedProjectWheels);
+        String updatedDockerfile = helper.updateDockerfileWithContainerStageLogic();
 
         try (Writer writer = new FileWriter(this.dockerfile)) {
             writer.write(updatedDockerfile);
-
         } catch (IOException e) {
             throw new HabushuException("Unable to update Dockerfile.", e);
         }
+    }
+
+    protected CommandHelper createCommandHelper(Path projectDir) {
+        if (packageManager == PackageManager.POETRY) {
+            return new PoetryCommandHelper(projectDir.toFile());
+        } else {
+            return new UvCommandHelper(projectDir.toFile());
+        }
+    }
+
+    protected String constructWheelNamePattern(CommandHelper commandHelper) {
+        String normalizedName = commandHelper.getProjectName().replace('-', '_');
+        String version = commandHelper.getProjectVersion();
+        //there could be a build descriptor, or a missing implied 0 as in 1.0.0.dev0
+        return normalizedName + "-" + version + "*-*-none-any.whl";
     }
 
     private static Set<String> getProjectHabushuDependencies(MavenProject currentProject) {
@@ -410,20 +386,26 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         return dockerTemplatePath;
     }
 
-    public String getDockerPoetryBuilderStageTemplatePath(){
-        return dockerPoetryBuilderStageTemplatePath;
+    public String getDockerBuilderStageTemplatePath(){
+        // Until we migrate the old tool-specific configs, use them if they are present
+        if(StringUtils.isNotEmpty(dockerPoetryBuilderStageTemplatePath)){
+            return dockerPoetryBuilderStageTemplatePath;
+        } else if(StringUtils.isNotEmpty(dockerUvBuilderStageTemplatePath)){
+            return dockerUvBuilderStageTemplatePath;
+        } else {
+            return dockerBuilderStageTemplatePath;
+        }
     }
 
-    public String getDockerPoetryFinalStageTemplatePath(){
-        return dockerPoetryFinalStageTemplatePath;
-    }
-
-    public String getDockerUvBuilderStageTemplatePath(){
-        return dockerUvBuilderStageTemplatePath;
-    }
-
-    public String getDockerUvFinalStageTemplatePath(){
-        return dockerUvFinalStageTemplatePath;
+    public String getDockerFinalStageTemplatePath(){
+        // Until we migrate the old tool-specific configs, use them if they are present
+        if(StringUtils.isNotEmpty(dockerPoetryFinalStageTemplatePath)){
+            return dockerPoetryFinalStageTemplatePath;
+        } else if(StringUtils.isNotEmpty(dockerUvFinalStageTemplatePath)){
+            return dockerUvFinalStageTemplatePath;
+        } else {
+            return dockerFinalStageTemplatePath;
+        }
     }
 
     public String getDockerBuilderBase() {
@@ -434,16 +416,13 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         return dockerFinalBase;
     }
 
-    public String getDockerPoetryVersion() {
-        return dockerPoetryVersion;
+    public List<String> getExtraWheels() {
+        //todo: add mojo param
+        return Collections.emptyList();
     }
 
-    public String getDockerPoetryPluginBundleVersion() {
-        return dockerPoetryPluginBundleVersion;
-    }
-
-    public String getDockerUvVersion() {
-        return dockerUvVersion;
+    public String getStagingDirectoryRelativeToContext() {
+        return dockerContext.toPath().relativize(stagingDirectory.toPath()).toString();
     }
 
     /**
@@ -454,15 +433,19 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     protected static class ProjectStack {
         private final Dependency directDependency;
         private final Deque<ProjectInfo> habushuProjects; //includes primaryProject
+        private final Set<String> pendingProjectGavs;
         private MavenProject primaryProject;
 
         public ProjectStack(Dependency directDependency) {
             this.directDependency = directDependency;
             this.habushuProjects = new ArrayDeque<>();
+            this.pendingProjectGavs = new HashSet<>();
+            pendingProjectGavs.add(toGav(directDependency));
         }
 
         public void pushProject(MavenProject project) {
-            this.habushuProjects.push(new ProjectInfo(project));
+            habushuProjects.push(new ProjectInfo(project));
+            pendingProjectGavs.remove(toGav(project));
             if (toGav(directDependency).equals(toGav(project))) {
                 primaryProject = project;
             }
@@ -481,11 +464,23 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         public MavenProject getPrimaryProject() {
             return primaryProject;
         }
+
+        public void addPendingProjects(Set<String> habushuDependencies) {
+            pendingProjectGavs.addAll(habushuDependencies);
+        }
+
+        public boolean isPendingProject(String gav) {
+            return pendingProjectGavs.contains(gav);
+        }
+
+        public boolean hasPendingProjects() {
+            return !pendingProjectGavs.isEmpty();
+        }
     }
 
     protected static class ProjectInfo {
         private final MavenProject project;
-        private Path wheelFile;
+        private String wheelName;
 
         private ProjectInfo(MavenProject project) {
             this.project = project;
@@ -495,12 +490,12 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
             return project;
         }
 
-        public Path getWheelFile() {
-            return wheelFile;
+        public String getWheelName() {
+            return wheelName;
         }
 
-        public void setWheelFile(Path wheelFile) {
-            this.wheelFile = wheelFile;
+        public void setWheelName(Path wheelName) {
+            this.wheelName = wheelName.getFileName().toString();
         }
     }
 }
