@@ -1,6 +1,6 @@
 [project]
-name = "foundation-python-dep-y"
-version = "0.1.0"
+name = "renamed-python-dep-Y"
+version = "1.0.0"
 description = "Add your description here"
 readme = "README.md"
 authors = [

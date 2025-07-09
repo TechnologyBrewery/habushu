@@ -1,6 +1,7 @@
 [project]
-name = "extensions-python-dep-x"
-version = "0.1.0"
+name = "extensions-python-dep-X"
+#Note: we use .dev to test snapshots, and because the implied 0 of dev becomes explicit in the wheel name.
+version = "1.0.0.dev"
 description = "Add your description here"
 readme = "README.md"
 authors = [

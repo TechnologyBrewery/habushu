@@ -6,12 +6,17 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
+import org.technologybrewery.habushu.AbstractHabushuMojo;
 import org.technologybrewery.habushu.HabushuException;
+import org.technologybrewery.habushu.InstallDependenciesMojo;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,8 +86,12 @@ public class UvCommandHelper extends AbstractCommandHelper {
      * @return
      */
     public void updatePythonVersion(String targetVersion) {
-        useUVToEnsurePythonVersionIsInstalled(targetVersion);
+        ensurePythonInstalled(targetVersion);
         executePythonPinCommand(targetVersion);
+    }
+
+    public void installTool(String toolName) {
+        executeToolInstallCommand(toolName);
     }
 
     /**
@@ -107,12 +116,31 @@ public class UvCommandHelper extends AbstractCommandHelper {
         execute(Arrays.asList("add", packageName, "--group", "dev"));
     }
 
-    public void executeToolInstallCommand(String argument) {
-        List<String> arguments = new ArrayList<>();
-        arguments.add("tool");
-        arguments.add("install");
-        arguments.add(argument);
-        executeAndLogOutput(arguments);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getProjectName() {
+        List<String> getPythonProjectVersion = Arrays.asList(
+                "--from=toml-cli", "toml",
+                "get", "--toml-path=pyproject.toml",
+                "project.name");
+        List<String> getPythonProjectVersionCommamd = createToolRunCommand(getPythonProjectVersion);
+        return execute(getPythonProjectVersionCommamd);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getProjectVersion() {
+        List<String> getPythonProjectVersion = Arrays.asList(
+                "--from=toml-cli", "toml",
+                "get", "--toml-path=pyproject.toml",
+                "project.version");
+        List<String> getPythonProjectVersionCommamd = createToolRunCommand(getPythonProjectVersion);
+        return execute(getPythonProjectVersionCommamd);
     }
 
     public List<String> createToolRunCommand(List<String> additionalArguments) {
@@ -123,7 +151,144 @@ public class UvCommandHelper extends AbstractCommandHelper {
         return arguments;
     }
 
-    public String executePythonPinCommand() {
+    public void executeLockCommand(AbstractHabushuMojo mojo, boolean skipUvLockRefresh, boolean skipUvCheck) {
+        List<String> arguments = createLockCommand(skipUvLockRefresh, skipUvCheck);
+
+        if (executeCommandWithCredentials(mojo)) {
+            Map<String, String> privateRepoCredentials = getPrivateRepoCredentials(mojo, getRepoId(mojo));
+            execute(arguments, privateRepoCredentials);
+        } else {
+            execute(arguments);
+        }
+    }
+
+    public void executeLockCommandAndLogAfterTimeout(InstallDependenciesMojo mojo, boolean skipUvCheck, int timeout, TimeUnit timeUnit, String messageToDisplay) {
+        List<String> arguments = createLockCommand(mojo.skipLockUpdate(), skipUvCheck);
+
+        if (executeCommandWithCredentials(mojo)) {
+            Map<String, String> privateRepoCredentials = getPrivateRepoCredentials(mojo, getRepoId(mojo));
+            executeAndLogAfterTimeout(arguments, timeout, timeUnit, messageToDisplay, privateRepoCredentials);
+        } else {
+            executeAndLogAfterTimeout(arguments, timeout, timeUnit, messageToDisplay);
+        }
+    }
+
+    public void executeSyncCommand(InstallDependenciesMojo mojo, int timeout, TimeUnit timeUnit, String messageToDisplay) {
+        List<String> arguments = new ArrayList<>();
+
+        arguments.add("sync");
+
+        for (String groupName : mojo.getWithGroups()) {
+            arguments.add("--group");
+            arguments.add(groupName);
+        }
+        for (String groupName : mojo.getWithoutGroups()) {
+            logger.warn("While Habushu does support this configuration, `uv sync --no-group` is underdeveloped and does not possess strong useful functionality at this time.");
+            arguments.add("--no-group");
+            arguments.add(groupName);
+        }
+
+        if (executeCommandWithCredentials(mojo)) {
+            Map<String, String> privateRepoCredentials = getPrivateRepoCredentials(mojo, getRepoId(mojo));
+            executeAndLogAfterTimeout(arguments, timeout, timeUnit, messageToDisplay, privateRepoCredentials);
+        } else {
+            executeAndLogAfterTimeout(arguments, timeout, timeUnit, messageToDisplay);
+        }
+    }
+
+    private List<String> createLockCommand(boolean skipLockUpdate, boolean skipUvCheck) {
+        List<String> arguments = new ArrayList<>();
+        arguments.add("lock");
+
+        if (!skipLockUpdate) {
+            arguments.add("--refresh");
+        }
+
+        if (!skipUvCheck) {
+            arguments.add("--check");
+        }
+        return arguments;
+    }
+
+    private String getRepoId(AbstractHabushuMojo mojo) {
+        String repoId = StringUtils.EMPTY;
+        if (mojo.isUseDevRepository()) {
+            if (!mojo.getTestPyPiRepositoryUrl().equals(mojo.getDevRepositoryUrl())){
+                repoId = mojo.getDevRepositoryId();
+            }
+        } else {
+            if (!org.codehaus.plexus.util.StringUtils.isEmpty(mojo.getPypiRepoUrl())) {
+                if (!"https://pypi.org".equals(mojo.getPypiRepoUrl())) {
+                    repoId = mojo.getPypiRepoId();
+                }
+            }
+        }
+        return repoId;
+    }
+
+    private Map<String, String> getPrivateRepoCredentials(AbstractHabushuMojo mojo, String repoId) {
+        String username = mojo.findUsernameForServer(repoId);
+        String password = mojo.findPasswordForServer(repoId);
+        Map<String, String> credentials = new HashMap<>(System.getenv());
+        String uvIndexUsernameEnvironmentVariable = getUvIndexUsernameEnvironmentVariable(repoId);
+        String uvIndexPasswordEnvironmentVariable = getUvIndexPasswordEnvironmentVariable(repoId);
+
+        if (username==null && password==null) {
+            throw new HabushuException("Your credentials for " + repoId + " must be set in your ~/.m2/settings.xml");
+        } else {
+            credentials.put(uvIndexUsernameEnvironmentVariable, username);
+            credentials.put(uvIndexPasswordEnvironmentVariable, password);
+            logAuthenticationInformation(repoId);
+        }
+        return credentials;
+    }
+
+    private String getExportParameter(String repoId){
+        return repoId.toUpperCase().replace("-", "_");
+    }
+
+    private String getUvIndexUsernameEnvironmentVariable(String repoId){
+        return String.format("UV_INDEX_%s_USERNAME", getExportParameter(repoId));
+    }
+
+    private String getUvIndexPasswordEnvironmentVariable(String repoId){
+        return String.format("UV_INDEX_%s_PASSWORD", getExportParameter(repoId));
+    }
+
+    private Boolean isUvIndexUsernameEnvironmentVariableSet(String repoId){
+        String uvIndexUsernameEnvironmentVariable = getUvIndexUsernameEnvironmentVariable(repoId);
+        return !StringUtils.isEmpty(System.getenv(uvIndexUsernameEnvironmentVariable));
+    }
+
+    private Boolean isUvIndexPasswordEnvironmentVariableSet(String repoId){
+        String uvIndexPasswordEnvironmentVariable = getUvIndexPasswordEnvironmentVariable(repoId);
+        return !StringUtils.isEmpty(System.getenv(uvIndexPasswordEnvironmentVariable));
+    }
+
+    private Boolean executeCommandWithCredentials(AbstractHabushuMojo mojo) {
+        String repoId = getRepoId(mojo);
+        if (!getRepoId(mojo).isEmpty()) {
+            return (!isUvIndexUsernameEnvironmentVariableSet(repoId)) && (!isUvIndexPasswordEnvironmentVariableSet(repoId));
+        }
+        return false;
+    }
+
+    private void logAuthenticationInformation(String repoId) {
+        String uvIndexUsernameEnvironmentVariable = getUvIndexUsernameEnvironmentVariable(repoId);
+        String uvIndexPasswordEnvironmentVariable = getUvIndexPasswordEnvironmentVariable(repoId);
+        logger.info("Temporarily setting {} and {} for use in uv command.", uvIndexUsernameEnvironmentVariable, uvIndexPasswordEnvironmentVariable);
+    }
+
+
+   private void executeToolInstallCommand(String argument) {
+        List<String> arguments = new ArrayList<>();
+        arguments.add("tool");
+        arguments.add("install");
+        arguments.add(argument);
+        executeAndLogOutput(arguments);
+    }
+
+    private String executePythonPinCommand() {
         String pythonVersion = StringUtils.EMPTY;
         List<String> arguments = new ArrayList<>();
         arguments.add("python");
@@ -136,7 +301,7 @@ public class UvCommandHelper extends AbstractCommandHelper {
         }
     }
 
-    public void executePythonPinCommand(String targetVersion) {
+    private void executePythonPinCommand(String targetVersion) {
         List<String> arguments = new ArrayList<>();
         arguments.add("python");
         arguments.add("pin");
@@ -148,7 +313,7 @@ public class UvCommandHelper extends AbstractCommandHelper {
      * Ensures the target version of Python is installed by calling uv venv
      * @param targetVersion the requested version of Python to install
      */
-    public void useUVToEnsurePythonVersionIsInstalled(String targetVersion) {
+    private void ensurePythonInstalled(String targetVersion) {
         try {
             execute(Arrays.asList("venv", "-p", targetVersion));
         } catch (Throwable e) {

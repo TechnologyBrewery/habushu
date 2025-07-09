@@ -13,6 +13,9 @@ import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.technologybrewery.habushu.exec.CommandHelper;
+import org.technologybrewery.habushu.exec.PoetryCommandHelper;
+import org.technologybrewery.habushu.exec.UvCommandHelper;
 import org.technologybrewery.habushu.util.ContainerizeDepsDockerfileHelper;
 import org.technologybrewery.habushu.util.HabushuUtil;
 import org.technologybrewery.habushu.util.PackageManager;
@@ -22,10 +25,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Deque;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.stream.Collectors;
 
 /**
@@ -170,10 +177,10 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     protected void doExecute() throws MojoExecutionException, MojoFailureException {
         Path sourceRoot = Path.of(session.getExecutionRootDirectory());
 
-        ProjectCollectionResult result = getHabushuProjects();
+        ProjectStack result = getHabushuProjects();
         try {
-            setModuleBaseDir(stageHabushuProjects(sourceRoot, result).toString());
             setPackageManager(result.getPrimaryProject());
+            setModuleBaseDir(stageHabushuProjects(sourceRoot, result).toString());
             if (this.updateDockerfile) {
                 if (this.dockerfile == null) {
                     throw new HabushuException("`updateDockerfile` is set to true but `dockerfile` is not specified");
@@ -193,20 +200,21 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      * @return the relative path from the staging root to the primary project being containerized
      * @throws IOException if an error occurs while copying files
      */
-    protected Path stageHabushuProjects(Path sourceRoot, ProjectCollectionResult projectCollection) throws IOException {
+    protected Path stageHabushuProjects(Path sourceRoot, ProjectStack projectCollection) throws IOException {
         Path destRoot = getStagingPath();
         Path primaryProjectPath = null;
 
-        for (MavenProject project : projectCollection.getAllProjects()) {
-            Path projectPath = project.getBasedir().toPath();
+        for (ProjectInfo info : projectCollection.getAllProjects()) {
+            Path projectPath = info.getProject().getBasedir().toPath();
             Path relativeProjectPath = sourceRoot.relativize(projectPath);
-            if (project.equals(projectCollection.getPrimaryProject())) {
+            if (info.getProject().equals(projectCollection.getPrimaryProject())) {
                 primaryProjectPath = relativeProjectPath;
             }
 
             FileSet sourceFileSet = getSourceSet();
             sourceFileSet.setDirectory(projectPath.toString());
-            stageSourcesForProject(sourceRoot, destRoot, sourceFileSet, relativeProjectPath);
+            Path wheelName = stageProject(sourceRoot, destRoot, sourceFileSet, relativeProjectPath);
+            info.setWheelFile(wheelName);
         }
         if( primaryProjectPath == null ) {
             String habushuDependency = getProjectHabushuDependencies(getProject()).toString().split(":")[1];
@@ -227,9 +235,10 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      * @param destRoot the root directory to copy sources into
      * @param sourceFileSet the set of files to copy
      * @param relativeProjectPath the relative path of the project from the source/destination root
+     * @return the name of the wheel for the given project
      * @throws IOException
      */
-    protected void stageSourcesForProject(Path sourceRoot, Path destRoot, FileSet sourceFileSet, Path relativeProjectPath) throws IOException {
+    protected Path stageProject(Path sourceRoot, Path destRoot, FileSet sourceFileSet, Path relativeProjectPath) throws IOException {
         FileSetManager fileSetManager = new FileSetManager();
         logger.info("Staging {} monorepo dependency files from {}.",
                 fileSetManager.getIncludedFiles(sourceFileSet).length,
@@ -240,6 +249,35 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
             Files.createDirectories(destRoot.resolve(relativeFilePath).getParent());
             Files.copy(sourceRoot.resolve(relativeFilePath), destRoot.resolve(relativeFilePath));
         }
+
+        Path copiedWheel = null;
+        Path projectDir = sourceRoot.resolve(relativeProjectPath);
+        Path distDir = projectDir.resolve("dist");
+        CommandHelper commandHelper = packageManager == PackageManager.POETRY ?
+                new PoetryCommandHelper(projectDir.toFile()) :
+                new UvCommandHelper(projectDir.toFile());
+        if (Files.isDirectory(distDir)) {
+            Files.createDirectories(destRoot);
+            String normalizedName = commandHelper.getProjectName().replace('-', '_');
+            String version = commandHelper.getProjectVersion();
+            //there could be a build descriptor, or a missing implied 0 as in 1.0.0.dev0
+            String wheelGlob = normalizedName + "-" + version + "*-*-none-any.whl";
+            logger.info("Searching for wheels matching {}", wheelGlob);
+            try (DirectoryStream<Path> ds = Files.newDirectoryStream(distDir, wheelGlob)) {
+                for (Path wheel : ds) {
+                    if (copiedWheel != null) {
+                        throw new HabushuException(
+                                String.format("Multiple wheels found for project [%s]! found %s and %s",
+                                        projectDir.getFileName(),
+                                        copiedWheel,
+                                        wheel.getFileName()));
+                    }
+                    copiedWheel = destRoot.resolve(wheel.getFileName());
+                    Files.copy(wheel, copiedWheel, StandardCopyOption.REPLACE_EXISTING);
+                }
+            }
+        }
+        return copiedWheel;
     }
 
     protected FileSet getSourceSet() {
@@ -263,8 +301,8 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      * Checks listed habushu-type dependencies against the set of projects included in the Maven build's session
      * @return the corresponding Maven projects that match the habushu-type dependencies
      */
-    protected ProjectCollectionResult getHabushuProjects() {
-        ProjectCollectionResult collectionResult;
+    protected ProjectStack getHabushuProjects() {
+        ProjectStack collectionResult;
         Set<Dependency> directHabushuDeps = session.getCurrentProject().getDependencies().stream()
                 .filter(d -> HabushuUtil.HABUSHU.equals(d.getType()))
                 .collect(Collectors.toSet());
@@ -273,7 +311,7 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
                     + "Only one habushu-type dependency should be specified.");
 
         } else if (directHabushuDeps.size() == 1) {
-            collectionResult = new ProjectCollectionResult(directHabushuDeps.iterator().next());
+            collectionResult = new ProjectStack(directHabushuDeps.iterator().next());
         } else {
             throw new HabushuException("No `habushu` packaged dependencies were found to containerize.");
         }
@@ -285,12 +323,12 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      * @param currentProject the project to interrogate the habushu-type dependencies against
      * @param collectionResult the result object to add the projects to
      */
-    protected ProjectCollectionResult collectHabushuDependenciesAsProjects(MavenProject currentProject, ProjectCollectionResult collectionResult) {
+    protected ProjectStack collectHabushuDependenciesAsProjects(MavenProject currentProject, ProjectStack collectionResult) {
         Set<String> habushuDeps = getProjectHabushuDependencies(currentProject);
         for (MavenProject project : getSession().getAllProjects()) {
             if (habushuDeps.contains(toGav(project))) {
                 logger.info("Found project {} as habushu-type dependency.", project);
-                collectionResult.addProject(project);
+                collectionResult.pushProject(project);
                 collectHabushuDependenciesAsProjects(project, collectionResult);
             }
         }
@@ -413,18 +451,18 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      * one "primary" project that is the direct target of containerization.  Other Habushu projects are included when
      * they are monorepo dependencies of the primary project.
      */
-    protected static class ProjectCollectionResult {
+    protected static class ProjectStack {
         private final Dependency directDependency;
-        private final Set<MavenProject> habushuProjects; //includes primaryProject
+        private final Deque<ProjectInfo> habushuProjects; //includes primaryProject
         private MavenProject primaryProject;
 
-        public ProjectCollectionResult(Dependency directDependency) {
+        public ProjectStack(Dependency directDependency) {
             this.directDependency = directDependency;
-            this.habushuProjects = new HashSet<>();
+            this.habushuProjects = new ArrayDeque<>();
         }
 
-        public void addProject(MavenProject project) {
-            this.habushuProjects.add(project);
+        public void pushProject(MavenProject project) {
+            this.habushuProjects.push(new ProjectInfo(project));
             if (toGav(directDependency).equals(toGav(project))) {
                 primaryProject = project;
             }
@@ -433,7 +471,7 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         /**
          * @return all projects including the primary project
          */
-        public Set<MavenProject> getAllProjects() {
+        public Collection<ProjectInfo> getAllProjects() {
             return habushuProjects;
         }
 
@@ -442,6 +480,27 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
          */
         public MavenProject getPrimaryProject() {
             return primaryProject;
+        }
+    }
+
+    protected static class ProjectInfo {
+        private final MavenProject project;
+        private Path wheelFile;
+
+        private ProjectInfo(MavenProject project) {
+            this.project = project;
+        }
+
+        public MavenProject getProject() {
+            return project;
+        }
+
+        public Path getWheelFile() {
+            return wheelFile;
+        }
+
+        public void setWheelFile(Path wheelFile) {
+            this.wheelFile = wheelFile;
         }
     }
 }

@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.vdurmont.semver4j.Semver;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -85,6 +84,24 @@ public class PoetryCommandHelper extends AbstractCommandHelper {
     @Override
     public void installDevelopmentDependency(String packageName) {
         execute(Arrays.asList("add", packageName, "--group", "dev"));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getProjectName() {
+        // the full version command prints "project-name version"
+        String result = execute(Arrays.asList("version", "--no-ansi"));
+        return result.split(" ")[0];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getProjectVersion() {
+        return execute(Arrays.asList("version", "-s"));
     }
 
     /**

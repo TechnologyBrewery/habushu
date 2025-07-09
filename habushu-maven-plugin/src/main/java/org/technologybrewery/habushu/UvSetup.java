@@ -122,6 +122,6 @@ public class UvSetup extends AbstractPythonPackageAndDependencyManagerSetup {
 
     private void installUvMonorepoDependencyTool() {
         UvCommandHelper uvHelper = createUvCommandHelper();
-        uvHelper.executeToolInstallCommand("uv-monorepo-dependency-tool@latest");
+        uvHelper.installTool("uv-monorepo-dependency-tool@latest");
     }
 }

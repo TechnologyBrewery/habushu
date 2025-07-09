@@ -1,6 +1,7 @@
 [tool.poetry]
 name = "extensions-python-dep-X"
-version = "1.0.0"
+#Note: we use .dev to test snapshots, and because the implied 0 of dev becomes explicit in the wheel name.
+version = "1.0.0.dev"
 description = "description"
 authors = ["author"]
 packages = [
