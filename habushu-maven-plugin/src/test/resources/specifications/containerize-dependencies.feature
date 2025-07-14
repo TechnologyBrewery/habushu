@@ -22,7 +22,9 @@ Feature: Test containerizing Python applications with monorepo dependencies
     And a dockerfile to update
     When the containerize-dependencies goal is executed
     Then the wheels of the dependency and transitive monorepo dependencies are staged in the build directory
+    And the Dockerfile installs the wheels to a virtual environment in the correct order
     And the Dockerfile is updated to leverage a virtual environment for the dependency
+    And the original logic in the Dockerfile is preserved
 
     Examples:
       | packageManager |
@@ -34,7 +36,9 @@ Feature: Test containerizing Python applications with monorepo dependencies
     And a dockerfile already updated
     When the containerize-dependencies goal is executed
     Then the wheels of the dependency and transitive monorepo dependencies are staged in the build directory
+    And the Dockerfile installs the wheels to a virtual environment in the correct order
     And the Dockerfile is updated to leverage a virtual environment for the dependency
+    And the original logic in the Dockerfile is preserved
     Examples:
       | packageManager |
       | Poetry         |
@@ -45,7 +49,9 @@ Feature: Test containerizing Python applications with monorepo dependencies
     And a dockerfile without any habushu builder or final stage comment tag
     When the containerize-dependencies goal is executed
     Then the wheels of the dependency and transitive monorepo dependencies are staged in the build directory
+    And the Dockerfile installs the wheels to a virtual environment in the correct order
     And the Dockerfile is updated to leverage a virtual environment for the dependency
+    And the original logic in the Dockerfile is preserved
 
     Examples:
       | packageManager |

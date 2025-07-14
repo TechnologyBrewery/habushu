@@ -100,21 +100,14 @@ mvn clean install -Dhabushu.pythonVersion=3.12.9
   - [stagingDirectory](#stagingdirectory)
   - [updateDockerfile](#updatedockerfile)
   - [dockerfile](#dockerfile)
-  - [dockerContext](#dockercontext)
+  - [dockerBuilderBase](#dockerbuilderbase)
+  - [dockerFinalBase](#dockerfinalbase)
   - [dockerUser](#dockeruser)
   - [dockerVenvDirectoryPermissions](#dockerVenvDirectoryPermissions)
+  - [dockerContext](#dockercontext)
   - [dockerTemplatePath](#dockertemplatepath)
-  - [dockerBuilderBase](#dockerbuilderbase)
-  - [dockerFinalBase](#dockerfinalbase) 
-  - [Poetry-Specific Containerization Configurations](#poetry-specific-containerization-configurations)
-    - [dockerPoetryVersion](#dockerpoetryversion)
-    - [dockerPoetryPluginBundleVersion](#dockerpoetrypluginbundleversion)
-    - [dockerPoetryBuilderStageTemplatePath](#dockerpoetrybuilderstagetemplatepath)
-    - [dockerPoetryFinalStageTemplatePath](#dockerpoetryfinalstagetemplatepath)
-- [uv-Specific Containerization Configurations](#uv-specific-containerization-configurations)
-  - [dockerUvVersion](#dockeruvversion)
-  - [dockerUvBuilderStageTemplatePath](#dockeruvbuilderstagetemplatepath)
-  - [dockerUvFinalStageTemplatePath](#dockeruvfinalstagetemplatepath)
+  - [dockerBuilderStageTemplatePath](#dockerbuilderstagetemplatepath)
+  - [dockerFinalStageTemplatePath](#dockerfinalstagetemplatepath)
 - [Version Enforcement Configurations](#version-enforcement-configurations)
   - [version](#version)
   - [Poetry-Specific Version Enforcement Configurations](#poetry-specific-version-enforcement-configurations) 
@@ -757,10 +750,17 @@ The Dockerfile to update with containerization logic during the [containerize-de
 
 Default: None
 
-### dockerContext
-The directory that will serve as the context for the Docker build. This directory must contain the `stagingDirectory`.
+### dockerBuilderBase
 
-Default: `project.basedir`
+The base image to use for building the virtual env. This base image will be used to bundle the virtual environment for the target project. As the venv must be built on the same platform as the final runtime to ensure compatibility, this image must share a platform with [dockerFinalBase](#dockerfinalbase). The base image must have the `python3` resolvable via the `PATH`.
+
+Default: `docker.io/python:3.12`
+
+### dockerFinalBase
+
+The base image to use for final packaging of the virtual env. This base image will be used to run the final container runtime.  As the venv must be built on the same platform as the final runtime to ensure compatibility, this image must share a platform with [dockerBuilderBase](#dockerBuilderBase) and must have Python installed to the same filesystem location.
+
+Default: `docker.io/python:3.12-slim`
 
 ### dockerUser
 
@@ -774,74 +774,28 @@ The directory permissions for the virtual env. Set to an empty string to disable
 
 Default: `744`
 
+### dockerContext
+The directory that will serve as the context for the Docker build. This directory must contain the `stagingDirectory`.
+
+Default: `project.basedir`
+
 ### dockerTemplatePath
 
 Overwrite with Docker template path if a custom template is preferred.
 
 Default: Habushu Maven Plugin Classpath
 
-### dockerBuilderBase
-
-The base image to use for building the virtual env. This base image will be used to bundle the virtual environment for the target project. As the venv must be built on the same platform as the final runtime to ensure compatibility, this image must share a platform with [dockerFinalBase](#dockerfinalbase). The base image must have the target Python version resolvable via the `PATH`.
-
-Default: `docker.io/python:3.12`
-
-### dockerFinalBase
-
-The base image to use for final packaging of the virtual env. This base image will be used to run the final container runtime.  As the venv must be built on the same platform as the final runtime to ensure compatibility, this image must share a platform with [dockerBuilderBase](#dockerBuilderBase). The base image must have the target Python version resolvable via the `PATH`.
-
-Default: `docker.io/python:3.12-slim`
-
-### Poetry-Specific Containerization Configurations
-
-**Example:** [Containerizing Dependencies with Poetry](../examples/poetry/habushu-poetry-containerize/README.md)
-
-#### dockerPoetryVersion
-
-The version of Poetry to install in the container.
-
-Default: `2.0.1`
-
-#### dockerPoetryPluginBundleVersion
-
-The version of the poetry-plugin-bundle to install in the container.
-
-Default: `1.5.0`
-
-### dockerPoetryBuilderStageTemplatePath
+### dockerBuilderStageTemplatePath
 
 The default Dockerfile builder stage template for Poetry. Overwrite if a custom template is preferred.
 
-Default: `templates/dockerfile_poetry_builder_stage_template.vm`
+Default: `templates/dockerfile_builder_stage_template.vm`
 
-### dockerPoetryFinalStageTemplatePath
+### dockerFinalStageTemplatePath
 
 The default Dockerfile final stage template for Poetry. Overwrite if a custom template is preferred.
 
-Default: `templates/dockerfile_poetry_final_stage_template.vm`
-
-## uv-Specific Containerization Configurations
-
-**Example:** [Containerizing Dependencies with uv](../examples/uv/habushu-uv-containerize/README.md)
-
-#### dockerUvVersion
-
-The version of uv to install in the container.
-
-Default: `0.6.2`
-
-### dockerUvBuilderStageTemplatePath
-
-The default Dockerfile builder stage template for uv. Overwrite if a custom template is preferred.
-
-Default: `templates/dockerfile_uv_builder_stage_template.vm`
-
-### dockerUvFinalStageTemplatePath
-
-The default Dockerfile final stage template for uv. Overwrite if a custom template is preferred.
-
-Default: `templates/dockerfile_uv_final_stage_template.vm`
-
+Default: `templates/dockerfile_final_stage_template.vm`
 
 ## Version Enforcement Configurations
 

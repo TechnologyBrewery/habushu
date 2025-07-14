@@ -1,26 +1,20 @@
 #HABUSHU_BUILDER_STAGE - HABUSHU GENERATED CODE (DO NOT MODIFY)
 FROM docker.io/python:3.12 AS habushu_builder
-
-# uv installation
-COPY --from=ghcr.io/astral-sh/uv:0.6.2 /uv /uvx /bin/
-
-WORKDIR /work-dir
-COPY --chown=1001 target/containerize-support ./containerize-support/
-
 USER root
-WORKDIR /work-dir/containerize-support/examples/uv/habushu-uv-package-consumer
+RUN --mount=type=bind,source=target/containerize-support,target=/tmp/wheels \
+    python3 -m venv /opt/venv && \
+    /opt/venv/bin/python -m ensurepip --upgrade && \
+    /opt/venv/bin/python -m pip install  \
+    /tmp/wheels/habushu_uv_package-3.2.0.dev0-py3-none-any.whl \
+    /tmp/wheels/habushu_uv_package_consumer-3.2.0.dev0-py3-none-any.whl 
 
-# Sync the target project into the containerized environment
-RUN uv sync --frozen --no-editable --no-dev
 #HABUSHU_BUILDER_STAGE - HABUSHU GENERATED CODE (END)
 
 #HABUSHU_FINAL_STAGE - HABUSHU GENERATED CODE (DO NOT MODIFY)
 FROM docker.io/python:3.12-slim AS final
 
 # Copy venv from builder and activate by adding to the path
-COPY --from=habushu_builder --chown=1001 --chmod=744 \
-    /work-dir/containerize-support/examples/uv/habushu-uv-package-consumer/.venv \
-    /opt/venv/
+COPY --from=habushu_builder --chown=1001 --chmod=744 /opt/venv /opt/venv/
 ENV PATH="/opt/venv/bin:$PATH"
 #HABUSHU_FINAL_STAGE - HABUSHU GENERATED CODE (END)
 

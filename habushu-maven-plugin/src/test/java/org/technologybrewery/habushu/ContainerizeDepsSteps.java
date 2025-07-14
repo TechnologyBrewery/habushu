@@ -17,11 +17,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ContainerizeDepsSteps {
+    private static final String LIB_WHEEL = "renamed_python_dep_Y-1.0.0-py3-none-any.whl";
+    private static final String APP_WHEEL = "extensions_python_dep_X-1.0.0.dev0-py3-none-any.whl";
+    private static final String POM_FILE = "pom.xml";
+    private static final String POETRY = "poetry";
+
     protected String targetDefaultSingleMonorepoDepPath = "target/test-classes/containerize-dependencies/"
             + "default-single-monorepo-dep";
 
@@ -29,8 +35,6 @@ public class ContainerizeDepsSteps {
     protected String uvMonorepoDepPath = targetDefaultSingleMonorepoDepPath + "/uv-monorepo";
     protected File dockerfile;
     protected String mavenProjectPath;
-    private final String POM_FILE = "pom.xml";
-    private final String POETRY = "poetry";
 
     private final ContainerizeDepsMojoTestWrapper mojoTestCase = new ContainerizeDepsMojoTestWrapper();
 
@@ -84,19 +88,59 @@ public class ContainerizeDepsSteps {
         setDockerfile("/src/main/resources/docker/Dockerfile");
     }
 
-    @Then("the Dockerfile is updated to leverage a virtual environment for the dependency")
-    public void dockerfile_is_updated_to_build_a_virtual_env_for_the_dependency() {
-        String updatedDockerfile = getUpdatedDockerfile();
+    @Then("the Dockerfile installs the wheels to a virtual environment in the correct order")
+    public void the_dockerfile_installs_the_wheels_to_avirtual_environment_in_the_correct_order() throws IOException {
+        List<String> updatedDockerfile = getUpdatedDockerfile();
 
         // Confirm the Habushu logic is present in the Dockerfile
         Assertions.assertTrue(updatedDockerfile.contains(ContainerizeDepsDockerfileHelper.HABUSHU_BUILDER_STAGE + ContainerizeDepsDockerfileHelper.HABUSHU_COMMENT_START),
                 "The Dockerfile is updated with `#HABUSHU_BUILDER_STAGE - HABUSHU GENERATED CODE (DO NOT MODIFY)` comment ");
         Assertions.assertTrue(updatedDockerfile.contains(ContainerizeDepsDockerfileHelper.HABUSHU_BUILDER_STAGE + ContainerizeDepsDockerfileHelper.HABUSHU_COMMENT_END),
                 "The Dockerfile is updated with `#HABUSHU_BUILDER_STAGE - HABUSHU GENERATED CODE (END)` comment ");
+
+        var install = new FileLoc();
+        var depX = new FileLoc();
+        var depY = new FileLoc();
+        for (int ln = 0; ln < updatedDockerfile.size(); ln++) {
+            String eachLine = updatedDockerfile.get(ln);
+            int col = eachLine.indexOf("pip install");
+            if (col >= 0) {
+                install.ln = ln;
+                install.col = col;
+            }
+            col = eachLine.indexOf(APP_WHEEL);
+            if (col >= 0 && install.before(ln, col) ) {
+                depX.ln = ln;
+                depX.col = col;
+            }
+            col = eachLine.indexOf(LIB_WHEEL);
+            if (col >= 0 && install.before(ln, col)) {
+                depY.ln = ln;
+                depY.col = col;
+            }
+            if (depX.found() && depY.found()) {
+                break;
+            }
+        }
+
+        Assertions.assertTrue(depX.found(), "extensions-python-dep-X wheel not installed in Dockerfile");
+        Assertions.assertTrue(depY.found(), "extensions-python-dep-Y wheel not installed in Dockerfile");
+        Assertions.assertTrue(depY.before(depX), "Wheels not installed in the correct order in Dockerfile");
+    }
+
+    @Then("the Dockerfile is updated to leverage a virtual environment for the dependency")
+    public void dockerfile_is_updated_to_build_a_virtual_env_for_the_dependency() throws IOException {
+        List<String> updatedDockerfile = getUpdatedDockerfile();
+
         Assertions.assertTrue(updatedDockerfile.contains(ContainerizeDepsDockerfileHelper.HABUSHU_FINAL_STAGE + ContainerizeDepsDockerfileHelper.HABUSHU_COMMENT_START),
                 "The Dockerfile is updated with `#HABUSHU_FINAL_STAGE - HABUSHU GENERATED CODE (DO NOT MODIFY)` comment ");
         Assertions.assertTrue(updatedDockerfile.contains(ContainerizeDepsDockerfileHelper.HABUSHU_FINAL_STAGE + ContainerizeDepsDockerfileHelper.HABUSHU_COMMENT_END),
                 "The Dockerfile is updated with `#HABUSHU_FINAL_STAGE - HABUSHU GENERATED CODE (END)` comment ");
+    }
+
+    @Then("the original logic in the Dockerfile is preserved")
+    public void original_logic_in_the_Dockerfile_is_preserved() throws IOException {
+        List<String> updatedDockerfile = getUpdatedDockerfile();
 
         // Confirm the pre-existing logic is still present in the Dockerfile
         String dockerfileCommentLine = "# syntax=docker/dockerfile:1";
@@ -142,8 +186,8 @@ public class ContainerizeDepsSteps {
             throw new RuntimeException();
         }
 
-        assertFile(actualFiles, "renamed_python_dep_Y-1.0.0-py3-none-any.whl");
-        assertFile(actualFiles, "extensions_python_dep_X-1.0.0.dev0-py3-none-any.whl");
+        assertFile(actualFiles, LIB_WHEEL);
+        assertFile(actualFiles, APP_WHEEL);
     }
 
     private static void assertFile(Set<Path> actualFiles, String path) {
@@ -159,14 +203,8 @@ public class ContainerizeDepsSteps {
         }
     }
 
-    public String getUpdatedDockerfile() {
-        StringBuilder contentBuilder = new StringBuilder();
-        try (Stream<String> stream = Files.lines(Paths.get(dockerfile.getPath()), StandardCharsets.UTF_8)) {
-            stream.forEach(s -> contentBuilder.append(s).append("\n"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return contentBuilder.toString();
+    private List<String> getUpdatedDockerfile() throws IOException {
+        return Files.readAllLines(dockerfile.toPath(), StandardCharsets.UTF_8);
     }
 
     private String getPackageManagerProjectPath(String packageManager){
@@ -177,4 +215,20 @@ public class ContainerizeDepsSteps {
         }
     }
 
+    private static class FileLoc {
+        int ln = -1;
+        int col = -1;
+
+        boolean found() {
+            return ln >= 0 && col >= 0;
+        }
+
+        boolean before(FileLoc other) {
+            return before(other.ln, other.col);
+        }
+
+        boolean before(int line, int column) {
+            return found() && (ln < line || (ln == line && col < column));
+        }
+    }
 }
