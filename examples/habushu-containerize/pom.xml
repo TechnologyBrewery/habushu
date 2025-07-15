@@ -3,14 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.technologybrewery.habushu</groupId>
-        <artifactId>uv</artifactId>
+        <artifactId>examples</artifactId>
         <version>3.2.0-SNAPSHOT</version>
     </parent>
 
-    <name>habushu::Examples::uv::Containerize Dependencies</name>
-    <description>Example of how to use the containerize dependencies goal on an uv project</description>
+    <name>habushu::Examples::Poetry::Containerize Dependencies</name>
+    <description>Example of how to use the containerize dependencies goal on a Poetry project</description>
 
-    <artifactId>habushu-uv-containerize</artifactId>
+    <artifactId>habushu-containerize</artifactId>
     <packaging>docker-build</packaging>
 
     <build>
@@ -18,7 +18,6 @@
             <plugin>
                 <groupId>org.technologybrewery.habushu</groupId>
                 <artifactId>habushu-maven-plugin</artifactId>
-                <version>${project.version}</version>
                 <executions>
                     <execution>
                         <id>dockerize</id>
@@ -46,11 +45,10 @@
         </plugins>
     </build>
 
-
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>habushu-uv-package-consumer</artifactId>
+            <artifactId>habushu-poetry-package-consumer</artifactId>
             <version>${project.version}</version>
             <type>habushu</type>
         </dependency>
@@ -73,9 +71,9 @@
                                 <phase>prepare-package</phase>
                                 <configuration>
                                     <dockerfile>src/main/resources/docker/Dockerfile</dockerfile>
-                                    <dockerTemplatePath>src/main/resources/templates</dockerTemplatePath>
-                                    <dockerUvBuilderStageTemplatePath>custom_uv_builder_stage_template.vm</dockerUvBuilderStageTemplatePath>
-                                    <dockerUvFinalStageTemplatePath>custom_uv_final_stage_template.vm</dockerUvFinalStageTemplatePath>
+                                     <dockerTemplatePath>src/main/resources/templates</dockerTemplatePath>
+                                     <dockerBuilderStageTemplate>custom_poetry_builder_stage_template.vm</dockerBuilderStageTemplate>
+                                     <dockerFinalStageTemplate>custom_poetry_final_stage_template.vm</dockerFinalStageTemplate>
                                 </configuration>
                             </execution>
                         </executions>

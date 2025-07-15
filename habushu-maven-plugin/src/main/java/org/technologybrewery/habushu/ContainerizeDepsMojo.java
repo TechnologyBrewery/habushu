@@ -108,14 +108,14 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     /**
      * The default Dockerfile builder stage template for Poetry. Overwrite if a custom template is preferred.
      */
-    @Parameter(defaultValue = "templates/dockerfile_builder_stage_template.vm", property = "habushu.dockerPoetryBuilderStageTemplatePath")
-    protected String dockerBuilderStageTemplatePath;
+    @Parameter(defaultValue = "templates/dockerfile_builder_stage_template.vm", property = "habushu.dockerBuilderStageTemplate")
+    protected String dockerBuilderStageTemplate;
 
     /**
      * The default Dockerfile final stage template for Poetry. Overwrite if a custom template is preferred.
      */
-    @Parameter(defaultValue = "templates/dockerfile_final_stage_template.vm", property = "habushu.dockerPoetryFinalStageTemplatePath")
-    protected String dockerFinalStageTemplatePath;
+    @Parameter(defaultValue = "templates/dockerfile_final_stage_template.vm", property = "habushu.dockerFinalStageTemplate")
+    protected String dockerFinalStageTemplate;
 
     /**
      * The default Dockerfile builder stage template for Poetry. Overwrite if a custom template is preferred.
@@ -386,25 +386,25 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         return dockerTemplatePath;
     }
 
-    public String getDockerBuilderStageTemplatePath(){
+    public String getDockerBuilderStageTemplate(){
         // Until we migrate the old tool-specific configs, use them if they are present
         if(StringUtils.isNotEmpty(dockerPoetryBuilderStageTemplatePath)){
             return dockerPoetryBuilderStageTemplatePath;
         } else if(StringUtils.isNotEmpty(dockerUvBuilderStageTemplatePath)){
             return dockerUvBuilderStageTemplatePath;
         } else {
-            return dockerBuilderStageTemplatePath;
+            return dockerBuilderStageTemplate;
         }
     }
 
-    public String getDockerFinalStageTemplatePath(){
+    public String getDockerFinalStageTemplate(){
         // Until we migrate the old tool-specific configs, use them if they are present
         if(StringUtils.isNotEmpty(dockerPoetryFinalStageTemplatePath)){
             return dockerPoetryFinalStageTemplatePath;
         } else if(StringUtils.isNotEmpty(dockerUvFinalStageTemplatePath)){
             return dockerUvFinalStageTemplatePath;
         } else {
-            return dockerFinalStageTemplatePath;
+            return dockerFinalStageTemplate;
         }
     }
 

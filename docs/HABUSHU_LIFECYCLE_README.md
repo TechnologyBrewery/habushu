@@ -55,25 +55,21 @@ Leverages the Poetry/uv `run` command to execute a Python command or script with
 
 ### containerize-dependencies
 
-This goal will collect a single `habushu` dependency specified in the project's `pom.xml`,
-including all transitive habushu-packaged dependencies. After collecting the set of necessary dependencies, Habushu will
-copy the project files for each dependency to a staging directory, while preserving the original structure of the
-dependency modules to ensure that any path-based dependencies can be leveraged as-is. This directory can then be copied
-onto a Docker container and used to create a virtual environment capable of running the target Habushu project.
+Facilitates containerization of a Habushu Python application through the creation of a virtual environment on a target
+container. Given a single `habushu` type dependency in the executing module's `pom.xml`, Habushu will gather all the
+necessary project files (including transitive `habushu` dependencies in the same repository) for creating the virtual
+environment and moves them to a staging directory. Then, if enabled, a target `Dockerfile` is updated to build the
+virtual environment using the staged files. To optimize the resulting image size, Habushu builds the virtual environment
+in a separate [build stage](https://docs.docker.com/build/building/multi-stage/), then copies it into a final image stage.
 
-The plugin will automatically inject logic for building and using this virtual environment into a pre-existing
-Dockerfile by default. The `dockerfile` configuration must be set to the target Dockerfile. To disable the Dockerfile
-update altogether, set the `updateDockerfile` configuration to `false`. Because the virtual environment that is created
-is dependent on the platform for which it is built, Habushu defaults to using `python:3.12` to build the virtual
-environment and  `python:3.12-slim` as the final image that packages/runs the virtual environment.
+By default, the `dockerfile` configuration must be set to the target Dockerfile. To disable the Dockerfile updates
+altogether, set the `updateDockerfile` configuration to `false`. Because the virtual environment is dependent on the
+platform for which it is built, care must be taken to ensure the builder image platform is [sufficiently similar](CONFIGURATION_README.md#dockerfinalbase)
+to the final image platform.
 
-This can be customized with the `dockerBuilderBase`, `dockerFinalBase`, `dockerUser` and configurations, but care must be taken to
-ensure the builder image platform is sufficiently similar to the final image platform so that the virtual environment is
-compatible.
-
-Additional configuration options are available depending on the package manager used by the `habushu` dependency:
-[Poetry](../examples/poetry/habushu-poetry-containerize/README.md)
-[uv](../examples/uv/habushu-uv-containerize/README.md)
+Additional configuration options are available:
+- [Configuration Options](CONFIGURATION_README.md#containerization-configurations)
+- [Example](../examples/habushu-containerize/README.md)
 
 
 ```xml
@@ -94,11 +90,13 @@ Additional configuration options are available depending on the package manager 
 </plugin>
 ```
 
-To control the exact insertion location of the Dockerfile build logic, use the `#HABUSHU_BUILDER_STAGE`and
-`#HABUSHU_FINAL_STAGE` comment tags in the specified `Dockerfile` in the preferred location. The `#HABUSHU_BUILDER_STAGE` tag will
-be replaced with the builder stage logic to copy the generated dependencies files onto a Docker container and then create
-the virtual environment by building the target Habushu project. The `#HABUSHU_FINAL_STAGE` tag will be replaced with the
-final stage logic to copy over the built virtual environment to the final Docker build stage.
+#### Controlling Logic Injection
+
+If a Dockerfile has not been updated with Habushu-generated build logic, Habushu will insert the logic where it finds
+the comments `#HABUSHU_BUILDER_STAGE` and/or `#HABUSHU_FINAL_STAGE`. If the builder stage tag comment is not present,
+the logic will be inserted at the top of the file. If the final stage tag comment is not present, the logic will be
+inserted at the end of the file
+
 ```dockerfile
 #HABUSHU_BUILDER_STAGE
 
@@ -109,19 +107,6 @@ RUN microdnf install -y python3.12
 
 ENTRYPOINT ["/opt/venv/bin/python3.12", "-m", "pets.main", "--enable_docs_url", "True"]
 ```
-
-The plugin will only examine dependencies that are of the type `habushu` in the dependencies block of the `pom.xml` file.
-```xml
-<dependencies>
-    <dependency>
-        <groupId>your-group-id</groupId>
-        <artifactId>your-artifact-id</artifactId>
-        <version>your-version</version>
-        <type>habushu</type>
-    </dependency>
-</dependencies>
-```
-Any transitive monorepo dependencies should also use this convention to ensure they are captured by the plugin.
 
 ## Maven Reactor Integration
 Habushu supports partial builds via the Maven Reactor. This allows functionality such as `-rf` (resume from)

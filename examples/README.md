@@ -9,6 +9,7 @@ configuration options.
 - [Default Python Strategy](habushu-default-python-strategy/README.md) - Handles the strategy for setting the default python version if no version is explicitly set in [pythonVersion](../docs/CONFIGURATION_README.md#pythonversion)
 - [Managed Dependencies](habushu-managed-dependencies/README.md) - Supports common definition of dependency versions across Maven modules
 - [Running Python Scripts](habushu-running-python-scripts/README.md) - Supports running custom python scripts during build phases with the [runCommandArgs](../docs/CONFIGURATION_README.md#runcommandargs) configuration
+- [Containerization](habushu-containerize/README.md) - Containerizes a Python application in a Docker image
 
 ## Poetry-Specific Examples
 - [Poetry Version Enforcement](poetry/habushu-poetry-enforcer-rule/README.md) - Enforces a specific version or version range of Poetry
@@ -20,7 +21,6 @@ configuration options.
   - Consumes another Poetry package from within the same monorepo structure using Habushu
   - Enables the `rewriteLocalPathDepsInArchives` configuration
   - Disables the `behaveExcludeManualTag` configuration in the `tagged-tests` profile
-- [Containerizing Dependencies with Poetry](poetry/habushu-poetry-containerize/README.md) - Containerizes dependencies in a Docker container
 - Configure Habushu to use a private development repository for installation and/or publication of packages:
     - [Publish Package to Development Repository](poetry/habushu-poetry-publish-to-dev-repo/README.md)
     - [Install Package From Development Repository](poetry/habushu-poetry-install-from-dev-repo/README.md)
@@ -35,7 +35,6 @@ configuration options.
 - [uv Package Consumer](uv/habushu-uv-package-consumer/README.md) 
   - Consumes another uv package from within the same monorepo structure using Habushu
   - Enables the [rewriteLocalPathDepsInArchives](../docs/CONFIGURATION_README.md#rewritelocalpathdepsinarchives) configuration
-- [Containerizing Dependencies with uv](uv/habushu-uv-containerize/README.md) - Containerizes dependencies in a Docker container
 - Configure Habushu to use private development repository for installation and/or publication of packages:
     - [Publish Package to Development Repository](uv/habushu-uv-publish-to-dev-repo/README.md)
     - [Install Package From Development Repository](uv/habushu-uv-install-from-dev-repo/README.md)

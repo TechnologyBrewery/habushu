@@ -106,8 +106,8 @@ mvn clean install -Dhabushu.pythonVersion=3.12.9
   - [dockerVenvDirectoryPermissions](#dockerVenvDirectoryPermissions)
   - [dockerContext](#dockercontext)
   - [dockerTemplatePath](#dockertemplatepath)
-  - [dockerBuilderStageTemplatePath](#dockerbuilderstagetemplatepath)
-  - [dockerFinalStageTemplatePath](#dockerfinalstagetemplatepath)
+  - [dockerBuilderStageTemplate](#dockerbuilderstagetemplate)
+  - [dockerFinalStageTemplate](#dockerfinalstagetemplate)
 - [Version Enforcement Configurations](#version-enforcement-configurations)
   - [version](#version)
   - [Poetry-Specific Version Enforcement Configurations](#poetry-specific-version-enforcement-configurations) 
@@ -728,9 +728,8 @@ Default: `true`
 
 ## Containerization Configurations
 
-**Examples:**
-- [Containerizing Dependencies with Poetry](../examples/poetry/habushu-poetry-containerize/README.md)
-- [Containerizing Dependencies with uv](../examples/uv/habushu-uv-containerize/README.md)
+**Example:**
+- [Containerizing a Python Application](../examples/habushu-containerize/README.md)
 
 ### stagingDirectory
 
@@ -785,15 +784,15 @@ Overwrite with Docker template path if a custom template is preferred.
 
 Default: Habushu Maven Plugin Classpath
 
-### dockerBuilderStageTemplatePath
+### dockerBuilderStageTemplate
 
-The default Dockerfile builder stage template for Poetry. Overwrite if a custom template is preferred.
+The default Dockerfile builder stage template. Overwrite if a custom template is preferred.
 
 Default: `templates/dockerfile_builder_stage_template.vm`
 
-### dockerFinalStageTemplatePath
+### dockerFinalStageTemplate
 
-The default Dockerfile final stage template for Poetry. Overwrite if a custom template is preferred.
+The default Dockerfile final stage template. Overwrite if a custom template is preferred.
 
 Default: `templates/dockerfile_final_stage_template.vm`
 

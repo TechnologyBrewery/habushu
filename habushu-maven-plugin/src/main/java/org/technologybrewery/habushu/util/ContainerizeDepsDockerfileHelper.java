@@ -112,7 +112,7 @@ public class ContainerizeDepsDockerfileHelper {
     private String getBuilderStageContent() {
         ContainerizeDepsVelocityContext context = new ContainerizeDepsVelocityContext(containerizeDepsMojo);
         setBuilderSharedContext(context);
-        String builderStageContent = createContainerStageContentFrom(context, containerizeDepsMojo.getDockerBuilderStageTemplatePath());
+        String builderStageContent = createContainerStageContentFrom(context, containerizeDepsMojo.getDockerBuilderStageTemplate());
         String wrappedBuilderStageContent = getBuilderStageStartComment() + "\n" + builderStageContent + "\n" + getBuilderStageEndComment();
         return wrappedBuilderStageContent;
     }
@@ -120,7 +120,7 @@ public class ContainerizeDepsDockerfileHelper {
     private String getFinalStageContent(){
         ContainerizeDepsVelocityContext context = new ContainerizeDepsVelocityContext(containerizeDepsMojo);
         setFinalSharedContext(context);
-        String finalStageContent = createContainerStageContentFrom(context, containerizeDepsMojo.getDockerFinalStageTemplatePath());
+        String finalStageContent = createContainerStageContentFrom(context, containerizeDepsMojo.getDockerFinalStageTemplate());
         return getFinalStageStartComment() + "\n" + finalStageContent + "\n" + getFinalStageEndComment();
     }
 

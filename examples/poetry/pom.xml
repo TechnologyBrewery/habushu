@@ -18,7 +18,6 @@
         <module>habushu-pyenv-enforcer-rule</module>
         <module>habushu-poetry-package</module>
         <module>habushu-poetry-package-consumer</module>
-        <module>habushu-poetry-containerize</module>
         <module>habushu-poetry-publish-to-dev-repo</module>
         <module>habushu-poetry-install-from-dev-repo</module>
         <module>habushu-poetry-dependency-groups</module>
