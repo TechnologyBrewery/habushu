@@ -17,6 +17,7 @@
         <module>habushu-managed-dependencies</module>
         <module>habushu-default-python-strategy</module>
         <module>habushu-running-python-scripts</module>
+        <module>habushu-containerize</module>
         <module>poetry</module>
         <module>uv</module>
     </modules>

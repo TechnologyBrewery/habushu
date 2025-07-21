@@ -1,0 +1,11 @@
+FROM $baseImage AS habushu_builder
+
+USER root
+RUN echo "CUSTOM POETRY BUILDER STAGE TEMPLATE"
+
+RUN --mount=type=cache,target="/root/.cache/pypoetry" \
+    python -m ensurepip --upgrade && \
+    pip install poetry==2.1.2 && \
+    poetry self add poetry-plugin-bundle@latest \
+    poetry lock && \
+    poetry bundle venv /opt/venv

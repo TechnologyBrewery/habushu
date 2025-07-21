@@ -1,0 +1,4 @@
+FROM $baseImage AS final
+
+RUN echo "CUSTOM POETRY FINAL STAGE TEMPLATE"
+COPY --from=habushu_builder $chownPlaceholder /opt/venv /opt/venv/
