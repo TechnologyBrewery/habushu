@@ -113,6 +113,17 @@
             ]
           }
         ]
+      },
+      {
+        "name": "containerization-configuration-migration",
+        "implementation": "org.technologybrewery.habushu.migration.ContainerizeConfigMigration",
+        "fileSets": [
+          {
+            "includes": [
+              "pom.xml"
+            ]
+          }
+        ]
       }
     ]
   }

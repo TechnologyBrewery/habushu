@@ -57,14 +57,6 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     protected File stagingDirectory;
 
     /**
-     * For each Python project that is identified as required for containerization, the files identified by this fileset
-     * will be copied to the staging directory. It is not currently possible to define different filesets for different
-     * projects. If not set, defaults to "{habushu.sourceDirectory}/**", "*.toml", "*.lock" and "README.md".
-     */
-    @Parameter
-    protected FileSet defaultSourceSet; //TODO: Remove via migration
-
-    /**
      * Controls whether a Dockerfile is updated with logic to copy and build the Habushu project and its dependencies
      * within the container. If set to false, the Dockerfile will not be updated.
      */
@@ -118,30 +110,6 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     protected String dockerFinalStageTemplate;
 
     /**
-     * The default Dockerfile builder stage template for Poetry. Overwrite if a custom template is preferred.
-     */
-    @Parameter(defaultValue = "", property = "habushu.dockerPoetryBuilderStageTemplatePath")
-    protected String dockerPoetryBuilderStageTemplatePath; //TODO: Remove via migration
-
-    /**
-     * The default Dockerfile final stage template for Poetry. Overwrite if a custom template is preferred.
-     */
-    @Parameter(defaultValue = "", property = "habushu.dockerPoetryFinalStageTemplatePath")
-    protected String dockerPoetryFinalStageTemplatePath; //TODO: Remove via migration
-
-    /**
-     * The default Dockerfile builder stage template for Poetry. Overwrite if a custom template is preferred.
-     */
-    @Parameter(defaultValue = "", property = "habushu.dockerUvBuilderStageTemplatePath")
-    protected String dockerUvBuilderStageTemplatePath; //TODO: Remove via migration
-
-    /**
-     * The default Dockerfile final stage template for Poetry. Overwrite if a custom template is preferred.
-     */
-    @Parameter(defaultValue = "", property = "habushu.dockerUvFinalStageTemplatePath")
-    protected String dockerUvFinalStageTemplatePath; //TODO: Remove via migration
-
-    /**
      * The base image to use for building the virtual env. This base image will be used to bundle the virtual
      * environment for the target project. As the venv must be built on the same platform as the final runtime to ensure
      * compatibility, this image must share a platform with {@link #dockerFinalBase}. The base image must have the target
@@ -158,24 +126,6 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
      */
     @Parameter(defaultValue = "docker.io/python:3.12-slim", property = "habushu.dockerFinalBase")
     protected String dockerFinalBase;
-
-    /**
-     * The version of Poetry to install in the container.
-     */
-    @Parameter(defaultValue = "2.0.1", property = "habushu.dockerPoetryVersion")
-    protected String dockerPoetryVersion; //TODO: Remove via migration
-
-    /**
-     * The version of the poetry-plugin-bundle to install in the container.
-     */
-    @Parameter(defaultValue = "1.5.0", property = "habushu.dockerPoetryPluginBundleVersion")
-    protected String dockerPoetryPluginBundleVersion; //TODO: Remove via migration
-
-    /**
-     * The version of uv to install in the container.
-     */
-    @Parameter(defaultValue = "0.6.2", property = "habushu.dockerUvVersion")
-    protected String dockerUvVersion; //TODO: Remove via migration
 
     /**
      * Overriding to allow execution in non-habushu projects.
@@ -386,26 +336,12 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         return dockerTemplatePath;
     }
 
-    public String getDockerBuilderStageTemplate(){
-        // Until we migrate the old tool-specific configs, use them if they are present
-        if(StringUtils.isNotEmpty(dockerPoetryBuilderStageTemplatePath)){
-            return dockerPoetryBuilderStageTemplatePath;
-        } else if(StringUtils.isNotEmpty(dockerUvBuilderStageTemplatePath)){
-            return dockerUvBuilderStageTemplatePath;
-        } else {
-            return dockerBuilderStageTemplate;
-        }
+    public String getDockerBuilderStageTemplate() {
+        return dockerBuilderStageTemplate;
     }
 
-    public String getDockerFinalStageTemplate(){
-        // Until we migrate the old tool-specific configs, use them if they are present
-        if(StringUtils.isNotEmpty(dockerPoetryFinalStageTemplatePath)){
-            return dockerPoetryFinalStageTemplatePath;
-        } else if(StringUtils.isNotEmpty(dockerUvFinalStageTemplatePath)){
-            return dockerUvFinalStageTemplatePath;
-        } else {
-            return dockerFinalStageTemplate;
-        }
+    public String getDockerFinalStageTemplate() {
+        return dockerFinalStageTemplate;
     }
 
     public String getDockerBuilderBase() {
