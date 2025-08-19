@@ -1,6 +1,7 @@
 package org.technologybrewery.habushu.util;
 
-import com.moandjiezana.toml.Toml;
+import com.electronwill.nightconfig.core.file.FileConfig;
+import com.electronwill.nightconfig.core.io.ParsingException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -262,8 +263,14 @@ public final class HabushuUtil {
      * @return PackageManager returns which package manager Habushu uses based on build-backend.
      */
     public static PackageManager checkPythonPackageManager(File pyProjectTomlFile) {
-        Toml toml = new Toml().read(pyProjectTomlFile);
-        String buildBackend = toml.getString("build-system.build-backend");
+        String buildBackend;
+        try (FileConfig toml = FileConfig.of(pyProjectTomlFile)) {
+            toml.load();
+            buildBackend = toml.get("build-system.build-backend");
+        } catch (ParsingException e) {
+            throw new HabushuException("Could not parse pyproject.toml file: " + pyProjectTomlFile.getAbsolutePath(), e);
+        }
+
         if (buildBackend != null && buildBackend.contains("poetry")) {
             return PackageManager.POETRY;
         } else {
