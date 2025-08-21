@@ -1,6 +1,6 @@
 [project]
 name = "habushu_running_python_scripts"
-version = "3.2.0"
+version = "3.3.0.dev"
 description = "Example of how to use Habushu's runCommandArgs in the run-command-in-virtual-env goal"
 authors = [{name = "Clay Woods", email = "cwoods@cpointe-inc.com"}]
 license = "MIT License"
