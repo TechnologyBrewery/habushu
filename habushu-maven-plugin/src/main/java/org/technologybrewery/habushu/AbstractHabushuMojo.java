@@ -11,6 +11,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
+import org.codehaus.plexus.util.StringUtils;
 import org.sonatype.plexus.components.cipher.PlexusCipherException;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 import org.technologybrewery.habushu.exec.CommandHelper;
@@ -20,6 +21,7 @@ import org.technologybrewery.habushu.exec.UvCommandHelper;
 import org.technologybrewery.habushu.util.HabushuUtil;
 import org.technologybrewery.habushu.util.MavenPasswordDecoder;
 import org.technologybrewery.habushu.util.PackageManager;
+import org.technologybrewery.habushu.util.PythonRepository;
 
 /**
  * Contains logic common across the various Habushu mojos.
@@ -79,18 +81,6 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
 
     /**
      * Specifies the {@code <id>} of the {@code <server>} element declared within
-     * the utilized settings.xml configuration that represents the desired
-     * credentials to use when publishing the package to a dev PyPI repository.
-     */
-    public static final String DEV_PYPI_REPO_ID = "dev-pypi";
-
-    /**
-     * Specifies the default dev pypi url to leverage.
-     */
-    public static final String TEST_PYPI_REPOSITORY_URL = "https://test.pypi.org/";
-
-    /**
-     * Specifies the {@code <id>} of the {@code <server>} element declared within
      * the utilized settings.xml configuration that represents the PyPI repository
      * to which this project's archives will be published and/or used as a supplemental
      * repository from which dependencies may be installed. This property is
@@ -105,7 +95,7 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * {@code <server>} declaration with a matching {@code <id>} as credentials for
      * publishing the package to the official public PyPI repository.
      */
-    @Parameter(property = "habushu.pypiRepoId", defaultValue = HabushuUtil.PUBLIC_PYPI_REPO_ID)
+    @Parameter(property = "habushu.pypiRepoId", defaultValue = PythonRepository.PUBLIC_PYPI_REPO_ID)
     protected String pypiRepoId;
 
     /**
@@ -116,6 +106,34 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     @Parameter(property = "habushu.pypiRepoUrl")
     protected String pypiRepoUrl;
+
+    /**
+     * Determines if pypiSimpleSuffix is enabled or not.
+     * Setting enablePypiSimpleSuffix to false will set pypiSimpleSuffix to empty value regardless
+     * of pypiSimpleSuffix property value.
+     * Setting enablePypiSimpleSuffix to true will honor pypiSimpleSuffix property value.
+     */
+    @Parameter(property = "habushu.enablePypiSimpleSuffix", defaultValue = "true")
+    protected boolean enablePypiSimpleSuffix;
+
+    /**
+     * Configures the path for the simple index on a private pypi repository.
+     * Certain private repository solutions (ie: devpi) use different names for the
+     * simple index. devpi, for instance, uses "+simple".
+     */
+    @Parameter(property = "habushu.pypiSimpleSuffix", defaultValue = "simple")
+    protected String pypiSimpleSuffix;
+
+    /**
+     * Allows tailoring of the path used for pushing to a PyPI repository for deployment.  Some repositories, like
+     * Nexus or Artifactory, do not require an url path on top of the base repository url.  Others, do (often using
+     * "legacy/").  This variable allows customization in a manner that does not impact the installation API for the
+     * same repository.  Defaults to empty as the most common scenario when overriding the repository URL is to leverage
+     * one of the repositories mentioned above.
+     * Note: The property must be set equal to "" in order for Maven to not set the default value to null
+     */
+    @Parameter(property = "habushu.pypiUploadSuffix", defaultValue = "")
+    protected String pypiUploadSuffix = "";
 
     /**
      * Instructs deployment to use a development repository rather than a release repository. This is conceptually
@@ -135,14 +153,14 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * dependencies from a devPyPI repository that requires authentication - it is
      * expected that the relevant {@code <server>} element provides the needed
      * authentication details. If this property is *not* specified, this property will
-     * default to {@link #DEV_PYPI_REPO_ID} and the execution of the {@code deploy}
+     * default to {@link PythonRepository#TEST_PYPI_REPO_ID} and the execution of the {@code deploy}
      * lifecycle phase will publish this package to the official public Test PyPI
      * repository. Downstream package publishing functionality (i.e.
      * {@link PublishToPyPiRepoMojo}) will use the relevant settings.xml
      * {@code <server>} declaration with a matching {@code <id>} as credentials for
      * publishing the package to the official public test PyPI repository.
      */
-    @Parameter(property = "habushu.devRepositoryId", defaultValue = DEV_PYPI_REPO_ID)
+    @Parameter(property = "habushu.devRepositoryId", defaultValue = PythonRepository.TEST_PYPI_REPO_ID)
     protected String devRepositoryId;
 
     /**f
@@ -152,8 +170,25 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      * to or consuming dependencies from a private PyPI repository.  Should end with a
      * trailing "/".
      */
-    @Parameter(property = "habushu.devRepositoryUrl", defaultValue = TEST_PYPI_REPOSITORY_URL)
+    @Parameter(property = "habushu.devRepositoryUrl", defaultValue = PythonRepository.TEST_PYPI_REPO_URL)
     protected String devRepositoryUrl;
+
+    /**
+     * whether we enable devRepositoryUrlUploadSuffix.
+     * Setting devRepositoryUrlUploadSuffix to false will set devRepositoryUrlUploadSuffix to empty value regardless
+     * of devRepositoryUrlUploadSuffix property value.
+     * Setting devRepositoryUrlUploadSuffix to true will honor devRepositoryUrlUploadSuffix property values.
+     */
+    @Parameter(property = "habushu.enableDevRepositoryUrlUploadSuffix", defaultValue = "true")
+    protected boolean enableDevRepositoryUrlUploadSuffix;
+
+    /**
+     * {{@link #pypiUploadSuffix repositoryUploadSuffix} contains critical information.  The main difference is that
+     * this dev repository url path defaults to "legacy/" as the most common scenario when overriding the dev
+     * repository URL is to leverage test.pypi.org, which needs this configuration.
+     */
+    @Parameter(property = "habushu.devRepositoryUrlUploadSuffix", defaultValue = "legacy/")
+    protected String devRepositoryUrlUploadSuffix;
 
     /**
      * Specifies whether the version of the encapsulated Poetry package should be
@@ -424,6 +459,21 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
         return pypiRepoUrl;
     }
 
+    public PythonRepository getPypiRepo() {
+        if (StringUtils.isBlank(getPypiRepoUrl())) {
+            return PythonRepository.PUBLIC_PYPI_REPO;
+        }
+
+        PythonRepository repo = new PythonRepository(getPypiRepoId(), getPypiRepoUrl());
+        if (this.enablePypiSimpleSuffix) {
+            repo.setIndexPath(this.pypiSimpleSuffix);
+        } else {
+            repo.setIndexPath(null);
+        }
+        repo.setPublishPath(this.pypiUploadSuffix);
+        return repo;
+    }
+
     /**
      *  Check whether to use dev Repository
      * @return boolean useDevRepository
@@ -446,6 +496,25 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     public String getDevRepositoryUrl() {
         return devRepositoryUrl;
+    }
+
+    public PythonRepository getDevRepo() {
+        if (StringUtils.isBlank(getDevRepositoryUrl())) {
+            return PythonRepository.TEST_PYPI_REPO;
+        }
+
+        PythonRepository repo = new PythonRepository(getDevRepositoryId(), getDevRepositoryUrl());
+        if (this.enablePypiSimpleSuffix) {
+            repo.setIndexPath(this.pypiSimpleSuffix);
+        } else {
+            repo.setIndexPath(null);
+        }
+        if (this.enableDevRepositoryUrlUploadSuffix) {
+            repo.setPublishPath(this.devRepositoryUrlUploadSuffix);
+        } else {
+            repo.setPublishPath(null);
+        }
+        return repo;
     }
 
     /**
@@ -472,13 +541,6 @@ public abstract class AbstractHabushuMojo extends AbstractMojo {
      */
     protected File getPyProjectTomlFile() {
         return new File(getPythonProjectBaseDir(), "pyproject.toml");
-    }
-
-    /**
-     * @return TEST_PYPI_REPOSITORY_URL
-     */
-    public String getTestPyPiRepositoryUrl() {
-        return TEST_PYPI_REPOSITORY_URL;
     }
 
     /**

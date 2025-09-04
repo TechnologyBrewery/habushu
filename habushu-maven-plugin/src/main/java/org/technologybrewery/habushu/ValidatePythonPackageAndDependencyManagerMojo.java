@@ -12,6 +12,7 @@ import org.technologybrewery.habushu.util.DefaultPythonStrategy;
 import org.technologybrewery.habushu.util.HabushuUtil;
 import org.technologybrewery.habushu.util.PackageManager;
 import org.technologybrewery.habushu.util.PoetryUtil;
+import org.technologybrewery.habushu.util.PythonRepository;
 import org.technologybrewery.habushu.util.UvUtil;
 
 
@@ -98,7 +99,8 @@ public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabus
 
     private void configurePrivateDevPyPiRepositoryCredentials(PythonPackageAndDependencyManagerSetup pythonPackageAndDependencyManagerSetup) {
         if (useDevRepository) {
-            if (!TEST_PYPI_REPOSITORY_URL.equals(devRepositoryUrl)){
+            //todo: use actual PythonRepository object to account for slight variations in URL representation
+            if (!PythonRepository.TEST_PYPI_REPO_URL.equals(devRepositoryUrl)){
                 String pypiDevRepoIdUsername = findUsernameForServer(devRepositoryId);
                 String pypiDevRepoIdPassword = findPasswordForServer(devRepositoryId);
                 pythonPackageAndDependencyManagerSetup.registerRepositoryToSupportAuthenticatedDependencyResolution(devRepositoryId,
@@ -110,6 +112,8 @@ public class ValidatePythonPackageAndDependencyManagerMojo extends AbstractHabus
     }
 
     private void configurePrivatePyPiRepositoryCredentials(PythonPackageAndDependencyManagerSetup pythonPackageAndDependencyManagerSetup) {
+        //todo: use actual PythonRepository object to account for slight variations in URL representation
+        // e.g. the original logic here does not include a trailing slash, but PythonRepository.PUBLIC_PYPI_REPO_URL does
         if (StringUtils.isNotEmpty(pypiRepoUrl) && !"https://pypi.org".equals(pypiRepoUrl)) {
             String pypiRepoIdUsername = findUsernameForServer(pypiRepoId);
             String pypiRepoIdPassword = findPasswordForServer(pypiRepoId);

@@ -8,6 +8,8 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.technologybrewery.habushu.util.HabushuUtil;
+import org.technologybrewery.habushu.util.PythonRepository;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -79,6 +81,7 @@ public abstract class AbstractInstallDependencies {
         if (StringUtils.isNotEmpty(repoUrl) && installDependenciesMojo.addPypiRepoAsPackageSources) {
             String pypiRepoSimpleIndexUrl;
             try {
+                //todo: replace with PythonRepository.getIndexUrl
                 pypiRepoSimpleIndexUrl = getPyPiRepoSimpleIndexUrl(repoUrl);
             } catch (URISyntaxException e) {
                 throw new HabushuException(
@@ -102,12 +105,12 @@ public abstract class AbstractInstallDependencies {
                                 LocalDateTime.now(), pypiRepoSimpleIndexUrl),
                         String.format("[[%s]]", packageIndexPath),
                         String.format("name = \"%s\"",
-                                StringUtils.isNotEmpty(repoId) && !HabushuUtil.PUBLIC_PYPI_REPO_ID.equals(repoId)
+                                StringUtils.isNotEmpty(repoId) && !PythonRepository.PUBLIC_PYPI_REPO_ID.equals(repoId)
                                         ? repoId
                                         : "private-pypi-repo"),
                         String.format("url = \"%s\"", pypiRepoSimpleIndexUrl)));
                 if (HabushuUtil.isCurrentPackageManagerUv(getPyProjectTomlFile()) ) {
-                    newPypiRepoSourceConfig.add(String.format("publish-url = \"%s\"", getPublishUrl(repoUrl, !HabushuUtil.PUBLIC_PYPI_REPO_ID.equals(repoId))));
+                    newPypiRepoSourceConfig.add(String.format("publish-url = \"%s\"", getPublishUrl(repoUrl, !PythonRepository.PUBLIC_PYPI_REPO_ID.equals(repoId))));
                 }
 
                 if (shouldAddPriority()){

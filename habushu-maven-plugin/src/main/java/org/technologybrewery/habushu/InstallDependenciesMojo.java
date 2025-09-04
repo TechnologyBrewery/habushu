@@ -32,23 +32,6 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
     protected boolean addPypiRepoAsPackageSources;
 
     /**
-     * Determines if pypiSimpleSuffix is enabled or not.
-     * Setting enablePypiSimpleSuffix to false will set pypiSimpleSuffix to empty value regardless
-     * of pypiSimpleSuffix property value.
-     * Setting enablePypiSimpleSuffix to true will honor pypiSimpleSuffix property value.
-     */
-    @Parameter(property = "habushu.enablePypiSimpleSuffix", defaultValue = "true")
-    protected boolean enablePypiSimpleSuffix;
-
-    /**
-     * Configures the path for the simple index on a private pypi repository.
-     * Certain private repository solutions (ie: devpi) use different names for the
-     * simple index. devpi, for instance, uses "+simple".
-     */
-    @Parameter(property = "habushu.pypiSimpleSuffix", defaultValue = "simple")
-    protected String pypiSimpleSuffix;
-
-    /**
      * Configures whether the lock file will be updated before install.
      */
     @Parameter(defaultValue = "false", property = "habushu.skipLockUpdate")
@@ -103,35 +86,6 @@ public class InstallDependenciesMojo extends AbstractHabushuMojo {
      */
     @Parameter(defaultValue = "true", property = "habushu.useInProjectVirtualEnvironment")
     protected boolean useInProjectVirtualEnvironment;
-
-
-    /**
-     * Allows tailoring of the path used for pushing to a PyPI repository for deployment.  Some repositories, like
-     * Nexus or Artifactory, do not require an url path on top of the base repository url.  Others, do (often using
-     * "legacy/").  This variable allows customization in a manner that does not impact the installation API for the
-     * same repository.  Defaults to empty as the most common scenario when overriding the repository URL is to leverage
-     * one of the repositories mentioned above.
-     * Note: The property must be set equal to "" in order for Maven to not set the default value to null
-     */
-    @Parameter(property = "habushu.pypiUploadSuffix", defaultValue = "")
-    protected String pypiUploadSuffix = "";
-
-    /**
-     * Determines whether we enable devRepositoryUrlUploadSuffix.
-     * Setting enableDevRepositoryUrlUploadSuffix to false will set devRepositoryUrlUploadSuffix to empty value regardless
-     * of devRepositoryUrlUploadSuffix property value.
-     * Setting enableDevRepositoryUrlUploadSuffix to true will honor devRepositoryUrlUploadSuffix property values.
-     */
-    @Parameter(property = "habushu.enableDevRepositoryUrlUploadSuffix", defaultValue = "true")
-    protected boolean enableDevRepositoryUrlUploadSuffix;
-
-    /**
-     * {{@link #pypiUploadSuffix repositoryUploadSuffix} contains critical information.  The main difference is that
-     * this dev repository url path defaults to "legacy/" as the most common scenario when overriding the dev
-     * repository URL is to leverage test.pypi.org, which needs this configuration.
-     */
-    @Parameter(property = "habushu.devRepositoryUrlUploadSuffix", defaultValue = "legacy/")
-    protected String devRepositoryUrlUploadSuffix;
 
     /**
      * Get whether a private PyPi repository, is automatically added as a package source
