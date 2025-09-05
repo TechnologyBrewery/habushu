@@ -66,34 +66,6 @@ public class PublishToPyPiRepoMojo extends AbstractHabushuMojo {
     protected boolean skipDeploy;
 
     /**
-     * Allows tailoring of the path used for pushing to a PyPI repository for deployment.  Some repositories, like
-     * Nexus or Artifactory, do not require an url path on top of the base repository url.  Others, do (often using
-     * "legacy/").  This variable allows customization in a manner that does not impact the installation API for the
-     * same repository.  Defaults to empty as the most common scenario when overriding the repository URL is to leverage
-     * one of the repositories mentioned above.
-     * Note: The property must be set equal to "" in order for Maven to not set the default value to null
-     */
-    @Parameter(property = "habushu.pypiUploadSuffix", defaultValue = "")
-    protected String pypiUploadSuffix = "";
-
-    /**
-     * whether we enable devRepositoryUrlUploadSuffix.
-     * Setting devRepositoryUrlUploadSuffix to false will set devRepositoryUrlUploadSuffix to empty value regardless
-     * of devRepositoryUrlUploadSuffix property value.
-     * Setting devRepositoryUrlUploadSuffix to true will honor devRepositoryUrlUploadSuffix property values.
-     */
-    @Parameter(property = "habushu.enableDevRepositoryUrlUploadSuffix", defaultValue = "true")
-    protected boolean enableDevRepositoryUrlUploadSuffix;
-
-    /**
-     * {{@link #pypiUploadSuffix repositoryUploadSuffix} contains critical information.  The main difference is that
-     * this dev repository url path defaults to "legacy/" as the most common scenario when overriding the dev
-     * repository URL is to leverage test.pypi.org, which needs this configuration.
-     */
-    @Parameter(property = "habushu.devRepositoryUrlUploadSuffix", defaultValue = "legacy/")
-    protected String devRepositoryUrlUploadSuffix;
-
-    /**
      * Specifies the number of times a push to the configured PyPI repository will be attempted before stopping (inclusive
      * of the initial attempt). While this defaults to three and is fully configurable, it can be set to zero to never
      * retry or set to any negative number for unlimited retries.  Unlimited retries will follow a fibonacci backoff

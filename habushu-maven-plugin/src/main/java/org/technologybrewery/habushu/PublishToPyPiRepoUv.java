@@ -8,6 +8,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.technologybrewery.habushu.exec.UvCommandHelper;
 import org.technologybrewery.habushu.util.HabushuUtil;
+import org.technologybrewery.habushu.util.PythonRepository;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -119,7 +120,7 @@ public class PublishToPyPiRepoUv extends AbstractPublishToPyPiRepo {
             //When publishing locally, uv will throw error if file name is same but hash is different which fails case of -dev0 https://github.com/astral-sh/uv/issues/7917#issuecomment-2495160227
             publishToRepoWithCredsArgs.add(new ImmutablePair<>("./dist/*" + version + "*.tar.gz" , false));
             publishToRepoWithCredsArgs.add(new ImmutablePair<>("./dist/*" + version + "*.whl" , false));
-            if (!HabushuUtil.PUBLIC_PYPI_REPO_ID.equals(repoId)) {
+            if (!PythonRepository.PUBLIC_PYPI_REPO_ID.equals(repoId)) {
                 publishToRepoWithCredsArgs.add(new ImmutablePair<>("--index", false));
                 publishToRepoWithCredsArgs.add(new ImmutablePair<>(repoId, false));
             }
@@ -153,7 +154,7 @@ public class PublishToPyPiRepoUv extends AbstractPublishToPyPiRepo {
         } else {
             log.warn(String.format(
                     "PyPI repository credentials not specified in <server> element in settings.xml with <id> of %s",
-                    HabushuUtil.PUBLIC_PYPI_REPO_ID));
+                    PythonRepository.PUBLIC_PYPI_REPO_ID));
             log.warn(
                     "Please populate settings.xml with PyPI credentials or ensure that Poetry is manually " +
                             "configured with the correct PyPI credentials (i.e. poetry config pypi-token.pypi my-token)");

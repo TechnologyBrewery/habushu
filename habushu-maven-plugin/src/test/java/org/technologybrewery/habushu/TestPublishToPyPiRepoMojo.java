@@ -1,6 +1,7 @@
 package org.technologybrewery.habushu;
 
 import org.technologybrewery.habushu.util.HabushuUtil;
+import org.technologybrewery.habushu.util.PythonRepository;
 
 import java.io.File;
 
@@ -13,10 +14,10 @@ public class TestPublishToPyPiRepoMojo extends PublishToPyPiRepoMojo {
         super();
 
         //mimic defaults in Mojo:
-        this.pypiRepoId = HabushuUtil.PUBLIC_PYPI_REPO_ID;
+        this.pypiRepoId = PythonRepository.PUBLIC_PYPI_REPO_ID;
         this.useDevRepository = false;
-        this.devRepositoryId = DEV_PYPI_REPO_ID;
-        this.devRepositoryUrl = TEST_PYPI_REPOSITORY_URL;
+        this.devRepositoryId = PythonRepository.TEST_PYPI_REPO_ID;
+        this.devRepositoryUrl = PythonRepository.TEST_PYPI_REPO_URL;
 
         this.skipDeploy = false;
         this.pypiUploadSuffix = "";

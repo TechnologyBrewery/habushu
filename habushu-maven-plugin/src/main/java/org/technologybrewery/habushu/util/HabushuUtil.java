@@ -4,6 +4,7 @@ import com.electronwill.nightconfig.core.file.FileConfig;
 import com.electronwill.nightconfig.core.io.ParsingException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,14 +47,6 @@ public final class HabushuUtil {
 
     public static final Pattern SEMVER2_PATTERN = Pattern.compile("\\d+\\.\\d+\\.\\d+-(rc|alpha|beta)\\.\\d+$",
             Pattern.CASE_INSENSITIVE);
-
-    /**
-     * Specifies the {@code <id>} of the {@code <server>} element declared within
-     * the utilized settings.xml configuration that represents the desired
-     * credentials to use when publishing the package to the official public PyPI
-     * repository.
-     */
-    public static final String PUBLIC_PYPI_REPO_ID = "pypi";
 
     private HabushuUtil() {
     }
@@ -389,7 +382,7 @@ public final class HabushuUtil {
     }
 
     public static String addTrailingSlash(String inputUrl) {
-        if (StringUtils.isNotBlank(inputUrl) && !StringUtils.endsWith(inputUrl, "/")) {
+        if (StringUtils.isNotBlank(inputUrl) && !Strings.CS.endsWith(inputUrl, "/")) {
             // PEP-0694 likes a trailing slash:
             inputUrl += "/";
         }

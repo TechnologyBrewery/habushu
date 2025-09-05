@@ -8,6 +8,7 @@ import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.StringUtils;
 import org.technologybrewery.habushu.exec.UvCommandHelper;
 import org.technologybrewery.habushu.util.HabushuUtil;
+import org.technologybrewery.habushu.util.PythonRepository;
 import org.technologybrewery.habushu.util.TomlReplacementTuple;
 import org.technologybrewery.habushu.util.TomlUtils;
 import org.technologybrewery.habushu.util.VersionExtraTuple;
@@ -113,7 +114,7 @@ public class InstallDependenciesUv extends AbstractInstallDependencies {
                             "# Added by habushu-maven-plugin at %s to use %s as source repository for installing dependencies",
                             LocalDateTime.now(), PUBLIC_PYPI_REPO_URL),
                     String.format("[[%s]]", PYPROJECT_PACKAGE_INDEX_PATH),
-                    String.format("name = \"%s\"", HabushuUtil.PUBLIC_PYPI_REPO_ID),
+                    String.format("name = \"%s\"", PythonRepository.PUBLIC_PYPI_REPO_ID),
                     String.format("url = \"%s\"", PUBLIC_PYPI_REPO_URL),
                     String.format("publish-url = \"%s\"", getPublishUrl(PUBLIC_PYPI_REPO_URL, false)));
 

@@ -9,6 +9,7 @@ import org.slf4j.event.Level;
 import org.technologybrewery.habushu.AbstractHabushuMojo;
 import org.technologybrewery.habushu.HabushuException;
 import org.technologybrewery.habushu.InstallDependenciesMojo;
+import org.technologybrewery.habushu.util.PythonRepository;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -213,11 +214,14 @@ public class UvCommandHelper extends AbstractCommandHelper {
     private String getRepoId(AbstractHabushuMojo mojo) {
         String repoId = StringUtils.EMPTY;
         if (mojo.isUseDevRepository()) {
-            if (!mojo.getTestPyPiRepositoryUrl().equals(mojo.getDevRepositoryUrl())){
+            //todo: use actual PythonRepository object to account for slight variations in URL representation
+            if (!PythonRepository.TEST_PYPI_REPO_URL.equals(mojo.getDevRepositoryUrl())){
                 repoId = mojo.getDevRepositoryId();
             }
         } else {
-            if (!org.codehaus.plexus.util.StringUtils.isEmpty(mojo.getPypiRepoUrl())) {
+            if (!StringUtils.isEmpty(mojo.getPypiRepoUrl())) {
+                //todo: use actual PythonRepository object to account for slight variations in URL representation
+                // e.g. the original logic here does not include a trailing slash, but PythonRepository.PUBLIC_PYPI_REPO_URL does
                 if (!"https://pypi.org".equals(mojo.getPypiRepoUrl())) {
                     repoId = mojo.getPypiRepoId();
                 }
