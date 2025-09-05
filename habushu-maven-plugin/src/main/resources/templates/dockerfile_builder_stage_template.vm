@@ -4,6 +4,13 @@ RUN --mount=type=bind,source=$stagingDirectory,target=/tmp/wheels \
     python3 -m venv /opt/venv && \
     /opt/venv/bin/python -m ensurepip --upgrade && \
     /opt/venv/bin/python -m pip install  \
+#if($privateRepoUrl)
+    --index-url="$privateRepoUrl" \
+#end
+#if($devRepoUrl)
+    # use caution, should not be used with public repos. See https://github.com/pypa/pip/issues/8606
+    --extra-index-url="$devRepoUrl" --pre \
+#end
 #foreach($wheel in $extraWheels)
     /tmp/wheels/$wheel \
 #end
