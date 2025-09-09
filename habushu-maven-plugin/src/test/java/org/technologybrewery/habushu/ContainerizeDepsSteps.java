@@ -27,6 +27,8 @@ public class ContainerizeDepsSteps {
     private static final String APP_WHEEL = "extensions_python_dep_X-1.0.0.dev0-py3-none-any.whl";
     private static final String POM_FILE = "pom.xml";
     private static final String POETRY = "poetry";
+    public static final String CUSTOM_REPO = "https://pypi.example.com/main";
+    public static final String CUSTOM_DEV_REPO = "https://pypi.example.com/dev/";
 
     protected String targetDefaultSingleMonorepoDepPath = "target/test-classes/containerize-dependencies/"
             + "default-single-monorepo-dep";
@@ -71,6 +73,21 @@ public class ContainerizeDepsSteps {
         );
         mojo.session.getRequest().setBaseDirectory(new File(projectPath));
 
+    }
+
+    @Given("the pypiRepoUrl is set to a custom repository")
+    public void thePypiRepoUrlIsSetToACustomRepository() {
+        mojo.pypiRepoUrl = CUSTOM_REPO;
+    }
+
+    @Given("habushu is configured to use a dev repository")
+    public void habushuIsConfiguredToUseADevRepository() {
+        mojo.useDevRepository = true;
+    }
+
+    @Given("the dev repository url is set to a custom repository")
+    public void theDevRepositoryUrlIsSetToACustomRepository() {
+        mojo.devRepositoryUrl = CUSTOM_DEV_REPO;
     }
 
     @When("the containerize-dependencies goal is executed")
@@ -156,6 +173,38 @@ public class ContainerizeDepsSteps {
                 "The Dockerfile still contains the original ADD line.");
         Assertions.assertTrue(updatedDockerfile.contains(dockerfileCmdLine),
                 "The Dockerfile still contains the original CMD line.");
+    }
+
+    @Then("the Dockerfile uses the custom index to install wheels")
+    public void theDockerfileUsesTheCustomIndexToInstallWheels() throws IOException {
+        List<String> updatedDockerfile = getUpdatedDockerfile();
+        String repoLine = null;
+        for (String line : updatedDockerfile) {
+            if(line.contains(CUSTOM_REPO)) {
+                repoLine = line;
+                break;
+            }
+        }
+        Assertions.assertNotNull(repoLine, "Custom repository was not added to the Dockerfile");
+        Assertions.assertTrue(repoLine.contains("--index-url"),
+                "The Dockerfile does not use --index-url to set the custom repository.");
+    }
+
+    @Then("the Dockerfile adds the custom dev index during wheel installation")
+    public void theDockerfileAddsTheCustomDevIndexDuringWheelInstallation() throws IOException {
+        List<String> updatedDockerfile = getUpdatedDockerfile();
+        String repoLine = null;
+        for (String line : updatedDockerfile) {
+            if(line.contains(CUSTOM_DEV_REPO)) {
+                repoLine = line;
+                break;
+            }
+        }
+        Assertions.assertNotNull(repoLine, "Custom dev repository was not added to the Dockerfile");
+        Assertions.assertTrue(repoLine.contains("--extra-index-url"),
+                "The Dockerfile does not use --extra-index-url to set the dev repository.");
+        Assertions.assertTrue(repoLine.contains("--pre"),
+                "The Dockerfile does enable pre-release versions for the dev repository.");
     }
 
     @Given("a dockerfile already updated")

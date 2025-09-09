@@ -166,7 +166,7 @@ public class PyenvAndPoetrySetup extends AbstractPythonPackageAndDependencyManag
         PoetryCommandHelper poetryHelper = createPoetryCommandHelper();
 
         if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
-            throw new HabushuException("Your credentials for " + repoId + " must be set in your ~/.m2/settings.xml");
+            log.info(String.format("Did not find username and password for the server with <id> %s. Will use existing configuration.", repoId));
         } else {
             String configKey = String.format("http-basic.%s", repoId);
             log.info(String.format("Adding username and password configuration for %s", repoId));

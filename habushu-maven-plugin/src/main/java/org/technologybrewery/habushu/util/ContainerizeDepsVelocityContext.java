@@ -14,6 +14,8 @@ public class ContainerizeDepsVelocityContext extends VelocityContext {
     private static final String FINAL_BASE_IMAGE = "finalBaseImage";
     private static final String CHOWN = "chownPlaceholder";
     private static final String CHMOD = "chmodPlaceholder";
+    private static final String PRIVATE_REPO_URL = "privateRepoUrl";
+    private static final String DEV_REPO_URL = "devRepoUrl";
 
     private final ContainerizeDepsMojo containerizeDepsMojo;
 
@@ -57,5 +59,15 @@ public class ContainerizeDepsVelocityContext extends VelocityContext {
 
     public void setExtraWheels() {
         put(EXTRA_WHEELS, containerizeDepsMojo.getExtraWheels());
+    }
+
+    public void setRepositoryUrls() {
+        PythonRepository primaryRepo = containerizeDepsMojo.getPypiRepo();
+        if (!primaryRepo.equals(PythonRepository.PUBLIC_PYPI_REPO)){
+            put(PRIVATE_REPO_URL, primaryRepo.getIndexUrl());
+        }
+        if (containerizeDepsMojo.useDevRepository()) {
+            put(DEV_REPO_URL, containerizeDepsMojo.getDevRepo().getIndexUrl());
+        }
     }
 }

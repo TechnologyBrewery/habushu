@@ -66,6 +66,7 @@ public class ContainerizeDepsDockerfileHelper {
         context.setStagingDirectory();
         context.setOwner();
         context.setVenvDirectoryPermissions();
+        context.setRepositoryUrls();
         context.setProjectWheels(orderedProjectWheels);
         context.setExtraWheels();
     }

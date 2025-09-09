@@ -57,3 +57,32 @@ Feature: Test containerizing Python applications with monorepo dependencies
       | packageManager |
       | Poetry         |
       | uv             |
+
+  Scenario Outline: Dockerfile uses custom repository URL
+    Given a single "<packageManager>"-based dependency with packaging type Habushu
+    And a dockerfile to update
+    And the pypiRepoUrl is set to a custom repository
+    When the containerize-dependencies goal is executed
+    Then the wheels of the dependency and transitive monorepo dependencies are staged in the build directory
+    And the Dockerfile uses the custom index to install wheels
+    And the original logic in the Dockerfile is preserved
+
+    Examples:
+      | packageManager |
+      | Poetry         |
+      | uv             |
+
+  Scenario Outline: Dockerfile uses custom repository URL
+    Given a single "<packageManager>"-based dependency with packaging type Habushu
+    And a dockerfile to update
+    And habushu is configured to use a dev repository
+    And the dev repository url is set to a custom repository
+    When the containerize-dependencies goal is executed
+    Then the wheels of the dependency and transitive monorepo dependencies are staged in the build directory
+    And the Dockerfile adds the custom dev index during wheel installation
+    And the original logic in the Dockerfile is preserved
+
+    Examples:
+      | packageManager |
+      | Poetry         |
+      | uv             |
