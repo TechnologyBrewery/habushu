@@ -17,6 +17,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,11 +33,9 @@ public class ContainerizeDepsSteps {
     public static final String CUSTOM_REPO = "https://pypi.example.com/main";
     public static final String CUSTOM_DEV_REPO = "https://pypi.example.com/dev/";
 
-    protected String targetDefaultSingleMonorepoDepPath = "target/test-classes/containerize-dependencies/"
-            + "default-single-monorepo-dep";
-
-    protected String poetryMonorepoDepPath = targetDefaultSingleMonorepoDepPath + "/poetry-monorepo";
-    protected String uvMonorepoDepPath = targetDefaultSingleMonorepoDepPath + "/uv-monorepo";
+    protected String testMonorepoDepPath = "target/temp/containerize-dependencies/default-single-monorepo-dep";
+    protected String poetryMonorepoDepPath = testMonorepoDepPath + "/poetry-monorepo";
+    protected String uvMonorepoDepPath = testMonorepoDepPath + "/uv-monorepo";
     protected File dockerfile;
     protected String mavenProjectPath;
 
@@ -47,15 +48,17 @@ public class ContainerizeDepsSteps {
         // important for registering Habushu's mojos to AbstractTestCase.mojoDescriptors,
         // which ensures that lookupConfiguredMojo will return the configured mojo
         mojoTestCase.configurePluginTestHarness();
+        File sourceTestProject = new File("target/test-classes/containerize-dependencies/default-single-monorepo-dep");
+        File tempTestProject = new File(testMonorepoDepPath);
+        FileUtils.createParentDirectories(tempTestProject);
+        FileUtils.copyDirectory(sourceTestProject, tempTestProject);
     }
 
     @After("@containerizeDependencies")
     public void tearDownMavenPluginTestHarness() throws Exception {
         mojoTestCase.clearMavenProjectFiles();
         mojoTestCase.tearDownPluginTestHarness();
-        if (mojo != null && Files.exists(mojo.getStagingPath())) {
-            FileUtils.deleteDirectory(mojo.getStagingPath().toFile());
-        }
+        FileUtils.deleteDirectory(new File(testMonorepoDepPath));
     }
 
     @Given("a single {string}-based dependency with packaging type Habushu")
@@ -90,6 +93,19 @@ public class ContainerizeDepsSteps {
         mojo.devRepositoryUrl = CUSTOM_DEV_REPO;
     }
 
+    @Given("a second wheel for the dependency {string} created later")
+    public void aSecondWheelForTheDependencyCreatedLater(String wheel) throws IOException {
+        Path appDist = Paths.get(mavenProjectPath, "..", "extensions-python-dep-X", "dist");
+        Files.createDirectories(appDist);
+        Path wheelPath = appDist.resolve(wheel);
+        if (!Files.exists(wheelPath)) {
+            Files.createFile(wheelPath);
+        }
+        Path dev0Path = appDist.resolve(APP_WHEEL);
+        Instant later = Files.getLastModifiedTime(dev0Path).toInstant().plus(1, ChronoUnit.MILLIS);
+        Files.setLastModifiedTime(wheelPath, FileTime.from(later));
+    }
+
     @When("the containerize-dependencies goal is executed")
     public void the_containerize_dependencies_goal_is_executed() throws MojoExecutionException, MojoFailureException {
         mojo.execute();
@@ -97,7 +113,12 @@ public class ContainerizeDepsSteps {
 
     @Then("the wheels of the dependency and transitive monorepo dependencies are staged in the build directory")
     public void the_wheels_of_the_dependency_are_staged_in_the_build_directory() {
-        assertStaged(mojo.getStagingPath());
+        assertStaged(mojo.getStagingPath(), List.of(LIB_WHEEL, APP_WHEEL));
+    }
+
+    @Then("the {string} wheel is staged")
+    public void theWheelIsStaged(String wheelName) {
+        assertStaged(mojo.getStagingPath(), List.of(wheelName));
     }
 
     @Given("a dockerfile to update")
@@ -207,6 +228,19 @@ public class ContainerizeDepsSteps {
                 "The Dockerfile does enable pre-release versions for the dev repository.");
     }
 
+    @Then("the dockerfile installs the {string} wheel")
+    public void theDockerfileInstallsTheWheel(String wheel) throws IOException {
+        List<String> updatedDockerfile = getUpdatedDockerfile();
+        String installLine = null;
+        for (String line : updatedDockerfile) {
+            if(line.contains(wheel)) {
+                installLine = line;
+                break;
+            }
+        }
+        Assertions.assertNotNull(installLine, "The correct wheel was not installed in the Dockerfile: " + wheel);
+    }
+
     @Given("a dockerfile already updated")
     public void a_dockerfile_already_updated() {
         setDockerfile("/src/main/resources/docker/UpdatedDockerfile");
@@ -227,7 +261,7 @@ public class ContainerizeDepsSteps {
         mojo.setDockerfile(dockerfile);
     }
 
-    private void assertStaged(Path actual) {
+    private void assertStaged(Path actual, List<String> filesToAssert) {
         Set<Path> actualFiles;
         try {
             actualFiles = getRelativizedPaths(actual);
@@ -235,8 +269,9 @@ public class ContainerizeDepsSteps {
             throw new RuntimeException();
         }
 
-        assertFile(actualFiles, LIB_WHEEL);
-        assertFile(actualFiles, APP_WHEEL);
+        for (String fileToAssert : filesToAssert) {
+            assertFile(actualFiles, fileToAssert);
+        }
     }
 
     private static void assertFile(Set<Path> actualFiles, String path) {

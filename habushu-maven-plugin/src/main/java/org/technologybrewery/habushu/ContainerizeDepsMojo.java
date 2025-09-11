@@ -10,7 +10,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.model.fileset.FileSet;
-import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.technologybrewery.habushu.exec.CommandHelper;
@@ -30,10 +29,12 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /**
@@ -193,16 +194,28 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
         CommandHelper commandHelper = createCommandHelper(projectDir);
         if (Files.isDirectory(distDir)) {
             String wheelPattern = constructWheelNamePattern(commandHelper);
+            //Multiple wheels will most often be found for dev snapshots, as the install phase will create
+            //`<version>.dev0` and the deploy phase will create `<version>.dev<timestamp>`. So choose the most
+            //up-to-date. Sort by name as tie-breaker if modification time is the same.
             logger.info("Searching for wheels matching {}", wheelPattern);
+            Set<Path> wheels = new TreeSet<>(Comparator.comparing(Path::toString));
             try (DirectoryStream<Path> ds = Files.newDirectoryStream(distDir, wheelPattern)) {
-                for (Path wheel : ds) {
-                    if (copiedWheel != null) {
-                        String message = String.format("Multiple wheels found for project [%s]! found %s and %s",
-                                projectDir.getFileName(), copiedWheel, wheel.getFileName());
-                        throw new HabushuException(message);
-                    }
+                ds.forEach(wheels::add);
+            }
+            Path sourceWheel = null;
+            for (Path wheel : wheels) {
+                Path unusedWheel;
+                if (sourceWheel == null || Files.getLastModifiedTime(sourceWheel).compareTo(Files.getLastModifiedTime(wheel)) <= 0) {
+                    unusedWheel = sourceWheel;
+                    sourceWheel = wheel;
                     copiedWheel = destRoot.resolve(wheel.getFileName());
                     Files.copy(wheel, copiedWheel, StandardCopyOption.REPLACE_EXISTING);
+                } else {
+                    unusedWheel = wheel;
+                }
+                if (unusedWheel != null) {
+                    logger.warn("Multiple wheels found for project [{}]! Choosing [{}] over [{}]",
+                            projectDir.getFileName(), sourceWheel.getFileName(), unusedWheel.getFileName());
                 }
             }
         }
