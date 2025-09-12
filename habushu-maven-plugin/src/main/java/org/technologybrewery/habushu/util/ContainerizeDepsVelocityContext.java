@@ -8,8 +8,7 @@ import java.util.List;
 
 public class ContainerizeDepsVelocityContext extends VelocityContext {
     private static final String STAGING_DIRECTORY = "stagingDirectory";
-    private static final String PROJECT_WHEELS = "projectWheels";
-    private static final String EXTRA_WHEELS = "extraWheels";
+    private static final String PROJECTS = "projects";
     private static final String BUILDER_BASE_IMAGE = "builderBaseImage";
     private static final String FINAL_BASE_IMAGE = "finalBaseImage";
     private static final String CHOWN = "chownPlaceholder";
@@ -53,12 +52,8 @@ public class ContainerizeDepsVelocityContext extends VelocityContext {
         }
     }
 
-    public void setProjectWheels(List<String> orderedProjectWheels) {
-        put(PROJECT_WHEELS, orderedProjectWheels);
-    }
-
-    public void setExtraWheels() {
-        put(EXTRA_WHEELS, containerizeDepsMojo.getExtraWheels());
+    public void setProject(ContainerizeProjectInfo project) {
+        put(PROJECTS, List.of(project));
     }
 
     public void setRepositoryUrls() {

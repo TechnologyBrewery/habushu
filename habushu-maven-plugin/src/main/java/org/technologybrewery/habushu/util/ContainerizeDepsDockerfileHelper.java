@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 
 public class ContainerizeDepsDockerfileHelper {
     public final ContainerizeDepsMojo containerizeDepsMojo;
-    private final List<String> orderedProjectWheels;
+    private final ContainerizeProjectInfo project;
     private final VelocityEngine engine;
     public static final String HABUSHU_FINAL_STAGE = "#HABUSHU_FINAL_STAGE";
     public static final String HABUSHU_BUILDER_STAGE = "#HABUSHU_BUILDER_STAGE";
@@ -34,9 +34,9 @@ public class ContainerizeDepsDockerfileHelper {
     /**
      * This class can be initialized to generate and write a dockerfile for venv use
      */
-    public ContainerizeDepsDockerfileHelper(ContainerizeDepsMojo containerizeDepsMojo, List<String> orderedProjectWheels) {
+    public ContainerizeDepsDockerfileHelper(ContainerizeDepsMojo containerizeDepsMojo, ContainerizeProjectInfo project) {
         this.containerizeDepsMojo = containerizeDepsMojo;
-        this.orderedProjectWheels = orderedProjectWheels;
+        this.project = project;
         this.engine = new VelocityEngine();
 
         File dockerTemplatePath = containerizeDepsMojo.getDockerTemplatePath();
@@ -67,8 +67,7 @@ public class ContainerizeDepsDockerfileHelper {
         context.setOwner();
         context.setVenvDirectoryPermissions();
         context.setRepositoryUrls();
-        context.setProjectWheels(orderedProjectWheels);
-        context.setExtraWheels();
+        context.setProject(project);
     }
 
     public void setBuilderSharedContext(ContainerizeDepsVelocityContext context) {

@@ -14,9 +14,12 @@ import org.technologybrewery.habushu.util.ContainerizeDepsDockerfileHelper;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -28,6 +31,7 @@ import java.util.stream.Stream;
 public class ContainerizeDepsSteps {
     private static final String LIB_WHEEL = "renamed_python_dep_Y-1.0.0-py3-none-any.whl";
     private static final String APP_WHEEL = "extensions_python_dep_X-1.0.0.dev0-py3-none-any.whl";
+    private static final String REQS_FILE = "requirements.txt";
     private static final String POM_FILE = "pom.xml";
     private static final String POETRY = "poetry";
     public static final String CUSTOM_REPO = "https://pypi.example.com/main";
@@ -52,6 +56,11 @@ public class ContainerizeDepsSteps {
         File tempTestProject = new File(testMonorepoDepPath);
         FileUtils.createParentDirectories(tempTestProject);
         FileUtils.copyDirectory(sourceTestProject, tempTestProject);
+        PathMatcher reqsMatcher = FileSystems.getDefault().getPathMatcher("glob:**/requirements.txt");
+        try (Stream<Path> files = Files.walk(tempTestProject.toPath());) {
+            files.filter(reqsMatcher::matches)
+                    .forEach(ContainerizeDepsSteps::injectCwd);
+        }
     }
 
     @After("@containerizeDependencies")
@@ -106,14 +115,29 @@ public class ContainerizeDepsSteps {
         Files.setLastModifiedTime(wheelPath, FileTime.from(later));
     }
 
+    @Given("a dockerfile already updated")
+    public void a_dockerfile_already_updated() {
+        setDockerfile("/src/main/resources/docker/UpdatedDockerfile");
+    }
+
+    @Given("a dockerfile without any habushu builder or final stage comment tag")
+    public void a_dockerfile_without_comment_tag() {
+        setDockerfile("/src/main/resources/docker/NoHabushuCommentDockerfile");
+    }
+
+    @Given("updateDockerfile set false")
+    public void updateDockerfile_to_false() {
+        mojo.setUpdateDockerfile(false);
+    }
+
     @When("the containerize-dependencies goal is executed")
     public void the_containerize_dependencies_goal_is_executed() throws MojoExecutionException, MojoFailureException {
         mojo.execute();
     }
 
-    @Then("the wheels of the dependency and transitive monorepo dependencies are staged in the build directory")
-    public void the_wheels_of_the_dependency_are_staged_in_the_build_directory() {
-        assertStaged(mojo.getStagingPath(), List.of(LIB_WHEEL, APP_WHEEL));
+    @Then("the dependency wheel and requirements file are staged in the build directory")
+    public void theDependencyWheelAndRequirementsFileAreStagedInTheBuildDirectory() {
+        assertStaged(mojo.getStagingPath(), List.of(LIB_WHEEL, APP_WHEEL, REQS_FILE));
     }
 
     @Then("the {string} wheel is staged")
@@ -126,7 +150,7 @@ public class ContainerizeDepsSteps {
         setDockerfile("/src/main/resources/docker/Dockerfile");
     }
 
-    @Then("the Dockerfile installs the wheels to a virtual environment in the correct order")
+    @Then("the Dockerfile installs the requirements file and the dependency wheel")
     public void the_dockerfile_installs_the_wheels_to_avirtual_environment_in_the_correct_order() throws IOException {
         List<String> updatedDockerfile = getUpdatedDockerfile();
 
@@ -137,8 +161,9 @@ public class ContainerizeDepsSteps {
                 "The Dockerfile is updated with `#HABUSHU_BUILDER_STAGE - HABUSHU GENERATED CODE (END)` comment ");
 
         var install = new FileLoc();
-        var depX = new FileLoc();
-        var depY = new FileLoc();
+        var appWheel = new FileLoc();
+        var requirements = new FileLoc();
+        var noDeps = new FileLoc();
         for (int ln = 0; ln < updatedDockerfile.size(); ln++) {
             String eachLine = updatedDockerfile.get(ln);
             int col = eachLine.indexOf("pip install");
@@ -148,22 +173,28 @@ public class ContainerizeDepsSteps {
             }
             col = eachLine.indexOf(APP_WHEEL);
             if (col >= 0 && install.before(ln, col) ) {
-                depX.ln = ln;
-                depX.col = col;
+                appWheel.ln = ln;
+                appWheel.col = col;
             }
-            col = eachLine.indexOf(LIB_WHEEL);
+            col = eachLine.indexOf(REQS_FILE);
             if (col >= 0 && install.before(ln, col)) {
-                depY.ln = ln;
-                depY.col = col;
+                requirements.ln = ln;
+                requirements.col = col;
             }
-            if (depX.found() && depY.found()) {
+            col = eachLine.indexOf("--no-deps");
+            if (col >= 0 && install.before(ln, col)) {
+                noDeps.ln = ln;
+                noDeps.col = col;
+            }
+            if (appWheel.found() && requirements.found() && noDeps.found()) {
                 break;
             }
         }
 
-        Assertions.assertTrue(depX.found(), "extensions-python-dep-X wheel not installed in Dockerfile");
-        Assertions.assertTrue(depY.found(), "extensions-python-dep-Y wheel not installed in Dockerfile");
-        Assertions.assertTrue(depY.before(depX), "Wheels not installed in the correct order in Dockerfile");
+        Assertions.assertTrue(appWheel.found(), "extensions-python-dep-X wheel not installed in Dockerfile");
+        Assertions.assertTrue(requirements.found(), "requirements.txt not installed in Dockerfile");
+        Assertions.assertTrue(requirements.before(appWheel), "Requirements not installed before wheel in Dockerfile");
+        Assertions.assertTrue(noDeps.found(), "Dependencies not disabled during pip install in Dockerfile");
     }
 
     @Then("the Dockerfile is updated to leverage a virtual environment for the dependency")
@@ -224,8 +255,6 @@ public class ContainerizeDepsSteps {
         Assertions.assertNotNull(repoLine, "Custom dev repository was not added to the Dockerfile");
         Assertions.assertTrue(repoLine.contains("--extra-index-url"),
                 "The Dockerfile does not use --extra-index-url to set the dev repository.");
-        Assertions.assertTrue(repoLine.contains("--pre"),
-                "The Dockerfile does enable pre-release versions for the dev repository.");
     }
 
     @Then("the dockerfile installs the {string} wheel")
@@ -239,21 +268,6 @@ public class ContainerizeDepsSteps {
             }
         }
         Assertions.assertNotNull(installLine, "The correct wheel was not installed in the Dockerfile: " + wheel);
-    }
-
-    @Given("a dockerfile already updated")
-    public void a_dockerfile_already_updated() {
-        setDockerfile("/src/main/resources/docker/UpdatedDockerfile");
-    }
-
-    @Given("a dockerfile without any habushu builder or final stage comment tag")
-    public void a_dockerfile_without_comment_tag() {
-        setDockerfile("/src/main/resources/docker/NoHabushuCommentDockerfile");
-    }
-
-    @Given("updateDockerfile set false")
-    public void updateDockerfile_to_false() {
-        mojo.setUpdateDockerfile(false);
     }
 
     private void setDockerfile(String dockerPath) {
@@ -296,6 +310,18 @@ public class ContainerizeDepsSteps {
             return poetryMonorepoDepPath;
         } else {
             return uvMonorepoDepPath;
+        }
+    }
+
+    private static void injectCwd(Path path) {
+        String cwd = Path.of("").toAbsolutePath().toString();
+        try(Stream<String> lines = Files.lines(path)) {
+            List<String> updatedContent = lines
+                    .map(line -> line.replace("<currentWorkingDir>", cwd))
+                    .collect(Collectors.toList());
+            Files.write(path, updatedContent, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to updated file with CWD.", e);
         }
     }
 
