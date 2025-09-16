@@ -1,12 +1,13 @@
 #HABUSHU_BUILDER_STAGE - HABUSHU GENERATED CODE (DO NOT MODIFY)
 FROM docker.io/python:3.12 AS habushu_builder
+ARG WHEEL_HOUSE="/tmp/wheels"
 USER root
-RUN --mount=type=bind,source=target/containerize-support,target=/tmp/wheels \
+RUN --mount=type=bind,source=target/containerize-support,target=${WHEEL_HOUSE} \
     python3 -m venv /opt/venv && \
     /opt/venv/bin/python -m ensurepip --upgrade && \
-    /opt/venv/bin/python -m pip install  \
-    /tmp/wheels/habushu_poetry_package-3.3.0.dev0-py3-none-any.whl \
-    /tmp/wheels/habushu_poetry_package_consumer-3.3.0.dev0-py3-none-any.whl 
+    /opt/venv/bin/python -m pip install --no-deps \
+      -r ${WHEEL_HOUSE}/requirements.txt && \
+    /opt/venv/bin/python -m pip install --no-deps ${WHEEL_HOUSE}/habushu_poetry_package_consumer-3.3.0.dev0-py3-none-any.whl
 
 #HABUSHU_BUILDER_STAGE - HABUSHU GENERATED CODE (END)
 

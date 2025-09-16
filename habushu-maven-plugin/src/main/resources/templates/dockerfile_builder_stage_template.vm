@@ -1,19 +1,18 @@
 FROM $builderBaseImage AS habushu_builder
+ARG WHEEL_HOUSE="/tmp/wheels"
 USER root
-RUN --mount=type=bind,source=$stagingDirectory,target=/tmp/wheels \
+RUN --mount=type=bind,source=$stagingDirectory,target=#[[${WHEEL_HOUSE}]]# \
     python3 -m venv /opt/venv && \
     /opt/venv/bin/python -m ensurepip --upgrade && \
-    /opt/venv/bin/python -m pip install  \
+#foreach($project in $projects)
+    /opt/venv/bin/python -m pip install --no-deps \
 #if($privateRepoUrl)
-    --index-url="$privateRepoUrl" \
+      --index-url="$privateRepoUrl" \
 #end
 #if($devRepoUrl)
-    # use caution, should not be used with public repos. See https://github.com/pypa/pip/issues/8606
-    --extra-index-url="$devRepoUrl" --pre \
+      # use caution, should not be used with public repos. See https://github.com/pypa/pip/issues/8606
+      --extra-index-url="$devRepoUrl" \
 #end
-#foreach($wheel in $extraWheels)
-    /tmp/wheels/$wheel \
-#end
-#foreach($wheel in $projectWheels)
-    /tmp/wheels/$wheel #if(!$foreach.last)\\#end
+      -r #[[${WHEEL_HOUSE}]]#/$project.requirementsFilePath.fileName && \
+    /opt/venv/bin/python -m pip install --no-deps #[[${WHEEL_HOUSE}]]#/$project.wheelName
 #end

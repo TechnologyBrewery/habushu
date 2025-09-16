@@ -10,6 +10,8 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.11.4, <4"
+aissemble-foundation-core-python = "1.13.0.*"
+renamed-python-dep-Y = {path = "../../foundation/foundation-python-dep-Y", develop=true}
 
 [tool.poetry.group.dev.dependencies]
 black = ">=22.1.0"
@@ -20,3 +22,8 @@ pylint = "^3.2.3"
 [build-system]
 requires = ["poetry-core>=1.7.0"]
 build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "dev-pypi"
+url = "https://test.pypi.org/simple/"
+priority = "supplemental"
