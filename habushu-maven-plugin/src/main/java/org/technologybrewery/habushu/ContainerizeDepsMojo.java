@@ -233,8 +233,13 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
                 .filter(d -> HabushuUtil.HABUSHU.equals(d.getType()))
                 .collect(Collectors.toSet());
         if (directHabushuDeps.size() > 1) {
-            throw new HabushuException("More than one `habushu` packaged dependency was found."
-                    + "Only one habushu-type dependency should be specified.");
+            StringBuilder foundHabushuDependencies = new StringBuilder("The following dependencies were found:");
+            for (Dependency dependency : directHabushuDeps) {
+                foundHabushuDependencies.append(String.format("\n\t%s:%s", dependency.getGroupId(), dependency.getArtifactId()));
+            }
+
+            throw new HabushuException("More than one `habushu` packaged dependency was found. "
+                    + "Only one habushu-type dependency should be specified. " + foundHabushuDependencies);
 
         } else if (directHabushuDeps.size() == 1) {
             collectionResult = new ProjectStack(directHabushuDeps.iterator().next());
