@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +20,10 @@ import java.util.stream.Collectors;
 
 
 public class ContainerizeDepsUpdateRequirementsSteps {
+    private static final Path REQUIRED_WHEELS = Path.of("target/containerize-support/required");
     private RequirementsFileHelper requirementsHelper;
     private Map<Path, RequirementsFileHelper.RequirementReplacement> pathMappings;
-    private List<Path> parseResult;
+    private Collection<Path> parseResult;
 
     @After("@containerizeDependenciesUpdateRequirements")
     public void after() throws IOException {
@@ -41,7 +43,7 @@ public class ContainerizeDepsUpdateRequirementsSteps {
     }
 
     @Given("the following path mappings:")
-    public void theFollowingPathMappings(Map<String, String> mappings) {
+    public void theFollowingPathMappings(Map<String, String> mappings) throws IOException {
         pathMappings = new HashMap<>(mappings.size());
         for (Map.Entry<String, String> entry : mappings.entrySet()) {
             String key = entry.getKey();
@@ -49,7 +51,13 @@ public class ContainerizeDepsUpdateRequirementsSteps {
             String value = entry.getValue();
             value = injectAbsPathInRequirements(value);
             Path path = Path.of(value);
-            pathMappings.put(Path.of(key), new RequirementsFileHelper.RequirementReplacement(path, value));
+            // Create a file that can be used to calculate the SHA-256 hash if it's required
+            Path hashableFile = REQUIRED_WHEELS.resolve(path.getFileName());
+            if (!Files.exists(hashableFile)) {
+                Files.createDirectories(hashableFile.getParent());
+                Files.writeString(hashableFile, "SomeWheelContentInZipFormat:" + hashableFile.getFileName());
+            }
+            pathMappings.put(Path.of(key), new RequirementsFileHelper.RequirementReplacement(hashableFile, value));
         }
     }
 
@@ -91,8 +99,8 @@ public class ContainerizeDepsUpdateRequirementsSteps {
                 extra.add(path.toString());
             }
         }
-        Assertions.assertTrue(notFound.isEmpty(), "The following paths were not found: " + notFound);
-        Assertions.assertTrue(extra.isEmpty(), "The following paths were not expected: " + extra);
+        Assertions.assertEquals(notFound, List.of(), "Expected paths were not found.");
+        Assertions.assertEquals(List.of(), extra, "Extra unexpected paths were found");
     }
 
     private String injectAbsPathInRequirements(String contents) {

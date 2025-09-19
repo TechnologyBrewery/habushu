@@ -8,9 +8,9 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,11 +29,13 @@ public class RequirementsFileHelper {
     public static final String COMMENT = "#";
     private Path requirementsFilePath;
     private Path requirementsFileBaseDir;
+    private boolean requireHashes;
     private Map<String, Path> parsedPathRequirements;
 
     public RequirementsFileHelper(Path requirementsFilePath, Path requirementsFileBaseDir) {
         this.requirementsFilePath = requirementsFilePath;
         this.requirementsFileBaseDir = requirementsFileBaseDir;
+        this.requireHashes = false;
     }
 
     public Path getRequirementsFilePath() {
@@ -45,8 +47,8 @@ public class RequirementsFileHelper {
     }
 
     // Defensive copy of resolved path-based requirements since the Map returned by getResolvedPathRequirements is modifiable
-    public List<Path> getPathBasedRequirements(){
-        return new ArrayList<>(getResolvedPathRequirements().values());
+    public Collection<Path> getPathBasedRequirements(){
+        return new HashSet<>(getResolvedPathRequirements().values());
     }
 
     /**
@@ -102,8 +104,9 @@ public class RequirementsFileHelper {
                     longestToken = token;
                     Path newFile = relocationMapping.get(resolvedPath).getNewFile();
                     newPath = "file://" + relocationMapping.get(resolvedPath).getNewToken();
-                    if(!Files.isRegularFile(resolvedPath) && Files.exists(newFile)) {
-                        newPath += "\\\n    --hash=sha256:" + calculateSha256(newFile);
+                    //paths that already resolved to a regular file should already have hashes
+                    if(!Files.isRegularFile(resolvedPath) && requireHashes) {
+                        newPath += " \\\n    --hash=sha256:" + calculateSha256(newFile);
                     }
                 }
             }
@@ -130,6 +133,9 @@ public class RequirementsFileHelper {
             while ((line = reader.readLine()) != null) {
                 if (line.trim().startsWith(COMMENT) || line.trim().isEmpty()) {
                     continue;
+                }
+                if (line.contains("--hash=")) {
+                    requireHashes = true;
                 }
                 parseRequirement(line);
             }

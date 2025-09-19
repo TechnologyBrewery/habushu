@@ -44,7 +44,7 @@ Feature: Test updating requirements.txt file to rewrite path-based dependencies 
       | /<workingdir>/target/my-app/nested-util                            |
       | /<workingdir>/target/extra-packages/leftpad-1.0.0-py3-none-any.whl |
       | /<workingdir>/target/editable-util                                 |
-      | /<workingdir>/target/editable-relative-util                         |
+      | /<workingdir>/target/editable-relative-util                        |
       | /<workingdir>/target/my-app/editable-nested-util                   |
 
   Scenario: Rewrites <package-manager> path-based requirements in requirements.txt file
@@ -88,4 +88,24 @@ Feature: Test updating requirements.txt file to rewrite path-based dependencies 
       https://remote-wheelhouse/direct-package.whl
       # Random extra wheel checked into project
       file://${WHEEL_HOUSE}/leftpad-1.0.0-py3-none-any.whl
+      """
+
+    Scenario: Relocated paths include hashes if hashes are already present
+      Given the following requirement file based at "/<workingdir>/target/my-app/":
+      """requirements
+      ../util
+      aiohappyeyeballs==2.6.1 ; python_full_version >= "3.11.4" and python_version < "4" \
+          --hash=sha256:c3f9d0113123803ccadfdf3f0faa505bc78e6a72d1cc4806cbd719826e943558 \
+          --hash=sha256:f349ba8f4b75cb25c99c5c2d84e997e485204d2902a9597802b0371f09331fb8
+      """
+      And the following path mappings:
+        | /<workingdir>/target/util   | ${WHEEL_HOUSE}/util-1.0.0-py3-none-any.whl |
+      When wheels are relocated to staging directory
+      Then the requirements file is updated to:
+      """requirements
+      file://${WHEEL_HOUSE}/util-1.0.0-py3-none-any.whl \
+          --hash=sha256:2706220a770e6d738e912661946add633669b76637e1b85c9d9d142df5890094
+      aiohappyeyeballs==2.6.1 ; python_full_version >= "3.11.4" and python_version < "4" \
+          --hash=sha256:c3f9d0113123803ccadfdf3f0faa505bc78e6a72d1cc4806cbd719826e943558 \
+          --hash=sha256:f349ba8f4b75cb25c99c5c2d84e997e485204d2902a9597802b0371f09331fb8
       """

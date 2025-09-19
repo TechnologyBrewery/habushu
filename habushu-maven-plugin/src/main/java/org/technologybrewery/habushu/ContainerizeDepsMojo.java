@@ -28,10 +28,10 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -173,7 +173,7 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
                         primaryProjectInfo.getProjectPath());
 
         // Get the list of local path-based dependencies in the requirements file
-        List<Path> pathBasedRequirements = requirementsFileHelper.getPathBasedRequirements();
+        Collection<Path> pathBasedRequirements = requirementsFileHelper.getPathBasedRequirements();
 
         // Stage the local files to the new location
         Map<Path, RequirementsFileHelper.RequirementReplacement> relocatedWheelPaths = new HashMap<>();
