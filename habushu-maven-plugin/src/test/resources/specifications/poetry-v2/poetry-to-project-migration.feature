@@ -10,7 +10,7 @@ Feature: Test automatic migrations of required fields from [tool.project] to [pr
 
     Examples:
       | expectedToolPoetryEntries | expectedProjectEntries |
-      | 3                         | 6                      |
+      | 6                         | 4                      |
 
   Scenario Outline: Poetry version is at least 2.0.0 and there are overlapping fields between [tool.poetry] and [project]. Then, the poetry-to-project migration only migrates fields from [tool.poetry] that do not already exist in [project]
     Given the Poetry version is at least "2.0.0"
@@ -21,7 +21,7 @@ Feature: Test automatic migrations of required fields from [tool.project] to [pr
 
     Examples:
       | expectedToolPoetryEntries | expectedProjectEntries |
-      | 3                         | 6                      |
+      | 5                         | 4                      |
 
   Scenario: Poetry version is less than 2.0.0 and the poetry-to-project migration does not execute
     Given the Poetry version is less than "2.0.0"
