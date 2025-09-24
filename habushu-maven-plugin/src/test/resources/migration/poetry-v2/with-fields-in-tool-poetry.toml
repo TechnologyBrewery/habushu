@@ -1,11 +1,24 @@
+# A comment without a header
+
 [tool.poetry]
 name = "with-fields-in-tool-poetry"
 description = "Test moving entries from tool.poetry to project when Poetry version is at least 2.0.0"
 version = "2.9.0.dev"
-authors = ["Test <blah@foobar.com>"]
-maintainers = ["Test <blah@foobar.com>"]
+authors = [
+    "Test <blah@foobar.com>"
+]
+maintainers = [
+    "Test <blah@foobar.com>"
+]
+packages = [
+    {include = "example_1", from = "src"}
+]
 license = "MIT License"
-packages = [{include = "example_1", from = "src"}]
+
+# Ensure that generated code is included in package archives
+include = [
+    "src/my_package/generated/**/*"
+]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -15,7 +28,6 @@ uvicorn = {version = "^0.18.0", extras = ["standard"]}
 
 [tool.poetry.group.dev.dependencies]
 kappa-maki = ">=1.0.0"
-
 
 [build-system]
 requires = ["poetry-core>=1.6.0"]
