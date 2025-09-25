@@ -1,6 +1,6 @@
 [project]
 name = "habushu-uv-publish-to-dev-repo"
-version = "3.3.0.dev"
+version = "3.3.0"
 description = "Example of how to use Habushu to publish to a development repository"
 readme = "README.md"
 authors = [
