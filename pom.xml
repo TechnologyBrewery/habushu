@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.technologybrewery</groupId>
         <artifactId>parent</artifactId>
-        <version>14</version>
+        <version>15</version>
     </parent>
 
     <groupId>org.technologybrewery.habushu</groupId>
@@ -55,7 +55,7 @@
 
     <properties>
         <version.cucumber.reporting>5.8.4</version.cucumber.reporting>
-        <version.cucumber.reporting.plugin>5.8.5</version.cucumber.reporting.plugin>
+        <version.cucumber.reporting.plugin>5.9.0</version.cucumber.reporting.plugin>
         <skipTests>false</skipTests>
     </properties>
 
