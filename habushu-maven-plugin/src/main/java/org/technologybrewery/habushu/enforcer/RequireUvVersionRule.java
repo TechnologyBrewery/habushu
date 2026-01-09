@@ -3,6 +3,7 @@ package org.technologybrewery.habushu.enforcer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.technologybrewery.habushu.exec.UvCommandHelper;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.File;
 
@@ -11,6 +12,11 @@ import java.io.File;
  */
 @Named("requireUvVersion")
 public class RequireUvVersionRule extends AbstractRequireToolVersionRule {
+
+    @Inject
+    public RequireUvVersionRule() {
+        super();
+    }
 
     /**
      * {@inheritDoc}

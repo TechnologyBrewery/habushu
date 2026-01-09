@@ -3,6 +3,7 @@ package org.technologybrewery.habushu.enforcer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.technologybrewery.habushu.exec.PyenvCommandHelper;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.File;
 
@@ -11,6 +12,11 @@ import java.io.File;
  */
 @Named("requirePyenvVersion")
 public class RequirePyenvVersionRule extends AbstractRequireToolVersionRule {
+
+    @Inject
+    public RequirePyenvVersionRule() {
+        super();
+    }
 
     /**
      * {@inheritDoc}

@@ -3,6 +3,7 @@ package org.technologybrewery.habushu.enforcer;
 import com.vdurmont.semver4j.Semver;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.enforcer.rule.api.AbstractEnforcerRule;
+import org.apache.maven.enforcer.rule.api.EnforcerRuleError;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
 
 /**
@@ -21,7 +22,7 @@ public abstract class AbstractRequireToolVersionRule extends AbstractEnforcerRul
     protected String toolVersion;
 
     /**
-     * Returns a {@Pair} where the left side is the installation status of the tool and the right side is the version
+     * Returns a {@link Pair} where the left side is the installation status of the tool and the right side is the version
      * of the tool, if installed.
      *
      * @return installation/version pair for the tool
@@ -52,13 +53,13 @@ public abstract class AbstractRequireToolVersionRule extends AbstractEnforcerRul
     public void execute() throws EnforcerRuleException {
         Pair<Boolean, String> results = getInstalledAndVersionPair();
         if (Boolean.FALSE.equals(results.getLeft())) {
-            throw new EnforcerRuleException(getInstallationErrorMessage());
+            throw new EnforcerRuleError(getInstallationErrorMessage());
 
         } else {
             String foundVersion = results.getRight();
             Semver toolVersionSemver = new Semver(foundVersion, Semver.SemverType.NPM);
             if (!toolVersionSemver.satisfies(version)) {
-                throw new EnforcerRuleException(getVersionErrorMessage(foundVersion));
+                throw new EnforcerRuleError(getVersionErrorMessage(foundVersion));
 
             } else {
                 toolVersion = foundVersion;

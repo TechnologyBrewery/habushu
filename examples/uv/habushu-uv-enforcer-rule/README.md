@@ -10,7 +10,6 @@ have created Maven Enforcer Rule, [requireUvVersion](../../../docs/CONFIGURATION
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-enforcer-plugin</artifactId>
-    <version>3.5.0</version>
     <executions>
         <execution>
             <id>enforce-uv</id>
