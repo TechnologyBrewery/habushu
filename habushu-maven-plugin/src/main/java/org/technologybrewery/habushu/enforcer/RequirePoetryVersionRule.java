@@ -3,6 +3,7 @@ package org.technologybrewery.habushu.enforcer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.technologybrewery.habushu.exec.PoetryCommandHelper;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.File;
 
@@ -11,6 +12,11 @@ import java.io.File;
  */
 @Named("requirePoetryVersion")
 public class RequirePoetryVersionRule extends AbstractRequireToolVersionRule {
+
+    @Inject
+    public RequirePoetryVersionRule() {
+        super();
+    }
 
     /**
      * {@inheritDoc}
