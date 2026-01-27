@@ -111,7 +111,9 @@ public class ContainerizeDepsSteps {
             Files.createFile(wheelPath);
         }
         Path dev0Path = appDist.resolve(APP_WHEEL);
-        Instant later = Files.getLastModifiedTime(dev0Path).toInstant().plus(1, ChronoUnit.MILLIS);
+        // Use 2 seconds to ensure filesystem timestamp granularity doesn't cause flaky tests
+        // (some filesystems only have second-level precision)
+        Instant later = Files.getLastModifiedTime(dev0Path).toInstant().plus(2, ChronoUnit.SECONDS);
         Files.setLastModifiedTime(wheelPath, FileTime.from(later));
     }
 

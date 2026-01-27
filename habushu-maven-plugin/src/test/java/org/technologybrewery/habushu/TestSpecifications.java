@@ -1,8 +1,11 @@
 package org.technologybrewery.habushu;
 
-import org.junit.platform.suite.api.*;
+import org.junit.platform.suite.api.ConfigurationParameter;
+import org.junit.platform.suite.api.ExcludeTags;
+import org.junit.platform.suite.api.IncludeEngines;
+import org.junit.platform.suite.api.SelectPackages;
+import org.junit.platform.suite.api.Suite;
 
-import static io.cucumber.junit.platform.engine.Constants.FILTER_TAGS_PROPERTY_NAME;
 import static io.cucumber.junit.platform.engine.Constants.GLUE_PROPERTY_NAME;
 
 /**
@@ -12,7 +15,7 @@ import static io.cucumber.junit.platform.engine.Constants.GLUE_PROPERTY_NAME;
  */
 @Suite
 @IncludeEngines("cucumber")
-@SelectClasspathResource("specifications")
+@SelectPackages("specifications")
 @ExcludeTags("manual")
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "org.technologybrewery.habushu")
 public class TestSpecifications {
