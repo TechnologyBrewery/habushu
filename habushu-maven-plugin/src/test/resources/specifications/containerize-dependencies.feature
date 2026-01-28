@@ -29,6 +29,18 @@ Feature: Test containerizing Python applications with monorepo dependencies
       | Poetry         |
       | uv             |
 
+  Scenario Outline: Multiple wheels match when using Poetry 2.3 dev0 timestamp format
+    Given a single "<packageManager>"-based dependency with packaging type Habushu
+    And a dockerfile to update
+    And a second wheel for the dependency "extensions_python_dep_X-1.0.0.dev01757432284715-py3-none-any.whl" created later
+    When the containerize-dependencies goal is executed
+    Then the "extensions_python_dep_X-1.0.0.dev01757432284715-py3-none-any.whl" wheel is staged
+    And the dockerfile installs the "extensions_python_dep_X-1.0.0.dev01757432284715-py3-none-any.whl" wheel
+    Examples:
+      | packageManager |
+      | Poetry         |
+      | uv             |
+
   Scenario Outline: Dockerfile is updated when it has injection point tag
     Given a single "<packageManager>"-based dependency with packaging type Habushu
     And a dockerfile to update
