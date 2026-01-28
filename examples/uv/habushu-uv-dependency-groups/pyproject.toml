@@ -1,6 +1,6 @@
 [project]
 name = "habushu-uv-dependency-groups"
-version = "3.4.0"
+version = "3.5.0.dev"
 description = "Example of how to use the dependency group related habushu-maven-plugin configurations with uv"
 readme = "README.md"
 authors = [

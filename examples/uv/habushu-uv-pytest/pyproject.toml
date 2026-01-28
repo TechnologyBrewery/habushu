@@ -1,6 +1,6 @@
 [project]
 name = "habushu-uv-pytest"
-version = "3.4.0"
+version = "3.5.0.dev"
 description = "Example of how to use Habushu for pytest testing"
 readme = "README.md"
 authors = [

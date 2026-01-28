@@ -1,6 +1,6 @@
 [project]
 name = "habushu_poetry_package"
-version = "3.4.0"
+version = "3.5.0.dev0"
 description = "Example of how to use the habushu-maven-plugin"
 authors = [{name = "Eric Konieczny", email = "ekoniec1@gmail.com"}]
 license = "MIT License"
