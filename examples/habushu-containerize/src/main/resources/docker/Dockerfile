@@ -7,7 +7,7 @@ RUN --mount=type=bind,source=target/containerize-support,target=${WHEEL_HOUSE} \
     /opt/venv/bin/python -m ensurepip --upgrade && \
     /opt/venv/bin/python -m pip install --no-deps \
       -r ${WHEEL_HOUSE}/requirements.txt && \
-    /opt/venv/bin/python -m pip install --no-deps ${WHEEL_HOUSE}/habushu_poetry_package_consumer-3.4.1-py3-none-any.whl
+    /opt/venv/bin/python -m pip install --no-deps ${WHEEL_HOUSE}/habushu_poetry_package_consumer-3.5.0.dev0-py3-none-any.whl
 
 #HABUSHU_BUILDER_STAGE - HABUSHU GENERATED CODE (END)
 
