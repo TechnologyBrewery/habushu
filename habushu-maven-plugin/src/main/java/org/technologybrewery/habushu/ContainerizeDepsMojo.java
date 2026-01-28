@@ -358,7 +358,12 @@ public class ContainerizeDepsMojo extends AbstractHabushuMojo {
     protected String constructWheelNamePattern(CommandHelper commandHelper) {
         String normalizedName = commandHelper.getProjectName().replace('-', '_');
         String version = commandHelper.getProjectVersion();
-        //there could be a build descriptor, or a missing implied 0 as in 1.0.0.dev0
+        // #456: Poetry 2.3+ normalizes '.dev' to '.dev0' in version output, but wheels built with
+        // Poetry 2.2/uv use '.dev<timestamp>' without the '0'. Strip trailing '.dev0' to '.dev'
+        // so the pattern matches both formats: '.dev0', '.dev<timestamp>', and '.dev0<timestamp>'.
+        if (version.endsWith(".dev0")) {
+            version = version.substring(0, version.length() - 1);
+        }
         return normalizedName + "-" + version + "*-*-none-any.whl";
     }
 
