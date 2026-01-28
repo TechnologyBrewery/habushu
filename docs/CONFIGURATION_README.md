@@ -197,7 +197,14 @@ Default: Number of seconds since epoch
 
 Enables the encapsulated package's `pyproject.toml` defined version to be automatically managed and overridden by Habushu in the following build phases/mojos:
 
-* `initialize`: Automatically sets the package version to the version specified in the POM. If the POM is a `SNAPSHOT`, the package version will be set to the corresponding developmental release version without a numeric component (i.e. POM version of `1.2.3-SNAPSHOT` will result in the package version being set to `1.2.3.dev`). If the version is a release candidate (`rc`), `alpha`, or `beta` version in [SemVer 2.0](https://semver.org/#spec-item-9) format then it is translated to the equivalent [PEP 440](https://peps.python.org/pep-0440/#public-version-identifiers) format.
+* `initialize`: Automatically sets the package version to the version specified in the POM, converting it to [PEP 440](https://peps.python.org/pep-0440/) format as needed:
+  * **SNAPSHOT versions**: Converted to developmental releases (e.g., `1.2.3-SNAPSHOT` → `1.2.3.dev`)
+  * **Pre-release versions** (`rc`, `alpha`, `beta`): Both SemVer 1 (`1.2.3-RC4`) and SemVer 2 (`1.2.3-rc.4`) formats are supported, with qualifiers normalized to PEP-440 short forms:
+    * `alpha` → `a` (e.g., `1.2.3-alpha1` → `1.2.3a1`)
+    * `beta` → `b` (e.g., `1.2.3-beta2` → `1.2.3b2`)
+    * `rc` → `rc` (e.g., `1.2.3-RC4` → `1.2.3rc4`)
+  * **Multi-segment versions**: Supported (e.g., `1.2.3.4-rc1` → `1.2.3.4rc1`)
+  * **Pre-release with SNAPSHOT**: Supported (e.g., `1.2.3-rc1-SNAPSHOT` → `1.2.3rc1.dev`)
 * `compile`: Automatically set up any `managedDependency` that is a `SNAPSHOT` to instead include `.*`.  `.*` is used rather than `.dev` so the latest dev version will resolve as `.dev` is not a valid version.  Same result as what happens in the `validate` step above, but operating on `managedDependency` entries instead.  This is useful when you are working with multi-module builds where several versions are covered via managed dependencies.  See [managedDependencies](#managed-dependencies) for more context.
 * `deploy`: Automatically sets the version of published packages that are `SNAPSHOT` modules to timestamped developmental release versions (i.e. POM version of `1.2.3-SNAPSHOT` will result in the published package version of `1.2.3.dev1658238063`). After the package is published, the version of the `SNAPSHOT` module is reverted to its previous value (i.e. `1.2.3.dev`)
 
