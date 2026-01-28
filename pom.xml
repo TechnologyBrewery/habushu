@@ -9,7 +9,7 @@
     </parent>
 
     <groupId>org.technologybrewery.habushu</groupId>
-    <version>3.5.0-SNAPSHOT</version>
+    <version>3.4.1</version>
     <artifactId>habushu</artifactId>
     <packaging>pom</packaging>
 
