@@ -67,7 +67,9 @@ public class PublishToPyPiRepoUv extends AbstractPublishToPyPiRepo {
             }
 
         } else {
-            publishPackage(uvCommandHelper, false, pomVersion);
+            // Convert to PEP-440 format for glob pattern matching (e.g., 1.5.0-RC2 -> 1.5.0rc2)
+            String pythonVersion = HabushuUtil.getPythonPackageVersion(pomVersion, false, null);
+            publishPackage(uvCommandHelper, false, pythonVersion);
         }
 
     }

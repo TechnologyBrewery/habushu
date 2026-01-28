@@ -23,6 +23,9 @@ import java.io.Writer;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,10 +48,45 @@ public final class HabushuUtil {
 
     public static final String SNAPSHOT = "-SNAPSHOT";
 
-    public static final Pattern SEMVER2_PATTERN = Pattern.compile("\\d+\\.\\d+\\.\\d+-(rc|alpha|beta)\\.\\d+$",
+    /**
+     * Pattern to match pre-release versions in both SemVer 1 and SemVer 2 formats.
+     * Supports versions with 3+ numeric segments (e.g., 1.2.3, 1.2.3.4) and optional SNAPSHOT suffix.
+     * Matches: 1.2.3-rc.4, 1.2.3-RC4, 1.2.3.4-alpha1, 1.2.3-beta.2-SNAPSHOT
+     * Group 1: base version (e.g., "1.2.3" or "1.2.3.4")
+     * Group 2: qualifier (e.g., "rc", "alpha", "beta")
+     * Group 3: pre-release number (e.g., "4")
+     * Group 4: optional SNAPSHOT suffix (e.g., "-SNAPSHOT" or null)
+     */
+    public static final Pattern PRERELEASE_PATTERN = Pattern.compile(
+            "^(\\d+(?:\\.\\d+){2,})-(rc|alpha|beta)\\.?(\\d+)(-SNAPSHOT)?$",
             Pattern.CASE_INSENSITIVE);
 
+    /**
+     * Mapping of pre-release qualifiers to their PEP-440 normalized short forms.
+     * See https://peps.python.org/pep-0440/#pre-releases
+     */
+    public static final Map<String, String> PEP440_QUALIFIER_MAP;
+    static {
+        Map<String, String> map = new HashMap<>();
+        map.put("alpha", "a");
+        map.put("beta", "b");
+        map.put("rc", "rc");
+        PEP440_QUALIFIER_MAP = Collections.unmodifiableMap(map);
+    }
+
     private HabushuUtil() {
+    }
+
+    /**
+     * Normalizes a pre-release qualifier to its PEP-440 short form.
+     *
+     * @param qualifier the qualifier to normalize (e.g., "alpha", "BETA", "rc")
+     * @return the PEP-440 normalized form (e.g., "a", "b", "rc"), or the lowercase
+     *         qualifier if no mapping exists
+     */
+    public static String normalizePep440Qualifier(String qualifier) {
+        String lowerQualifier = qualifier.toLowerCase();
+        return PEP440_QUALIFIER_MAP.getOrDefault(lowerQualifier, lowerQualifier);
     }
 
     /**
@@ -333,37 +371,67 @@ public final class HabushuUtil {
      * Gets the PEP-440 compliant Python package version associated with the given
      * POM version.
      * <p>
-     * If the provided POM version is a SNAPSHOT, the version is converted into its
-     * corresponding developmental release version, with its numeric component
-     * optionally included based on the given {@code addSnapshotNumber} and
-     * {@code snapshotNumberDateFormatPattern} parameters. For example, given the
-     * POM version of {@code 1.2.3-SNAPSHOT}, a Python package version of
-     * {@code 1.2.3.dev} will be returned if {@code addSnapshotNumber} is false. If
-     * {@code addSnapshotNumber} is true, the numeric component will be added and
-     * defaults to the number of seconds from the epoch (i.e.
-     * {@code 1.2.3.dev1658238063}). The format of the snapshot number may be
-     * modified by providing a date format pattern (i.e. "YYYYMMddHHmm" would yield
-     * {@code 1.2.3.dev202207191002})
+     * <b>Pre-release versions</b> ({@code rc}, {@code alpha}, {@code beta}) are normalized
+     * to PEP-440 format. Both SemVer 1 ({@code 1.2.3-RC4}) and SemVer 2 ({@code 1.2.3-rc.4})
+     * formats are supported, with any number of version segments (e.g., {@code 1.2.3.4-rc1}).
+     * Qualifiers are normalized to their PEP-440 short forms:
+     * <ul>
+     *   <li>{@code alpha} → {@code a} (e.g., {@code 1.2.3-alpha1} → {@code 1.2.3a1})</li>
+     *   <li>{@code beta} → {@code b} (e.g., {@code 1.2.3-beta2} → {@code 1.2.3b2})</li>
+     *   <li>{@code rc} → {@code rc} (e.g., {@code 1.2.3-RC4} → {@code 1.2.3rc4})</li>
+     * </ul>
      * <p>
-     * If the provided POM version is a release version, it is expected to align
-     * with a valid PEP-440 final release version and is returned unmodified.
+     * <b>SNAPSHOT versions</b> are converted into their corresponding developmental release
+     * version, with its numeric component optionally included based on the given
+     * {@code addSnapshotNumber} and {@code snapshotNumberDateFormatPattern} parameters.
+     * For example, given the POM version of {@code 1.2.3-SNAPSHOT}, a Python package version
+     * of {@code 1.2.3.dev} will be returned if {@code addSnapshotNumber} is false. If
+     * {@code addSnapshotNumber} is true, the numeric component will be added and defaults
+     * to the number of seconds from the epoch (i.e. {@code 1.2.3.dev1658238063}). The format
+     * of the snapshot number may be modified by providing a date format pattern (i.e.
+     * "YYYYMMddHHmm" would yield {@code 1.2.3.dev202207191002}).
+     * <p>
+     * <b>Pre-release with SNAPSHOT</b> combinations are also supported (e.g.,
+     * {@code 1.2.3-rc1-SNAPSHOT} → {@code 1.2.3rc1.dev}).
+     * <p>
+     * Final release versions without pre-release qualifiers or SNAPSHOT suffix are
+     * returned unmodified.
      *
      * @param pomVersion POM version of the encapsulating module in which Habushu is
      *                   being executed.
+     * @param addSnapshotNumber whether to add a numeric component to SNAPSHOT versions.
+     * @param snapshotNumberDateFormatPattern optional date format pattern for the snapshot number.
      * @return version number of the encapsulated Python package, appropriately
-     * formatted by the given parameters.
+     *         formatted per PEP-440.
+     * @see <a href="https://peps.python.org/pep-0440/">PEP 440 - Version Identification</a>
      */
     public static String getPythonPackageVersion(String pomVersion, boolean addSnapshotNumber,
                                                     String snapshotNumberDateFormatPattern) {
-        Matcher matcher = SEMVER2_PATTERN.matcher(pomVersion);
-        if(matcher.matches()) {
-            String qualifier = matcher.group(1);
-            pomVersion = pomVersion.replace("-" + qualifier + ".", qualifier);
-        }
         String pythonPackageVersion = pomVersion;
+        boolean hasSnapshotSuffix = false;
 
-        if (isPomVersionSnapshot(pomVersion)) {
-            pythonPackageVersion = replaceSnapshotWithDev(pomVersion);
+        // Handle pre-release versions (rc, alpha, beta) - normalize to PEP-440 format
+        Matcher matcher = PRERELEASE_PATTERN.matcher(pomVersion);
+        if (matcher.matches()) {
+            String baseVersion = matcher.group(1);      // e.g., "1.5.0" or "1.5.0.1"
+            String qualifier = matcher.group(2);        // e.g., "rc", "alpha", "beta"
+            String number = matcher.group(3);           // e.g., "2"
+            String snapshotSuffix = matcher.group(4);   // e.g., "-SNAPSHOT" or null
+
+            String normalizedQualifier = normalizePep440Qualifier(qualifier);
+            pythonPackageVersion = baseVersion + normalizedQualifier + number;
+            hasSnapshotSuffix = snapshotSuffix != null;
+        }
+
+        // Handle SNAPSHOT versions (either standalone or combined with pre-release)
+        if (hasSnapshotSuffix || isPomVersionSnapshot(pythonPackageVersion)) {
+            if (hasSnapshotSuffix) {
+                // Pre-release with SNAPSHOT: suffix was already stripped, just append .dev
+                pythonPackageVersion += ".dev";
+            } else {
+                // Standalone SNAPSHOT: use existing helper which replaces -SNAPSHOT with .dev
+                pythonPackageVersion = replaceSnapshotWithDev(pythonPackageVersion);
+            }
 
             if (addSnapshotNumber) {
                 String snapshotNumber;
