@@ -33,3 +33,6 @@ build-backend = "hatchling.build"
 name = "pypi"
 url = "https://pypi.org/simple/"
 publish-url = "https://pypi.org/simple/"
+
+[tool.hatch.build.targets.sdist]
+exclude = ["target/"]

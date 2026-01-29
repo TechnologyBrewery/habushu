@@ -34,3 +34,6 @@ publish-url = "https://pypi.org/simple/"
 dev = [
     "ruff>=0.11.12",
 ]
+
+[tool.hatch.build.targets.sdist]
+exclude = ["target/"]

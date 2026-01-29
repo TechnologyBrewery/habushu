@@ -1,0 +1,10 @@
+[project]
+name = "test-uv-project"
+version = "1.0.0"
+description = "Test UV project without hatch sdist config"
+requires-python = ">=3.12"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

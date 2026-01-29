@@ -11,4 +11,8 @@ public abstract class AbstractHabushuMigration extends AbstractMigration {
     protected boolean isPoetryProject(File pyProjectTomlFile) {
         return PackageManager.POETRY.equals(HabushuUtil.checkPythonPackageManager(pyProjectTomlFile));
     }
+
+    protected boolean isUvProject(File pyProjectTomlFile) {
+        return PackageManager.UV.equals(HabushuUtil.checkPythonPackageManager(pyProjectTomlFile));
+    }
 }
