@@ -1,0 +1,12 @@
+[tool.poetry]
+name = "test-poetry-project"
+version = "1.0.0"
+description = "Test Poetry project that should be skipped"
+authors = ["Test <test@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[build-system]
+requires = ["poetry-core>=1.6.0"]
+build-backend = "poetry.core.masonry.api"

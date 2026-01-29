@@ -124,6 +124,17 @@
             ]
           }
         ]
+      },
+      {
+        "name": "hatch-sdist-exclude-migration",
+        "implementation": "org.technologybrewery.habushu.migration.HatchSdistExcludeMigration",
+        "fileSets": [
+          {
+            "includes": [
+              "pyproject.toml"
+            ]
+          }
+        ]
       }
     ]
   }
